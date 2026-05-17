@@ -24,21 +24,18 @@ func (a DecimalAmount) ParseToBaseUnits(decimals uint8) (BaseUnitAmount, error) 
 
     s := strings.TrimSpace(string(a))
     if s == "" {
-        return "", fmt.Errorf("missing required parameter: amount=%q", "empty")
+        return "", fmt.Errorf("missing required parameter: decimal_amount=%q", "empty")
     }
-    if s != string(a) {
-        return "", fmt.Errorf("invalid parameter: amount contains whitespace")
+    if len(s) > 128 {
+        return "", fmt.Errorf("invalid parameter: max_length=128 decimal_amount=%q", "too long")
     }
-    if strings.HasPrefix(s, "+") || strings.HasPrefix(s, "-") {
-        return "", fmt.Errorf("invalid parameter: amount=%q", s)
-    }
-    if strings.ContainsAny(s, "eE") {
-        return "", fmt.Errorf("invalid parameter: amount must not use exponent notation")
+    if strings.HasPrefix(s, "+") || strings.HasPrefix(s, "-") || strings.ContainsAny(s, "eE") {
+        return "", fmt.Errorf("invalid parameter: decimal_amount=%q", s)
     }
 
     parts := strings.Split(s, ".")
     if len(parts) > 2 {
-        return "", fmt.Errorf("invalid parameter: amount=%q", s)
+        return "", fmt.Errorf("invalid parameter: decimal_amount=%q", s)
     }
 
     intPart := parts[0]
@@ -47,12 +44,12 @@ func (a DecimalAmount) ParseToBaseUnits(decimals uint8) (BaseUnitAmount, error) 
     if len(parts) == 2 {
         fracPart = parts[1]
         if fracPart == "" {
-            return "", fmt.Errorf("invalid parameter: amount=%q", s)
+            return "", fmt.Errorf("invalid parameter: decimal_amount=%q", s)
         }
     }
 
     if intPart == "" {
-        return "", fmt.Errorf("invalid parameter: amount=%q", s)
+        return "", fmt.Errorf("invalid parameter: decimal_amount=%q", s)
     }
 
     if len(fracPart) > int(decimals) {
@@ -61,7 +58,7 @@ func (a DecimalAmount) ParseToBaseUnits(decimals uint8) (BaseUnitAmount, error) 
 
     for _, ch := range intPart + fracPart {
         if ch < '0' || ch > '9' {
-            return "", fmt.Errorf("invalid parameter: amount=%q", s)
+            return "", fmt.Errorf("invalid parameter: decimal_amount=%q", s)
         }
     }
 
@@ -72,11 +69,12 @@ func (a DecimalAmount) ParseToBaseUnits(decimals uint8) (BaseUnitAmount, error) 
         return "", fmt.Errorf("invalid parameter: amount must be greater than zero")
     }
     if len(base) > 78 {
-        return "", fmt.Errorf("invalid parameter: max_length=78 amount=%q", "too long")
+        return "", fmt.Errorf("invalid parameter: max_length=78 decimal_amount=%q", "too long")
     }
 
     return BaseUnitAmount(base), nil
 }
+
 
 //
 // Format base units to decimal amount.
@@ -91,18 +89,18 @@ func (a BaseUnitAmount) FormatToDecimal(decimals uint8) (DecimalAmount, error) {
 
 	s := strings.TrimSpace(string(a))
 	if s == "" {
-		return "", fmt.Errorf("missing required parameter: amount=%q", "empty")
+		return "", fmt.Errorf("missing required parameter: base_unit_amount=%q", "empty")
 	}
-	if s != string(a) {
-		return "", fmt.Errorf("invalid parameter: amount contains whitespace")
-	}
+    if len(s) > 128 {
+        return "", fmt.Errorf("invalid parameter: max_length=128 base_unit_amount=%q", "too long")
+    }
 	if strings.HasPrefix(s, "+") || strings.HasPrefix(s, "-") {
-		return "", fmt.Errorf("invalid parameter: amount=%q", s)
+		return "", fmt.Errorf("invalid parameter: base_unit_amount=%q", s)
 	}
 
 	for _, ch := range s {
 		if ch < '0' || ch > '9' {
-			return "", fmt.Errorf("invalid parameter: amount=%q", s)
+			return "", fmt.Errorf("invalid parameter: base_unit_amount=%q", s)
 		}
 	}
 
@@ -112,7 +110,7 @@ func (a BaseUnitAmount) FormatToDecimal(decimals uint8) (DecimalAmount, error) {
 	}
 
 	if len(s) > 78 {
-		return "", fmt.Errorf("invalid parameter: max_length=78 amount=%q", "too long")
+		return "", fmt.Errorf("invalid parameter: max_length=78 base_unit_amount=%q", "too long")
 	}
 
 	d := int(decimals)
