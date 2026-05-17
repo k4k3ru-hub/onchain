@@ -49,6 +49,9 @@ func (c Chain) IsValid() bool {
 //   - 2026-05-17: Added.
 //
 func (c Chain) Validate() error {
+    if string(c) == "" { 
+        return fmt.Errorf("missing required parameter: chain=%q", "empty") 
+    }
     if !c.IsValid() {
         return fmt.Errorf("invalid parameter: chain=%q", truncateRunes(string(c), 16))
     }

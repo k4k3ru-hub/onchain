@@ -52,6 +52,9 @@ func (s Symbol) IsValid() bool {
 //   - 2026-05-17: Added.
 //
 func (s Symbol) Validate() error {
+    if string(s) == "" {
+        return fmt.Errorf("missing required parameter: symbol=%q", "empty")
+    }
     if !s.IsValid() {
         return fmt.Errorf("invalid parameter: symbol=%q", truncateRunes(string(s), 16))
     }

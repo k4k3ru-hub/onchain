@@ -45,6 +45,9 @@ func (n Network) IsValid() bool {
 //   - 2026-05-17: Added.
 //
 func (n Network) Validate() error {
+    if string(n) == "" {
+        return fmt.Errorf("missing required parameter: network=%q", "empty")
+    }
     if !n.IsValid() {
         return fmt.Errorf("invalid parameter: network=%q", truncateRunes(string(n), 16))
     }
