@@ -121,9 +121,9 @@ func (r *Registry) Register(asset *Asset) error {
 }
 
 
-func (r *Registry) Get(key AssetKey) (*Asset, bool) {
+func (r *Registry) Get(key AssetKey) *Asset {
     if r == nil {
-        return nil, false
+        return nil
     }
 
     r.mu.RLock()
@@ -131,9 +131,9 @@ func (r *Registry) Get(key AssetKey) (*Asset, bool) {
 
     asset, ok := r.byAssetKey[key]
     if !ok {
-        return nil, false
+        return nil
     }
 
     cp := *asset
-    return &cp, true
+    return &cp
 }
