@@ -31,6 +31,7 @@ func (c Chain) IsValid() bool {
     switch c {
     case ChainEthereum,
         ChainBase,
+        ChainBNB,
         ChainPolygon,
         ChainAvalanche,
         ChainSolana,
