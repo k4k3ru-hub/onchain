@@ -12,7 +12,6 @@ import (
 
 
 type evmClient interface {
-    ChainID() uint64
     HTTPETHClient() *ethclient.Client
     WSETHClient() *ethclient.Client
 }
@@ -33,11 +32,6 @@ func NewClient(evm evmClient, tokens []common.Address) (*Client, error) {
     // Guard.
     if evm == nil {
         return nil, fmt.Errorf("failed to create erc20 client: missing required parameter: evm=null")
-    }
-
-    // Validate chain ID.
-    if evm.ChainID() == 0 {
-        return nil, fmt.Errorf("failed to create erc20 client: missing required parameter: chain_id=0")
     }
 
     // Validate HTTP ETH client.
@@ -61,13 +55,6 @@ func NewClient(evm evmClient, tokens []common.Address) (*Client, error) {
         evm:    evm,
         tokens: copiedTokens,
     }, nil
-}
-
-func (c *Client) ChainID() uint64 {
-    if c == nil || c.evm == nil {
-        return 0
-    }
-    return c.evm.ChainID()
 }
 
 func (c *Client) HTTPETHClient() *ethclient.Client {
