@@ -1,7 +1,7 @@
 //
 // amount.go
 //
-package onchain
+package core
 
 import (
     "fmt"

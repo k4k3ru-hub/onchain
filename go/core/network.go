@@ -1,7 +1,7 @@
 //
 // network.go
 //
-package onchain
+package core
 
 import (
     "fmt"
@@ -48,8 +48,11 @@ func (n Network) Validate() error {
     if string(n) == "" {
         return fmt.Errorf("missing required parameter: network=%q", "empty")
     }
+    if len(n) > 16 {
+        return fmt.Errorf("missing required parameter: network=%q", "too long")
+    }
     if !n.IsValid() {
-        return fmt.Errorf("invalid parameter: network=%q", truncateRunes(string(n), 16))
+        return fmt.Errorf("invalid parameter: network=%q", n)
     }
     return nil
 }

@@ -1,7 +1,7 @@
 //
 // symbol.go
 //
-package onchain
+package core
 
 import (
     "fmt"
@@ -55,8 +55,11 @@ func (s Symbol) Validate() error {
     if string(s) == "" {
         return fmt.Errorf("missing required parameter: symbol=%q", "empty")
     }
+    if len(s) > 16 {
+        return fmt.Errorf("invalid parameter: symbol=%q", "too long")
+    }
     if !s.IsValid() {
-        return fmt.Errorf("invalid parameter: symbol=%q", truncateRunes(string(s), 16))
+        return fmt.Errorf("invalid parameter: symbol=%q", s)
     }
     return nil
 }

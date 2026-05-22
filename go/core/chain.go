@@ -1,7 +1,7 @@
 //
 // chain.go
 //
-package onchain
+package core
 
 import (
     "fmt"
@@ -53,8 +53,11 @@ func (c Chain) Validate() error {
     if string(c) == "" { 
         return fmt.Errorf("missing required parameter: chain=%q", "empty") 
     }
+    if len(c) > 16 {
+        return fmt.Errorf("invalid parameter: chain=%q", "too long")
+    }
     if !c.IsValid() {
-        return fmt.Errorf("invalid parameter: chain=%q", truncateRunes(string(c), 16))
+        return fmt.Errorf("invalid parameter: chain=%q", c)
     }
     return nil
 }
