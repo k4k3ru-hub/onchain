@@ -179,6 +179,13 @@ func (e *TransferEvent) BlockNumber() uint64 {
     return e.blockNumber
 }
 
+func (e *TransferEvent) Token() common.Address {
+    if e == nil {
+        return common.Address{}
+    }
+    return e.token
+}
+
 
 //
 // Build transfer filter query.
