@@ -20,7 +20,7 @@ type Config struct {
 }
 
 type Client struct {
-    config        *Config
+    config        Config
     httpETHClient *ethclient.Client
     wsETHClient   *ethclient.Client
 }
@@ -32,11 +32,8 @@ type Client struct {
 // Version:
 //   - 2026-05-21: Added.
 //
-func NewClient(ctx context.Context, config *Config) (*Client, error) {
+func NewClient(ctx context.Context, config Config) (*Client, error) {
     // Guard.
-    if config == nil {
-        return nil, fmt.Errorf("failed to create evm client: missing required parameter: config=null")
-    }
     if ctx == nil {
         ctx = context.Background()
     }
