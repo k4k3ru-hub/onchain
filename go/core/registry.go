@@ -45,7 +45,7 @@ func (r *Registry) RegisterDefaultAssets() error {
         return err
     }
 
-    ethereumMainUSDC := NewAsset(ChainEthereum, NetworkMainnet, SymbolUSDC, 6, "USD Coin", false).WithTokenAddress("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
+    ethereumMainUSDC := NewAsset(ChainEthereum, NetworkMainnet, SymbolUSDC, 6, "USD Coin", false).WithAssetID("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
     if err := r.Register(ethereumMainUSDC); err != nil {
         return err
     }
@@ -57,7 +57,7 @@ func (r *Registry) RegisterDefaultAssets() error {
         return err
     }
 
-    baseMainUSDC := NewAsset(ChainBase, NetworkMainnet, SymbolUSDC, 6, "USD Coin", false).WithTokenAddress("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913")
+    baseMainUSDC := NewAsset(ChainBase, NetworkMainnet, SymbolUSDC, 6, "USD Coin", false).WithAssetID("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913")
     if err := r.Register(baseMainUSDC); err != nil {
         return err
     }

@@ -10,6 +10,15 @@ import (
 )
 
 
+//
+// Asset.
+//
+// Parameters:
+//   - AssetID:
+//     - EVM: 0xA0b8...
+//     - Solana: EPjFWd...
+//     - Sui: 0x2::sui::SUI
+//
 type Asset struct {
     Chain        Chain
     Network      Network
@@ -17,7 +26,7 @@ type Asset struct {
     Decimals     uint8
     Name         string
     IsNative     bool
-    TokenAddress *string
+    AssetID      *string
 }
 
 
@@ -52,11 +61,11 @@ func NewAsset(c Chain, n Network, s Symbol, decimals uint8, name string, isNativ
 // Version:
 //   - 2026-05-17: Added.
 //
-func (a *Asset) WithTokenAddress(tokenAddress string) *Asset {
+func (a *Asset) WithAssetID(tokenAddress string) *Asset {
     if a == nil {
         return nil
     }
-    a.TokenAddress = &tokenAddress
+    a.AssetID = &tokenAddress
     return a
 }
 
@@ -114,17 +123,17 @@ func (a *Asset) Validate() error {
     }
 
     if a.IsNative {
-        if a.TokenAddress != nil {
+        if a.AssetID != nil {
             return fmt.Errorf("invalid parameter: native asset must not have token_address")
         }
         return nil
     }
 
-    if a.TokenAddress == nil {
+    if a.AssetID == nil {
         return fmt.Errorf("missing required parameter: token_address=%q", "empty")
     }
 
-    tokenAddress := strings.TrimSpace(*a.TokenAddress)
+    tokenAddress := strings.TrimSpace(*a.AssetID)
     if tokenAddress == "" {
         return fmt.Errorf("missing required parameter: token_address=%q", "empty")
     }
