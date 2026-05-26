@@ -1,5 +1,5 @@
 //
-// registry.go
+// asset_registry.go
 //
 package core
 
@@ -10,11 +10,11 @@ import (
 
 
 var (
-    defaultRegistry = NewRegistry()
+    defaultAssetRegistry = NewAssetRegistry()
 )
 
 
-type Registry struct {
+type AssetRegistry struct {
     mu         sync.RWMutex
     byAssetKey map[AssetKey]*Asset
 }
@@ -26,19 +26,19 @@ type Registry struct {
 // Version:
 //   - 2026-05-17: Added.
 //
-func NewRegistry() *Registry {
-    return &Registry{
+func NewAssetRegistry() *AssetRegistry {
+    return &AssetRegistry{
         byAssetKey: make(map[AssetKey]*Asset),
     }
 }
 
 
-func DefaultRegistry() *Registry {
-    return defaultRegistry
+func DefaultAssetRegistry() *AssetRegistry {
+    return defaultAssetRegistry
 }
 
 
-func (r *Registry) RegisterDefaultAssets() error {
+func (r *AssetRegistry) RegisterDefaultAssets() error {
     // Ethereum.
     ethereumMainETH := NewAsset(ChainEthereum, NetworkMainnet, SymbolETH, 18, "Ether", true)
     if err := r.Register(ethereumMainETH); err != nil {
@@ -101,7 +101,7 @@ func (r *Registry) RegisterDefaultAssets() error {
 }
 
 
-func (r *Registry) Register(asset *Asset) error {
+func (r *AssetRegistry) Register(asset *Asset) error {
     if r == nil {
         return fmt.Errorf("failed to register asset: missing required parameter: registry=null")
     }
@@ -121,7 +121,7 @@ func (r *Registry) Register(asset *Asset) error {
 }
 
 
-func (r *Registry) Get(key AssetKey) *Asset {
+func (r *AssetRegistry) Get(key AssetKey) *Asset {
     if r == nil {
         return nil
     }

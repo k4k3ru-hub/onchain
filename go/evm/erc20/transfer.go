@@ -84,10 +84,15 @@ func (c *Client) FilterTransferLogs(ctx context.Context, cfg *TransferWatchConfi
 //
 // Watch transfer events.
 //
+// Return:
+//   - func(): Stop watching transfer events.
+//   - error: Failed to start watching transfer events.
+//
 // Version:
+//   - 2026-05-26: Changed to return stop function.
 //   - 2026-05-22: Added.
 //
-func (c *Client) WatchTransfer(ctx context.Context, cfg *TransferWatchConfig, handler TransferHandler) error {
+func (c *Client) WatchTransfer(ctx context.Context, cfg *TransferWatchConfig, handler TransferHandler) (func(), error) {
     if c == nil {
         return fmt.Errorf("failed to watch transfer:  missing required parameter: client=null")
     }
@@ -112,34 +117,44 @@ func (c *Client) WatchTransfer(ctx context.Context, cfg *TransferWatchConfig, ha
     if cfg != nil && cfg.LogBufferSize > 0 {
         logBufferSize = cfg.LogBufferSize
     }
+
     logsCh := make(chan types.Log, logBufferSize)
 
-    sub, err := ec.SubscribeFilterLogs(ctx, q, logsCh)
+    watchCtx, cancel := context.WithCancel(ctx)
+
+    sub, err := ec.SubscribeFilterLogs(watchCtx, q, logsCh)
     if err != nil {
         return fmt.Errorf("failed to watch transfer: failed to subscribe transfer logs: %w", err)
     }
-    defer sub.Unsubscribe()
 
-    for {
-        select {
-        case <-ctx.Done():
-            return ctx.Err()
-
-        case err := <-sub.Err():
-            if err != nil {
-                return fmt.Errorf("failed to watch transfer: received transfer subscription error: %w", err)
-            }
-            return nil
-
-        case eventLog := <-logsCh:
-            event, ok := parseTransferLog(eventLog)
-            if !ok {
-                continue
-            }
-
-            handler(event)
-        }
+    var stopOnce sync.Once
+    stop := func() {
+        stopOnce.Do(func() {
+            cancel()
+            sub.Unsubscribe()
+        })
     }
+    
+    go func() {
+        defer stop()
+
+        for {
+            select {
+            case <-watchCtx.Done():
+                return
+            case err := <-sub.Err():
+                return
+            case eventLog := <-logsCh:
+                event, ok := parseTransferLog(eventLog)
+                if !ok {
+                    continue
+                }
+                handler(event)
+            }
+        }
+    }()
+
+    return stop, nil
 }
 
 
