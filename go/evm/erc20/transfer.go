@@ -190,11 +190,25 @@ func (e *TransferEvent) From() common.Address {
     return e.from
 }
 
+func (e *TransferEvent) FromHex() string {
+    if e == nil {
+        return ""
+    }
+    return e.from.Hex()
+}
+
 func (e *TransferEvent) To() common.Address {
     if e == nil {
         return common.Address{}
     }
     return e.to
+}
+
+func (e *TransferEvent) ToHex() string {
+    if e == nil {
+        return ""
+    }
+    return e.to.Hex()
 }
 
 func (e *TransferEvent) Amount() *big.Int {
@@ -204,11 +218,25 @@ func (e *TransferEvent) Amount() *big.Int {
     return new(big.Int).Set(e.amount)
 }
 
+func (e *TransferEvent) AmountString() string {
+    if e == nil || e.amount == nil {
+        return ""
+    }
+    return e.amount.String()
+}
+
 func (e *TransferEvent) TxHash() common.Hash {
     if e == nil {
         return common.Hash{}
     }
     return e.txHash
+}
+
+func (e *TransferEvent) TxHashHex() string {
+    if e == nil {
+        return ""
+    }
+    return e.txHash.Hex()
 }
 
 func (e *TransferEvent) BlockNumber() uint64 {
@@ -225,6 +253,12 @@ func (e *TransferEvent) Token() common.Address {
     return e.token
 }
 
+func (e *TransferEvent) TokenHex() string {
+    if e == nil {
+        return ""
+    }
+    return e.token.Hex()
+}
 
 //
 // Build transfer filter query.
