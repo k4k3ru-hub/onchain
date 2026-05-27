@@ -7,6 +7,7 @@ import (
     "context"
     "fmt"
     "math/big"
+    "sync"
 
     "github.com/ethereum/go-ethereum"
     "github.com/ethereum/go-ethereum/common"
@@ -36,7 +37,24 @@ type TransferEvent struct {
     token       common.Address
 }
 
-type TransferHandler func(event *TransferEvent)
+type WatchTransferStopFunc func()
+
+type TransferControl interface {
+    Stop()
+}
+
+type TransferHandler func(event *TransferEvent, control TransferControl)
+
+type transferControl struct {
+    stop WatchTransferStopFunc
+}
+
+func (c *transferControl) Stop() {
+    if c == nil || c.stop == nil {
+        return
+    }
+    c.stop()
+}
 
 
 //
@@ -85,19 +103,21 @@ func (c *Client) FilterTransferLogs(ctx context.Context, cfg *TransferWatchConfi
 // Watch transfer events.
 //
 // Return:
+//   - WatchTransferStopFunc: Stop watching transfer events.
 //   - func(): Stop watching transfer events.
 //   - error: Failed to start watching transfer events.
 //
 // Version:
+//   - 2026-05-27: Changed to pass transfer control to handler.
 //   - 2026-05-26: Changed to return stop function.
 //   - 2026-05-22: Added.
 //
-func (c *Client) WatchTransfer(ctx context.Context, cfg *TransferWatchConfig, handler TransferHandler) (func(), error) {
+func (c *Client) WatchTransfer(ctx context.Context, cfg *TransferWatchConfig, handler TransferHandler) (WatchTransferStopFunc, error) {
     if c == nil {
-        return fmt.Errorf("failed to watch transfer:  missing required parameter: client=null")
+        return nil, fmt.Errorf("failed to watch transfer:  missing required parameter: client=null")
     }
     if handler == nil {
-        return fmt.Errorf("failed to watch transfer: missing required parameter: handler=null")
+        return nil, fmt.Errorf("failed to watch transfer: missing required parameter: handler=null")
     }
     if ctx == nil {
         ctx = context.Background()
@@ -105,12 +125,12 @@ func (c *Client) WatchTransfer(ctx context.Context, cfg *TransferWatchConfig, ha
 
     ec := c.WSETHClient()
     if ec == nil {
-        return fmt.Errorf("failed to watch transfer: missing required parameter: ws_eth_client=null")
+        return nil, fmt.Errorf("failed to watch transfer: missing required parameter: ws_eth_client=null")
     }
 
     q, err := c.buildTransferFilterQuery(cfg)
     if err != nil {
-        return fmt.Errorf("failed to watch transfer: %w", err)
+        return nil, fmt.Errorf("failed to watch transfer: %w", err)
     }
 
     logBufferSize := 64
@@ -124,15 +144,19 @@ func (c *Client) WatchTransfer(ctx context.Context, cfg *TransferWatchConfig, ha
 
     sub, err := ec.SubscribeFilterLogs(watchCtx, q, logsCh)
     if err != nil {
-        return fmt.Errorf("failed to watch transfer: failed to subscribe transfer logs: %w", err)
+        return nil, fmt.Errorf("failed to watch transfer: failed to subscribe transfer logs: %w", err)
     }
 
     var stopOnce sync.Once
-    stop := func() {
+    stop := WatchTransferStopFunc(func() {
         stopOnce.Do(func() {
             cancel()
             sub.Unsubscribe()
         })
+    })
+
+    control := &transferControl{
+        stop: stop,
     }
     
     go func() {
@@ -142,14 +166,14 @@ func (c *Client) WatchTransfer(ctx context.Context, cfg *TransferWatchConfig, ha
             select {
             case <-watchCtx.Done():
                 return
-            case err := <-sub.Err():
+            case <-sub.Err():
                 return
             case eventLog := <-logsCh:
                 event, ok := parseTransferLog(eventLog)
                 if !ok {
                     continue
                 }
-                handler(event)
+                handler(event, control)
             }
         }
     }()
