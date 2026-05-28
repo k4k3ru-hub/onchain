@@ -77,6 +77,28 @@ func NewDepositPolicyRegistry() *DepositPolicyRegistry {
 
 
 //
+// Check whether tx is confirmed.
+//
+// Version:
+//   - 2026-05-28: Added.
+//
+func (p *DepositPolicy) IsConfirmed(latestBlockNumber, txBlockNumber uint64) bool {
+    // Guard.
+    if p == nil {
+        return false
+    }
+    if p.RequiredConfirmations == 0 {
+        return false
+    }
+    if latestBlockNumber < txBlockNumber {
+        return false
+    }
+
+    return latestBlockNumber-txBlockNumber+1 >= p.RequiredConfirmations
+}
+
+
+//
 // Build deposit policy key.
 //
 // Version:
