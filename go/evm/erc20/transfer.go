@@ -29,12 +29,12 @@ type TransferWatchConfig struct {
 }
 
 type TransferEvent struct {
-    from        common.Address
-    to          common.Address
-    amount      *big.Int
-    txHash      common.Hash
-    blockNumber uint64
-    token       common.Address
+    from            common.Address
+    to              common.Address
+    amountBaseUnits *big.Int
+    txHash          common.Hash
+    blockNumber     uint64
+    token           common.Address
 }
 
 type WatchTransferStopFunc func()
@@ -211,18 +211,18 @@ func (e *TransferEvent) ToHex() string {
     return e.to.Hex()
 }
 
-func (e *TransferEvent) Amount() *big.Int {
-    if e == nil || e.amount == nil {
+func (e *TransferEvent) AmountBaseUnits() *big.Int {
+    if e == nil || e.amountBaseUnits == nil {
         return nil
     }
-    return new(big.Int).Set(e.amount)
+    return new(big.Int).Set(e.amountBaseUnits)
 }
 
-func (e *TransferEvent) AmountString() string {
-    if e == nil || e.amount == nil {
+func (e *TransferEvent) AmountBaseUnitsString() string {
+    if e == nil || e.amountBaseUnits == nil {
         return ""
     }
-    return e.amount.String()
+    return e.amountBaseUnits.String()
 }
 
 func (e *TransferEvent) TxHash() common.Hash {
@@ -353,14 +353,14 @@ func parseTransferLog(eventLog types.Log) (*TransferEvent, bool) {
 
     from := common.BytesToAddress(eventLog.Topics[1].Bytes()[12:])
     to := common.BytesToAddress(eventLog.Topics[2].Bytes()[12:])
-    amount := new(big.Int).SetBytes(eventLog.Data)
+    amountBaseUnits := new(big.Int).SetBytes(eventLog.Data)
 
     return &TransferEvent{
-        from:        from,
-        to:          to,
-        amount:      amount,
-        txHash:      eventLog.TxHash,
-        blockNumber: eventLog.BlockNumber,
-        token:       eventLog.Address,
+        from:            from,
+        to:              to,
+        amountBaseUnits: amountBaseUnits,
+        txHash:          eventLog.TxHash,
+        blockNumber:     eventLog.BlockNumber,
+        token:           eventLog.Address,
     }, true
 }
