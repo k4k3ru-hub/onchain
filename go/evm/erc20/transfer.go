@@ -112,7 +112,7 @@ func (c *Client) FilterTransferLogs(ctx context.Context, cfg *TransferWatchConfi
 //   - 2026-05-26: Changed to return stop function.
 //   - 2026-05-22: Added.
 //
-func (c *Client) WatchTransfer(ctx context.Context, cfg *TransferWatchConfig, handler TransferHandler) (WatchTransferStopFunc, error) {
+func (c *Client) WatchTransfer(ctx context.Context, cfg *TransferWatchConfig, handler TransferHandler) (TransferControl, error) {
     if c == nil {
         return nil, fmt.Errorf("failed to watch transfer:  missing required parameter: client=null")
     }
@@ -178,7 +178,7 @@ func (c *Client) WatchTransfer(ctx context.Context, cfg *TransferWatchConfig, ha
         }
     }()
 
-    return stop, nil
+    return control, nil
 }
 
 
