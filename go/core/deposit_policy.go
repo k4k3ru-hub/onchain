@@ -20,14 +20,14 @@ var (
 type DepositPolicy struct {
     Chain                 Chain
     Network               Network
-    Symbol                Symbol
+    Token                 Token
     RequiredConfirmations uint64
 }
 
 type DepositPolicyKey struct {
     Chain   Chain
     Network Network
-    Symbol  Symbol
+    Token   Token
 }
 
 type DepositPolicyRegistry struct {
@@ -53,11 +53,11 @@ func DefaultDepositPolicyRegistry() *DepositPolicyRegistry {
 // Version:
 //   - 2026-05-28: Added.
 //
-func NewDepositPolicy(c Chain, n Network, s Symbol, requiredConfirmations uint64) *DepositPolicy {
+func NewDepositPolicy(c Chain, n Network, t Token, requiredConfirmations uint64) *DepositPolicy {
     return &DepositPolicy{
         Chain:                 c,
         Network:               n,
-        Symbol:                s,
+        Token:                 t,
         RequiredConfirmations: requiredConfirmations,
     }
 }
@@ -111,7 +111,7 @@ func (p *DepositPolicy) Key() DepositPolicyKey {
     return DepositPolicyKey{
         Chain:   p.Chain,
         Network: p.Network,
-        Symbol:  p.Symbol,
+        Token:   p.Token,
     }
 }
 
@@ -135,7 +135,7 @@ func (p *DepositPolicy) Validate() error {
         return err
     }
 
-    if err := p.Symbol.Validate(); err != nil {
+    if err := p.Token.Validate(); err != nil {
         return err
     }
 
@@ -149,53 +149,53 @@ func (p *DepositPolicy) Validate() error {
 
 func (r *DepositPolicyRegistry) RegisterDefaultDepositPolicies() error {
     // Ethereum.
-    ethereumMainETH := NewDepositPolicy(ChainEthereum, NetworkMainnet, SymbolETH, 12)
+    ethereumMainETH := NewDepositPolicy(ChainEthereum, NetworkMainnet, TokenETH, 12)
     if err := r.Register(ethereumMainETH); err != nil {
         return err
     }
 
-    ethereumMainUSDC := NewDepositPolicy(ChainEthereum, NetworkMainnet, SymbolUSDC, 12)
+    ethereumMainUSDC := NewDepositPolicy(ChainEthereum, NetworkMainnet, TokenUSDC, 12)
     if err := r.Register(ethereumMainUSDC); err != nil {
         return err
     }
 
     // Base.
-    baseMainETH := NewDepositPolicy(ChainBase, NetworkMainnet, SymbolETH, 12)
+    baseMainETH := NewDepositPolicy(ChainBase, NetworkMainnet, TokenETH, 12)
     if err := r.Register(baseMainETH); err != nil {
         return err
     }
 
-    baseMainUSDC := NewDepositPolicy(ChainBase, NetworkMainnet, SymbolUSDC, 12)
+    baseMainUSDC := NewDepositPolicy(ChainBase, NetworkMainnet, TokenUSDC, 12)
     if err := r.Register(baseMainUSDC); err != nil {
         return err
     }
 
     // BNB.
-    bnbMainBNB := NewDepositPolicy(ChainBNB, NetworkMainnet, SymbolBNB, 15)
+    bnbMainBNB := NewDepositPolicy(ChainBNB, NetworkMainnet, TokenBNB, 15)
     if err := r.Register(bnbMainBNB); err != nil {
         return err
     }
 
     // Polygon.
-    polygonMainPOL := NewDepositPolicy(ChainPolygon, NetworkMainnet, SymbolPOL, 128)
+    polygonMainPOL := NewDepositPolicy(ChainPolygon, NetworkMainnet, TokenPOL, 128)
     if err := r.Register(polygonMainPOL); err != nil {
         return err
     }
 
     // Avalanche.
-    avalancheMainAVAX := NewDepositPolicy(ChainAvalanche, NetworkMainnet, SymbolAVAX, 20)
+    avalancheMainAVAX := NewDepositPolicy(ChainAvalanche, NetworkMainnet, TokenAVAX, 20)
     if err := r.Register(avalancheMainAVAX); err != nil {
         return err
     }
 
     // Solana.
-    solanaMainSOL := NewDepositPolicy(ChainSolana, NetworkMainnet, SymbolSOL, 32)
+    solanaMainSOL := NewDepositPolicy(ChainSolana, NetworkMainnet, TokenSOL, 32)
     if err := r.Register(solanaMainSOL); err != nil {
         return err
     }
 
     // Sui.
-    suiMainSUI := NewDepositPolicy(ChainSui, NetworkMainnet, SymbolSUI, 1)
+    suiMainSUI := NewDepositPolicy(ChainSui, NetworkMainnet, TokenSUI, 1)
     if err := r.Register(suiMainSUI); err != nil {
         return err
     }

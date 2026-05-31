@@ -20,27 +20,26 @@ var (
 // Asset.
 //
 // Parameters:
-//   - AssetID:
+//   - TokenRef:
 //     - EVM: 0xA0b8...
 //     - Solana: EPjFWd...
 //     - Sui: 0x2::sui::SUI
 //
 type Asset struct {
-    Chain                Chain
-    Network              Network
-    Symbol               Symbol
-    Decimals             uint8
-    Name                 string
-    IsNative             bool
-    AssetID              *string
-    DepositConfirmations uint64
+    Chain    Chain
+    Network  Network
+    Token    Token
+    Decimals uint8
+    Name     string
+    IsNative bool
+    TokenRef *string
 }
 
 
 type AssetKey struct {
     Chain   Chain
     Network Network
-    Symbol  Symbol
+    Token   Token
 }
 
 
@@ -67,11 +66,11 @@ func DefaultAssetRegistry() *AssetRegistry {
 // Version:
 //   - 2026-05-17: Added.
 //
-func NewAsset(c Chain, n Network, s Symbol, decimals uint8, name string, isNative bool) *Asset {
+func NewAsset(c Chain, n Network, t Token, decimals uint8, name string, isNative bool) *Asset {
     return &Asset{
         Chain:    c,
         Network:  n,
-        Symbol:   s,
+        Token:    t,
         Decimals: decimals,
         Name:     name,
         IsNative: isNative,
@@ -93,16 +92,16 @@ func NewAssetRegistry() *AssetRegistry {
 
 
 //
-// Set token address.
+// Set token reference such as contract address.
 //
 // Version:
 //   - 2026-05-17: Added.
 //
-func (a *Asset) WithAssetID(tokenAddress string) *Asset {
+func (a *Asset) WithTokenRef(ref string) *Asset {
     if a == nil {
         return nil
     }
-    a.AssetID = &tokenAddress
+    a.TokenRef = &ref
     return a
 }
 
@@ -120,7 +119,7 @@ func (a *Asset) Key() AssetKey {
     return AssetKey{
         Chain:   a.Chain,
         Network: a.Network,
-        Symbol:  a.Symbol,
+        Token:   a.Token,
     }
 }
 
@@ -144,12 +143,12 @@ func (a *Asset) Validate() error {
         return err
     }
 
-    if err := a.Symbol.Validate(); err != nil {
+    if err := a.Token.Validate(); err != nil {
         return err
     }
 
     if a.Decimals > 77 {
-        return fmt.Errorf("invalid parameter: decimals=%d", a.Decimals)
+        return fmt.Errorf("invalid parameter: max_decimals=77 decimals=%d", a.Decimals)
     }
 
     if strings.TrimSpace(a.Name) == "" {
@@ -160,17 +159,17 @@ func (a *Asset) Validate() error {
     }
 
     if a.IsNative {
-        if a.AssetID != nil {
+        if a.TokenRef != nil {
             return fmt.Errorf("invalid parameter: native asset must not have token_address")
         }
         return nil
     }
 
-    if a.AssetID == nil {
+    if a.TokenRef == nil {
         return fmt.Errorf("missing required parameter: token_address=%q", "empty")
     }
 
-    tokenAddress := strings.TrimSpace(*a.AssetID)
+    tokenAddress := strings.TrimSpace(*a.TokenRef)
     if tokenAddress == "" {
         return fmt.Errorf("missing required parameter: token_address=%q", "empty")
     }
@@ -184,58 +183,58 @@ func (a *Asset) Validate() error {
 
 func (r *AssetRegistry) RegisterDefaultAssets() error {
     // Ethereum.
-    ethereumMainETH := NewAsset(ChainEthereum, NetworkMainnet, SymbolETH, 18, "Ether", true)
+    ethereumMainETH := NewAsset(ChainEthereum, NetworkMainnet, TokenETH, 18, "Ether", true)
     if err := r.Register(ethereumMainETH); err != nil {
         return err
     }
 
-    ethereumMainUSDC := NewAsset(ChainEthereum, NetworkMainnet, SymbolUSDC, 6, "USD Coin", false).WithAssetID("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
+    ethereumMainUSDC := NewAsset(ChainEthereum, NetworkMainnet, TokenUSDC, 6, "USD Coin", false).WithTokenRef("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
     if err := r.Register(ethereumMainUSDC); err != nil {
         return err
     }
 
 
     // Base.
-    baseMainETH := NewAsset(ChainBase, NetworkMainnet, SymbolETH, 18, "Ether", true)
+    baseMainETH := NewAsset(ChainBase, NetworkMainnet, TokenETH, 18, "Ether", true)
     if err := r.Register(baseMainETH); err != nil {
         return err
     }
 
-    baseMainUSDC := NewAsset(ChainBase, NetworkMainnet, SymbolUSDC, 6, "USD Coin", false).WithAssetID("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913")
+    baseMainUSDC := NewAsset(ChainBase, NetworkMainnet, TokenUSDC, 6, "USD Coin", false).WithTokenRef("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913")
     if err := r.Register(baseMainUSDC); err != nil {
         return err
     }
 
 
     // BNB.
-    bnbMainBNB := NewAsset(ChainBNB, NetworkMainnet, SymbolBNB, 18, "BNB", true)
+    bnbMainBNB := NewAsset(ChainBNB, NetworkMainnet, TokenBNB, 18, "BNB", true)
     if err := r.Register(bnbMainBNB); err != nil {
         return err
     }
 
 
     // Polygon.
-    polygonMainPOL := NewAsset(ChainPolygon, NetworkMainnet, SymbolPOL, 18, "POL", true)
+    polygonMainPOL := NewAsset(ChainPolygon, NetworkMainnet, TokenPOL, 18, "POL", true)
     if err := r.Register(polygonMainPOL); err != nil {
         return err
     }
 
     // Avalanche.
-    avalancheMainAVAX := NewAsset(ChainAvalanche, NetworkMainnet, SymbolAVAX, 18, "Avalanche", true)
+    avalancheMainAVAX := NewAsset(ChainAvalanche, NetworkMainnet, TokenAVAX, 18, "Avalanche", true)
     if err := r.Register(avalancheMainAVAX); err != nil {
         return err
     }
 
 
     // Solana.
-    solanaMainSOL := NewAsset(ChainSolana, NetworkMainnet, SymbolSOL, 9, "Solana", true)
+    solanaMainSOL := NewAsset(ChainSolana, NetworkMainnet, TokenSOL, 9, "Solana", true)
     if err := r.Register(solanaMainSOL); err != nil {
         return err
     }
 
 
     // Sui.
-    suiMainSUI := NewAsset(ChainSui, NetworkMainnet, SymbolSUI, 9, "Sui", true)
+    suiMainSUI := NewAsset(ChainSui, NetworkMainnet, TokenSUI, 9, "Sui", true)
     if err := r.Register(suiMainSUI); err != nil {
         return err
     }
