@@ -35,6 +35,7 @@ type TransferEvent struct {
     txHash          common.Hash
     blockNumber     uint64
     token           common.Address
+    logIndex        uint64
 }
 
 type WatchTransferStopFunc func()
@@ -260,6 +261,13 @@ func (e *TransferEvent) TokenHex() string {
     return e.token.Hex()
 }
 
+func (e *TransferEvent) LogIndex() uint64 {
+    if e == nil {
+        return 0
+    }
+    return e.logIndex
+}
+
 //
 // Build transfer filter query.
 //
@@ -362,5 +370,6 @@ func parseTransferLog(eventLog types.Log) (*TransferEvent, bool) {
         txHash:          eventLog.TxHash,
         blockNumber:     eventLog.BlockNumber,
         token:           eventLog.Address,
+        logIndex:        uint64(eventLog.Index),
     }, true
 }

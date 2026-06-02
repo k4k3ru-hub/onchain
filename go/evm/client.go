@@ -75,6 +75,14 @@ func NewClient(ctx context.Context, config Config) (*Client, error) {
 }
 
 
+func (c *Client) WSURL() *string {
+    if c == nil {
+        return nil
+    }
+    return c.config.WSURL
+}
+
+
 func (c *Client) HTTPETHClient() *ethclient.Client {
     if c == nil {
         return nil
