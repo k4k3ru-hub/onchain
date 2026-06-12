@@ -153,7 +153,7 @@ func (p *DepositPolicy) Validate() error {
 // Version:
 //   - 2026-06-12: Added.
 //
-func (r *DepositPolicyRegistry) Get(key DepositPolicyKey) (*DepositPolicy, error) {
+func (r *DepositPolicyRegistry) Get(c Chain, n Network, t Token) (*DepositPolicy, error) {
     if r == nil {
         return nil, fmt.Errorf("failed to get deposit policy: missing required parameter: deposit_policy_registry=null")
     }
@@ -161,9 +161,13 @@ func (r *DepositPolicyRegistry) Get(key DepositPolicyKey) (*DepositPolicy, error
     r.mu.RLock()
     defer r.mu.RUnlock()
 
-    policy, ok := r.byDepositPolicyKey[key]
+    policy, ok := r.byDepositPolicyKey[DepositPolicyKey{
+        Chain:   c,
+        Network: n,
+        Token:   t,
+    }]
     if !ok {
-        return nil, fmt.Errorf("failed to get deposit policy: deposit_policy=%q chain=%q network=%q token=%q", "not found", key.Chain, key.Network, key.Token)
+        return nil, fmt.Errorf("failed to get deposit policy: deposit_policy=%q chain=%q network=%q token=%q", "not found", c, n, t)
     }
 
     cp := *policy

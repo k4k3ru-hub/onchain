@@ -182,12 +182,12 @@ func (a *Asset) Validate() error {
 
 
 //
-// Get asset by key.
+// Get asset.
 //
 // Version:
 //   - 2026-06-12: Added.
 //
-func (r *AssetRegistry) Get(key AssetKey) (*Asset, error) {
+func (r *AssetRegistry) Get(c Chain, n Network, t Token) (*Asset, error) {
     if r == nil {
         return nil, fmt.Errorf("failed to get asset: missing required parameter: asset_registry=null")
     }
@@ -195,9 +195,13 @@ func (r *AssetRegistry) Get(key AssetKey) (*Asset, error) {
     r.mu.RLock()
     defer r.mu.RUnlock()
 
-    asset, ok := r.byAssetKey[key]
+    asset, ok := r.byAssetKey[AssetKey{
+        Chain:   c,
+        Network: n,
+        Token:   t,
+    }]
     if !ok {
-        return nil, fmt.Errorf("failed to get asset: asset=%q chain=%q network=%q token=%q", "not found", key.Chain, key.Network, key.Token)
+        return nil, fmt.Errorf("failed to get asset: asset=%q chain=%q network=%q token=%q", "not found", c, n, t)
     }
 
     cp := *asset
