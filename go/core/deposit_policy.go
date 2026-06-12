@@ -147,66 +147,39 @@ func (p *DepositPolicy) Validate() error {
 }
 
 
-func (r *DepositPolicyRegistry) RegisterDefaultDepositPolicies() error {
-    // Ethereum.
-    ethereumMainETH := NewDepositPolicy(ChainEthereum, NetworkMainnet, TokenETH, 12)
-    if err := r.Register(ethereumMainETH); err != nil {
-        return err
+//
+// Get deposit policy by key. 
+//
+// Version:
+//   - 2026-06-12: Added.
+//
+func (r *DepositPolicyRegistry) Get(key DepositPolicyKey) (*DepositPolicy, error) {
+    if r == nil {
+        return nil, fmt.Errorf("failed to get deposit policy: missing required parameter: deposit_policy_registry=null")
     }
 
-    ethereumMainUSDC := NewDepositPolicy(ChainEthereum, NetworkMainnet, TokenUSDC, 12)
-    if err := r.Register(ethereumMainUSDC); err != nil {
-        return err
+    r.mu.RLock()
+    defer r.mu.RUnlock()
+
+    policy, ok := r.byDepositPolicyKey[key]
+    if !ok {
+        return nil, fmt.Errorf("failed to get deposit policy: deposit_policy=%q chain=%q network=%q token=%q", "not found", key.Chain, key.Network, key.Token)
     }
 
-    // Base.
-    baseMainETH := NewDepositPolicy(ChainBase, NetworkMainnet, TokenETH, 12)
-    if err := r.Register(baseMainETH); err != nil {
-        return err
-    }
-
-    baseMainUSDC := NewDepositPolicy(ChainBase, NetworkMainnet, TokenUSDC, 12)
-    if err := r.Register(baseMainUSDC); err != nil {
-        return err
-    }
-
-    // BNB.
-    bnbMainBNB := NewDepositPolicy(ChainBNB, NetworkMainnet, TokenBNB, 15)
-    if err := r.Register(bnbMainBNB); err != nil {
-        return err
-    }
-
-    // Polygon.
-    polygonMainPOL := NewDepositPolicy(ChainPolygon, NetworkMainnet, TokenPOL, 128)
-    if err := r.Register(polygonMainPOL); err != nil {
-        return err
-    }
-
-    // Avalanche.
-    avalancheMainAVAX := NewDepositPolicy(ChainAvalanche, NetworkMainnet, TokenAVAX, 20)
-    if err := r.Register(avalancheMainAVAX); err != nil {
-        return err
-    }
-
-    // Solana.
-    solanaMainSOL := NewDepositPolicy(ChainSolana, NetworkMainnet, TokenSOL, 32)
-    if err := r.Register(solanaMainSOL); err != nil {
-        return err
-    }
-
-    // Sui.
-    suiMainSUI := NewDepositPolicy(ChainSui, NetworkMainnet, TokenSUI, 1)
-    if err := r.Register(suiMainSUI); err != nil {
-        return err
-    }
-
-    return nil
+    cp := *policy
+    return &cp, nil
 }
 
 
+//
+// Register deposit policy.
+//
+// Version:
+//   - 2026-06-12: Added.
+//
 func (r *DepositPolicyRegistry) Register(policy *DepositPolicy) error {
     if r == nil {
-        return fmt.Errorf("failed to register deposit policy: missing required parameter: registry=null")
+        return fmt.Errorf("failed to register deposit policy: missing required parameter: deposit_policy_registry=null")
     }
     if err := policy.Validate(); err != nil {
         return fmt.Errorf("failed to register deposit policy: %w", err)
@@ -223,19 +196,85 @@ func (r *DepositPolicyRegistry) Register(policy *DepositPolicy) error {
     return nil
 }
 
-func (r *DepositPolicyRegistry) Get(key DepositPolicyKey) *DepositPolicy {
+
+//
+// Register all deposit policies.
+//
+// Version:
+//   - 2026-06-12: Added.
+//
+func (r *DepositPolicyRegistry) RegisterAll(depositPolicies ...*DepositPolicy) error {
     if r == nil {
-        return nil
+        return fmt.Errorf("failed to register deposit policies: missing required parameter: deposit_policy_registry=null")
     }
 
-    r.mu.RLock()
-    defer r.mu.RUnlock()
-
-    policy, ok := r.byDepositPolicyKey[key]
-    if !ok {
-        return nil
+    for _, policy := range depositPolicies {
+        if err := r.Register(policy); err != nil {
+            return err
+        }
     }
 
-    cp := *policy
-    return &cp
+    return nil
+}
+
+
+//
+// Add default deposit policies.
+//
+// Version:
+//   - 2026-06-12: Added.
+//
+func (r *DepositPolicyRegistry) WithDefaultDepositPolicies() (*DepositPolicyRegistry, error) {
+    // Guard.
+    if r == nil {
+        return nil, fmt.Errorf("failed to register default deposit policies: missing required parameter: deposit_policy_registry=null")
+    }
+
+    if err := r.RegisterAll(buildDefaultDepositPolicies()...); err != nil {
+        return nil, err
+    }
+
+    return r, nil
+}
+
+
+//
+// Build default deposit policies.
+//
+// Version:
+//   - 2026-06-12: Added.
+//
+func buildDefaultDepositPolicies() []*DepositPolicy {
+    return []*DepositPolicy{
+        // Ethereum: Mainnet.
+        NewDepositPolicy(ChainEthereum, NetworkMainnet, TokenETH, 12),
+        NewDepositPolicy(ChainEthereum, NetworkMainnet, TokenUSDC, 12),
+
+        // Ethereum: Sepolia.
+        NewDepositPolicy(ChainEthereum, NetworkSepolia, TokenETH, 12),
+        NewDepositPolicy(ChainEthereum, NetworkSepolia, TokenUSDC, 12),
+
+        // Base: Mainnet.
+        NewDepositPolicy(ChainBase, NetworkMainnet, TokenETH, 12),
+        NewDepositPolicy(ChainBase, NetworkMainnet, TokenUSDC, 12),
+
+        // Base: Sepolia.
+        NewDepositPolicy(ChainBase, NetworkSepolia, TokenETH, 12),
+        NewDepositPolicy(ChainBase, NetworkSepolia, TokenUSDC, 12),
+
+        // BNB: Mainnet.
+        NewDepositPolicy(ChainBNB, NetworkMainnet, TokenBNB, 15),
+
+        // Polygon.
+        NewDepositPolicy(ChainPolygon, NetworkMainnet, TokenPOL, 128),
+
+        // Avalanche.
+        NewDepositPolicy(ChainAvalanche, NetworkMainnet, TokenAVAX, 20),
+
+        // Solana.
+        NewDepositPolicy(ChainSolana, NetworkMainnet, TokenSOL, 32),
+
+        // Sui.
+        NewDepositPolicy(ChainSui, NetworkMainnet, TokenSUI, 1),
+    }
 }

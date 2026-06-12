@@ -182,22 +182,26 @@ func (a *Asset) Validate() error {
 
 
 //
-// Add default assets to asset registry.
+// Get asset by key.
 //
 // Version:
 //   - 2026-06-12: Added.
 //
-func (r *AssetRegistry) WithDefaultAssets() (*AssetRegistry, error) {
-    // Guard.
+func (r *AssetRegistry) Get(key AssetKey) (*Asset, error) {
     if r == nil {
-        return nil, fmt.Errorf("failed to register default assets: missing required parameter: asset_registry=null")
+        return nil, fmt.Errorf("failed to get asset: missing required parameter: asset_registry=null")
     }
 
-    if err := r.RegisterAll(defaultAssets()...); err != nil {
-        return nil, err
+    r.mu.RLock()
+    defer r.mu.RUnlock()
+
+    asset, ok := r.byAssetKey[key]
+    if !ok {
+        return nil, fmt.Errorf("failed to get asset: asset=%q chain=%q network=%q token=%q", "not found", key.Chain, key.Network, key.Token)
     }
 
-    return r, nil
+    cp := *asset
+    return &cp, nil
 }
 
 
@@ -248,25 +252,33 @@ func (r *AssetRegistry) RegisterAll(assets ...*Asset) error {
 }
 
 
-func (r *AssetRegistry) Get(key AssetKey) *Asset {
+//
+// Add default assets to asset registry.
+//
+// Version:
+//   - 2026-06-12: Added.
+//
+func (r *AssetRegistry) WithDefaultAssets() (*AssetRegistry, error) {
+    // Guard.
     if r == nil {
-        return nil
+        return nil, fmt.Errorf("failed to register default assets: missing required parameter: asset_registry=null")
     }
 
-    r.mu.RLock()
-    defer r.mu.RUnlock()
-
-    asset, ok := r.byAssetKey[key]
-    if !ok {
-        return nil
+    if err := r.RegisterAll(buildDefaultAssets()...); err != nil {
+        return nil, err
     }
 
-    cp := *asset
-    return &cp
+    return r, nil
 }
 
 
-func defaultAssets() []*Asset {
+//
+// Build default assets.
+//
+// Version:
+//   - 2026-06-12: Added.
+//
+func buildDefaultAssets() []*Asset {
     return []*Asset{
         // Ethereum: Mainnet.
         NewAsset(ChainEthereum, NetworkMainnet, TokenETH, 18, "Ether", true),
