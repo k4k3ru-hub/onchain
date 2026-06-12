@@ -181,72 +181,35 @@ func (a *Asset) Validate() error {
 }
 
 
-func (r *AssetRegistry) RegisterDefaultAssets() error {
-    // Ethereum.
-    ethereumMainETH := NewAsset(ChainEthereum, NetworkMainnet, TokenETH, 18, "Ether", true)
-    if err := r.Register(ethereumMainETH); err != nil {
-        return err
+//
+// Add default assets to asset registry.
+//
+// Version:
+//   - 2026-06-12: Added.
+//
+func (r *AssetRegistry) WithDefaultAssets() (*AssetRegistry, error) {
+    // Guard.
+    if r == nil {
+        return nil, fmt.Errorf("failed to register default assets: missing required parameter: asset_registry=null")
     }
 
-    ethereumMainUSDC := NewAsset(ChainEthereum, NetworkMainnet, TokenUSDC, 6, "USD Coin", false).WithTokenRef("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
-    if err := r.Register(ethereumMainUSDC); err != nil {
-        return err
+    if err := r.RegisterAll(defaultAssets()...); err != nil {
+        return nil, err
     }
 
-
-    // Base.
-    baseMainETH := NewAsset(ChainBase, NetworkMainnet, TokenETH, 18, "Ether", true)
-    if err := r.Register(baseMainETH); err != nil {
-        return err
-    }
-
-    baseMainUSDC := NewAsset(ChainBase, NetworkMainnet, TokenUSDC, 6, "USD Coin", false).WithTokenRef("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913")
-    if err := r.Register(baseMainUSDC); err != nil {
-        return err
-    }
-
-
-    // BNB.
-    bnbMainBNB := NewAsset(ChainBNB, NetworkMainnet, TokenBNB, 18, "BNB", true)
-    if err := r.Register(bnbMainBNB); err != nil {
-        return err
-    }
-
-
-    // Polygon.
-    polygonMainPOL := NewAsset(ChainPolygon, NetworkMainnet, TokenPOL, 18, "POL", true)
-    if err := r.Register(polygonMainPOL); err != nil {
-        return err
-    }
-
-    // Avalanche.
-    avalancheMainAVAX := NewAsset(ChainAvalanche, NetworkMainnet, TokenAVAX, 18, "Avalanche", true)
-    if err := r.Register(avalancheMainAVAX); err != nil {
-        return err
-    }
-
-
-    // Solana.
-    solanaMainSOL := NewAsset(ChainSolana, NetworkMainnet, TokenSOL, 9, "Solana", true)
-    if err := r.Register(solanaMainSOL); err != nil {
-        return err
-    }
-
-
-    // Sui.
-    suiMainSUI := NewAsset(ChainSui, NetworkMainnet, TokenSUI, 9, "Sui", true)
-    if err := r.Register(suiMainSUI); err != nil {
-        return err
-    }
-
-
-    return nil
+    return r, nil
 }
 
 
+//
+// Register asset.
+//
+// Version:
+//   - 2026-06-12: Added.
+//
 func (r *AssetRegistry) Register(asset *Asset) error {
     if r == nil {
-        return fmt.Errorf("failed to register asset: missing required parameter: registry=null")
+        return fmt.Errorf("failed to register asset: missing required parameter: asset_registry=null")
     }
     if err := asset.Validate(); err != nil {
         return fmt.Errorf("failed to register asset: %w", err)
@@ -261,6 +224,27 @@ func (r *AssetRegistry) Register(asset *Asset) error {
     r.byAssetKey[key] = &cp
 
     return nil
+}
+
+
+//
+// Register all assets.
+//
+// Version:
+//   - 2026-06-12: Added.
+//
+func (r *AssetRegistry) RegisterAll(assets ...*Asset) error {
+	if r == nil {
+		return fmt.Errorf("failed to register assets: missing required parameter: asset_registry=null")
+	}
+
+	for _, asset := range assets {
+		if err := r.Register(asset); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 
@@ -279,4 +263,40 @@ func (r *AssetRegistry) Get(key AssetKey) *Asset {
 
     cp := *asset
     return &cp
+}
+
+
+func defaultAssets() []*Asset {
+    return []*Asset{
+        // Ethereum: Mainnet.
+        NewAsset(ChainEthereum, NetworkMainnet, TokenETH, 18, "Ether", true),
+        NewAsset(ChainEthereum, NetworkMainnet, TokenUSDC, 6, "USD Coin", false).WithTokenRef("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"),
+
+        // Ethereum: Sepolia.
+        NewAsset(ChainEthereum, NetworkSepolia, TokenETH, 18, "Ether", true),
+        NewAsset(ChainEthereum, NetworkSepolia, TokenUSDC, 6, "USD Coin", false).WithTokenRef("0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"),
+
+        // Base: Mainnet.
+        NewAsset(ChainBase, NetworkMainnet, TokenETH, 18, "Ether", true),
+        NewAsset(ChainBase, NetworkMainnet, TokenUSDC, 6, "USD Coin", false).WithTokenRef("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"),
+
+        // Base: Sepolia.
+        NewAsset(ChainBase, NetworkSepolia, TokenETH, 18, "Ether", true),
+        NewAsset(ChainBase, NetworkSepolia, TokenUSDC, 6, "USD Coin", false).WithTokenRef("0x036CbD53842c5426634e7929541eC2318f3dCF7e"),
+
+        // BNB: Mainnet.
+        NewAsset(ChainBNB, NetworkMainnet, TokenBNB, 18, "BNB", true),
+
+        // Polygon: Mainnet.
+        NewAsset(ChainPolygon, NetworkMainnet, TokenPOL, 18, "POL", true),
+
+        // Avalanche: Mainnet.
+        NewAsset(ChainAvalanche, NetworkMainnet, TokenAVAX, 18, "Avalanche", true),
+
+        // Solana: Mainnet.
+        NewAsset(ChainSolana, NetworkMainnet, TokenSOL, 9, "Solana", true),
+
+        // Sui: Mainnet.
+        NewAsset(ChainSui, NetworkMainnet, TokenSUI, 9, "Sui", true),
+    }
 }
