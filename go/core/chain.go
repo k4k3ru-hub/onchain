@@ -73,3 +73,62 @@ func (c Chain) String() string {
     return string(c)
 }
 
+
+type ChainFamily string
+
+const (
+    ChainFamilyEVM    ChainFamily = "evm"
+    ChainFamilySolana ChainFamily = "solana"
+    ChainFamilySui    ChainFamily = "sui"
+)
+
+
+//
+// Check whether chain family is valid.
+//
+// Version:
+//   - 2026-06-12: Added.
+//
+func (f ChainFamily) IsValid() bool {
+    switch f {
+    case ChainFamilyEVM,
+        ChainFamilySolana,
+        ChainFamilySui:
+        return true
+    default:
+        return false
+    }
+}
+
+
+//
+// Validate chain family.
+//
+// Version:
+//   - 2026-06-12: Added.
+//
+func (f ChainFamily) Validate() error {
+    if string(f) == "" {
+        return fmt.Errorf("missing required parameter: chain_family=%q", "empty")
+    }
+    if len(f) > 16 {
+        return fmt.Errorf("invalid parameter: chain_family=%q", "too long")
+    }
+    if !f.IsValid() {
+        return fmt.Errorf("invalid parameter: chain_family=%q", f)
+    }
+    return nil
+}
+
+
+//
+// Convert chain family to string.
+//
+// Version:
+//   - 2026-06-172 Added.
+//
+func (f ChainFamily) String() string {
+    return string(f)
+}
+
+
