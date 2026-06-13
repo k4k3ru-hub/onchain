@@ -74,6 +74,28 @@ func (c Chain) String() string {
 }
 
 
+//
+// Resolve chain family.
+//
+func (c Chain) ResolveChainFamily() (ChainFamily, error) {
+    // Guard.
+    if err := c.Validate(); err != nil {
+        return "", fmt.Errorf("failed to resolve chain family: %w", err)
+    }
+
+    switch c {
+    case ChainEthereum, ChainBase, ChainBNB, ChainPolygon, ChainAvalanche:
+        return ChainFamilyEVM, nil
+    case ChainSolana:
+        return ChainFamilySolana, nil
+    case ChainSui:
+        return ChainFamilySui, nil
+    default:
+        return "", fmt.Errorf("failed to resolve chain family: invalid parameter: chain=%q", string(c))
+    }
+}
+
+
 type ChainFamily string
 
 const (
