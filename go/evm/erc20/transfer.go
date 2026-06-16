@@ -59,6 +59,74 @@ func (c *transferControl) Stop() {
 
 
 //
+// Get transfer events by transaction hash.
+//
+// Version:
+//   - 2026-06-16: Added.
+//
+func (c *Client) GetTransferEventsByTxHash(ctx context.Context, txHash common.Hash) ([]*TransferEvent, error) {
+    if c == nil {
+        return nil, fmt.Errorf("failed to get transfer events by tx hash: missing required parameter: client=null")
+    }
+    if txHash == (common.Hash{}) {
+        return nil, fmt.Errorf("failed to get transfer events by tx hash: missing required parameter: tx_hash=%q", "empty")
+    }
+    if ctx == nil {
+        ctx = context.Background()
+    }
+
+    ec := c.HTTPETHClient()
+    if ec == nil {
+        return nil, fmt.Errorf("failed to get transfer events by tx hash: missing required parameter: http_eth_client=null")
+    }
+
+    tokens := c.Tokens()
+    if len(tokens) == 0 {
+        return nil, fmt.Errorf("failed to get transfer events by tx hash: missing required parameter: tokens=%q", "empty")
+    }
+
+    tokenMap := make(map[common.Address]struct{}, len(tokens))
+    for _, token := range tokens {
+        if token == (common.Address{}) {
+            continue
+        }
+        tokenMap[token] = struct{}{}
+    }
+
+    receipt, err := ec.TransactionReceipt(ctx, txHash)
+    if err != nil {
+        return nil, fmt.Errorf("failed to get transfer events by tx hash: %w", err)
+    }
+    if receipt == nil {
+        return nil, fmt.Errorf("failed to get transfer events by tx hash: receipt=%q", "not found")
+    }
+    if receipt.Status != types.ReceiptStatusSuccessful {
+        return nil, fmt.Errorf("failed to get transfer events by tx hash: receipt_status=%d", receipt.Status)
+    }
+
+    events := make([]*TransferEvent, 0, len(receipt.Logs))
+    for _, eventLog := range receipt.Logs {
+        if eventLog == nil {
+            continue
+        }
+
+        if _, ok := tokenMap[eventLog.Address]; !ok {
+            continue
+        }
+
+        event, ok := parseTransferLog(*eventLog)
+        if !ok {
+            continue
+        }
+
+        events = append(events, event)
+    }
+
+    return events, nil
+}
+
+
+//
 // Filter transfer logs.
 //
 // Version:
