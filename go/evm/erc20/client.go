@@ -12,6 +12,7 @@ import (
 
 
 type evmClient interface {
+    HTTPURL() string
     WSURL() *string
     HTTPETHClient() *ethclient.Client
     WSETHClient() *ethclient.Client
@@ -56,6 +57,13 @@ func NewClient(evm evmClient, tokens []common.Address) (*Client, error) {
         evm:    evm,
         tokens: copiedTokens,
     }, nil
+}
+
+func (c *Client) HTTPURL() string {
+    if c == nil || c.evm == nil {
+        return ""
+    }
+    return c.evm.HTTPURL()
 }
 
 func (c *Client) WSURL() *string {
