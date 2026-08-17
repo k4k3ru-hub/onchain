@@ -1,174 +1,163 @@
-//
 // transfer.go
-//
 package erc20
 
 import (
-    "context"
-    "fmt"
-    "math/big"
-    "sync"
+	"context"
+	"fmt"
+	"math/big"
+	"sync"
 
-    "github.com/ethereum/go-ethereum"
-    "github.com/ethereum/go-ethereum/common"
-    "github.com/ethereum/go-ethereum/core/types"
-    "github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
-
 var (
-    transferEventSigHash = crypto.Keccak256Hash([]byte("Transfer(address,address,uint256)"))
+	transferEventSigHash = crypto.Keccak256Hash([]byte("Transfer(address,address,uint256)"))
 )
 
 type TransferWatchConfig struct {
-    From          []common.Address
-    To            []common.Address
-    FromBlock     *big.Int
-    ToBlock       *big.Int
-    LogBufferSize int
+	From          []common.Address
+	To            []common.Address
+	FromBlock     *big.Int
+	ToBlock       *big.Int
+	LogBufferSize int
 }
 
 type TransferEvent struct {
-    from            common.Address
-    to              common.Address
-    amountBaseUnits *big.Int
-    txHash          common.Hash
-    blockNumber     uint64
-    token           common.Address
-    logIndex        uint64
+	from            common.Address
+	to              common.Address
+	amountBaseUnits *big.Int
+	txHash          common.Hash
+	blockNumber     uint64
+	token           common.Address
+	logIndex        uint64
 }
 
 type WatchTransferStopFunc func()
 
 type TransferControl interface {
-    Stop()
+	Stop()
 }
 
 type TransferHandler func(event *TransferEvent, control TransferControl)
 
 type transferControl struct {
-    stop WatchTransferStopFunc
+	stop WatchTransferStopFunc
 }
 
 func (c *transferControl) Stop() {
-    if c == nil || c.stop == nil {
-        return
-    }
-    c.stop()
+	if c == nil || c.stop == nil {
+		return
+	}
+	c.stop()
 }
 
-
-//
 // Get transfer events by transaction hash.
 //
 // Version:
 //   - 2026-06-16: Added.
-//
 func (c *Client) GetTransferEventsByTxHash(ctx context.Context, txHash common.Hash) ([]*TransferEvent, error) {
-    if c == nil {
-        return nil, fmt.Errorf("failed to get transfer events by tx hash: missing required parameter: client=null")
-    }
-    if txHash == (common.Hash{}) {
-        return nil, fmt.Errorf("failed to get transfer events by tx hash: missing required parameter: tx_hash=%q", "empty")
-    }
-    if ctx == nil {
-        ctx = context.Background()
-    }
+	if c == nil {
+		return nil, fmt.Errorf("failed to get transfer events by tx hash: missing required parameter: client=null")
+	}
+	if txHash == (common.Hash{}) {
+		return nil, fmt.Errorf("failed to get transfer events by tx hash: missing required parameter: tx_hash=%q", "empty")
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
 
-    ec := c.HTTPETHClient()
-    if ec == nil {
-        return nil, fmt.Errorf("failed to get transfer events by tx hash: missing required parameter: http_eth_client=null")
-    }
+	httpClient := c.httpClient
+	if httpClient == nil {
+		return nil, fmt.Errorf("failed to get transfer events by tx hash: http_client=null")
+	}
 
-    tokens := c.Tokens()
-    if len(tokens) == 0 {
-        return nil, fmt.Errorf("failed to get transfer events by tx hash: missing required parameter: tokens=%q", "empty")
-    }
+	tokens := c.Tokens()
+	if len(tokens) == 0 {
+		return nil, fmt.Errorf("failed to get transfer events by tx hash: missing required parameter: tokens=%q", "empty")
+	}
 
-    tokenMap := make(map[common.Address]struct{}, len(tokens))
-    for _, token := range tokens {
-        if token == (common.Address{}) {
-            continue
-        }
-        tokenMap[token] = struct{}{}
-    }
+	tokenMap := make(map[common.Address]struct{}, len(tokens))
+	for _, token := range tokens {
+		if token == (common.Address{}) {
+			continue
+		}
+		tokenMap[token] = struct{}{}
+	}
 
-    receipt, err := ec.TransactionReceipt(ctx, txHash)
-    if err != nil {
-        return nil, fmt.Errorf("failed to get transfer events by tx hash: %w", err)
-    }
-    if receipt == nil {
-        return nil, fmt.Errorf("failed to get transfer events by tx hash: receipt=%q", "not found")
-    }
-    if receipt.Status != types.ReceiptStatusSuccessful {
-        return nil, fmt.Errorf("failed to get transfer events by tx hash: receipt_status=%d", receipt.Status)
-    }
+	receipt, err := httpClient.TransactionReceipt(ctx, txHash)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get transfer events by tx hash: %w", err)
+	}
+	if receipt == nil {
+		return nil, fmt.Errorf("failed to get transfer events by tx hash: receipt=%q", "not found")
+	}
+	if receipt.Status != types.ReceiptStatusSuccessful {
+		return nil, fmt.Errorf("failed to get transfer events by tx hash: receipt_status=%d", receipt.Status)
+	}
 
-    events := make([]*TransferEvent, 0, len(receipt.Logs))
-    for _, eventLog := range receipt.Logs {
-        if eventLog == nil {
-            continue
-        }
+	events := make([]*TransferEvent, 0, len(receipt.Logs))
+	for _, eventLog := range receipt.Logs {
+		if eventLog == nil {
+			continue
+		}
 
-        if _, ok := tokenMap[eventLog.Address]; !ok {
-            continue
-        }
+		if _, ok := tokenMap[eventLog.Address]; !ok {
+			continue
+		}
 
-        event, ok := parseTransferLog(*eventLog)
-        if !ok {
-            continue
-        }
+		event, ok := parseTransferLog(*eventLog)
+		if !ok {
+			continue
+		}
 
-        events = append(events, event)
-    }
+		events = append(events, event)
+	}
 
-    return events, nil
+	return events, nil
 }
 
-
-//
 // Filter transfer logs.
 //
 // Version:
 //   - 2026-05-22: Added.
-//
 func (c *Client) FilterTransferLogs(ctx context.Context, cfg *TransferWatchConfig) ([]*TransferEvent, error) {
-    if c == nil {
-        return nil, fmt.Errorf("failed to filter transfer logs: missing required parameter: client=null")
-    }
-    if ctx == nil {
-        ctx = context.Background()
-    }
+	if c == nil {
+		return nil, fmt.Errorf("failed to filter transfer logs: missing required parameter: client=null")
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
 
-    ec := c.HTTPETHClient()
-    if ec == nil {
-        return nil, fmt.Errorf("failed to filter transfer logs: missing required parameter: http_eth_client=null")
-    }
+	httpClient := c.httpClient
+	if httpClient == nil {
+		return nil, fmt.Errorf("failed to filter transfer logs: http_client=null")
+	}
 
-    q, err := c.buildTransferFilterQuery(cfg)
-    if err != nil {
-        return nil, fmt.Errorf("failed to filter transfer logs: %w", err)
-    }
+	q, err := c.buildTransferFilterQuery(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to filter transfer logs: %w", err)
+	}
 
-    logs, err := ec.FilterLogs(ctx, q)
-    if err != nil {
-        return nil, fmt.Errorf("failed to filter transfer logs: %w", err)
-    }
+	logs, err := httpClient.FilterLogs(ctx, q)
+	if err != nil {
+		return nil, fmt.Errorf("failed to filter transfer logs: %w", err)
+	}
 
-    events := make([]*TransferEvent, 0, len(logs))
-    for _, eventLog := range logs {
-        event, ok := parseTransferLog(eventLog)
-        if !ok {
-            continue
-        }
-        events = append(events, event)
-    }
+	events := make([]*TransferEvent, 0, len(logs))
+	for _, eventLog := range logs {
+		event, ok := parseTransferLog(eventLog)
+		if !ok {
+			continue
+		}
+		events = append(events, event)
+	}
 
-    return events, nil
+	return events, nil
 }
 
-
-//
 // Watch transfer events.
 //
 // Return:
@@ -181,265 +170,254 @@ func (c *Client) FilterTransferLogs(ctx context.Context, cfg *TransferWatchConfi
 //   - 2026-05-27: Changed to pass transfer control to handler.
 //   - 2026-05-26: Changed to return stop function.
 //   - 2026-05-22: Added.
-//
 func (c *Client) WatchTransfer(ctx context.Context, cfg *TransferWatchConfig, handler TransferHandler) (TransferControl, error) {
-    if c == nil {
-        return nil, fmt.Errorf("failed to watch transfer:  missing required parameter: client=null")
-    }
-    if handler == nil {
-        return nil, fmt.Errorf("failed to watch transfer: missing required parameter: handler=null")
-    }
-    if ctx == nil {
-        ctx = context.Background()
-    }
+	if c == nil {
+		return nil, fmt.Errorf("failed to watch transfer:  missing required parameter: client=null")
+	}
+	if handler == nil {
+		return nil, fmt.Errorf("failed to watch transfer: missing required parameter: handler=null")
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
 
-    ec := c.WSETHClient()
-    if ec == nil {
-        return nil, fmt.Errorf("failed to watch transfer: missing required parameter: ws_eth_client=null")
-    }
+	wsClient := c.wsClient
+	if wsClient == nil {
+		return nil, fmt.Errorf("failed to watch transfer: ws_client=null")
+	}
 
-    q, err := c.buildTransferFilterQuery(cfg)
-    if err != nil {
-        return nil, fmt.Errorf("failed to watch transfer: %w", err)
-    }
+	q, err := c.buildTransferFilterQuery(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to watch transfer: %w", err)
+	}
 
-    logBufferSize := 64
-    if cfg != nil && cfg.LogBufferSize > 0 {
-        logBufferSize = cfg.LogBufferSize
-    }
+	logBufferSize := 64
+	if cfg != nil && cfg.LogBufferSize > 0 {
+		logBufferSize = cfg.LogBufferSize
+	}
 
-    logsCh := make(chan types.Log, logBufferSize)
+	logsCh := make(chan types.Log, logBufferSize)
 
-    watchCtx, cancel := context.WithCancel(ctx)
+	watchCtx, cancel := context.WithCancel(ctx)
 
-    sub, err := ec.SubscribeFilterLogs(watchCtx, q, logsCh)
-    if err != nil {
-        cancel()
-        return nil, fmt.Errorf("failed to watch transfer: failed to subscribe transfer logs: %w", err)
-    }
+	sub, err := wsClient.SubscribeFilterLogs(watchCtx, q, logsCh)
+	if err != nil {
+		cancel()
+		return nil, fmt.Errorf("failed to watch transfer: failed to subscribe transfer logs: %w", err)
+	}
 
-    var stopOnce sync.Once
-    stop := WatchTransferStopFunc(func() {
-        stopOnce.Do(func() {
-            cancel()
-            sub.Unsubscribe()
-        })
-    })
+	var stopOnce sync.Once
+	stop := WatchTransferStopFunc(func() {
+		stopOnce.Do(func() {
+			cancel()
+			sub.Unsubscribe()
+		})
+	})
 
-    control := &transferControl{
-        stop: stop,
-    }
-    
-    go func() {
-        defer stop()
+	control := &transferControl{
+		stop: stop,
+	}
 
-        for {
-            select {
-            case <-watchCtx.Done():
-                return
-            case <-sub.Err():
-                return
-            case eventLog := <-logsCh:
-                event, ok := parseTransferLog(eventLog)
-                if !ok {
-                    continue
-                }
-                handler(event, control)
-            }
-        }
-    }()
+	go func() {
+		defer stop()
 
-    return control, nil
+		for {
+			select {
+			case <-watchCtx.Done():
+				return
+			case <-sub.Err():
+				return
+			case eventLog := <-logsCh:
+				event, ok := parseTransferLog(eventLog)
+				if !ok {
+					continue
+				}
+				handler(event, control)
+			}
+		}
+	}()
+
+	return control, nil
 }
 
-
-
 func (e *TransferEvent) From() common.Address {
-    if e == nil {
-        return common.Address{}
-    }
-    return e.from
+	if e == nil {
+		return common.Address{}
+	}
+	return e.from
 }
 
 func (e *TransferEvent) FromHex() string {
-    if e == nil {
-        return ""
-    }
-    return e.from.Hex()
+	if e == nil {
+		return ""
+	}
+	return e.from.Hex()
 }
 
 func (e *TransferEvent) To() common.Address {
-    if e == nil {
-        return common.Address{}
-    }
-    return e.to
+	if e == nil {
+		return common.Address{}
+	}
+	return e.to
 }
 
 func (e *TransferEvent) ToHex() string {
-    if e == nil {
-        return ""
-    }
-    return e.to.Hex()
+	if e == nil {
+		return ""
+	}
+	return e.to.Hex()
 }
 
 func (e *TransferEvent) AmountBaseUnits() *big.Int {
-    if e == nil || e.amountBaseUnits == nil {
-        return nil
-    }
-    return new(big.Int).Set(e.amountBaseUnits)
+	if e == nil || e.amountBaseUnits == nil {
+		return nil
+	}
+	return new(big.Int).Set(e.amountBaseUnits)
 }
 
 func (e *TransferEvent) AmountBaseUnitsString() string {
-    if e == nil || e.amountBaseUnits == nil {
-        return ""
-    }
-    return e.amountBaseUnits.String()
+	if e == nil || e.amountBaseUnits == nil {
+		return ""
+	}
+	return e.amountBaseUnits.String()
 }
 
 func (e *TransferEvent) TxHash() common.Hash {
-    if e == nil {
-        return common.Hash{}
-    }
-    return e.txHash
+	if e == nil {
+		return common.Hash{}
+	}
+	return e.txHash
 }
 
 func (e *TransferEvent) TxHashHex() string {
-    if e == nil {
-        return ""
-    }
-    return e.txHash.Hex()
+	if e == nil {
+		return ""
+	}
+	return e.txHash.Hex()
 }
 
 func (e *TransferEvent) BlockNumber() uint64 {
-    if e == nil {
-        return 0
-    }
-    return e.blockNumber
+	if e == nil {
+		return 0
+	}
+	return e.blockNumber
 }
 
 func (e *TransferEvent) Token() common.Address {
-    if e == nil {
-        return common.Address{}
-    }
-    return e.token
+	if e == nil {
+		return common.Address{}
+	}
+	return e.token
 }
 
 func (e *TransferEvent) TokenHex() string {
-    if e == nil {
-        return ""
-    }
-    return e.token.Hex()
+	if e == nil {
+		return ""
+	}
+	return e.token.Hex()
 }
 
 func (e *TransferEvent) LogIndex() uint64 {
-    if e == nil {
-        return 0
-    }
-    return e.logIndex
+	if e == nil {
+		return 0
+	}
+	return e.logIndex
 }
 
-//
 // Build transfer filter query.
 //
 // Version:
 //   - 2026-05-22: Added.
-//
 func (c *Client) buildTransferFilterQuery(cfg *TransferWatchConfig) (ethereum.FilterQuery, error) {
-    if c == nil {
-        return ethereum.FilterQuery{}, fmt.Errorf("missing required parameter: client=null")
-    }
+	if c == nil {
+		return ethereum.FilterQuery{}, fmt.Errorf("missing required parameter: client=null")
+	}
 
-    tokens := c.Tokens()
-    if len(tokens) == 0 {
-        return ethereum.FilterQuery{}, fmt.Errorf("missing required parameter: tokens=%q", "empty")
-    }
+	tokens := c.Tokens()
+	if len(tokens) == 0 {
+		return ethereum.FilterQuery{}, fmt.Errorf("missing required parameter: tokens=%q", "empty")
+	}
 
-    q := ethereum.FilterQuery{
-        Addresses: tokens,
-        Topics: [][]common.Hash{
-            {transferEventSigHash},
-            nil,
-            nil,
-        },
-    }
+	q := ethereum.FilterQuery{
+		Addresses: tokens,
+		Topics: [][]common.Hash{
+			{transferEventSigHash},
+			nil,
+			nil,
+		},
+	}
 
-    if cfg == nil {
-        return q, nil
-    }
+	if cfg == nil {
+		return q, nil
+	}
 
-    if cfg.FromBlock != nil {
-        q.FromBlock = cfg.FromBlock
-    }
-    if cfg.ToBlock != nil {
-        q.ToBlock = cfg.ToBlock
-    }
+	if cfg.FromBlock != nil {
+		q.FromBlock = cfg.FromBlock
+	}
+	if cfg.ToBlock != nil {
+		q.ToBlock = cfg.ToBlock
+	}
 
-    fromTopics := buildAddressTopics(cfg.From)
-    if len(fromTopics) > 0 {
-        q.Topics[1] = fromTopics
-    }
+	fromTopics := buildAddressTopics(cfg.From)
+	if len(fromTopics) > 0 {
+		q.Topics[1] = fromTopics
+	}
 
-    toTopics := buildAddressTopics(cfg.To)
-    if len(toTopics) > 0 {
-        q.Topics[2] = toTopics
-    }
+	toTopics := buildAddressTopics(cfg.To)
+	if len(toTopics) > 0 {
+		q.Topics[2] = toTopics
+	}
 
-    return q, nil
+	return q, nil
 }
 
-
-//
 // Build address topics.
 //
 // Version:
 //   - 2026-05-22: Added.
-//
 func buildAddressTopics(addrs []common.Address) []common.Hash {
-    if len(addrs) == 0 {
-        return nil
-    }
+	if len(addrs) == 0 {
+		return nil
+	}
 
-    topics := make([]common.Hash, 0, len(addrs))
-    for _, addr := range addrs {
-        if addr == (common.Address{}) {
-            continue
-        }
+	topics := make([]common.Hash, 0, len(addrs))
+	for _, addr := range addrs {
+		if addr == (common.Address{}) {
+			continue
+		}
 
-        topics = append(topics, common.BytesToHash(addr.Bytes()))
-    }
+		topics = append(topics, common.BytesToHash(addr.Bytes()))
+	}
 
-    return topics
+	return topics
 }
 
-
-//
 // Parse transfer log.
 //
 // Version:
 //   - 2026-05-22: Added.
-//
 func parseTransferLog(eventLog types.Log) (*TransferEvent, bool) {
-    if len(eventLog.Topics) < 3 {
-        return nil, false
-    }
-    if eventLog.Topics[0] != transferEventSigHash {
-        return nil, false
-    }
-    if len(eventLog.Data) != 32 {
-        return nil, false
-    }
+	if len(eventLog.Topics) < 3 {
+		return nil, false
+	}
+	if eventLog.Topics[0] != transferEventSigHash {
+		return nil, false
+	}
+	if len(eventLog.Data) != 32 {
+		return nil, false
+	}
 
-    from := common.BytesToAddress(eventLog.Topics[1].Bytes()[12:])
-    to := common.BytesToAddress(eventLog.Topics[2].Bytes()[12:])
-    amountBaseUnits := new(big.Int).SetBytes(eventLog.Data)
+	from := common.BytesToAddress(eventLog.Topics[1].Bytes()[12:])
+	to := common.BytesToAddress(eventLog.Topics[2].Bytes()[12:])
+	amountBaseUnits := new(big.Int).SetBytes(eventLog.Data)
 
-    return &TransferEvent{
-        from:            from,
-        to:              to,
-        amountBaseUnits: amountBaseUnits,
-        txHash:          eventLog.TxHash,
-        blockNumber:     eventLog.BlockNumber,
-        token:           eventLog.Address,
-        logIndex:        uint64(eventLog.Index),
-    }, true
+	return &TransferEvent{
+		from:            from,
+		to:              to,
+		amountBaseUnits: amountBaseUnits,
+		txHash:          eventLog.TxHash,
+		blockNumber:     eventLog.BlockNumber,
+		token:           eventLog.Address,
+		logIndex:        uint64(eventLog.Index),
+	}, true
 }

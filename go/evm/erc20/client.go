@@ -1,99 +1,82 @@
-//
 // client.go
-//
 package erc20
 
 import (
-    "fmt"
+	"context"
+	"fmt"
 
-    "github.com/ethereum/go-ethereum/common"
-    "github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 )
 
+type httpClient interface {
+	FilterLogs(ctx context.Context, query ethereum.FilterQuery) ([]types.Log, error)
+	TransactionReceipt(ctx context.Context, txHash common.Hash) (*types.Receipt, error)
+}
 
-type evmClient interface {
-    HTTPURL() string
-    WSURL() *string
-    HTTPETHClient() *ethclient.Client
-    WSETHClient() *ethclient.Client
+type wsClient interface {
+	SubscribeFilterLogs(ctx context.Context, query ethereum.FilterQuery, ch chan<- types.Log) (ethereum.Subscription, error)
 }
 
 type Client struct {
-    evm    evmClient
-    tokens []common.Address
+	httpClient httpClient
+	wsClient   wsClient
+	tokens     []common.Address
 }
 
-
+// NewClient creates an ERC20 client.
 //
-// Create new ERC20 client.
+// Parameters:
+//   - httpClient: EVM HTTP operations.
+//   - wsClient: optional EVM WebSocket operations.
+//   - tokens: ERC20 token contract addresses.
+//
+// Returns:
+//   - ERC20 client.
+//   - Client creation error.
 //
 // Version:
+//   - 2026-08-17: Changed to accept separate HTTP and WebSocket dependencies.
 //   - 2026-05-21: Added.
+func NewClient(httpClient httpClient, wsClient wsClient, tokens []common.Address) (*Client, error) {
+	if httpClient == nil {
+		return nil, fmt.Errorf("failed to create erc20 client: http_client=null")
+	}
+
+	copiedTokens := make([]common.Address, 0, len(tokens))
+	for _, token := range tokens {
+		if token == (common.Address{}) {
+			continue
+		}
+		copiedTokens = append(copiedTokens, token)
+	}
+	if len(copiedTokens) == 0 {
+		return nil, fmt.Errorf("failed to create erc20 client: tokens=empty")
+	}
+
+	return &Client{
+		httpClient: httpClient,
+		wsClient:   wsClient,
+		tokens:     copiedTokens,
+	}, nil
+}
+
+// Tokens returns the configured ERC20 token contract addresses.
 //
-func NewClient(evm evmClient, tokens []common.Address) (*Client, error) {
-    // Guard.
-    if evm == nil {
-        return nil, fmt.Errorf("failed to create erc20 client: missing required parameter: evm=null")
-    }
-
-    // Validate HTTP ETH client.
-    if evm.HTTPETHClient() == nil {
-        return nil, fmt.Errorf("failed to create erc20 client: missing required dependency: http_eth_client=null")
-    }
-
-    // Validate tokens.
-    copiedTokens := make([]common.Address, 0, len(tokens))
-    for _, token := range tokens {
-        if token == (common.Address{}) {
-            continue
-        }
-        copiedTokens = append(copiedTokens, token)
-    }
-    if len(copiedTokens) == 0 {
-        return nil, fmt.Errorf("failed to create erc20 client: missing required parameter: tokens=%q", "empty")
-    }
-
-    return &Client{
-        evm:    evm,
-        tokens: copiedTokens,
-    }, nil
-}
-
-func (c *Client) HTTPURL() string {
-    if c == nil || c.evm == nil {
-        return ""
-    }
-    return c.evm.HTTPURL()
-}
-
-func (c *Client) WSURL() *string {
-    if c == nil || c.evm == nil {
-        return nil
-    }
-    return c.evm.WSURL()
-}
-
-func (c *Client) HTTPETHClient() *ethclient.Client {
-    if c == nil || c.evm == nil {
-        return nil
-    }
-    return c.evm.HTTPETHClient()
-}
-
-func (c *Client) WSETHClient() *ethclient.Client {
-    if c == nil || c.evm == nil {
-        return nil
-    }
-    return c.evm.WSETHClient()
-}
-
+// Returns:
+//   - Copy of the configured token addresses.
+//
+// Version:
+//   - 2026-08-17: Added GoDoc.
+//   - 2026-05-21: Added.
 func (c *Client) Tokens() []common.Address {
-    if c == nil || len(c.tokens) == 0 {
-        return nil
-    }
+	if c == nil || len(c.tokens) == 0 {
+		return nil
+	}
 
-    tokens := make([]common.Address, len(c.tokens))
-    copy(tokens, c.tokens)
+	tokens := make([]common.Address, len(c.tokens))
+	copy(tokens, c.tokens)
 
-    return tokens
+	return tokens
 }

@@ -1,125 +1,125 @@
-//
 // client.go
-//
 package evm
 
 import (
-    "context"
-    "fmt"
-    "unicode/utf8"
+	"context"
+	"fmt"
+	"unicode/utf8"
 
-    "github.com/ethereum/go-ethereum/common"
-    "github.com/ethereum/go-ethereum/ethclient"
-
-    "github.com/k4k3ru-hub/onchain/go/evm/erc20"
+	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-type Config struct {
-    HTTPURL string
-    WSURL   *string
+type HTTPConfig struct {
+	URL string
 }
 
-type Client struct {
-    config        Config
-    httpETHClient *ethclient.Client
-    wsETHClient   *ethclient.Client
+type WSConfig struct {
+	URL string
 }
 
+type HTTPClient struct {
+	config          HTTPConfig
+	ethClient       *ethclient.Client
+	blockNumberer   blockNumberer
+	logFilterer     logFilterer
+	receiptProvider transactionReceiptProvider
+}
 
+type WSClient struct {
+	config        WSConfig
+	ethClient     *ethclient.Client
+	logSubscriber logSubscriber
+}
+
+// NewHTTPClient creates an EVM HTTP RPC client.
 //
-// Create new EVM client.
+// Parameters:
+//   - ctx: dial context; nil uses context.Background.
+//   - config: HTTP RPC configuration.
 //
-// Version:
-//   - 2026-05-21: Added.
-//
-func NewClient(ctx context.Context, config Config) (*Client, error) {
-    // Guard.
-    if ctx == nil {
-        ctx = context.Background()
-    }
-
-    // Validate HTTP URL and dial eth client.
-    httpURL := config.HTTPURL
-    if httpURL == "" {
-        return nil, fmt.Errorf("failed to create evm client: missing required parameter: http_url=%q", "empty")
-    }
-    if utf8.RuneCountInString(httpURL) > 2048 {
-        return nil, fmt.Errorf("failed to create evm client: invalid parameter: http_url=%q", "too long")
-    }
-
-    httpETHClient, err := ethclient.DialContext(ctx, httpURL)
-    if err != nil {
-        return nil, fmt.Errorf("failed to create evm client: failed to dial evm http rpc: http_url=%q: %w", httpURL, err)
-    }
-
-    // Validate websocket URL and dial eth client. (optional)
-    wsURL := config.WSURL
-    var wsETHClient *ethclient.Client
-    if wsURL != nil {
-        if utf8.RuneCountInString(*wsURL) > 2048 {
-            return nil, fmt.Errorf("failed to create evm client: invalid parameter: ws_url=%q", "too long")
-        }
- 
-        c, err := ethclient.DialContext(ctx, *wsURL)
-        if err != nil {
-            return nil, fmt.Errorf("failed to create evm client: failed to dial evm ws rpc: ws_url=%q: %w", *wsURL, err)
-        }
-        wsETHClient = c
-    }
-
-    return &Client{
-        config: config,
-        httpETHClient: httpETHClient,
-        wsETHClient: wsETHClient,
-    }, nil
-}
-
-
-func (c *Client) HTTPURL() string {
-    if c == nil {
-        return ""
-    }
-    return c.config.HTTPURL
-}
-
-
-func (c *Client) WSURL() *string {
-    if c == nil {
-        return nil
-    }
-    return c.config.WSURL
-}
-
-
-func (c *Client) HTTPETHClient() *ethclient.Client {
-    if c == nil {
-        return nil
-    }
-    return c.httpETHClient
-}
-
-func (c *Client) WSETHClient() *ethclient.Client {
-    if c == nil {
-        return nil
-    }
-    return c.wsETHClient
-}
-
-
-//
-// Create new ERC20 client.
+// Returns:
+//   - EVM HTTP RPC client.
+//   - Client creation error.
 //
 // Version:
-//   - 2026-05-21: Added.
-//
-func (c *Client) ERC20(tokens []common.Address) (*erc20.Client, error) {
-    // Guard.
-    if c == nil {
-        return nil, fmt.Errorf("unexpected nil receiver: evm client")
-    }
-    if c.httpETHClient == nil {
-        return nil, fmt.Errorf("missing required dependency: http_eth_client")
-    }
+//   - 2026-08-17: Added.
+func NewHTTPClient(ctx context.Context, config HTTPConfig) (*HTTPClient, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	if err := validateRPCURL(config.URL, "http_url"); err != nil {
+		return nil, fmt.Errorf("failed to create evm http client: %w", err)
+	}
 
-    return erc20.NewClient(c, tokens)
+	ethClient, err := ethclient.DialContext(ctx, config.URL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create evm http client: failed to dial evm http rpc: %w", err)
+	}
+
+	return composeHTTPClient(config, ethClient), nil
+}
+
+// NewWSClient creates an EVM WebSocket RPC client.
+//
+// Parameters:
+//   - ctx: dial context; nil uses context.Background.
+//   - config: WebSocket RPC configuration.
+//
+// Returns:
+//   - EVM WebSocket RPC client.
+//   - Client creation error.
+//
+// Version:
+//   - 2026-08-17: Added.
+func NewWSClient(ctx context.Context, config WSConfig) (*WSClient, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	if err := validateRPCURL(config.URL, "ws_url"); err != nil {
+		return nil, fmt.Errorf("failed to create evm ws client: %w", err)
+	}
+
+	ethClient, err := ethclient.DialContext(ctx, config.URL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create evm ws client: failed to dial evm ws rpc: %w", err)
+	}
+
+	return composeWSClient(config, ethClient), nil
+}
+
+func composeHTTPClient(config HTTPConfig, ethClient *ethclient.Client) *HTTPClient {
+	client := &HTTPClient{
+		config:    config,
+		ethClient: ethClient,
+	}
+	if ethClient != nil {
+		client.blockNumberer = ethClient
+		client.logFilterer = ethClient
+		client.receiptProvider = ethClient
+	}
+
+	return client
+}
+
+func composeWSClient(config WSConfig, ethClient *ethclient.Client) *WSClient {
+	client := &WSClient{
+		config:    config,
+		ethClient: ethClient,
+	}
+	if ethClient != nil {
+		client.logSubscriber = ethClient
+	}
+
+	return client
+}
+
+func validateRPCURL(url, parameterName string) error {
+	if url == "" {
+		return fmt.Errorf("failed to validate evm rpc url: %s=empty", parameterName)
+	}
+	if utf8.RuneCountInString(url) > 2048 {
+		return fmt.Errorf("failed to validate evm rpc url: %s=too_long actual_length=%d max_length=2048", parameterName, utf8.RuneCountInString(url))
+	}
+
+	return nil
 }
