@@ -177,6 +177,7 @@ func (c *Client) FilterTransferLogs(ctx context.Context, cfg *TransferWatchConfi
 //   - error: Failed to start watching transfer events.
 //
 // Version:
+//   - 2026-08-17: Changed to release the context when subscription fails.
 //   - 2026-05-27: Changed to pass transfer control to handler.
 //   - 2026-05-26: Changed to return stop function.
 //   - 2026-05-22: Added.
@@ -213,6 +214,7 @@ func (c *Client) WatchTransfer(ctx context.Context, cfg *TransferWatchConfig, ha
 
     sub, err := ec.SubscribeFilterLogs(watchCtx, q, logsCh)
     if err != nil {
+        cancel()
         return nil, fmt.Errorf("failed to watch transfer: failed to subscribe transfer logs: %w", err)
     }
 
