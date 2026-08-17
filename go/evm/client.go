@@ -21,6 +21,7 @@ type HTTPClient struct {
 	config          HTTPConfig
 	ethClient       *ethclient.Client
 	blockNumberer   blockNumberer
+	contractCaller  contractCaller
 	logFilterer     logFilterer
 	receiptProvider transactionReceiptProvider
 }
@@ -94,6 +95,7 @@ func composeHTTPClient(config HTTPConfig, ethClient *ethclient.Client) *HTTPClie
 	}
 	if ethClient != nil {
 		client.blockNumberer = ethClient
+		client.contractCaller = ethClient
 		client.logFilterer = ethClient
 		client.receiptProvider = ethClient
 	}
