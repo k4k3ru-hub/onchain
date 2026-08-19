@@ -4,6 +4,7 @@ package evm
 import (
 	"context"
 	"fmt"
+	"sync"
 	"unicode/utf8"
 
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -25,6 +26,9 @@ type HTTPClient struct {
 	contractCaller      contractCaller
 	logFilterer         logFilterer
 	receiptProvider     transactionReceiptProvider
+	chainIDProvider     chainIDProvider
+	clientCloser        clientCloser
+	closeOnce           sync.Once
 }
 
 type WSClient struct {
@@ -100,6 +104,8 @@ func composeHTTPClient(config HTTPConfig, ethClient *ethclient.Client) *HTTPClie
 		client.contractCaller = ethClient
 		client.logFilterer = ethClient
 		client.receiptProvider = ethClient
+		client.chainIDProvider = ethClient
+		client.clientCloser = ethClient
 	}
 
 	return client

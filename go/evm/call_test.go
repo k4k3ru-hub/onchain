@@ -145,7 +145,7 @@ func TestCallContractWrapsRPCError(t *testing.T) {
 	}
 }
 
-func TestComposeHTTPClientComposesContractCaller(t *testing.T) {
+func TestComposeHTTPClientComposesDependencies(t *testing.T) {
 	t.Parallel()
 
 	ethClient := new(ethclient.Client)
@@ -153,5 +153,23 @@ func TestComposeHTTPClientComposesContractCaller(t *testing.T) {
 
 	if client.contractCaller != ethClient {
 		t.Fatal("HTTP contract-call dependency was not composed")
+	}
+	if client.blockHeaderByHasher != ethClient {
+		t.Fatal("HTTP block-header dependency was not composed")
+	}
+	if client.blockNumberer != ethClient {
+		t.Fatal("HTTP block-number dependency was not composed")
+	}
+	if client.logFilterer != ethClient {
+		t.Fatal("HTTP log-filter dependency was not composed")
+	}
+	if client.receiptProvider != ethClient {
+		t.Fatal("HTTP transaction-receipt dependency was not composed")
+	}
+	if client.chainIDProvider != ethClient {
+		t.Fatal("HTTP chain-ID dependency was not composed")
+	}
+	if client.clientCloser != ethClient {
+		t.Fatal("HTTP close dependency was not composed")
 	}
 }
