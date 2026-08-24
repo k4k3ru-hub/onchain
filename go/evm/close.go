@@ -15,3 +15,15 @@ func (c *HTTPClient) Close() {
 
 	c.closeOnce.Do(c.clientCloser.Close)
 }
+
+// Close closes the underlying EVM WebSocket RPC connection.
+//
+// Version:
+//   - 2026-08-24: Added.
+func (c *WSClient) Close() {
+	if c == nil || c.clientCloser == nil {
+		return
+	}
+
+	c.closeOnce.Do(c.clientCloser.Close)
+}

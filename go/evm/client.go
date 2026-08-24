@@ -32,9 +32,12 @@ type HTTPClient struct {
 }
 
 type WSClient struct {
-	config        WSConfig
-	ethClient     *ethclient.Client
-	logSubscriber logSubscriber
+	config          WSConfig
+	ethClient       *ethclient.Client
+	logSubscriber   logSubscriber
+	chainIDProvider chainIDProvider
+	clientCloser    clientCloser
+	closeOnce       sync.Once
 }
 
 // NewHTTPClient creates an EVM HTTP RPC client.
@@ -118,6 +121,8 @@ func composeWSClient(config WSConfig, ethClient *ethclient.Client) *WSClient {
 	}
 	if ethClient != nil {
 		client.logSubscriber = ethClient
+		client.chainIDProvider = ethClient
+		client.clientCloser = ethClient
 	}
 
 	return client

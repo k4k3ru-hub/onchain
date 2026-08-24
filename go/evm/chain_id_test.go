@@ -21,6 +21,12 @@ func TestResolveChainID(t *testing.T) {
 			want:    ChainIDEthereumMainnet,
 		},
 		{
+			name:    "ethereum sepolia",
+			chain:   core.ChainEthereum,
+			network: core.NetworkSepolia,
+			want:    ChainIDEthereumSepolia,
+		},
+		{
 			name:    "bnb mainnet",
 			chain:   core.ChainBNB,
 			network: core.NetworkMainnet,
@@ -31,6 +37,12 @@ func TestResolveChainID(t *testing.T) {
 			chain:   core.ChainBase,
 			network: core.NetworkMainnet,
 			want:    ChainIDBaseMainnet,
+		},
+		{
+			name:    "base sepolia",
+			chain:   core.ChainBase,
+			network: core.NetworkSepolia,
+			want:    ChainIDBaseSepolia,
 		},
 		{
 			name:    "polygon mainnet",
@@ -73,6 +85,12 @@ func TestResolveChainNetwork(t *testing.T) {
 			network: core.NetworkMainnet,
 		},
 		{
+			name:    "ethereum sepolia",
+			chainID: ChainIDEthereumSepolia,
+			chain:   core.ChainEthereum,
+			network: core.NetworkSepolia,
+		},
+		{
 			name:    "bnb mainnet",
 			chainID: ChainIDBNBMainnet,
 			chain:   core.ChainBNB,
@@ -83,6 +101,12 @@ func TestResolveChainNetwork(t *testing.T) {
 			chainID: ChainIDBaseMainnet,
 			chain:   core.ChainBase,
 			network: core.NetworkMainnet,
+		},
+		{
+			name:    "base sepolia",
+			chainID: ChainIDBaseSepolia,
+			chain:   core.ChainBase,
+			network: core.NetworkSepolia,
 		},
 		{
 			name:    "polygon mainnet",
@@ -145,7 +169,7 @@ func TestResolveChainIDRejectsInvalidInput(t *testing.T) {
 		{name: "solana", chain: core.ChainSolana, network: core.NetworkMainnet, wantError: "chain_family=invalid"},
 		{name: "sui", chain: core.ChainSui, network: core.NetworkMainnet, wantError: "chain_family=invalid"},
 		{name: "unsupported evm chain", chain: core.ChainAvalanche, network: core.NetworkMainnet, wantError: "combination is unsupported"},
-		{name: "unsupported network", chain: core.ChainEthereum, network: core.NetworkSepolia, wantError: "combination is unsupported"},
+		{name: "unsupported network", chain: core.ChainEthereum, network: core.NetworkHolesky, wantError: "combination is unsupported"},
 	}
 
 	for _, test := range tests {
@@ -191,8 +215,10 @@ func TestChainIDValues(t *testing.T) {
 		text    string
 	}{
 		{chainID: ChainIDEthereumMainnet, value: 1, text: "1"},
+		{chainID: ChainIDEthereumSepolia, value: 11155111, text: "11155111"},
 		{chainID: ChainIDBNBMainnet, value: 56, text: "56"},
 		{chainID: ChainIDBaseMainnet, value: 8453, text: "8453"},
+		{chainID: ChainIDBaseSepolia, value: 84532, text: "84532"},
 		{chainID: ChainIDPolygonMainnet, value: 137, text: "137"},
 		{chainID: ChainIDPolygonAmoy, value: 80002, text: "80002"},
 	}

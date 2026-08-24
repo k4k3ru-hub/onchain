@@ -114,3 +114,33 @@ func TestHTTPClientChainIDWrapsProviderError(t *testing.T) {
 		t.Errorf("ChainID() error = %q", err)
 	}
 }
+
+func TestWSClientChainID(t *testing.T) {
+	t.Parallel()
+
+	provider := &fakeChainIDProvider{chainID: big.NewInt(11155111)}
+	client := &WSClient{chainIDProvider: provider}
+
+	got, err := client.ChainID(context.Background())
+	if err != nil {
+		t.Fatalf("ChainID() error = %v", err)
+	}
+	if got != ChainIDEthereumSepolia {
+		t.Errorf("ChainID() = %d, want %d", got, ChainIDEthereumSepolia)
+	}
+}
+
+func TestWSClientChainIDRejectsInvalidState(t *testing.T) {
+	t.Parallel()
+
+	var nilClient *WSClient
+	_, err := nilClient.ChainID(context.Background())
+	if err == nil || err.Error() != "failed to get evm chain id: ws_client=null" {
+		t.Fatalf("ChainID() error = %v", err)
+	}
+
+	_, err = (&WSClient{}).ChainID(context.Background())
+	if err == nil || err.Error() != "failed to get evm chain id: chain_id_provider=null" {
+		t.Fatalf("ChainID() error = %v", err)
+	}
+}

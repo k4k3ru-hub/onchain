@@ -14,7 +14,9 @@ const (
 	ChainIDBNBMainnet      ChainID = 56
 	ChainIDPolygonMainnet  ChainID = 137
 	ChainIDBaseMainnet     ChainID = 8453
+	ChainIDBaseSepolia     ChainID = 84532
 	ChainIDPolygonAmoy     ChainID = 80002
+	ChainIDEthereumSepolia ChainID = 11155111
 )
 
 type ChainNetwork struct {
@@ -35,6 +37,11 @@ var chainDefinitions = [...]chainDefinition{
 		network: core.NetworkMainnet,
 	},
 	{
+		chainID: ChainIDEthereumSepolia,
+		chain:   core.ChainEthereum,
+		network: core.NetworkSepolia,
+	},
+	{
 		chainID: ChainIDBNBMainnet,
 		chain:   core.ChainBNB,
 		network: core.NetworkMainnet,
@@ -43,6 +50,11 @@ var chainDefinitions = [...]chainDefinition{
 		chainID: ChainIDBaseMainnet,
 		chain:   core.ChainBase,
 		network: core.NetworkMainnet,
+	},
+	{
+		chainID: ChainIDBaseSepolia,
+		chain:   core.ChainBase,
+		network: core.NetworkSepolia,
 	},
 	{
 		chainID: ChainIDPolygonMainnet,
@@ -84,6 +96,7 @@ func (id ChainID) String() string {
 //   - Validation error.
 //
 // Version:
+//   - 2026-08-24: Added Ethereum Sepolia and Base Sepolia.
 //   - 2026-08-22: Added Polygon Mainnet and Amoy.
 //   - 2026-08-19: Added.
 func (id ChainID) Validate() error {
@@ -107,6 +120,7 @@ func (id ChainID) Validate() error {
 //   - Resolution error.
 //
 // Version:
+//   - 2026-08-24: Added Ethereum Sepolia and Base Sepolia.
 //   - 2026-08-22: Added Polygon Mainnet and Amoy.
 //   - 2026-08-19: Added.
 func ResolveChainID(chain core.Chain, network core.Network) (ChainID, error) {
@@ -146,6 +160,7 @@ func ResolveChainID(chain core.Chain, network core.Network) (ChainID, error) {
 //   - Resolution error.
 //
 // Version:
+//   - 2026-08-24: Added Ethereum Sepolia and Base Sepolia.
 //   - 2026-08-22: Added Polygon Mainnet and Amoy.
 //   - 2026-08-19: Added.
 func ResolveChainNetwork(chainID ChainID) (ChainNetwork, error) {
