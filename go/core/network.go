@@ -1,70 +1,62 @@
-//
 // network.go
-//
 package core
 
 import (
-    "fmt"
+	"fmt"
 )
 
 type Network string
 
 const (
-    NetworkMainnet Network = "mainnet"
-    NetworkTestnet Network = "testnet"
-    NetworkDevnet  Network = "devnet"
+	NetworkMainnet Network = "mainnet"
+	NetworkTestnet Network = "testnet"
+	NetworkDevnet  Network = "devnet"
 	NetworkSepolia Network = "sepolia"
 	NetworkHolesky Network = "holesky"
+	NetworkAmoy    Network = "amoy"
 )
 
-
-//
 // Check whether network is valid.
 //
 // Version:
+//   - 2026-08-22: Added Amoy.
 //   - 2026-05-17: Added.
-//
 func (n Network) IsValid() bool {
-    switch n {
-    case NetworkMainnet,
-        NetworkTestnet,
-        NetworkDevnet,
-        NetworkSepolia,
-        NetworkHolesky:
-        return true
-    default:
-        return false
-    }
+	switch n {
+	case NetworkMainnet,
+		NetworkTestnet,
+		NetworkDevnet,
+		NetworkSepolia,
+		NetworkHolesky,
+		NetworkAmoy:
+		return true
+	default:
+		return false
+	}
 }
 
-
-//
 // Validate network.
 //
 // Version:
+//   - 2026-08-22: Added Amoy.
 //   - 2026-05-17: Added.
-//
 func (n Network) Validate() error {
-    if string(n) == "" {
-        return fmt.Errorf("missing required parameter: network=%q", "empty")
-    }
-    if len(n) > 16 {
-        return fmt.Errorf("missing required parameter: network=%q", "too long")
-    }
-    if !n.IsValid() {
-        return fmt.Errorf("invalid parameter: network=%q", n)
-    }
-    return nil
+	if string(n) == "" {
+		return fmt.Errorf("missing required parameter: network=%q", "empty")
+	}
+	if len(n) > 16 {
+		return fmt.Errorf("missing required parameter: network=%q", "too long")
+	}
+	if !n.IsValid() {
+		return fmt.Errorf("invalid parameter: network=%q", n)
+	}
+	return nil
 }
 
-
-//
 // Convert network to string.
 //
 // Version:
 //   - 2026-05-17: Added.
-//
 func (n Network) String() string {
-    return string(n)
+	return string(n)
 }
-

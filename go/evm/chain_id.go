@@ -12,7 +12,9 @@ type ChainID uint64
 const (
 	ChainIDEthereumMainnet ChainID = 1
 	ChainIDBNBMainnet      ChainID = 56
+	ChainIDPolygonMainnet  ChainID = 137
 	ChainIDBaseMainnet     ChainID = 8453
+	ChainIDPolygonAmoy     ChainID = 80002
 )
 
 type ChainNetwork struct {
@@ -41,6 +43,16 @@ var chainDefinitions = [...]chainDefinition{
 		chainID: ChainIDBaseMainnet,
 		chain:   core.ChainBase,
 		network: core.NetworkMainnet,
+	},
+	{
+		chainID: ChainIDPolygonMainnet,
+		chain:   core.ChainPolygon,
+		network: core.NetworkMainnet,
+	},
+	{
+		chainID: ChainIDPolygonAmoy,
+		chain:   core.ChainPolygon,
+		network: core.NetworkAmoy,
 	},
 }
 
@@ -72,6 +84,7 @@ func (id ChainID) String() string {
 //   - Validation error.
 //
 // Version:
+//   - 2026-08-22: Added Polygon Mainnet and Amoy.
 //   - 2026-08-19: Added.
 func (id ChainID) Validate() error {
 	if id == 0 {
@@ -94,6 +107,7 @@ func (id ChainID) Validate() error {
 //   - Resolution error.
 //
 // Version:
+//   - 2026-08-22: Added Polygon Mainnet and Amoy.
 //   - 2026-08-19: Added.
 func ResolveChainID(chain core.Chain, network core.Network) (ChainID, error) {
 	if err := chain.Validate(); err != nil {
@@ -132,6 +146,7 @@ func ResolveChainID(chain core.Chain, network core.Network) (ChainID, error) {
 //   - Resolution error.
 //
 // Version:
+//   - 2026-08-22: Added Polygon Mainnet and Amoy.
 //   - 2026-08-19: Added.
 func ResolveChainNetwork(chainID ChainID) (ChainNetwork, error) {
 	if chainID == 0 {

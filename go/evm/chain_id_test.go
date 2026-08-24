@@ -32,6 +32,18 @@ func TestResolveChainID(t *testing.T) {
 			network: core.NetworkMainnet,
 			want:    ChainIDBaseMainnet,
 		},
+		{
+			name:    "polygon mainnet",
+			chain:   core.ChainPolygon,
+			network: core.NetworkMainnet,
+			want:    ChainIDPolygonMainnet,
+		},
+		{
+			name:    "polygon amoy",
+			chain:   core.ChainPolygon,
+			network: core.NetworkAmoy,
+			want:    ChainIDPolygonAmoy,
+		},
 	}
 
 	for _, test := range tests {
@@ -71,6 +83,18 @@ func TestResolveChainNetwork(t *testing.T) {
 			chainID: ChainIDBaseMainnet,
 			chain:   core.ChainBase,
 			network: core.NetworkMainnet,
+		},
+		{
+			name:    "polygon mainnet",
+			chainID: ChainIDPolygonMainnet,
+			chain:   core.ChainPolygon,
+			network: core.NetworkMainnet,
+		},
+		{
+			name:    "polygon amoy",
+			chainID: ChainIDPolygonAmoy,
+			chain:   core.ChainPolygon,
+			network: core.NetworkAmoy,
 		},
 	}
 
@@ -120,7 +144,7 @@ func TestResolveChainIDRejectsInvalidInput(t *testing.T) {
 		{name: "invalid network", chain: core.ChainEthereum, network: core.Network("unknown"), wantError: "network"},
 		{name: "solana", chain: core.ChainSolana, network: core.NetworkMainnet, wantError: "chain_family=invalid"},
 		{name: "sui", chain: core.ChainSui, network: core.NetworkMainnet, wantError: "chain_family=invalid"},
-		{name: "unsupported evm chain", chain: core.ChainPolygon, network: core.NetworkMainnet, wantError: "combination is unsupported"},
+		{name: "unsupported evm chain", chain: core.ChainAvalanche, network: core.NetworkMainnet, wantError: "combination is unsupported"},
 		{name: "unsupported network", chain: core.ChainEthereum, network: core.NetworkSepolia, wantError: "combination is unsupported"},
 	}
 
@@ -169,6 +193,8 @@ func TestChainIDValues(t *testing.T) {
 		{chainID: ChainIDEthereumMainnet, value: 1, text: "1"},
 		{chainID: ChainIDBNBMainnet, value: 56, text: "56"},
 		{chainID: ChainIDBaseMainnet, value: 8453, text: "8453"},
+		{chainID: ChainIDPolygonMainnet, value: 137, text: "137"},
+		{chainID: ChainIDPolygonAmoy, value: 80002, text: "80002"},
 	}
 
 	for _, test := range tests {

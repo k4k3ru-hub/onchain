@@ -252,6 +252,11 @@ func buildDefaultAssets() []*Asset {
 
 		// Polygon: Mainnet.
 		NewAsset(ChainPolygon, NetworkMainnet, TokenPOL, 18, "POL", true),
+		NewAsset(ChainPolygon, NetworkMainnet, TokenJPYC, 18, "JPY Coin", false).WithTokenRef("0xE7C3D8C9a439feDe00D2600032D5dB0Be71C3c29"),
+
+		// Polygon: Amoy.
+		NewAsset(ChainPolygon, NetworkAmoy, TokenPOL, 18, "POL", true),
+		NewAsset(ChainPolygon, NetworkAmoy, TokenJPYC, 18, "JPY Coin", false).WithTokenRef("0xE7C3D8C9a439feDe00D2600032D5dB0Be71C3c29"),
 
 		// Avalanche: Mainnet.
 		NewAsset(ChainAvalanche, NetworkMainnet, TokenAVAX, 18, "Avalanche", true),
@@ -259,7 +264,16 @@ func buildDefaultAssets() []*Asset {
 		// Solana: Mainnet.
 		NewAsset(ChainSolana, NetworkMainnet, TokenSOL, 9, "Solana", true),
 
+		// Solana: Devnet.
+		NewAsset(ChainSolana, NetworkDevnet, TokenSOL, 9, "Solana", true),
+
 		// Sui: Mainnet.
 		NewAsset(ChainSui, NetworkMainnet, TokenSUI, 9, "Sui", true),
+
+		// Sui: Testnet.
+		NewAsset(ChainSui, NetworkTestnet, TokenSUI, 9, "Sui", true),
+
+		// Sui: Devnet.
+		NewAsset(ChainSui, NetworkDevnet, TokenSUI, 9, "Sui", true),
 	}
 }
