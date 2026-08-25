@@ -48,6 +48,30 @@ func TestDefaultPolygonJPYCAssets(t *testing.T) {
 	}
 }
 
+func TestDefaultPolygonUSDCAssets(t *testing.T) {
+	registry, err := NewAssetRegistry().WithDefaultAssets()
+	if err != nil {
+		t.Fatalf("WithDefaultAssets() error = %v", err)
+	}
+
+	tests := []struct {
+		network      Network
+		wantTokenRef string
+	}{
+		{network: NetworkMainnet, wantTokenRef: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"},
+		{network: NetworkAmoy, wantTokenRef: "0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582"},
+	}
+	for _, test := range tests {
+		asset, err := registry.Get(ChainPolygon, test.network, TokenUSDC)
+		if err != nil {
+			t.Fatalf("Get(%q, %q, %q) error = %v", ChainPolygon, test.network, TokenUSDC, err)
+		}
+		if asset.IsNative || asset.Decimals != 6 || asset.Name != "USD Coin" || asset.TokenRef == nil || !strings.EqualFold(*asset.TokenRef, test.wantTokenRef) {
+			t.Errorf("Polygon %q USDC asset = %+v, want ERC-20 USD Coin with 6 decimals and token reference %q", test.network, asset, test.wantTokenRef)
+		}
+	}
+}
+
 func TestDefaultPolygonDepositPolicies(t *testing.T) {
 	registry, err := NewDepositPolicyRegistry().WithDefaultDepositPolicies()
 	if err != nil {
@@ -55,12 +79,14 @@ func TestDefaultPolygonDepositPolicies(t *testing.T) {
 	}
 
 	for _, network := range []Network{NetworkMainnet, NetworkAmoy} {
-		policy, err := registry.Get(ChainPolygon, network, TokenPOL)
-		if err != nil {
-			t.Fatalf("Get(%q, %q, %q) error = %v", ChainPolygon, network, TokenPOL, err)
-		}
-		if policy.RequiredConfirmations != 128 {
-			t.Errorf("Polygon %q required confirmations = %d, want 128", network, policy.RequiredConfirmations)
+		for _, token := range []Token{TokenPOL, TokenUSDC, TokenJPYC} {
+			policy, err := registry.Get(ChainPolygon, network, token)
+			if err != nil {
+				t.Fatalf("Get(%q, %q, %q) error = %v", ChainPolygon, network, token, err)
+			}
+			if policy.RequiredConfirmations != 12 {
+				t.Errorf("Polygon %q %q required confirmations = %d, want 12", network, token, policy.RequiredConfirmations)
+			}
 		}
 	}
 }

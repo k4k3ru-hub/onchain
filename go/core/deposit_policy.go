@@ -219,10 +219,14 @@ func buildDefaultDepositPolicies() []*DepositPolicy {
 		NewDepositPolicy(ChainBNB, NetworkMainnet, TokenBNB, 15),
 
 		// Polygon: Mainnet.
-		NewDepositPolicy(ChainPolygon, NetworkMainnet, TokenPOL, 128),
+		NewDepositPolicy(ChainPolygon, NetworkMainnet, TokenPOL, 12),
+		NewDepositPolicy(ChainPolygon, NetworkMainnet, TokenUSDC, 12),
+		NewDepositPolicy(ChainPolygon, NetworkMainnet, TokenJPYC, 12),
 
 		// Polygon: Amoy.
-		NewDepositPolicy(ChainPolygon, NetworkAmoy, TokenPOL, 128),
+		NewDepositPolicy(ChainPolygon, NetworkAmoy, TokenPOL, 12),
+		NewDepositPolicy(ChainPolygon, NetworkAmoy, TokenUSDC, 12),
+		NewDepositPolicy(ChainPolygon, NetworkAmoy, TokenJPYC, 12),
 
 		// Avalanche.
 		NewDepositPolicy(ChainAvalanche, NetworkMainnet, TokenAVAX, 20),

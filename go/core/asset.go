@@ -252,10 +252,12 @@ func buildDefaultAssets() []*Asset {
 
 		// Polygon: Mainnet.
 		NewAsset(ChainPolygon, NetworkMainnet, TokenPOL, 18, "POL", true),
+		NewAsset(ChainPolygon, NetworkMainnet, TokenUSDC, 6, "USD Coin", false).WithTokenRef("0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"),
 		NewAsset(ChainPolygon, NetworkMainnet, TokenJPYC, 18, "JPY Coin", false).WithTokenRef("0xE7C3D8C9a439feDe00D2600032D5dB0Be71C3c29"),
 
 		// Polygon: Amoy.
 		NewAsset(ChainPolygon, NetworkAmoy, TokenPOL, 18, "POL", true),
+		NewAsset(ChainPolygon, NetworkAmoy, TokenUSDC, 6, "USD Coin", false).WithTokenRef("0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582"),
 		NewAsset(ChainPolygon, NetworkAmoy, TokenJPYC, 18, "JPY Coin", false).WithTokenRef("0xE7C3D8C9a439feDe00D2600032D5dB0Be71C3c29"),
 
 		// Avalanche: Mainnet.
