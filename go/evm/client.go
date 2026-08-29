@@ -19,16 +19,17 @@ type WSConfig struct {
 }
 
 type HTTPClient struct {
-	config              HTTPConfig
-	ethClient           *ethclient.Client
-	blockHeaderByHasher blockHeaderByHasher
-	blockNumberer       blockNumberer
-	contractCaller      contractCaller
-	logFilterer         logFilterer
-	receiptProvider     transactionReceiptProvider
-	chainIDProvider     chainIDProvider
-	clientCloser        clientCloser
-	closeOnce           sync.Once
+	config                HTTPConfig
+	ethClient             *ethclient.Client
+	blockHeaderByHasher   blockHeaderByHasher
+	blockHeaderByNumberer blockHeaderByNumberer
+	blockNumberer         blockNumberer
+	contractCaller        contractCaller
+	logFilterer           logFilterer
+	receiptProvider       transactionReceiptProvider
+	chainIDProvider       chainIDProvider
+	clientCloser          clientCloser
+	closeOnce             sync.Once
 }
 
 type WSClient struct {
@@ -103,6 +104,7 @@ func composeHTTPClient(config HTTPConfig, ethClient *ethclient.Client) *HTTPClie
 	}
 	if ethClient != nil {
 		client.blockHeaderByHasher = ethClient
+		client.blockHeaderByNumberer = ethClient
 		client.blockNumberer = ethClient
 		client.contractCaller = ethClient
 		client.logFilterer = ethClient
