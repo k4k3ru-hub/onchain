@@ -49,9 +49,27 @@ type MoveCall struct {
 	Arguments     []Argument
 }
 
+type MakeMoveVec struct {
+	ElementType string
+	Elements    []Argument
+}
+
+type CommandKind uint8
+
+const (
+	CommandKindMoveCall CommandKind = iota + 1
+	CommandKindMakeMoveVec
+)
+
+type Command struct {
+	Kind        CommandKind
+	MoveCall    *MoveCall
+	MakeMoveVec *MakeMoveVec
+}
+
 type ProgrammableTransaction struct {
 	Inputs   []ProgrammableTransactionInput
-	Commands []MoveCall
+	Commands []Command
 }
 
 type ProgrammableTransactionBuilder struct {
@@ -133,7 +151,33 @@ func (b *ProgrammableTransactionBuilder) MoveCall(call MoveCall) (Argument, erro
 	}
 	call.TypeArguments = append([]string(nil), call.TypeArguments...)
 	call.Arguments = append([]Argument(nil), call.Arguments...)
-	b.transaction.Commands = append(b.transaction.Commands, call)
+	b.transaction.Commands = append(b.transaction.Commands, Command{Kind: CommandKindMoveCall, MoveCall: &call})
+	return Argument{Kind: ArgumentKindResult, Index: uint16(len(b.transaction.Commands) - 1)}, nil
+}
+
+// MakeMoveVec appends one command that constructs a Move vector.
+//
+// ElementType may be empty when Move can infer an object element type. It is
+// required for an empty vector or when the elements are pure values.
+//
+// Parameters:
+//   - vector: Move vector definition.
+//
+// Returns:
+//   - Command result argument.
+//   - Validation error.
+//
+// Version:
+//   - 2026-08-31: Added.
+func (b *ProgrammableTransactionBuilder) MakeMoveVec(vector MakeMoveVec) (Argument, error) {
+	if b == nil {
+		return Argument{}, fmt.Errorf("failed to add sui programmable transaction move vector: builder=null")
+	}
+	if err := vector.validate(len(b.transaction.Inputs), len(b.transaction.Commands)); err != nil {
+		return Argument{}, fmt.Errorf("failed to add sui programmable transaction move vector: %w", err)
+	}
+	vector.Elements = append([]Argument(nil), vector.Elements...)
+	b.transaction.Commands = append(b.transaction.Commands, Command{Kind: CommandKindMakeMoveVec, MakeMoveVec: &vector})
 	return Argument{Kind: ArgumentKindResult, Index: uint16(len(b.transaction.Commands) - 1)}, nil
 }
 
@@ -198,6 +242,28 @@ func (t ProgrammableTransaction) Validate() error {
 	return nil
 }
 
+func (c Command) validate(inputCount, commandCount int) error {
+	switch c.Kind {
+	case CommandKindMoveCall:
+		if c.MoveCall == nil || c.MakeMoveVec != nil {
+			return fmt.Errorf("failed to validate sui programmable transaction command: move_call=invalid")
+		}
+		if err := c.MoveCall.validate(inputCount, commandCount); err != nil {
+			return fmt.Errorf("failed to validate sui programmable transaction command: %w", err)
+		}
+	case CommandKindMakeMoveVec:
+		if c.MakeMoveVec == nil || c.MoveCall != nil {
+			return fmt.Errorf("failed to validate sui programmable transaction command: make_move_vec=invalid")
+		}
+		if err := c.MakeMoveVec.validate(inputCount, commandCount); err != nil {
+			return fmt.Errorf("failed to validate sui programmable transaction command: %w", err)
+		}
+	default:
+		return fmt.Errorf("failed to validate sui programmable transaction command: kind=invalid")
+	}
+	return nil
+}
+
 func (b *ProgrammableTransactionBuilder) addInput(input ProgrammableTransactionInput) (Argument, error) {
 	if len(b.transaction.Inputs) >= 1<<16 {
 		return Argument{}, fmt.Errorf("failed to add sui programmable transaction input: inputs=too_long max_length=%d", 1<<16-1)
@@ -249,6 +315,18 @@ func (c MoveCall) validate(inputCount, commandCount int) error {
 	return nil
 }
 
+func (v MakeMoveVec) validate(inputCount, commandCount int) error {
+	if strings.TrimSpace(v.ElementType) == "" {
+		return fmt.Errorf("failed to validate sui move vector: element_type=empty")
+	}
+	for i, element := range v.Elements {
+		if err := element.validate(inputCount, commandCount); err != nil {
+			return fmt.Errorf("failed to validate sui move vector: %w: element_index=%d", err, i)
+		}
+	}
+	return nil
+}
+
 func (a Argument) validate(inputCount, commandCount int) error {
 	switch a.Kind {
 	case ArgumentKindGas:
@@ -270,15 +348,24 @@ func (a Argument) validate(inputCount, commandCount int) error {
 }
 
 func (t ProgrammableTransaction) clone() ProgrammableTransaction {
-	result := ProgrammableTransaction{Inputs: make([]ProgrammableTransactionInput, len(t.Inputs)), Commands: make([]MoveCall, len(t.Commands))}
+	result := ProgrammableTransaction{Inputs: make([]ProgrammableTransactionInput, len(t.Inputs)), Commands: make([]Command, len(t.Commands))}
 	copy(result.Inputs, t.Inputs)
 	for i := range result.Inputs {
 		result.Inputs[i].Pure = append([]byte(nil), t.Inputs[i].Pure...)
 	}
 	for i, command := range t.Commands {
-		result.Commands[i] = command
-		result.Commands[i].TypeArguments = append([]string(nil), command.TypeArguments...)
-		result.Commands[i].Arguments = append([]Argument(nil), command.Arguments...)
+		result.Commands[i].Kind = command.Kind
+		if command.MoveCall != nil {
+			call := *command.MoveCall
+			call.TypeArguments = append([]string(nil), command.MoveCall.TypeArguments...)
+			call.Arguments = append([]Argument(nil), command.MoveCall.Arguments...)
+			result.Commands[i].MoveCall = &call
+		}
+		if command.MakeMoveVec != nil {
+			vector := *command.MakeMoveVec
+			vector.Elements = append([]Argument(nil), command.MakeMoveVec.Elements...)
+			result.Commands[i].MakeMoveVec = &vector
+		}
 	}
 	return result
 }

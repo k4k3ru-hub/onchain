@@ -25,8 +25,17 @@ type SimulationCommandResult struct {
 	MutatedByRef []CommandOutput
 }
 
+type SimulationEvent struct {
+	Package Address
+	Module  string
+	Type    string
+	BCS     []byte
+	JSON    any
+}
+
 type SimulationResult struct {
 	CommandResults    []SimulationCommandResult
+	Events            []SimulationEvent
 	SuggestedGasPrice uint64
 }
 
@@ -87,7 +96,7 @@ func (a *grpcAdapter) simulateTransaction(ctx context.Context, request Simulatio
 	response, err := a.executionClient.SimulateTransaction(ctx, &rpcv2.SimulateTransactionRequest{
 		Transaction: transaction,
 		ReadMask: &fieldmaskpb.FieldMask{Paths: []string{
-			"transaction.effects", "command_outputs", "suggested_gas_price",
+			"transaction.effects", "transaction.events.events", "command_outputs", "suggested_gas_price",
 		}},
 		Checks:         checks.Enum(),
 		DoGasSelection: &request.DoGasSelection,
@@ -110,6 +119,25 @@ func (a *grpcAdapter) simulateTransaction(ctx context.Context, request Simulatio
 		result.CommandResults[i].ReturnValues = commandOutputs(command.ReturnValues)
 		result.CommandResults[i].MutatedByRef = commandOutputs(command.MutatedByRef)
 	}
+	if response.Transaction.Events != nil {
+		result.Events = make([]SimulationEvent, len(response.Transaction.Events.Events))
+		for i, event := range response.Transaction.Events.Events {
+			if event == nil {
+				return nil, fmt.Errorf("failed to call sui transaction simulation: event=null event_index=%d", i)
+			}
+			packageAddress, err := ParseAddress(event.GetPackageId())
+			if err != nil {
+				return nil, fmt.Errorf("failed to call sui transaction simulation: event_package=invalid: %w: event_index=%d", err, i)
+			}
+			result.Events[i] = SimulationEvent{Package: packageAddress, Module: event.GetModule(), Type: event.GetEventType()}
+			if event.Contents != nil {
+				result.Events[i].BCS = append([]byte(nil), event.Contents.Value...)
+			}
+			if event.Json != nil {
+				result.Events[i].JSON = event.Json.AsInterface()
+			}
+		}
+	}
 	return result, nil
 }
 
@@ -123,16 +151,30 @@ func transactionToRPC(request SimulationRequest) (*rpcv2.Transaction, error) {
 		inputs[i] = converted
 	}
 	commands := make([]*rpcv2.Command, len(request.Transaction.Commands))
-	for i, call := range request.Transaction.Commands {
-		arguments := make([]*rpcv2.Argument, len(call.Arguments))
-		for j, argument := range call.Arguments {
-			arguments[j] = argumentToRPC(argument)
+	for i, command := range request.Transaction.Commands {
+		switch command.Kind {
+		case CommandKindMoveCall:
+			call := command.MoveCall
+			arguments := make([]*rpcv2.Argument, len(call.Arguments))
+			for j, argument := range call.Arguments {
+				arguments[j] = argumentToRPC(argument)
+			}
+			packageID, module, function := call.Package.String(), call.Module, call.Function
+			commands[i] = &rpcv2.Command{Command: &rpcv2.Command_MoveCall{MoveCall: &rpcv2.MoveCall{
+				Package: &packageID, Module: &module, Function: &function,
+				TypeArguments: append([]string(nil), call.TypeArguments...), Arguments: arguments,
+			}}}
+		case CommandKindMakeMoveVec:
+			vector := command.MakeMoveVec
+			elements := make([]*rpcv2.Argument, len(vector.Elements))
+			for j, element := range vector.Elements {
+				elements[j] = argumentToRPC(element)
+			}
+			elementType := vector.ElementType
+			commands[i] = &rpcv2.Command{Command: &rpcv2.Command_MakeMoveVector{MakeMoveVector: &rpcv2.MakeMoveVector{ElementType: &elementType, Elements: elements}}}
+		default:
+			return nil, fmt.Errorf("failed to convert sui transaction command: command_kind=invalid command_index=%d", i)
 		}
-		packageID, module, function := call.Package.String(), call.Module, call.Function
-		commands[i] = &rpcv2.Command{Command: &rpcv2.Command_MoveCall{MoveCall: &rpcv2.MoveCall{
-			Package: &packageID, Module: &module, Function: &function,
-			TypeArguments: append([]string(nil), call.TypeArguments...), Arguments: arguments,
-		}}}
 	}
 	kind := rpcv2.TransactionKind_PROGRAMMABLE_TRANSACTION
 	sender := request.Sender.String()
