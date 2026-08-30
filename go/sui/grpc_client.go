@@ -23,6 +23,7 @@ type GRPCClient struct {
 	config              GRPCConfig
 	provider            eventSubscriptionProvider
 	transactionProvider transactionSubscriptionProvider
+	simulationProvider  transactionSimulationProvider
 	closer              grpcClientCloser
 	closeOnce           sync.Once
 	closeErr            error
@@ -51,7 +52,8 @@ type grpcClientCloser interface {
 }
 
 type grpcAdapter struct {
-	client rpcv2.SubscriptionServiceClient
+	client          rpcv2.SubscriptionServiceClient
+	executionClient rpcv2.TransactionExecutionServiceClient
 }
 
 // NewGRPCClient creates a Sui gRPC streaming client.
@@ -87,7 +89,10 @@ func NewGRPCClient(ctx context.Context, config GRPCConfig) (*GRPCClient, error) 
 	if err != nil {
 		return nil, fmt.Errorf("failed to create sui grpc client: failed to create grpc connection: %w", err)
 	}
-	return composeGRPCClient(config, &grpcAdapter{client: rpcv2.NewSubscriptionServiceClient(connection)}, connection), nil
+	return composeGRPCClient(config, &grpcAdapter{
+		client:          rpcv2.NewSubscriptionServiceClient(connection),
+		executionClient: rpcv2.NewTransactionExecutionServiceClient(connection),
+	}, connection), nil
 }
 
 // Validate validates the Sui gRPC configuration.
@@ -123,6 +128,9 @@ func composeGRPCClient(config GRPCConfig, provider eventSubscriptionProvider, cl
 	client := &GRPCClient{config: config, provider: provider, closer: closer}
 	if transactionProvider, ok := provider.(transactionSubscriptionProvider); ok {
 		client.transactionProvider = transactionProvider
+	}
+	if simulationProvider, ok := provider.(transactionSimulationProvider); ok {
+		client.simulationProvider = simulationProvider
 	}
 	return client
 }
