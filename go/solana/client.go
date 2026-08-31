@@ -23,6 +23,7 @@ type RPCClient struct {
 	blockHeightProvider       blockHeightProvider
 	blockProvider             blockProvider
 	accountProvider           accountProvider
+	accountSnapshotProvider   accountSnapshotProvider
 	transactionProvider       transactionProvider
 	addressSignaturesProvider addressSignaturesProvider
 	genesisHashProvider       genesisHashProvider
@@ -90,6 +91,7 @@ func composeRPCClient(config RPCConfig, dependency interface {
 	blockHeightProvider
 	blockProvider
 	accountProvider
+	accountSnapshotProvider
 	transactionProvider
 	addressSignaturesProvider
 	genesisHashProvider
@@ -101,6 +103,7 @@ func composeRPCClient(config RPCConfig, dependency interface {
 		client.blockHeightProvider = dependency
 		client.blockProvider = dependency
 		client.accountProvider = dependency
+		client.accountSnapshotProvider = dependency
 		client.transactionProvider = dependency
 		client.addressSignaturesProvider = dependency
 		client.genesisHashProvider = dependency
@@ -161,6 +164,33 @@ func (a *sdkRPCAdapter) getAccount(ctx context.Context, address Address, commitm
 	account := &Account{Address: address, Lamports: result.Value.Lamports, Executable: result.Value.Executable, Data: append([]byte(nil), result.GetBinary()...)}
 	copy(account.Owner[:], result.Value.Owner[:])
 	return account, nil
+}
+
+func (a *sdkRPCAdapter) getAccountSnapshot(ctx context.Context, addresses []Address, commitment Commitment) (*AccountSnapshot, error) {
+	publicKeys := make([]solanaSDK.PublicKey, len(addresses))
+	for i, address := range addresses {
+		copy(publicKeys[i][:], address[:])
+	}
+	result, err := a.client.GetMultipleAccountsWithOpts(ctx, publicKeys, &solanaRPC.GetMultipleAccountsOpts{Encoding: solanaSDK.EncodingBase64, Commitment: solanaRPC.CommitmentType(commitment)})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get solana rpc account snapshot: %w", err)
+	}
+	if result == nil {
+		return nil, fmt.Errorf("failed to get solana rpc account snapshot: result=null")
+	}
+	if len(result.Value) != len(addresses) {
+		return nil, fmt.Errorf("failed to get solana rpc account snapshot: account_count=invalid actual_length=%d expected_length=%d", len(result.Value), len(addresses))
+	}
+	accounts := make([]*Account, len(result.Value))
+	for i, value := range result.Value {
+		if value == nil {
+			continue
+		}
+		account := &Account{Address: addresses[i], Lamports: value.Lamports, Executable: value.Executable, Data: append([]byte(nil), value.Data.GetBinary()...)}
+		copy(account.Owner[:], value.Owner[:])
+		accounts[i] = account
+	}
+	return &AccountSnapshot{Slot: Slot(result.Context.Slot), Accounts: accounts}, nil
 }
 
 func (a *sdkRPCAdapter) getTransaction(ctx context.Context, signature Signature, commitment Commitment) (*Transaction, error) {

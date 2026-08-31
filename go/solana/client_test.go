@@ -28,6 +28,9 @@ func (f *fakeRPCDependency) getBlock(context.Context, Slot, Commitment) (*Block,
 func (f *fakeRPCDependency) getAccount(context.Context, Address, Commitment) (*Account, error) {
 	return &Account{}, nil
 }
+func (f *fakeRPCDependency) getAccountSnapshot(context.Context, []Address, Commitment) (*AccountSnapshot, error) {
+	return &AccountSnapshot{Slot: 1, Accounts: []*Account{}}, nil
+}
 func (f *fakeRPCDependency) getTransaction(context.Context, Signature, Commitment) (*Transaction, error) {
 	return &Transaction{}, nil
 }
@@ -80,6 +83,9 @@ func TestComposeRPCClient(t *testing.T) {
 	if client.blockProvider != dependency || client.accountProvider != dependency || client.transactionProvider != dependency {
 		t.Error("composeRPCClient() did not compose block, account, and transaction providers")
 	}
+	if client.accountSnapshotProvider != dependency {
+		t.Error("composeRPCClient() did not compose account snapshot provider")
+	}
 	if client.signatureStatusProvider != dependency {
 		t.Error("composeRPCClient() did not compose signature status provider")
 	}
@@ -119,7 +125,7 @@ func TestNewRPCClient(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewRPCClient() error = %v", err)
 	}
-	if client == nil || client.blockProvider == nil || client.accountProvider == nil || client.transactionProvider == nil || client.blockHeightProvider == nil || client.genesisHashProvider == nil || client.slotProvider == nil || client.signatureStatusProvider == nil {
+	if client == nil || client.blockProvider == nil || client.accountProvider == nil || client.accountSnapshotProvider == nil || client.transactionProvider == nil || client.blockHeightProvider == nil || client.genesisHashProvider == nil || client.slotProvider == nil || client.signatureStatusProvider == nil {
 		t.Fatalf("NewRPCClient() = %+v, want composed providers", client)
 	}
 }
