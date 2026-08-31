@@ -189,15 +189,16 @@ func TestQuoteExactInputsSharesOneAccountSnapshot(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewClient() error = %v", err)
 	}
-	quotes, err := client.QuoteExactInputs(context.Background(), poolAddress, []ExactInputRequest{
+	batch, err := client.QuoteExactInputsWithSlot(context.Background(), poolAddress, []ExactInputRequest{
 		{InputMint: token0, AmountIn: 1_000_000},
 		{InputMint: token0, AmountIn: 2_000_000},
 	})
 	if err != nil {
-		t.Fatalf("QuoteExactInputs() error = %v", err)
+		t.Fatalf("QuoteExactInputsWithSlot() error = %v", err)
 	}
-	if len(quotes) != 2 || quotes[0].AmountOut == 0 || quotes[1].AmountOut <= quotes[0].AmountOut {
-		t.Fatalf("QuoteExactInputs() = %+v", quotes)
+	quotes := batch.Quotes
+	if batch.Slot != 1 || len(quotes) != 2 || quotes[0].AmountOut == 0 || quotes[1].AmountOut <= quotes[0].AmountOut {
+		t.Fatalf("QuoteExactInputsWithSlot() = %+v", batch)
 	}
 	if accounts.snapshotCalls != 1 {
 		t.Fatalf("AccountSnapshot() calls = %d, want 1", accounts.snapshotCalls)

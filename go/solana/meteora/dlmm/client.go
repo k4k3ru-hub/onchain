@@ -133,6 +133,11 @@ type ExactInputRequest struct {
 	AmountIn  uint64
 }
 
+type QuoteBatch struct {
+	Slot   onchainSolana.Slot
+	Quotes []Quote
+}
+
 type Client struct {
 	accounts  accountProvider
 	snapshots accountSnapshotProvider
@@ -344,39 +349,61 @@ func (c *Client) QuoteExactInput(ctx context.Context, poolAddress, inputMint onc
 //   - Snapshot or quote error.
 //
 // Version:
+//   - 2026-09-01: Delegated to the slot-aware quote batch API.
 //   - 2026-08-31: Added.
 func (c *Client) QuoteExactInputs(ctx context.Context, poolAddress onchainSolana.Address, requests []ExactInputRequest) ([]Quote, error) {
+	batch, err := c.QuoteExactInputsWithSlot(ctx, poolAddress, requests)
+	if err != nil {
+		return nil, err
+	}
+	return batch.Quotes, nil
+}
+
+// QuoteExactInputsWithSlot returns exact-input quotes and their shared RPC context slot.
+//
+// Parameters:
+//   - ctx: quote context; nil uses context.Background.
+//   - poolAddress: configured pool address.
+//   - requests: exact-input requests evaluated against the same account snapshot.
+//
+// Returns:
+//   - Quote batch containing the shared slot and quotes in request order.
+//   - Snapshot or quote error.
+//
+// Version:
+//   - 2026-09-01: Added.
+func (c *Client) QuoteExactInputsWithSlot(ctx context.Context, poolAddress onchainSolana.Address, requests []ExactInputRequest) (QuoteBatch, error) {
 	if c == nil || c.snapshots == nil {
-		return nil, fmt.Errorf("failed to quote meteora dlmm exact inputs: account_snapshot_provider=null")
+		return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: account_snapshot_provider=null")
 	}
 	if len(requests) == 0 {
-		return nil, fmt.Errorf("failed to quote meteora dlmm exact inputs: requests=empty")
+		return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: requests=empty")
 	}
 	configured, exists := c.pools[poolAddress]
 	if !exists {
-		return nil, fmt.Errorf("failed to quote meteora dlmm exact inputs: pool=invalid pool_address=%q", poolAddress.String())
+		return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: pool=invalid pool_address=%q", poolAddress.String())
 	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
 	pool, err := c.refreshPool(ctx, configured)
 	if err != nil {
-		return nil, fmt.Errorf("failed to quote meteora dlmm exact inputs: %w", err)
+		return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: %w", err)
 	}
 	addresses := []onchainSolana.Address{pool.Address, clockSysvarAddress}
 	seen := map[onchainSolana.Address]struct{}{pool.Address: {}, clockSysvarAddress: {}}
 	for index, request := range requests {
 		if request.AmountIn == 0 {
-			return nil, fmt.Errorf("failed to quote meteora dlmm exact inputs: amount_in=empty request_index=%d", index)
+			return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: amount_in=empty request_index=%d", index)
 		}
 		swapForY := request.InputMint == pool.TokenXMint
 		if !swapForY && request.InputMint != pool.TokenYMint {
-			return nil, fmt.Errorf("failed to quote meteora dlmm exact inputs: input_mint=invalid request_index=%d", index)
+			return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: input_mint=invalid request_index=%d", index)
 		}
 		for _, arrayIndex := range initializedBinArrayIndexes(pool, swapForY, 16) {
 			address, addressErr := binArrayAddress(c.programID, pool.Address, int64(arrayIndex))
 			if addressErr != nil {
-				return nil, fmt.Errorf("failed to quote meteora dlmm exact inputs: failed to derive bin array address: %w: bin_array_index=%d", addressErr, arrayIndex)
+				return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: failed to derive bin array address: %w: bin_array_index=%d", addressErr, arrayIndex)
 			}
 			if _, exists := seen[address]; !exists {
 				seen[address] = struct{}{}
@@ -386,21 +413,21 @@ func (c *Client) QuoteExactInputs(ctx context.Context, poolAddress onchainSolana
 	}
 	snapshot, err := c.snapshots.AccountSnapshot(ctx, addresses)
 	if err != nil {
-		return nil, fmt.Errorf("failed to quote meteora dlmm exact inputs: %w", err)
+		return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: %w", err)
 	}
 	accounts, err := newSnapshotAccounts(addresses, snapshot)
 	if err != nil {
-		return nil, fmt.Errorf("failed to quote meteora dlmm exact inputs: %w", err)
+		return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: %w", err)
 	}
 	local := &Client{accounts: accounts, programID: c.programID, pools: c.pools, poolOrder: c.poolOrder}
 	quotes := make([]Quote, len(requests))
 	for index, request := range requests {
 		quotes[index], err = local.quoteExactInput(ctx, poolAddress, request.InputMint, request.AmountIn)
 		if err != nil {
-			return nil, fmt.Errorf("failed to quote meteora dlmm exact inputs: %w: request_index=%d snapshot_slot=%d", err, index, snapshot.Slot)
+			return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: %w: request_index=%d snapshot_slot=%d", err, index, snapshot.Slot)
 		}
 	}
-	return quotes, nil
+	return QuoteBatch{Slot: snapshot.Slot, Quotes: quotes}, nil
 }
 
 func (c *Client) quoteExactInput(ctx context.Context, poolAddress, inputMint onchainSolana.Address, amountIn uint64) (Quote, error) {

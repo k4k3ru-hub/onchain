@@ -9,7 +9,17 @@ import (
 )
 
 type stubAccounts struct {
-	values map[onchainSolana.Address]*onchainSolana.Account
+	values        map[onchainSolana.Address]*onchainSolana.Account
+	snapshotCalls int
+}
+
+func (s *stubAccounts) AccountSnapshot(_ context.Context, addresses []onchainSolana.Address) (*onchainSolana.AccountSnapshot, error) {
+	s.snapshotCalls++
+	accounts := make([]*onchainSolana.Account, len(addresses))
+	for index, address := range addresses {
+		accounts[index] = s.values[address]
+	}
+	return &onchainSolana.AccountSnapshot{Slot: 42, Accounts: accounts}, nil
 }
 
 func (s *stubAccounts) Account(_ context.Context, address onchainSolana.Address) (*onchainSolana.Account, error) {
@@ -57,6 +67,19 @@ func TestNewClientDiscoversConfiguredPoolAndQuotesExactInput(t *testing.T) {
 	}
 	if quote.AmountOut != 181_404 || quote.TradeFee != 250 || quote.OutputMint != mint1 {
 		t.Fatalf("QuoteExactInput() = %+v", quote)
+	}
+	batch, err := client.QuoteExactInputsWithSlot(context.Background(), poolAddress, []ExactInputRequest{
+		{InputMint: mint0, AmountIn: 100_000},
+		{InputMint: mint1, AmountIn: 100_000},
+	})
+	if err != nil {
+		t.Fatalf("QuoteExactInputsWithSlot() error = %v", err)
+	}
+	if batch.Slot != 42 || len(batch.Quotes) != 2 || batch.Quotes[0].AmountOut == 0 || batch.Quotes[1].AmountOut == 0 {
+		t.Fatalf("QuoteExactInputsWithSlot() = %+v", batch)
+	}
+	if accounts.snapshotCalls != 2 {
+		t.Fatalf("AccountSnapshot() calls = %d, want 2", accounts.snapshotCalls)
 	}
 }
 

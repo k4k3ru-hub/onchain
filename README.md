@@ -58,7 +58,7 @@ if err != nil {
 	return err
 }
 
-quotes, err := client.QuoteExactInputs(ctx, pool, []dlmm.ExactInputRequest{
+batch, err := client.QuoteExactInputsWithSlot(ctx, pool, []dlmm.ExactInputRequest{
 	{InputMint: baseMint, AmountIn: referenceBaseUnits},
 	{InputMint: quoteMint, AmountIn: referenceQuoteUnits},
 })
@@ -68,6 +68,8 @@ if err != nil {
 ```
 
 Use `raydium/cpmm`, `raydium/clmm`, or `meteora/dlmm` directly rather than a
-root-level facade. Raydium CLMM and Meteora DLMM batch mutable account reads
-with `getMultipleAccounts`; `QuoteExactInputs` evaluates multiple directions
-against one account snapshot.
+root-level facade. All three clients batch mutable account reads with
+`getMultipleAccounts`. `QuoteExactInputsWithSlot` evaluates multiple directions
+against one account snapshot and returns its RPC context slot in `batch.Slot`.
+Use the slot to reject cross-DEX evaluations that do not share the same observed
+Solana state. `QuoteExactInputs` remains available when the slot is not needed.
