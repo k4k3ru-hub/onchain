@@ -2,6 +2,9 @@ package solana
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -91,6 +94,23 @@ func TestComposeRPCClient(t *testing.T) {
 	}
 	if client.config != config {
 		t.Errorf("composeRPCClient() config = %+v, want %+v", client.config, config)
+	}
+}
+
+func TestSDKRPCAdapterSanitizeErrorRedactsEndpointCredentials(t *testing.T) {
+	endpoint := "https://user:password@mainnet.helius-rpc.com/?api-key=secret-value"
+	underlying := errors.New("context deadline exceeded")
+	adapter := &sdkRPCAdapter{endpoint: endpoint}
+
+	err := adapter.sanitizeError(fmt.Errorf("rpc call on %s: %w", endpoint, underlying))
+	if strings.Contains(err.Error(), "secret-value") || strings.Contains(err.Error(), "password") {
+		t.Fatalf("sanitizeError() exposed credentials: %v", err)
+	}
+	if !strings.Contains(err.Error(), "https://mainnet.helius-rpc.com/") {
+		t.Fatalf("sanitizeError() = %v", err)
+	}
+	if !errors.Is(err, underlying) {
+		t.Fatal("sanitizeError() did not preserve wrapped error")
 	}
 }
 

@@ -20,6 +20,7 @@ const (
 	binArraySize       = 70
 	binDataLength      = 144
 	bitmapCenter       = 512
+	limitOrderFeeShare = 5000
 )
 
 var (
@@ -74,6 +75,7 @@ type Pool struct {
 	ReserveX              onchainSolana.Address
 	ReserveY              onchainSolana.Address
 	Oracle                onchainSolana.Address
+	RewardMints           [2]onchainSolana.Address
 	BinArrayBitmap        [16]uint64
 	LastUpdatedAt         int64
 	ActivationPoint       uint64
@@ -304,7 +306,7 @@ func (c *Client) refreshPool(ctx context.Context, configured Pool) (Pool, error)
 //
 // Returns:
 //   - Exact-input quote.
-//   - Quote error, including unsupported Token-2022, limit-order, or bitmap-extension state.
+//   - Quote error, including unsupported Token-2022 or bitmap-extension state.
 //
 // Version:
 //   - 2026-08-31: Added.
@@ -360,6 +362,7 @@ func (c *Client) QuoteExactInput(ctx context.Context, poolAddress, inputMint onc
 		return Quote{}, fmt.Errorf("failed to quote meteora dlmm exact input: %w", err)
 	}
 	feeOnInput := pool.Parameters.CollectFeeMode == 0 || !swapForY
+	supportLimitOrder := poolSupportsLimitOrders(pool)
 	remaining := amountIn
 	var amountOut, tradeFee, protocolFee uint64
 	arraysUsed := 0
@@ -377,13 +380,7 @@ func (c *Client) QuoteExactInput(ctx context.Context, poolAddress, inputMint onc
 		}
 		for pool.ActiveBinID >= lowerBinID && pool.ActiveBinID <= upperBinID && remaining > 0 {
 			bin := array.Bins[pool.ActiveBinID-lowerBinID]
-			maxOut := bin.AmountX
-			if swapForY {
-				maxOut = bin.AmountY
-			}
-			if bin.OpenOrderAmount != 0 || bin.ProcessedOrderRemainingAmount != 0 {
-				return Quote{}, fmt.Errorf("failed to quote meteora dlmm exact input: limit_order=unsupported active_bin_id=%d", pool.ActiveBinID)
-			}
+			maxOut := binMaxOutput(bin, swapForY, supportLimitOrder)
 			if maxOut > 0 {
 				price := uint128LE(bin.Price)
 				if price.Sign() == 0 {
@@ -394,17 +391,13 @@ func (c *Client) QuoteExactInput(ctx context.Context, poolAddress, inputMint onc
 				if feeErr != nil {
 					return Quote{}, fmt.Errorf("failed to quote meteora dlmm exact input: %w", feeErr)
 				}
-				consumed, output, fee, stepErr := quoteBinExactInput(remaining, maxOut, price, feeRate, swapForY, feeOnInput)
+				consumed, output, fee, protocolDelta, stepErr := quoteBinExactInput(remaining, bin, price, feeRate, pool.Parameters.ProtocolShare, swapForY, supportLimitOrder, feeOnInput)
 				if stepErr != nil {
 					return Quote{}, fmt.Errorf("failed to quote meteora dlmm exact input: %w: active_bin_id=%d", stepErr, pool.ActiveBinID)
 				}
 				if consumed > remaining || amountOut > ^uint64(0)-output || tradeFee > ^uint64(0)-fee {
 					return Quote{}, fmt.Errorf("failed to quote meteora dlmm exact input: amount=out_of_range")
 				}
-				protocolDelta := uint64(new(big.Int).Div(
-					new(big.Int).Mul(new(big.Int).SetUint64(fee), new(big.Int).SetUint64(uint64(pool.Parameters.ProtocolShare))),
-					new(big.Int).SetUint64(basisPointMax),
-				).Uint64())
 				if protocolFee > ^uint64(0)-protocolDelta {
 					return Quote{}, fmt.Errorf("failed to quote meteora dlmm exact input: protocol_fee=out_of_range")
 				}
@@ -454,56 +447,158 @@ func (c *Client) clock(ctx context.Context) (clockState, error) {
 	return clockState{slot: binary.LittleEndian.Uint64(account.Data[:8]), timestamp: int64(binary.LittleEndian.Uint64(account.Data[32:40]))}, nil
 }
 
-func quoteBinExactInput(amountIn, maxOut uint64, price *big.Int, feeRate uint64, swapForY, feeOnInput bool) (uint64, uint64, uint64, error) {
+func quoteBinExactInput(amountIn uint64, bin Bin, price *big.Int, feeRate uint64, protocolShare uint16, swapForY, supportLimitOrder, feeOnInput bool) (uint64, uint64, uint64, uint64, error) {
 	available := amountIn
 	fee := uint64(0)
 	var err error
 	if feeOnInput {
 		fee, err = feeFromIncludedAmount(amountIn, feeRate)
 		if err != nil {
-			return 0, 0, 0, fmt.Errorf("failed to calculate meteora dlmm bin input fee: %w", err)
+			return 0, 0, 0, 0, fmt.Errorf("failed to calculate meteora dlmm bin input fee: %w", err)
 		}
 		if fee > amountIn {
-			return 0, 0, 0, fmt.Errorf("failed to calculate meteora dlmm bin input fee: fee=out_of_range")
+			return 0, 0, 0, 0, fmt.Errorf("failed to calculate meteora dlmm bin input fee: fee=out_of_range")
 		}
 		available -= fee
+	}
+	mmOut := bin.AmountX
+	if swapForY {
+		mmOut = bin.AmountY
+	}
+	remaining, mmAmountIn, grossOut, err := fillBinLayer(available, mmOut, price, swapForY)
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+	consumedExcluded := mmAmountIn
+	if supportLimitOrder && remaining > 0 {
+		openOrder, processedOrder := limitOrderAmounts(bin, swapForY)
+		var layerIn, layerOut uint64
+		remaining, layerIn, layerOut, err = fillBinLayer(remaining, processedOrder, price, swapForY)
+		if err != nil {
+			return 0, 0, 0, 0, err
+		}
+		consumedExcluded, grossOut, err = addFillAmounts(consumedExcluded, grossOut, layerIn, layerOut)
+		if err != nil {
+			return 0, 0, 0, 0, err
+		}
+		if remaining > 0 {
+			remaining, layerIn, layerOut, err = fillBinLayer(remaining, openOrder, price, swapForY)
+			if err != nil {
+				return 0, 0, 0, 0, err
+			}
+			consumedExcluded, grossOut, err = addFillAmounts(consumedExcluded, grossOut, layerIn, layerOut)
+			if err != nil {
+				return 0, 0, 0, 0, err
+			}
+		}
+	}
+	consumed := consumedExcluded
+	if feeOnInput {
+		fee, err = feeFromExcludedAmount(consumedExcluded, feeRate)
+		if err != nil || consumed > ^uint64(0)-fee {
+			return 0, 0, 0, 0, fmt.Errorf("failed to calculate meteora dlmm bin excluded fee: amount=out_of_range")
+		}
+		consumed += fee
+	}
+	if !feeOnInput {
+		fee, err = feeFromIncludedAmount(grossOut, feeRate)
+		if err != nil {
+			return 0, 0, 0, 0, fmt.Errorf("failed to calculate meteora dlmm bin output fee: %w", err)
+		}
+		if fee > grossOut {
+			return 0, 0, 0, 0, fmt.Errorf("failed to calculate meteora dlmm bin output fee: fee=out_of_range")
+		}
+		grossOut -= fee
+	}
+	protocolFee, err := splitProtocolFee(fee, protocolShare, mmAmountIn, consumedExcluded)
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return consumed, grossOut, fee, protocolFee, nil
+}
+
+func fillBinLayer(amount, maxOut uint64, price *big.Int, swapForY bool) (uint64, uint64, uint64, error) {
+	if maxOut == 0 {
+		return amount, 0, 0, nil
 	}
 	maxIn, err := amountInAtBin(maxOut, price, swapForY)
 	if err != nil {
 		return 0, 0, 0, err
 	}
-	consumed, grossOut := amountIn, uint64(0)
-	if available >= maxIn {
-		available = maxIn
-		grossOut = maxOut
-		consumed = maxIn
-		if feeOnInput {
-			fee, err = feeFromExcludedAmount(maxIn, feeRate)
-			if err != nil {
-				return 0, 0, 0, fmt.Errorf("failed to calculate meteora dlmm bin excluded fee: %w", err)
-			}
-			if consumed > ^uint64(0)-fee {
-				return 0, 0, 0, fmt.Errorf("failed to calculate meteora dlmm bin excluded fee: amount=out_of_range")
-			}
-			consumed += fee
-		}
-	} else {
-		grossOut, err = amountOutAtBin(available, price, swapForY)
-		if err != nil {
-			return 0, 0, 0, err
-		}
+	if amount >= maxIn {
+		return amount - maxIn, maxIn, maxOut, nil
 	}
-	if !feeOnInput {
-		fee, err = feeFromIncludedAmount(grossOut, feeRate)
-		if err != nil {
-			return 0, 0, 0, fmt.Errorf("failed to calculate meteora dlmm bin output fee: %w", err)
-		}
-		if fee > grossOut {
-			return 0, 0, 0, fmt.Errorf("failed to calculate meteora dlmm bin output fee: fee=out_of_range")
-		}
-		grossOut -= fee
+	out, err := amountOutAtBin(amount, price, swapForY)
+	return 0, amount, out, err
+}
+
+func addFillAmounts(amountIn, amountOut, deltaIn, deltaOut uint64) (uint64, uint64, error) {
+	if amountIn > ^uint64(0)-deltaIn || amountOut > ^uint64(0)-deltaOut {
+		return 0, 0, fmt.Errorf("failed to calculate meteora dlmm bin fill: amount=out_of_range")
 	}
-	return consumed, grossOut, fee, nil
+	return amountIn + deltaIn, amountOut + deltaOut, nil
+}
+
+func limitOrderAmounts(bin Bin, swapForY bool) (uint64, uint64) {
+	isAskSide := bin.LimitOrderAskSide != 0
+	if (swapForY && !isAskSide) || (!swapForY && isAskSide) {
+		return bin.OpenOrderAmount, bin.ProcessedOrderRemainingAmount
+	}
+	return 0, 0
+}
+
+func binMaxOutput(bin Bin, swapForY, supportLimitOrder bool) uint64 {
+	result := bin.AmountX
+	if swapForY {
+		result = bin.AmountY
+	}
+	if !supportLimitOrder {
+		return result
+	}
+	openOrder, processedOrder := limitOrderAmounts(bin, swapForY)
+	if result > ^uint64(0)-openOrder {
+		return ^uint64(0)
+	}
+	result += openOrder
+	if result > ^uint64(0)-processedOrder {
+		return ^uint64(0)
+	}
+	return result + processedOrder
+}
+
+func poolSupportsLimitOrders(pool Pool) bool {
+	switch pool.Parameters.FunctionType {
+	case 2:
+		return true
+	case 1:
+		return false
+	default:
+		return pool.RewardMints[0].IsZero() && pool.RewardMints[1].IsZero()
+	}
+}
+
+func splitProtocolFee(tradingFee uint64, protocolShare uint16, mmAmountIn, totalAmountIn uint64) (uint64, error) {
+	if totalAmountIn == 0 || tradingFee == 0 {
+		return 0, nil
+	}
+	mmFeeValue := new(big.Int).Mul(new(big.Int).SetUint64(tradingFee), new(big.Int).SetUint64(mmAmountIn))
+	mmFeeValue.Add(mmFeeValue, new(big.Int).SetUint64(totalAmountIn-1))
+	mmFeeValue.Div(mmFeeValue, new(big.Int).SetUint64(totalAmountIn))
+	if !mmFeeValue.IsUint64() {
+		return 0, fmt.Errorf("failed to calculate meteora dlmm protocol fee: amount=out_of_range")
+	}
+	mmFee := mmFeeValue.Uint64()
+	limitOrderFee := tradingFee - mmFee
+	limitOrderUserFeeValue := new(big.Int).Mul(new(big.Int).SetUint64(limitOrderFee), new(big.Int).SetUint64(limitOrderFeeShare))
+	limitOrderUserFeeValue.Div(limitOrderUserFeeValue, new(big.Int).SetUint64(basisPointMax))
+	limitOrderProtocolFee := limitOrderFee - limitOrderUserFeeValue.Uint64()
+	mmProtocolFeeValue := new(big.Int).Mul(new(big.Int).SetUint64(mmFee), new(big.Int).SetUint64(uint64(protocolShare)))
+	mmProtocolFeeValue.Div(mmProtocolFeeValue, new(big.Int).SetUint64(basisPointMax))
+	mmProtocolFee := mmProtocolFeeValue.Uint64()
+	if limitOrderProtocolFee > ^uint64(0)-mmProtocolFee {
+		return 0, fmt.Errorf("failed to calculate meteora dlmm protocol fee: amount=out_of_range")
+	}
+	return limitOrderProtocolFee + mmProtocolFee, nil
 }
 
 func decodePool(address onchainSolana.Address, data []byte) (Pool, error) {
@@ -538,6 +633,8 @@ func decodePool(address onchainSolana.Address, data []byte) (Pool, error) {
 	copy(pool.TokenYMint[:], data[120:152])
 	copy(pool.ReserveX[:], data[152:184])
 	copy(pool.ReserveY[:], data[184:216])
+	copy(pool.RewardMints[0][:], data[280:312])
+	copy(pool.RewardMints[1][:], data[416:448])
 	copy(pool.Oracle[:], data[552:584])
 	for i := range pool.BinArrayBitmap {
 		pool.BinArrayBitmap[i] = binary.LittleEndian.Uint64(data[584+i*8 : 592+i*8])

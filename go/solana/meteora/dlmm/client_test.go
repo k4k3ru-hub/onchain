@@ -98,6 +98,47 @@ func TestQuoteExactInputUsesStoredBinPriceAndDynamicFeeState(t *testing.T) {
 	}
 }
 
+func TestQuoteExactInputConsumesMatchingLimitOrderLiquidity(t *testing.T) {
+	poolAddress := testAddress(1)
+	poolData := testPoolData(75, 25)
+	poolData[35] = 2 // FunctionType::LimitOrder.
+	binary.LittleEndian.PutUint16(poolData[8:10], 100)
+	binary.LittleEndian.PutUint64(poolData[584+8*8:592+8*8], 2)
+	arrayAddress, err := binArrayAddress(mainnetProgramID, poolAddress, 1)
+	if err != nil {
+		t.Fatalf("binArrayAddress() error = %v", err)
+	}
+	arrayData := testBinArrayData(poolAddress, 1)
+	binOffset := 56 + 5*binDataLength
+	binary.LittleEndian.PutUint64(arrayData[binOffset+8:binOffset+16], 400_000)
+	binary.LittleEndian.PutUint64(arrayData[binOffset+24:binOffset+32], 1) // Q64 price 1.0.
+	binary.LittleEndian.PutUint64(arrayData[binOffset+112:binOffset+120], 400_000)
+	binary.LittleEndian.PutUint64(arrayData[binOffset+128:binOffset+136], 300_000)
+	arrayData[binOffset+140] = 0 // Bid-side orders are fillable when swapping X for Y.
+	clockData := make([]byte, 40)
+	binary.LittleEndian.PutUint64(clockData[:8], 1_000)
+	binary.LittleEndian.PutUint64(clockData[32:40], 1_000)
+	accounts := &stubAccounts{values: map[onchainSolana.Address]*onchainSolana.Account{
+		poolAddress:        {Address: poolAddress, Owner: mainnetProgramID, Data: poolData},
+		arrayAddress:       {Address: arrayAddress, Owner: mainnetProgramID, Data: arrayData},
+		clockSysvarAddress: {Address: clockSysvarAddress, Data: clockData},
+	}}
+	client, err := NewClient(context.Background(), accounts, Config{Pools: []onchainSolana.Address{poolAddress}})
+	if err != nil {
+		t.Fatalf("NewClient() error = %v", err)
+	}
+	quote, err := client.QuoteExactInput(context.Background(), poolAddress, testAddress(2), 1_000_000)
+	if err != nil {
+		t.Fatalf("QuoteExactInput() error = %v", err)
+	}
+	if quote.AmountOut <= 400_000 {
+		t.Fatalf("QuoteExactInput() AmountOut = %d, want limit-order liquidity consumed", quote.AmountOut)
+	}
+	if quote.TradeFee == 0 || quote.ProtocolFee == 0 {
+		t.Fatalf("QuoteExactInput() fees = trade:%d protocol:%d", quote.TradeFee, quote.ProtocolFee)
+	}
+}
+
 func TestNewClientRejectsInvalidDiscriminator(t *testing.T) {
 	poolAddress := testAddress(1)
 	accounts := &stubAccounts{values: map[onchainSolana.Address]*onchainSolana.Account{

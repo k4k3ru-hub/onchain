@@ -3,6 +3,7 @@ package solana
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -32,8 +33,17 @@ type RPCClient struct {
 }
 
 type sdkRPCAdapter struct {
-	client *solanaRPC.Client
+	client   *solanaRPC.Client
+	endpoint string
 }
+
+type sanitizedRPCError struct {
+	err     error
+	message string
+}
+
+func (e *sanitizedRPCError) Error() string { return e.message }
+func (e *sanitizedRPCError) Unwrap() error { return e.err }
 
 // NewRPCClient creates a Solana JSON-RPC client.
 //
@@ -55,10 +65,23 @@ func NewRPCClient(ctx context.Context, config RPCConfig) (*RPCClient, error) {
 		return nil, fmt.Errorf("failed to create solana rpc client: %w", err)
 	}
 
-	adapter := &sdkRPCAdapter{
-		client: solanaRPC.New(strings.TrimSpace(config.URL)),
-	}
+	endpoint := strings.TrimSpace(config.URL)
+	adapter := &sdkRPCAdapter{client: solanaRPC.New(endpoint), endpoint: endpoint}
 	return composeRPCClient(config, adapter), nil
+}
+
+func (a *sdkRPCAdapter) sanitizeError(err error) error {
+	if err == nil || a == nil || a.endpoint == "" {
+		return err
+	}
+	redacted := "[redacted_rpc_url]"
+	if parsed, parseErr := url.Parse(a.endpoint); parseErr == nil && parsed.Scheme != "" && parsed.Host != "" {
+		parsed.User = nil
+		parsed.RawQuery = ""
+		parsed.Fragment = ""
+		redacted = parsed.String()
+	}
+	return &sanitizedRPCError{err: err, message: strings.ReplaceAll(err.Error(), a.endpoint, redacted)}
 }
 
 // Validate validates the Solana RPC configuration.
@@ -118,7 +141,7 @@ func (a *sdkRPCAdapter) getAddressSignatures(ctx context.Context, address Addres
 	copy(publicKey[:], address[:])
 	result, err := a.client.GetSignaturesForAddressWithOpts(ctx, publicKey, &solanaRPC.GetSignaturesForAddressOpts{Commitment: solanaRPC.CommitmentType(commitment), Limit: &limit})
 	if err != nil {
-		return nil, fmt.Errorf("failed to get solana rpc signatures for address: %w", err)
+		return nil, fmt.Errorf("failed to get solana rpc signatures for address: %w", a.sanitizeError(err))
 	}
 	values := make([]addressSignature, len(result))
 	for i, value := range result {
@@ -133,7 +156,7 @@ func (a *sdkRPCAdapter) getBlock(ctx context.Context, slot Slot, commitment Comm
 	version := uint64(0)
 	result, err := a.client.GetBlockWithOpts(ctx, slot.Uint64(), &solanaRPC.GetBlockOpts{Commitment: solanaRPC.CommitmentType(commitment), TransactionDetails: solanaRPC.TransactionDetailsSignatures, Rewards: pointer(false), MaxSupportedTransactionVersion: &version})
 	if err != nil {
-		return nil, fmt.Errorf("failed to get solana rpc block: %w", err)
+		return nil, fmt.Errorf("failed to get solana rpc block: %w", a.sanitizeError(err))
 	}
 	block := &Block{Slot: slot, ParentSlot: Slot(result.ParentSlot)}
 	copy(block.Hash[:], result.Blockhash[:])
@@ -159,7 +182,7 @@ func (a *sdkRPCAdapter) getAccount(ctx context.Context, address Address, commitm
 	copy(publicKey[:], address[:])
 	result, err := a.client.GetAccountInfoWithOpts(ctx, publicKey, &solanaRPC.GetAccountInfoOpts{Encoding: solanaSDK.EncodingBase64, Commitment: solanaRPC.CommitmentType(commitment)})
 	if err != nil {
-		return nil, fmt.Errorf("failed to get solana rpc account: %w", err)
+		return nil, fmt.Errorf("failed to get solana rpc account: %w", a.sanitizeError(err))
 	}
 	account := &Account{Address: address, Lamports: result.Value.Lamports, Executable: result.Value.Executable, Data: append([]byte(nil), result.GetBinary()...)}
 	copy(account.Owner[:], result.Value.Owner[:])
@@ -173,7 +196,7 @@ func (a *sdkRPCAdapter) getAccountSnapshot(ctx context.Context, addresses []Addr
 	}
 	result, err := a.client.GetMultipleAccountsWithOpts(ctx, publicKeys, &solanaRPC.GetMultipleAccountsOpts{Encoding: solanaSDK.EncodingBase64, Commitment: solanaRPC.CommitmentType(commitment)})
 	if err != nil {
-		return nil, fmt.Errorf("failed to get solana rpc account snapshot: %w", err)
+		return nil, fmt.Errorf("failed to get solana rpc account snapshot: %w", a.sanitizeError(err))
 	}
 	if result == nil {
 		return nil, fmt.Errorf("failed to get solana rpc account snapshot: result=null")
@@ -199,7 +222,7 @@ func (a *sdkRPCAdapter) getTransaction(ctx context.Context, signature Signature,
 	version := uint64(0)
 	result, err := a.client.GetTransaction(ctx, sdkSignature, &solanaRPC.GetTransactionOpts{Encoding: solanaSDK.EncodingBase64, Commitment: solanaRPC.CommitmentType(commitment), MaxSupportedTransactionVersion: &version})
 	if err != nil {
-		return nil, fmt.Errorf("failed to get solana rpc transaction: %w", err)
+		return nil, fmt.Errorf("failed to get solana rpc transaction: %w", a.sanitizeError(err))
 	}
 	transaction := &Transaction{Signature: signature, Slot: Slot(result.Slot)}
 	if result.BlockTime != nil {
@@ -242,7 +265,7 @@ func (a *sdkRPCAdapter) getGenesisHash(ctx context.Context) (Hash, error) {
 	}
 	hash, err := a.client.GetGenesisHash(ctx)
 	if err != nil {
-		return Hash{}, fmt.Errorf("failed to get solana rpc genesis hash: %w", err)
+		return Hash{}, fmt.Errorf("failed to get solana rpc genesis hash: %w", a.sanitizeError(err))
 	}
 	var result Hash
 	copy(result[:], hash[:])
@@ -256,7 +279,7 @@ func (a *sdkRPCAdapter) getBlockHeight(ctx context.Context, commitment Commitmen
 
 	blockHeight, err := a.client.GetBlockHeight(ctx, solanaRPC.CommitmentType(commitment))
 	if err != nil {
-		return 0, fmt.Errorf("failed to get solana rpc block height: %w", err)
+		return 0, fmt.Errorf("failed to get solana rpc block height: %w", a.sanitizeError(err))
 	}
 	return BlockHeight(blockHeight), nil
 }
@@ -268,7 +291,7 @@ func (a *sdkRPCAdapter) getSlot(ctx context.Context, commitment Commitment) (Slo
 
 	slot, err := a.client.GetSlot(ctx, solanaRPC.CommitmentType(commitment))
 	if err != nil {
-		return 0, fmt.Errorf("failed to get solana rpc slot: %w", err)
+		return 0, fmt.Errorf("failed to get solana rpc slot: %w", a.sanitizeError(err))
 	}
 	return Slot(slot), nil
 }
@@ -285,7 +308,7 @@ func (a *sdkRPCAdapter) getSignatureStatuses(ctx context.Context, signatures []S
 
 	result, err := a.client.GetSignatureStatuses(ctx, true, sdkSignatures...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get solana rpc signature statuses: %w", err)
+		return nil, fmt.Errorf("failed to get solana rpc signature statuses: %w", a.sanitizeError(err))
 	}
 	if result == nil {
 		return nil, fmt.Errorf("failed to get solana rpc signature statuses: response=null")
