@@ -2,6 +2,31 @@
 
 Go SDK primitives for EVM, Solana, and Sui integrations.
 
+## Shared pool catalogs
+
+Use `core.PoolReference` as the stable key shared by market evaluation and
+trade execution. Chain-family catalogs own the metadata needed to resolve that
+key without coupling applications to one another.
+
+```go
+reference := core.PoolReference{
+	Chain:    core.ChainBase,
+	Network:  core.NetworkMainnet,
+	Protocol: core.Protocol("uniswap-v3"),
+	PoolID:   poolAddress,
+}
+
+pool, ok := evmCatalog.Resolve(reference)
+if !ok {
+	return fmt.Errorf("failed to resolve evm pool metadata")
+}
+```
+
+The `core` package does not import a chain-family package, and family catalogs
+do not import protocol packages. Applications compose protocol entries into an
+EVM or Solana catalog at their composition root, keeping the dependency graph
+acyclic.
+
 ## Solana AMM SDKs
 
 Raydium CPMM, Raydium CLMM, and Meteora DLMM clients discover explicitly
