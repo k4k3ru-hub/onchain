@@ -115,14 +115,17 @@ func normalizePoolMetadata(entry PoolMetadata) (PoolMetadata, error) {
 	if err != nil || family != myCore.ChainFamilyEVM {
 		return PoolMetadata{}, fmt.Errorf("failed to validate evm pool metadata: chain_family=invalid")
 	}
-	entry.Address, err = normalizeRequiredEVMAddress(entry.Address, "pool_address")
-	if err != nil {
-		return PoolMetadata{}, err
+	entry.Address = strings.TrimSpace(entry.Address)
+	if entry.Address != "" {
+		entry.Address, err = normalizeRequiredEVMAddress(entry.Address, "pool_address")
+		if err != nil {
+			return PoolMetadata{}, err
+		}
+		if !common.IsHexAddress(entry.Reference.PoolID) || common.HexToAddress(entry.Reference.PoolID) != common.HexToAddress(entry.Address) {
+			return PoolMetadata{}, fmt.Errorf("failed to validate evm pool metadata: pool_id=invalid")
+		}
+		entry.Reference.PoolID = entry.Address
 	}
-	if !common.IsHexAddress(entry.Reference.PoolID) || common.HexToAddress(entry.Reference.PoolID) != common.HexToAddress(entry.Address) {
-		return PoolMetadata{}, fmt.Errorf("failed to validate evm pool metadata: pool_id=invalid")
-	}
-	entry.Reference.PoolID = entry.Address
 	entry.Token0, err = normalizeEVMToken(entry.Token0, "token0")
 	if err != nil {
 		return PoolMetadata{}, err

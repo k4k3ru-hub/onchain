@@ -36,6 +36,23 @@ func TestCatalogRejectsNonEVMAndInvalidMetadata(t *testing.T) {
 	}
 }
 
+func TestCatalogAcceptsAddresslessPoolID(t *testing.T) {
+	entry := validPoolMetadata()
+	entry.Reference.Protocol = "uniswap-v4"
+	entry.Reference.PoolID = "0xabcdef0000000000000000000000000000000000000000000000000000000001"
+	entry.Address = ""
+	entry.Deployment.PoolManager = "0x0000000000000000000000000000000000000004"
+
+	catalog, err := NewCatalog([]PoolMetadata{entry})
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, ok := catalog.Resolve(entry.Reference)
+	if !ok || got.Address != "" || got.Reference.PoolID != entry.Reference.PoolID {
+		t.Fatalf("Resolve() metadata=%+v found=%t", got, ok)
+	}
+}
+
 func validPoolMetadata() PoolMetadata {
 	return PoolMetadata{
 		Reference: myCore.PoolReference{Chain: myCore.ChainBase, Network: myCore.NetworkMainnet, Protocol: " Uniswap-V3 ", PoolID: "0xabcdef0000000000000000000000000000000001"},

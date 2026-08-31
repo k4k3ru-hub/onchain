@@ -22,6 +22,10 @@ if !ok {
 }
 ```
 
+`evm.PoolMetadata.Address` is optional because protocols such as Uniswap v4
+identify pools by a bytes32 pool ID under a shared pool manager rather than by
+an individual pool contract address.
+
 The `core` package does not import a chain-family package, and family catalogs
 do not import protocol packages. Applications compose protocol entries into an
 EVM or Solana catalog at their composition root, keeping the dependency graph
