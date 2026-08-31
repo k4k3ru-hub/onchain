@@ -24,6 +24,7 @@ type GRPCClient struct {
 	provider            eventSubscriptionProvider
 	transactionProvider transactionSubscriptionProvider
 	simulationProvider  transactionSimulationProvider
+	checkpointProvider  grpcCheckpointProvider
 	closer              grpcClientCloser
 	closeOnce           sync.Once
 	closeErr            error
@@ -54,6 +55,7 @@ type grpcClientCloser interface {
 type grpcAdapter struct {
 	client          rpcv2.SubscriptionServiceClient
 	executionClient rpcv2.TransactionExecutionServiceClient
+	ledgerClient    rpcv2.LedgerServiceClient
 }
 
 // NewGRPCClient creates a Sui gRPC streaming client.
@@ -92,6 +94,7 @@ func NewGRPCClient(ctx context.Context, config GRPCConfig) (*GRPCClient, error) 
 	return composeGRPCClient(config, &grpcAdapter{
 		client:          rpcv2.NewSubscriptionServiceClient(connection),
 		executionClient: rpcv2.NewTransactionExecutionServiceClient(connection),
+		ledgerClient:    rpcv2.NewLedgerServiceClient(connection),
 	}, connection), nil
 }
 
@@ -131,6 +134,9 @@ func composeGRPCClient(config GRPCConfig, provider eventSubscriptionProvider, cl
 	}
 	if simulationProvider, ok := provider.(transactionSimulationProvider); ok {
 		client.simulationProvider = simulationProvider
+	}
+	if checkpointProvider, ok := provider.(grpcCheckpointProvider); ok {
+		client.checkpointProvider = checkpointProvider
 	}
 	return client
 }
