@@ -2,6 +2,8 @@ package sui
 
 import (
 	"context"
+	"errors"
+	"strings"
 	"testing"
 
 	"github.com/k4k3ru-hub/onchain/go/sui/internal/rpcv2"
@@ -11,6 +13,50 @@ import (
 type testSimulationProvider struct {
 	request SimulationRequest
 	result  *SimulationResult
+}
+
+func TestGRPCAdapterSimulationPreservesExecutionFailure(t *testing.T) {
+	sender, _ := ParseAddress("0x1")
+	packageAddress, _ := ParseAddress("0x2")
+	builder := NewProgrammableTransactionBuilder()
+	_, _ = builder.MoveCall(MoveCall{Package: packageAddress, Module: "balance", Function: "split"})
+	transaction, _ := builder.Build()
+	success := false
+	description := "Move abort"
+	command, abortCode := uint64(3), uint64(0)
+	kind := rpcv2.ExecutionError_MOVE_ABORT
+	movePackage, moveModule, moveFunction := packageAddress.String(), "balance", "split"
+	client := &testTransactionExecutionClient{result: &rpcv2.SimulateTransactionResponse{
+		Transaction: &rpcv2.ExecutedTransaction{Effects: &rpcv2.TransactionEffects{Status: &rpcv2.ExecutionStatus{
+			Success: &success,
+			Error: &rpcv2.ExecutionError{
+				Description: &description,
+				Command:     &command,
+				Kind:        &kind,
+				ErrorDetails: &rpcv2.ExecutionError_Abort{Abort: &rpcv2.MoveAbort{
+					AbortCode: &abortCode,
+					Location:  &rpcv2.MoveLocation{Package: &movePackage, Module: &moveModule, FunctionName: &moveFunction},
+				}},
+			},
+		}}},
+	}}
+
+	_, err := (&grpcAdapter{executionClient: client}).simulateTransaction(context.Background(), SimulationRequest{Sender: sender, Transaction: transaction})
+	if err == nil {
+		t.Fatal("simulateTransaction() error = nil")
+	}
+	var executionErr *SimulationExecutionError
+	if !errors.As(err, &executionErr) {
+		t.Fatalf("simulateTransaction() error type = %T", err)
+	}
+	if executionErr.CommandIndex != command || !executionErr.HasCommandIndex || executionErr.MoveAbortCode != abortCode || !executionErr.HasMoveAbortCode {
+		t.Fatalf("simulateTransaction() execution error = %+v", executionErr)
+	}
+	for _, fragment := range []string{`kind="MOVE_ABORT"`, `description="Move abort"`, "command_index=3", "move_abort_code=0", `move_module="balance"`, `move_function="split"`} {
+		if !strings.Contains(err.Error(), fragment) {
+			t.Fatalf("simulateTransaction() error = %q, missing %q", err, fragment)
+		}
+	}
 }
 
 func (p *testSimulationProvider) simulateTransaction(_ context.Context, request SimulationRequest) (*SimulationResult, error) {

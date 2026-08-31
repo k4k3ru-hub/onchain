@@ -8,6 +8,52 @@ import (
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
+// SimulationExecutionError describes a transaction execution failure returned by Sui simulation.
+type SimulationExecutionError struct {
+	Description      string
+	Kind             string
+	CommandIndex     uint64
+	HasCommandIndex  bool
+	MoveAbortCode    uint64
+	HasMoveAbortCode bool
+	MovePackage      string
+	MoveModule       string
+	MoveFunction     string
+}
+
+// Error formats the Sui simulation execution failure.
+//
+// Returns:
+//   - Execution failure description with available Sui diagnostics.
+//
+// Version:
+//   - 2026-09-01: Added.
+func (e *SimulationExecutionError) Error() string {
+	if e == nil {
+		return "failed to execute sui transaction simulation: execution_error=null"
+	}
+	message := fmt.Sprintf("failed to execute sui transaction simulation: execution=failed kind=%q", e.Kind)
+	if e.Description != "" {
+		message += fmt.Sprintf(" description=%q", e.Description)
+	}
+	if e.HasCommandIndex {
+		message += fmt.Sprintf(" command_index=%d", e.CommandIndex)
+	}
+	if e.HasMoveAbortCode {
+		message += fmt.Sprintf(" move_abort_code=%d", e.MoveAbortCode)
+	}
+	if e.MovePackage != "" {
+		message += fmt.Sprintf(" move_package=%q", e.MovePackage)
+	}
+	if e.MoveModule != "" {
+		message += fmt.Sprintf(" move_module=%q", e.MoveModule)
+	}
+	if e.MoveFunction != "" {
+		message += fmt.Sprintf(" move_function=%q", e.MoveFunction)
+	}
+	return message
+}
+
 type SimulationRequest struct {
 	Sender         Address
 	Transaction    ProgrammableTransaction
@@ -108,8 +154,11 @@ func (a *grpcAdapter) simulateTransaction(ctx context.Context, request Simulatio
 		return nil, fmt.Errorf("failed to call sui transaction simulation: response=invalid")
 	}
 	status := response.Transaction.Effects.Status
-	if status == nil || !status.GetSuccess() {
-		return nil, fmt.Errorf("failed to call sui transaction simulation: execution=failed")
+	if status == nil {
+		return nil, fmt.Errorf("failed to call sui transaction simulation: execution_status=null")
+	}
+	if !status.GetSuccess() {
+		return nil, fmt.Errorf("failed to call sui transaction simulation: %w", simulationExecutionError(status.GetError()))
 	}
 	result := &SimulationResult{SuggestedGasPrice: response.GetSuggestedGasPrice(), CommandResults: make([]SimulationCommandResult, len(response.CommandOutputs))}
 	for i, command := range response.CommandOutputs {
@@ -139,6 +188,28 @@ func (a *grpcAdapter) simulateTransaction(ctx context.Context, request Simulatio
 		}
 	}
 	return result, nil
+}
+
+func simulationExecutionError(value *rpcv2.ExecutionError) *SimulationExecutionError {
+	if value == nil {
+		return &SimulationExecutionError{Kind: rpcv2.ExecutionError_EXECUTION_ERROR_KIND_UNKNOWN.String()}
+	}
+	result := &SimulationExecutionError{
+		Description:     value.GetDescription(),
+		Kind:            value.GetKind().String(),
+		HasCommandIndex: value.Command != nil,
+		CommandIndex:    value.GetCommand(),
+	}
+	if abort := value.GetAbort(); abort != nil {
+		result.HasMoveAbortCode = abort.AbortCode != nil
+		result.MoveAbortCode = abort.GetAbortCode()
+		if location := abort.GetLocation(); location != nil {
+			result.MovePackage = location.GetPackage()
+			result.MoveModule = location.GetModule()
+			result.MoveFunction = location.GetFunctionName()
+		}
+	}
+	return result
 }
 
 func transactionToRPC(request SimulationRequest) (*rpcv2.Transaction, error) {

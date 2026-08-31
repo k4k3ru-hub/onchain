@@ -59,3 +59,31 @@ func TestComputeExactInputStepChargesInputFee(t *testing.T) {
 		t.Fatalf("computeExactInputStep() = %+v", step)
 	}
 }
+
+func TestComputeExactInputLimitOrderMatchPartiallyConsumesOrder(t *testing.T) {
+	price, err := sqrtPriceAtTick(0)
+	if err != nil {
+		t.Fatalf("sqrtPriceAtTick() error = %v", err)
+	}
+	match, err := computeExactInputLimitOrderMatch(price, 1_000, 2_000, 500, 2_500, true, true)
+	if err != nil {
+		t.Fatalf("computeExactInputLimitOrderMatch() error = %v", err)
+	}
+	if match.amountIn != 997 || match.amountOut != 997 || match.feeAmount != 3 || !match.ordersRemain {
+		t.Fatalf("computeExactInputLimitOrderMatch() = %+v", match)
+	}
+}
+
+func TestComputeExactInputLimitOrderMatchConsumesAllOrders(t *testing.T) {
+	price, err := sqrtPriceAtTick(0)
+	if err != nil {
+		t.Fatalf("sqrtPriceAtTick() error = %v", err)
+	}
+	match, err := computeExactInputLimitOrderMatch(price, 2_000, 500, 0, 2_500, true, true)
+	if err != nil {
+		t.Fatalf("computeExactInputLimitOrderMatch() error = %v", err)
+	}
+	if match.amountIn != 500 || match.amountOut != 500 || match.feeAmount != 2 || match.ordersRemain {
+		t.Fatalf("computeExactInputLimitOrderMatch() = %+v", match)
+	}
+}

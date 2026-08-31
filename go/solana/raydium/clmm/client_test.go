@@ -205,6 +205,54 @@ func TestQuoteExactInputsSharesOneAccountSnapshot(t *testing.T) {
 	}
 }
 
+func TestQuoteExactInputMatchesLimitOrderAtCurrentTick(t *testing.T) {
+	poolAddress := testAddress(1)
+	configAddress := testAddress(2)
+	token0, token1 := testAddress(4), testAddress(5)
+	poolData := make([]byte, poolDataLength)
+	copy(poolData[:8], poolDiscriminator[:])
+	putAddress(poolData, 9, configAddress)
+	putAddress(poolData, 73, token0)
+	putAddress(poolData, 105, token1)
+	putAddress(poolData, 137, testAddress(6))
+	putAddress(poolData, 169, testAddress(7))
+	binary.LittleEndian.PutUint16(poolData[235:237], 1)
+	putUint128LE(poolData[237:253], big.NewInt(1_000_000_000_000))
+	price, err := sqrtPriceAtTick(0)
+	if err != nil {
+		t.Fatalf("sqrtPriceAtTick() error = %v", err)
+	}
+	putUint128LE(poolData[253:269], price)
+	binary.LittleEndian.PutUint64(poolData[904+8*8:912+8*8], 1)
+	tickAddress, err := tickArrayAddress(mainnetProgramID, poolAddress, 0)
+	if err != nil {
+		t.Fatalf("tickArrayAddress() error = %v", err)
+	}
+	tickData := testTickArrayData(poolAddress, 0)
+	putUint128LE(tickData[44+20:44+36], big.NewInt(1))
+	binary.LittleEndian.PutUint64(tickData[44+124:44+132], 2_000)
+	binary.LittleEndian.PutUint64(tickData[44+132:44+140], 500)
+	tickData[10124] = 1
+	configData := testAMMConfigData(1)
+	binary.LittleEndian.PutUint32(configData[47:51], 2_500)
+	accounts := &stubAccounts{values: map[onchainSolana.Address]*onchainSolana.Account{
+		poolAddress:   {Address: poolAddress, Owner: mainnetProgramID, Data: poolData},
+		configAddress: {Address: configAddress, Owner: mainnetProgramID, Data: configData},
+		tickAddress:   {Address: tickAddress, Owner: mainnetProgramID, Data: tickData},
+	}}
+	client, err := NewClient(context.Background(), accounts, Config{Pools: []onchainSolana.Address{poolAddress}})
+	if err != nil {
+		t.Fatalf("NewClient() error = %v", err)
+	}
+	quote, err := client.QuoteExactInput(context.Background(), poolAddress, token0, 1_000)
+	if err != nil {
+		t.Fatalf("QuoteExactInput() error = %v", err)
+	}
+	if quote.AmountOut != 997 || quote.TradeFee != 3 || quote.EndTick != 0 {
+		t.Fatalf("QuoteExactInput() = %+v", quote)
+	}
+}
+
 func TestNewClientRejectsInvalidCLMMDiscriminator(t *testing.T) {
 	poolAddress := testAddress(1)
 	accounts := &stubAccounts{values: map[onchainSolana.Address]*onchainSolana.Account{

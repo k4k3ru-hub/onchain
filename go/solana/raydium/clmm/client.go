@@ -492,9 +492,6 @@ func (c *Client) quoteExactInput(ctx context.Context, poolAddress, inputMint onc
 		arraysUsed = arrayIndex + 1
 		indices := initializedTicks(array, currentTick, zeroForOne)
 		for _, tick := range indices {
-			if tick.OrdersAmount != 0 || tick.PartFilledOrdersRemaining != 0 {
-				return Quote{}, fmt.Errorf("failed to quote raydium clmm exact input: limit_order=unsupported tick=%d", tick.Index)
-			}
 			target, targetErr := sqrtPriceAtTick(tick.Index)
 			if targetErr != nil {
 				return Quote{}, fmt.Errorf("failed to quote raydium clmm exact input: %w", targetErr)
@@ -526,6 +523,37 @@ func (c *Client) quoteExactInput(ctx context.Context, poolAddress, inputMint onc
 			}
 			if price.Cmp(target) != 0 {
 				return Quote{}, fmt.Errorf("failed to quote raydium clmm exact input: swap_progress=invalid")
+			}
+			hasLimitOrders := tick.OrdersAmount != 0 || tick.PartFilledOrdersRemaining != 0
+			if hasLimitOrders {
+				match, matchErr := computeExactInputLimitOrderMatch(target, remaining, tick.OrdersAmount, tick.PartFilledOrdersRemaining, config.TradeFeeRate, zeroForOne, feeOnInput)
+				if matchErr != nil {
+					return Quote{}, fmt.Errorf("failed to quote raydium clmm exact input: %w: tick=%d", matchErr, tick.Index)
+				}
+				limitConsumed := match.amountIn
+				if feeOnInput {
+					if limitConsumed > ^uint64(0)-match.feeAmount {
+						return Quote{}, fmt.Errorf("failed to quote raydium clmm exact input: amount=out_of_range")
+					}
+					limitConsumed += match.feeAmount
+				}
+				if limitConsumed > remaining || amountOut > ^uint64(0)-match.amountOut || tradeFee > ^uint64(0)-match.feeAmount {
+					return Quote{}, fmt.Errorf("failed to quote raydium clmm exact input: amount=out_of_range")
+				}
+				remaining -= limitConsumed
+				amountOut += match.amountOut
+				tradeFee += match.feeAmount
+				if match.ordersRemain {
+					if zeroForOne {
+						currentTick = tick.Index
+					} else {
+						currentTick = tick.Index - 1
+					}
+					if remaining != 0 {
+						return Quote{}, fmt.Errorf("failed to quote raydium clmm exact input: limit_order_progress=invalid tick=%d", tick.Index)
+					}
+					return makeQuote(poolAddress, inputMint, outputMint, amountIn, amountOut, tradeFee, price, currentTick, arraysUsed), nil
+				}
 			}
 			delta := signed128LE(tick.LiquidityNet)
 			if zeroForOne {

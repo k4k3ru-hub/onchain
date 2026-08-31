@@ -37,6 +37,89 @@ type swapStep struct {
 	feeAmount     uint64
 }
 
+type limitOrderMatch struct {
+	amountIn     uint64
+	amountOut    uint64
+	feeAmount    uint64
+	ordersRemain bool
+}
+
+func computeExactInputLimitOrderMatch(sqrtPrice *big.Int, amountRemaining, ordersAmount, partFilledOrdersRemaining uint64, feeRate uint32, zeroForOne, feeOnInput bool) (limitOrderMatch, error) {
+	if sqrtPrice == nil || sqrtPrice.Sign() <= 0 {
+		return limitOrderMatch{}, fmt.Errorf("failed to calculate raydium clmm limit order match: sqrt_price=invalid")
+	}
+	if uint64(feeRate) >= feeRateDenominator {
+		return limitOrderMatch{}, fmt.Errorf("failed to calculate raydium clmm limit order match: fee_rate=out_of_range max_value=%d", feeRateDenominator-1)
+	}
+	totalOrders := new(big.Int).Add(new(big.Int).SetUint64(ordersAmount), new(big.Int).SetUint64(partFilledOrdersRemaining))
+	if !totalOrders.IsUint64() {
+		return limitOrderMatch{}, fmt.Errorf("failed to calculate raydium clmm limit order match: orders_amount=out_of_range")
+	}
+	if amountRemaining == 0 || totalOrders.Sign() == 0 {
+		return limitOrderMatch{ordersRemain: totalOrders.Sign() > 0}, nil
+	}
+	priceNumerator := new(big.Int).Mul(sqrtPrice, sqrtPrice)
+	if !zeroForOne {
+		priceNumerator.Add(priceNumerator, new(big.Int).Sub(q64, big.NewInt(1)))
+	}
+	token0PriceX64 := new(big.Int).Rsh(priceNumerator, 64)
+	if token0PriceX64.Sign() <= 0 || token0PriceX64.BitLen() > 128 {
+		return limitOrderMatch{}, fmt.Errorf("failed to calculate raydium clmm limit order match: price=out_of_range")
+	}
+
+	result := limitOrderMatch{}
+	amountForOrder := amountRemaining
+	if feeOnInput {
+		result.feeAmount = mulDivCeil64(amountRemaining, uint64(feeRate), feeRateDenominator)
+		if result.feeAmount > amountRemaining {
+			return limitOrderMatch{}, fmt.Errorf("failed to calculate raydium clmm limit order match: fee_amount=out_of_range")
+		}
+		amountForOrder -= result.feeAmount
+	}
+	matchedOutput := limitOrderOutput(amountForOrder, token0PriceX64, zeroForOne)
+	if matchedOutput.Cmp(totalOrders) > 0 {
+		result.amountOut = totalOrders.Uint64()
+		amountIn := limitOrderInput(result.amountOut, token0PriceX64, !zeroForOne)
+		if !amountIn.IsUint64() {
+			return limitOrderMatch{}, fmt.Errorf("failed to calculate raydium clmm limit order match: amount_in=out_of_range")
+		}
+		result.amountIn = amountIn.Uint64()
+		if feeOnInput {
+			result.feeAmount = mulDivCeil64(result.amountIn, uint64(feeRate), feeRateDenominator-uint64(feeRate))
+		}
+	} else {
+		if !matchedOutput.IsUint64() {
+			return limitOrderMatch{}, fmt.Errorf("failed to calculate raydium clmm limit order match: amount_out=out_of_range")
+		}
+		result.amountIn = amountForOrder
+		result.amountOut = matchedOutput.Uint64()
+	}
+	consumedGrossOutput := result.amountOut
+	if !feeOnInput {
+		result.feeAmount = mulDivCeil64(result.amountOut, uint64(feeRate), feeRateDenominator)
+		if result.feeAmount > result.amountOut {
+			return limitOrderMatch{}, fmt.Errorf("failed to calculate raydium clmm limit order match: fee_amount=out_of_range")
+		}
+		result.amountOut -= result.feeAmount
+	}
+	result.ordersRemain = consumedGrossOutput < totalOrders.Uint64()
+	return result, nil
+}
+
+func limitOrderOutput(amountIn uint64, token0PriceX64 *big.Int, zeroForOne bool) *big.Int {
+	if zeroForOne {
+		return new(big.Int).Div(new(big.Int).Mul(new(big.Int).SetUint64(amountIn), token0PriceX64), q64)
+	}
+	return new(big.Int).Div(new(big.Int).Lsh(new(big.Int).SetUint64(amountIn), 64), token0PriceX64)
+}
+
+func limitOrderInput(amountOut uint64, token0PriceX64 *big.Int, zeroForOne bool) *big.Int {
+	if zeroForOne {
+		return divCeil(new(big.Int).Mul(new(big.Int).SetUint64(amountOut), token0PriceX64), q64)
+	}
+	return divCeil(new(big.Int).Lsh(new(big.Int).SetUint64(amountOut), 64), token0PriceX64)
+}
+
 func sqrtPriceAtTick(tick int32) (*big.Int, error) {
 	if tick < minTick || tick > maxTick {
 		return nil, fmt.Errorf("failed to calculate raydium clmm sqrt price: tick=out_of_range min_value=%d max_value=%d", minTick, maxTick)
