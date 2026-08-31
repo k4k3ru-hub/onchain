@@ -96,7 +96,7 @@ func (a *grpcAdapter) simulateTransaction(ctx context.Context, request Simulatio
 	response, err := a.executionClient.SimulateTransaction(ctx, &rpcv2.SimulateTransactionRequest{
 		Transaction: transaction,
 		ReadMask: &fieldmaskpb.FieldMask{Paths: []string{
-			"transaction.effects", "transaction.events.events", "command_outputs", "suggested_gas_price",
+			"transaction.effects", "transaction.events", "command_outputs", "suggested_gas_price",
 		}},
 		Checks:         checks.Enum(),
 		DoGasSelection: &request.DoGasSelection,
