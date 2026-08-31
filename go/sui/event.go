@@ -30,6 +30,7 @@ type EventQuery struct {
 }
 
 type Event struct {
+	Checkpoint     CheckpointSequenceNumber
 	SequenceNumber uint64
 	Sender         Address
 	Timestamp      time.Time
@@ -139,7 +140,12 @@ type eventResponse struct {
 	} `json:"sender"`
 	Timestamp   string `json:"timestamp"`
 	Transaction *struct {
-		Digest string `json:"digest"`
+		Digest  string `json:"digest"`
+		Effects *struct {
+			Checkpoint *struct {
+				SequenceNumber CheckpointSequenceNumber `json:"sequenceNumber"`
+			} `json:"checkpoint"`
+		} `json:"effects"`
 	} `json:"transaction"`
 	TransactionModule *struct {
 		Package *struct {
@@ -156,7 +162,7 @@ type eventResponse struct {
 }
 
 func (r eventResponse) event() (Event, error) {
-	if r.Sender == nil || r.Transaction == nil || r.TransactionModule == nil || r.TransactionModule.Package == nil || r.Contents == nil || r.Contents.Type == nil {
+	if r.Sender == nil || r.Transaction == nil || r.Transaction.Effects == nil || r.Transaction.Effects.Checkpoint == nil || r.TransactionModule == nil || r.TransactionModule.Package == nil || r.Contents == nil || r.Contents.Type == nil {
 		return Event{}, fmt.Errorf("failed to parse sui event: event_fields=null")
 	}
 	sender, err := ParseAddress(r.Sender.Address)
@@ -182,6 +188,7 @@ func (r eventResponse) event() (Event, error) {
 		return Event{}, fmt.Errorf("failed to parse sui event: type=empty")
 	}
 	return Event{
+		Checkpoint:     r.Transaction.Effects.Checkpoint.SequenceNumber,
 		SequenceNumber: r.SequenceNumber,
 		Sender:         sender, Timestamp: timestamp, Transaction: transaction,
 		Package: packageAddress, Module: r.TransactionModule.Name,
@@ -221,5 +228,5 @@ func buildEventQuery(eventQuery EventQuery) string {
 	if len(filterFields) > 0 {
 		arguments = append(arguments, "filter: { "+strings.Join(filterFields, " ")+" }")
 	}
-	return "query { events(" + strings.Join(arguments, " ") + ") { nodes { sequenceNumber sender { address } timestamp transaction { digest } transactionModule { package { address } name } contents { type { repr } json } } pageInfo { hasNextPage endCursor } } }"
+	return "query { events(" + strings.Join(arguments, " ") + ") { nodes { sequenceNumber sender { address } timestamp transaction { digest effects { checkpoint { sequenceNumber } } } transactionModule { package { address } name } contents { type { repr } json } } pageInfo { hasNextPage endCursor } } }"
 }

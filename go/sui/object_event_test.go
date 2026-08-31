@@ -62,7 +62,7 @@ func TestEvents(t *testing.T) {
 	caller := &fakeCaller{response: map[string]any{"events": map[string]any{
 		"nodes": []any{map[string]any{
 			"sequenceNumber": 0, "sender": map[string]any{"address": sender.String()}, "timestamp": "2026-08-23T01:02:03Z",
-			"transaction":       map[string]any{"digest": transaction},
+			"transaction":       map[string]any{"digest": transaction, "effects": map[string]any{"checkpoint": map[string]any{"sequenceNumber": 100}}},
 			"transactionModule": map[string]any{"package": map[string]any{"address": packageAddress.String()}, "name": "coin"},
 			"contents":          map[string]any{"type": map[string]any{"repr": "0x2::coin::Transfer"}, "json": map[string]any{"amount": "100"}},
 		}},
@@ -74,10 +74,10 @@ func TestEvents(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Events() returned an unexpected error: %v", err)
 	}
-	if len(page.Events) != 1 || page.Events[0].Sender != sender || page.Events[0].Transaction.String() != transaction || !page.HasNextPage || page.NextCursor != "next-cursor" {
+	if len(page.Events) != 1 || page.Events[0].Checkpoint != 100 || page.Events[0].Sender != sender || page.Events[0].Transaction.String() != transaction || !page.HasNextPage || page.NextCursor != "next-cursor" {
 		t.Fatalf("Events() = %+v, want matching event page", page)
 	}
-	if !strings.Contains(caller.queryValue, "first: 10") || !strings.Contains(caller.queryValue, "atCheckpoint: 100") || !strings.Contains(caller.queryValue, sender.String()) {
+	if !strings.Contains(caller.queryValue, "first: 10") || !strings.Contains(caller.queryValue, "atCheckpoint: 100") || !strings.Contains(caller.queryValue, "effects { checkpoint { sequenceNumber } }") || !strings.Contains(caller.queryValue, sender.String()) {
 		t.Fatalf("Events() query = %q", caller.queryValue)
 	}
 }
