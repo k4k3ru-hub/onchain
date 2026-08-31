@@ -120,6 +120,7 @@ func (b *ProgrammableTransactionBuilder) Pure(value []byte) (Argument, error) {
 //
 // Version:
 //   - 2026-08-30: Added.
+//   - 2026-09-01: Reused object inputs and promoted shared-object mutability.
 func (b *ProgrammableTransactionBuilder) Object(kind InputKind, object ObjectInput) (Argument, error) {
 	if b == nil {
 		return Argument{}, fmt.Errorf("failed to add sui programmable transaction object input: builder=null")
@@ -127,6 +128,28 @@ func (b *ProgrammableTransactionBuilder) Object(kind InputKind, object ObjectInp
 	input := ProgrammableTransactionInput{Kind: kind, Object: object}
 	if err := input.validate(); err != nil {
 		return Argument{}, fmt.Errorf("failed to add sui programmable transaction object input: %w", err)
+	}
+	for index := range b.transaction.Inputs {
+		existing := &b.transaction.Inputs[index]
+		if existing.Kind == InputKindPure || existing.Object.Address != object.Address {
+			continue
+		}
+		if existing.Kind != kind {
+			return Argument{}, fmt.Errorf("failed to add sui programmable transaction object input: object_kind=invalid")
+		}
+		if kind == InputKindShared {
+			if existing.Object.Version != object.Version {
+				return Argument{}, fmt.Errorf("failed to add sui programmable transaction object input: shared_object_version=invalid")
+			}
+			if object.Mutable {
+				existing.Object.Mutable = true
+			}
+			return Argument{Kind: ArgumentKindInput, Index: uint16(index)}, nil
+		}
+		if existing.Object != object {
+			return Argument{}, fmt.Errorf("failed to add sui programmable transaction object input: object_reference=invalid")
+		}
+		return Argument{Kind: ArgumentKindInput, Index: uint16(index)}, nil
 	}
 	return b.addInput(input)
 }
@@ -229,9 +252,16 @@ func (t ProgrammableTransaction) Validate() error {
 	if len(t.Commands) == 0 {
 		return fmt.Errorf("failed to validate sui programmable transaction: commands=empty")
 	}
+	objectInputs := make(map[Address]int)
 	for i, input := range t.Inputs {
 		if err := input.validate(); err != nil {
 			return fmt.Errorf("failed to validate sui programmable transaction: %w: input_index=%d", err, i)
+		}
+		if input.Kind != InputKindPure {
+			if previous, duplicate := objectInputs[input.Object.Address]; duplicate {
+				return fmt.Errorf("failed to validate sui programmable transaction: object_input=duplicate input_index=%d previous_input_index=%d", i, previous)
+			}
+			objectInputs[input.Object.Address] = i
 		}
 	}
 	for i, command := range t.Commands {
