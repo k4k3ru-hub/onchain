@@ -9,11 +9,21 @@ import (
 )
 
 type stubAccounts struct {
-	values map[onchainSolana.Address]*onchainSolana.Account
+	values        map[onchainSolana.Address]*onchainSolana.Account
+	snapshotCalls int
 }
 
 func (s *stubAccounts) Account(_ context.Context, address onchainSolana.Address) (*onchainSolana.Account, error) {
 	return s.values[address], nil
+}
+
+func (s *stubAccounts) AccountSnapshot(_ context.Context, addresses []onchainSolana.Address) (*onchainSolana.AccountSnapshot, error) {
+	s.snapshotCalls++
+	accounts := make([]*onchainSolana.Account, len(addresses))
+	for index, address := range addresses {
+		accounts[index] = s.values[address]
+	}
+	return &onchainSolana.AccountSnapshot{Slot: 1, Accounts: accounts}, nil
 }
 
 func TestNewClientDiscoversConfiguredPool(t *testing.T) {
@@ -95,6 +105,49 @@ func TestQuoteExactInputUsesStoredBinPriceAndDynamicFeeState(t *testing.T) {
 	}
 	if quote.AmountIn != 1_000_000 || quote.AmountOut == 0 || quote.AmountOut >= quote.AmountIn || quote.TradeFee == 0 || quote.OutputMint != testAddress(3) {
 		t.Fatalf("QuoteExactInput() = %+v", quote)
+	}
+	if accounts.snapshotCalls != 1 {
+		t.Fatalf("AccountSnapshot() calls = %d, want 1", accounts.snapshotCalls)
+	}
+}
+
+func TestQuoteExactInputsSharesOneAccountSnapshot(t *testing.T) {
+	poolAddress := testAddress(1)
+	poolData := testPoolData(75, 25)
+	binary.LittleEndian.PutUint16(poolData[8:10], 100)
+	binary.LittleEndian.PutUint64(poolData[584+8*8:592+8*8], 2)
+	arrayAddress, err := binArrayAddress(mainnetProgramID, poolAddress, 1)
+	if err != nil {
+		t.Fatalf("binArrayAddress() error = %v", err)
+	}
+	arrayData := testBinArrayData(poolAddress, 1)
+	binOffset := 56 + 5*binDataLength
+	binary.LittleEndian.PutUint64(arrayData[binOffset+8:binOffset+16], 10_000_000)
+	binary.LittleEndian.PutUint64(arrayData[binOffset+24:binOffset+32], 1)
+	clockData := make([]byte, 40)
+	binary.LittleEndian.PutUint64(clockData[:8], 1_000)
+	binary.LittleEndian.PutUint64(clockData[32:40], 1_000)
+	accounts := &stubAccounts{values: map[onchainSolana.Address]*onchainSolana.Account{
+		poolAddress:        {Address: poolAddress, Owner: mainnetProgramID, Data: poolData},
+		arrayAddress:       {Address: arrayAddress, Owner: mainnetProgramID, Data: arrayData},
+		clockSysvarAddress: {Address: clockSysvarAddress, Data: clockData},
+	}}
+	client, err := NewClient(context.Background(), accounts, Config{Pools: []onchainSolana.Address{poolAddress}})
+	if err != nil {
+		t.Fatalf("NewClient() error = %v", err)
+	}
+	quotes, err := client.QuoteExactInputs(context.Background(), poolAddress, []ExactInputRequest{
+		{InputMint: testAddress(2), AmountIn: 1_000_000},
+		{InputMint: testAddress(2), AmountIn: 2_000_000},
+	})
+	if err != nil {
+		t.Fatalf("QuoteExactInputs() error = %v", err)
+	}
+	if len(quotes) != 2 || quotes[0].AmountOut == 0 || quotes[1].AmountOut <= quotes[0].AmountOut {
+		t.Fatalf("QuoteExactInputs() = %+v", quotes)
+	}
+	if accounts.snapshotCalls != 1 {
+		t.Fatalf("AccountSnapshot() calls = %d, want 1", accounts.snapshotCalls)
 	}
 }
 

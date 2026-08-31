@@ -57,7 +57,17 @@ client, err := dlmm.NewClient(ctx, rpc, dlmm.Config{
 if err != nil {
 	return err
 }
+
+quotes, err := client.QuoteExactInputs(ctx, pool, []dlmm.ExactInputRequest{
+	{InputMint: baseMint, AmountIn: referenceBaseUnits},
+	{InputMint: quoteMint, AmountIn: referenceQuoteUnits},
+})
+if err != nil {
+	return err
+}
 ```
 
 Use `raydium/cpmm`, `raydium/clmm`, or `meteora/dlmm` directly rather than a
-root-level facade. Quote methods refresh mutable pool state before calculating.
+root-level facade. Raydium CLMM and Meteora DLMM batch mutable account reads
+with `getMultipleAccounts`; `QuoteExactInputs` evaluates multiple directions
+against one account snapshot.

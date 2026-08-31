@@ -34,6 +34,10 @@ type accountProvider interface {
 	Account(context.Context, onchainSolana.Address) (*onchainSolana.Account, error)
 }
 
+type accountSnapshotProvider interface {
+	AccountSnapshot(context.Context, []onchainSolana.Address) (*onchainSolana.AccountSnapshot, error)
+}
+
 type Config struct {
 	ProgramID onchainSolana.Address
 	Pools     []onchainSolana.Address
@@ -124,8 +128,14 @@ type Quote struct {
 	BinArraysUsed int
 }
 
+type ExactInputRequest struct {
+	InputMint onchainSolana.Address
+	AmountIn  uint64
+}
+
 type Client struct {
 	accounts  accountProvider
+	snapshots accountSnapshotProvider
 	programID onchainSolana.Address
 	pools     map[onchainSolana.Address]Pool
 	poolOrder []onchainSolana.Address
@@ -167,6 +177,7 @@ func NewClient(ctx context.Context, accounts accountProvider, config Config) (*C
 		ctx = context.Background()
 	}
 	client := &Client{accounts: accounts, programID: config.ProgramID, pools: make(map[onchainSolana.Address]Pool, len(config.Pools)), poolOrder: make([]onchainSolana.Address, 0, len(config.Pools))}
+	client.snapshots, _ = accounts.(accountSnapshotProvider)
 	for index, address := range config.Pools {
 		if address.IsZero() {
 			return nil, fmt.Errorf("failed to create meteora dlmm client: pool=empty pool_index=%d", index)
@@ -309,8 +320,90 @@ func (c *Client) refreshPool(ctx context.Context, configured Pool) (Pool, error)
 //   - Quote error, including unsupported Token-2022 or bitmap-extension state.
 //
 // Version:
-//   - 2026-08-31: Added.
+//   - 2026-08-31: Added batched account snapshots when supported.
 func (c *Client) QuoteExactInput(ctx context.Context, poolAddress, inputMint onchainSolana.Address, amountIn uint64) (Quote, error) {
+	if c != nil && c.snapshots != nil {
+		quotes, err := c.QuoteExactInputs(ctx, poolAddress, []ExactInputRequest{{InputMint: inputMint, AmountIn: amountIn}})
+		if err != nil {
+			return Quote{}, err
+		}
+		return quotes[0], nil
+	}
+	return c.quoteExactInput(ctx, poolAddress, inputMint, amountIn)
+}
+
+// QuoteExactInputs returns exact-input quotes from one batched account snapshot.
+//
+// Parameters:
+//   - ctx: quote context; nil uses context.Background.
+//   - poolAddress: configured pool address.
+//   - requests: exact-input requests evaluated against the same account snapshot.
+//
+// Returns:
+//   - Quotes in request order.
+//   - Snapshot or quote error.
+//
+// Version:
+//   - 2026-08-31: Added.
+func (c *Client) QuoteExactInputs(ctx context.Context, poolAddress onchainSolana.Address, requests []ExactInputRequest) ([]Quote, error) {
+	if c == nil || c.snapshots == nil {
+		return nil, fmt.Errorf("failed to quote meteora dlmm exact inputs: account_snapshot_provider=null")
+	}
+	if len(requests) == 0 {
+		return nil, fmt.Errorf("failed to quote meteora dlmm exact inputs: requests=empty")
+	}
+	configured, exists := c.pools[poolAddress]
+	if !exists {
+		return nil, fmt.Errorf("failed to quote meteora dlmm exact inputs: pool=invalid pool_address=%q", poolAddress.String())
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	pool, err := c.refreshPool(ctx, configured)
+	if err != nil {
+		return nil, fmt.Errorf("failed to quote meteora dlmm exact inputs: %w", err)
+	}
+	addresses := []onchainSolana.Address{pool.Address, clockSysvarAddress}
+	seen := map[onchainSolana.Address]struct{}{pool.Address: {}, clockSysvarAddress: {}}
+	for index, request := range requests {
+		if request.AmountIn == 0 {
+			return nil, fmt.Errorf("failed to quote meteora dlmm exact inputs: amount_in=empty request_index=%d", index)
+		}
+		swapForY := request.InputMint == pool.TokenXMint
+		if !swapForY && request.InputMint != pool.TokenYMint {
+			return nil, fmt.Errorf("failed to quote meteora dlmm exact inputs: input_mint=invalid request_index=%d", index)
+		}
+		for _, arrayIndex := range initializedBinArrayIndexes(pool, swapForY, 16) {
+			address, addressErr := binArrayAddress(c.programID, pool.Address, int64(arrayIndex))
+			if addressErr != nil {
+				return nil, fmt.Errorf("failed to quote meteora dlmm exact inputs: failed to derive bin array address: %w: bin_array_index=%d", addressErr, arrayIndex)
+			}
+			if _, exists := seen[address]; !exists {
+				seen[address] = struct{}{}
+				addresses = append(addresses, address)
+			}
+		}
+	}
+	snapshot, err := c.snapshots.AccountSnapshot(ctx, addresses)
+	if err != nil {
+		return nil, fmt.Errorf("failed to quote meteora dlmm exact inputs: %w", err)
+	}
+	accounts, err := newSnapshotAccounts(addresses, snapshot)
+	if err != nil {
+		return nil, fmt.Errorf("failed to quote meteora dlmm exact inputs: %w", err)
+	}
+	local := &Client{accounts: accounts, programID: c.programID, pools: c.pools, poolOrder: c.poolOrder}
+	quotes := make([]Quote, len(requests))
+	for index, request := range requests {
+		quotes[index], err = local.quoteExactInput(ctx, poolAddress, request.InputMint, request.AmountIn)
+		if err != nil {
+			return nil, fmt.Errorf("failed to quote meteora dlmm exact inputs: %w: request_index=%d snapshot_slot=%d", err, index, snapshot.Slot)
+		}
+	}
+	return quotes, nil
+}
+
+func (c *Client) quoteExactInput(ctx context.Context, poolAddress, inputMint onchainSolana.Address, amountIn uint64) (Quote, error) {
 	if c == nil {
 		return Quote{}, fmt.Errorf("failed to quote meteora dlmm exact input: client=null")
 	}
@@ -426,6 +519,25 @@ func (c *Client) QuoteExactInput(ctx context.Context, poolAddress, inputMint onc
 		return Quote{}, fmt.Errorf("failed to quote meteora dlmm exact input: bitmap_extension=required amount_remaining=%d", remaining)
 	}
 	return Quote{}, fmt.Errorf("failed to quote meteora dlmm exact input: liquidity=insufficient amount_remaining=%d", remaining)
+}
+
+type snapshotAccounts map[onchainSolana.Address]*onchainSolana.Account
+
+func newSnapshotAccounts(addresses []onchainSolana.Address, snapshot *onchainSolana.AccountSnapshot) (snapshotAccounts, error) {
+	if snapshot == nil || len(snapshot.Accounts) != len(addresses) {
+		return nil, fmt.Errorf("failed to create meteora dlmm snapshot accounts: snapshot=invalid")
+	}
+	result := make(snapshotAccounts, len(addresses))
+	for index, account := range snapshot.Accounts {
+		if account != nil {
+			result[addresses[index]] = account
+		}
+	}
+	return result, nil
+}
+
+func (s snapshotAccounts) Account(_ context.Context, address onchainSolana.Address) (*onchainSolana.Account, error) {
+	return s[address], nil
 }
 
 type clockState struct {

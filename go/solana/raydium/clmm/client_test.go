@@ -10,11 +10,21 @@ import (
 )
 
 type stubAccounts struct {
-	values map[onchainSolana.Address]*onchainSolana.Account
+	values        map[onchainSolana.Address]*onchainSolana.Account
+	snapshotCalls int
 }
 
 func (s *stubAccounts) Account(_ context.Context, address onchainSolana.Address) (*onchainSolana.Account, error) {
 	return s.values[address], nil
+}
+
+func (s *stubAccounts) AccountSnapshot(_ context.Context, addresses []onchainSolana.Address) (*onchainSolana.AccountSnapshot, error) {
+	s.snapshotCalls++
+	accounts := make([]*onchainSolana.Account, len(addresses))
+	for index, address := range addresses {
+		accounts[index] = s.values[address]
+	}
+	return &onchainSolana.AccountSnapshot{Slot: 1, Accounts: accounts}, nil
 }
 
 func TestNewClientDiscoversConfiguredCLMMPool(t *testing.T) {
@@ -135,6 +145,62 @@ func TestQuoteExactInputWithinCurrentLiquidityRange(t *testing.T) {
 	}
 	if quote.AmountIn != 1_000_000 || quote.AmountOut == 0 || quote.TradeFee == 0 || quote.OutputMint != token1 || quote.TickArraysUsed != 1 {
 		t.Fatalf("QuoteExactInput() = %+v", quote)
+	}
+	if accounts.snapshotCalls != 1 {
+		t.Fatalf("AccountSnapshot() calls = %d, want 1", accounts.snapshotCalls)
+	}
+}
+
+func TestQuoteExactInputsSharesOneAccountSnapshot(t *testing.T) {
+	poolAddress := testAddress(1)
+	configAddress := testAddress(2)
+	token0, token1 := testAddress(4), testAddress(5)
+	poolData := make([]byte, poolDataLength)
+	copy(poolData[:8], poolDiscriminator[:])
+	putAddress(poolData, 9, configAddress)
+	putAddress(poolData, 73, token0)
+	putAddress(poolData, 105, token1)
+	putAddress(poolData, 137, testAddress(6))
+	putAddress(poolData, 169, testAddress(7))
+	binary.LittleEndian.PutUint16(poolData[235:237], 10)
+	putUint128LE(poolData[237:253], big.NewInt(1_000_000_000_000))
+	price, err := sqrtPriceAtTick(5)
+	if err != nil {
+		t.Fatalf("sqrtPriceAtTick() error = %v", err)
+	}
+	putUint128LE(poolData[253:269], price)
+	binary.LittleEndian.PutUint32(poolData[269:273], 5)
+	binary.LittleEndian.PutUint64(poolData[904+8*8:912+8*8], 1)
+	tickAddress, err := tickArrayAddress(mainnetProgramID, poolAddress, 0)
+	if err != nil {
+		t.Fatalf("tickArrayAddress() error = %v", err)
+	}
+	tickData := testTickArrayData(poolAddress, 0)
+	putUint128LE(tickData[44+20:44+36], big.NewInt(1))
+	tickData[10124] = 1
+	configData := testAMMConfigData(10)
+	binary.LittleEndian.PutUint32(configData[47:51], 2500)
+	accounts := &stubAccounts{values: map[onchainSolana.Address]*onchainSolana.Account{
+		poolAddress:   {Address: poolAddress, Owner: mainnetProgramID, Data: poolData},
+		configAddress: {Address: configAddress, Owner: mainnetProgramID, Data: configData},
+		tickAddress:   {Address: tickAddress, Owner: mainnetProgramID, Data: tickData},
+	}}
+	client, err := NewClient(context.Background(), accounts, Config{Pools: []onchainSolana.Address{poolAddress}})
+	if err != nil {
+		t.Fatalf("NewClient() error = %v", err)
+	}
+	quotes, err := client.QuoteExactInputs(context.Background(), poolAddress, []ExactInputRequest{
+		{InputMint: token0, AmountIn: 1_000_000},
+		{InputMint: token0, AmountIn: 2_000_000},
+	})
+	if err != nil {
+		t.Fatalf("QuoteExactInputs() error = %v", err)
+	}
+	if len(quotes) != 2 || quotes[0].AmountOut == 0 || quotes[1].AmountOut <= quotes[0].AmountOut {
+		t.Fatalf("QuoteExactInputs() = %+v", quotes)
+	}
+	if accounts.snapshotCalls != 1 {
+		t.Fatalf("AccountSnapshot() calls = %d, want 1", accounts.snapshotCalls)
 	}
 }
 

@@ -31,6 +31,10 @@ type accountProvider interface {
 	Account(context.Context, onchainSolana.Address) (*onchainSolana.Account, error)
 }
 
+type accountSnapshotProvider interface {
+	AccountSnapshot(context.Context, []onchainSolana.Address) (*onchainSolana.AccountSnapshot, error)
+}
+
 type Config struct {
 	ProgramID onchainSolana.Address
 	Pools     []onchainSolana.Address
@@ -38,6 +42,7 @@ type Config struct {
 
 type Client struct {
 	accounts  accountProvider
+	snapshots accountSnapshotProvider
 	programID onchainSolana.Address
 	pools     map[onchainSolana.Address]Pool
 	configs   map[onchainSolana.Address]AMMConfig
@@ -113,6 +118,11 @@ type Quote struct {
 	TickArraysUsed int
 }
 
+type ExactInputRequest struct {
+	InputMint onchainSolana.Address
+	AmountIn  uint64
+}
+
 // MainnetProgramAddress returns the Raydium CLMM mainnet program address.
 //
 // Returns:
@@ -154,6 +164,7 @@ func NewClient(ctx context.Context, accounts accountProvider, config Config) (*C
 		configs:   make(map[onchainSolana.Address]AMMConfig),
 		poolOrder: make([]onchainSolana.Address, 0, len(config.Pools)),
 	}
+	client.snapshots, _ = accounts.(accountSnapshotProvider)
 	for i, address := range config.Pools {
 		if address.IsZero() {
 			return nil, fmt.Errorf("failed to create raydium clmm client: pool=empty pool_index=%d", i)
@@ -324,8 +335,91 @@ func (c *Client) refreshPool(ctx context.Context, configured Pool) (Pool, error)
 //   - Quote error, including unsupported dynamic-fee or limit-order state.
 //
 // Version:
-//   - 2026-08-31: Added.
+//   - 2026-08-31: Added batched account snapshots when supported.
 func (c *Client) QuoteExactInput(ctx context.Context, poolAddress, inputMint onchainSolana.Address, amountIn uint64) (Quote, error) {
+	if c != nil && c.snapshots != nil {
+		quotes, err := c.QuoteExactInputs(ctx, poolAddress, []ExactInputRequest{{InputMint: inputMint, AmountIn: amountIn}})
+		if err != nil {
+			return Quote{}, err
+		}
+		return quotes[0], nil
+	}
+	return c.quoteExactInput(ctx, poolAddress, inputMint, amountIn)
+}
+
+// QuoteExactInputs returns exact-input quotes from one batched account snapshot.
+//
+// Parameters:
+//   - ctx: quote context; nil uses context.Background.
+//   - poolAddress: configured pool address.
+//   - requests: exact-input requests evaluated against the same account snapshot.
+//
+// Returns:
+//   - Quotes in request order.
+//   - Snapshot or quote error.
+//
+// Version:
+//   - 2026-08-31: Added.
+func (c *Client) QuoteExactInputs(ctx context.Context, poolAddress onchainSolana.Address, requests []ExactInputRequest) ([]Quote, error) {
+	if c == nil || c.snapshots == nil {
+		return nil, fmt.Errorf("failed to quote raydium clmm exact inputs: account_snapshot_provider=null")
+	}
+	if len(requests) == 0 {
+		return nil, fmt.Errorf("failed to quote raydium clmm exact inputs: requests=empty")
+	}
+	configured, exists := c.pools[poolAddress]
+	if !exists {
+		return nil, fmt.Errorf("failed to quote raydium clmm exact inputs: pool=invalid pool_address=%q", poolAddress.String())
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	pool, err := c.refreshPool(ctx, configured)
+	if err != nil {
+		return nil, fmt.Errorf("failed to quote raydium clmm exact inputs: %w", err)
+	}
+	addresses := []onchainSolana.Address{pool.Address}
+	seen := map[onchainSolana.Address]struct{}{pool.Address: {}}
+	for index, request := range requests {
+		if request.AmountIn == 0 {
+			return nil, fmt.Errorf("failed to quote raydium clmm exact inputs: amount_in=empty request_index=%d", index)
+		}
+		zeroForOne := request.InputMint == pool.Token0Mint
+		if !zeroForOne && request.InputMint != pool.Token1Mint {
+			return nil, fmt.Errorf("failed to quote raydium clmm exact inputs: input_mint=invalid request_index=%d", index)
+		}
+		starts, _ := initializedTickArrayStarts(pool, zeroForOne, 16)
+		for _, start := range starts {
+			address, addressErr := tickArrayAddress(c.programID, pool.Address, start)
+			if addressErr != nil {
+				return nil, fmt.Errorf("failed to quote raydium clmm exact inputs: failed to derive tick array address: %w: start_tick_index=%d", addressErr, start)
+			}
+			if _, exists := seen[address]; !exists {
+				seen[address] = struct{}{}
+				addresses = append(addresses, address)
+			}
+		}
+	}
+	snapshot, err := c.snapshots.AccountSnapshot(ctx, addresses)
+	if err != nil {
+		return nil, fmt.Errorf("failed to quote raydium clmm exact inputs: %w", err)
+	}
+	accounts, err := newSnapshotAccounts(addresses, snapshot)
+	if err != nil {
+		return nil, fmt.Errorf("failed to quote raydium clmm exact inputs: %w", err)
+	}
+	local := &Client{accounts: accounts, programID: c.programID, pools: c.pools, configs: c.configs, poolOrder: c.poolOrder}
+	quotes := make([]Quote, len(requests))
+	for index, request := range requests {
+		quotes[index], err = local.quoteExactInput(ctx, poolAddress, request.InputMint, request.AmountIn)
+		if err != nil {
+			return nil, fmt.Errorf("failed to quote raydium clmm exact inputs: %w: request_index=%d snapshot_slot=%d", err, index, snapshot.Slot)
+		}
+	}
+	return quotes, nil
+}
+
+func (c *Client) quoteExactInput(ctx context.Context, poolAddress, inputMint onchainSolana.Address, amountIn uint64) (Quote, error) {
 	if c == nil {
 		return Quote{}, fmt.Errorf("failed to quote raydium clmm exact input: client=null")
 	}
@@ -425,6 +519,25 @@ func (c *Client) QuoteExactInput(ctx context.Context, poolAddress, inputMint onc
 		}
 	}
 	return Quote{}, fmt.Errorf("failed to quote raydium clmm exact input: liquidity=insufficient amount_remaining=%d", remaining)
+}
+
+type snapshotAccounts map[onchainSolana.Address]*onchainSolana.Account
+
+func newSnapshotAccounts(addresses []onchainSolana.Address, snapshot *onchainSolana.AccountSnapshot) (snapshotAccounts, error) {
+	if snapshot == nil || len(snapshot.Accounts) != len(addresses) {
+		return nil, fmt.Errorf("failed to create raydium clmm snapshot accounts: snapshot=invalid")
+	}
+	result := make(snapshotAccounts, len(addresses))
+	for index, account := range snapshot.Accounts {
+		if account != nil {
+			result[addresses[index]] = account
+		}
+	}
+	return result, nil
+}
+
+func (s snapshotAccounts) Account(_ context.Context, address onchainSolana.Address) (*onchainSolana.Account, error) {
+	return s[address], nil
 }
 
 // Pools returns detached metadata for the configured CLMM pools.
