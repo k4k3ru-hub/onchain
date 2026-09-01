@@ -112,6 +112,16 @@ type testTransactionExecutionClient struct {
 	result  *rpcv2.SimulateTransactionResponse
 }
 
+type testSimulationLedgerClient struct {
+	rpcv2.LedgerServiceClient
+	response *rpcv2.GetServiceInfoResponse
+	err      error
+}
+
+func (c *testSimulationLedgerClient) GetServiceInfo(context.Context, *rpcv2.GetServiceInfoRequest, ...grpc.CallOption) (*rpcv2.GetServiceInfoResponse, error) {
+	return c.response, c.err
+}
+
 func (c *testTransactionExecutionClient) ExecuteTransaction(context.Context, *rpcv2.ExecuteTransactionRequest, ...grpc.CallOption) (*rpcv2.ExecuteTransactionResponse, error) {
 	return nil, nil
 }
@@ -132,8 +142,7 @@ func TestGRPCAdapterSimulationRequestsCompleteEvents(t *testing.T) {
 	checkpoint := uint64(123)
 	client := &testTransactionExecutionClient{result: &rpcv2.SimulateTransactionResponse{
 		Transaction: &rpcv2.ExecutedTransaction{
-			Effects:    &rpcv2.TransactionEffects{Status: &rpcv2.ExecutionStatus{Success: &success}},
-			Checkpoint: &checkpoint,
+			Effects: &rpcv2.TransactionEffects{Status: &rpcv2.ExecutionStatus{Success: &success}},
 			Events: &rpcv2.TransactionEvents{Events: []*rpcv2.Event{{
 				PackageId: &packageID,
 				Module:    &module,
@@ -144,19 +153,20 @@ func TestGRPCAdapterSimulationRequestsCompleteEvents(t *testing.T) {
 		CommandOutputs: []*rpcv2.CommandResult{{}},
 	}}
 
-	result, err := (&grpcAdapter{executionClient: client}).simulateTransaction(context.Background(), SimulationRequest{Sender: sender, Transaction: transaction})
+	ledger := &testSimulationLedgerClient{response: &rpcv2.GetServiceInfoResponse{CheckpointHeight: &checkpoint}}
+	result, err := (&grpcAdapter{executionClient: client, ledgerClient: ledger}).simulateTransaction(context.Background(), SimulationRequest{Sender: sender, Transaction: transaction})
 	if err != nil {
 		t.Fatalf("simulateTransaction() error = %v", err)
 	}
 	if len(result.Events) != 1 || len(result.Events[0].BCS) != 3 || result.Checkpoint != CheckpointSequenceNumber(checkpoint) {
 		t.Fatalf("simulateTransaction() events = %+v", result.Events)
 	}
-	if client.request == nil || client.request.ReadMask == nil || !containsString(client.request.ReadMask.Paths, "transaction.events") || !containsString(client.request.ReadMask.Paths, "transaction.checkpoint") || containsString(client.request.ReadMask.Paths, "transaction.events.events") {
+	if client.request == nil || client.request.ReadMask == nil || !containsString(client.request.ReadMask.Paths, "transaction.events") || containsString(client.request.ReadMask.Paths, "transaction.checkpoint") || containsString(client.request.ReadMask.Paths, "transaction.events.events") {
 		t.Fatalf("simulateTransaction() read mask = %+v", client.request.GetReadMask())
 	}
 }
 
-func TestGRPCAdapterSimulationRequiresCheckpoint(t *testing.T) {
+func TestGRPCAdapterSimulationRequiresLatestObservedCheckpoint(t *testing.T) {
 	sender, _ := ParseAddress("0x1")
 	packageAddress, _ := ParseAddress("0x2")
 	builder := NewProgrammableTransactionBuilder()
@@ -167,9 +177,10 @@ func TestGRPCAdapterSimulationRequiresCheckpoint(t *testing.T) {
 		Transaction: &rpcv2.ExecutedTransaction{Effects: &rpcv2.TransactionEffects{Status: &rpcv2.ExecutionStatus{Success: &success}}},
 	}}
 
-	_, err := (&grpcAdapter{executionClient: client}).simulateTransaction(context.Background(), SimulationRequest{Sender: sender, Transaction: transaction})
-	if err == nil || !strings.Contains(err.Error(), "checkpoint=null") {
-		t.Fatalf("simulateTransaction() error = %v, want checkpoint=null", err)
+	ledger := &testSimulationLedgerClient{response: &rpcv2.GetServiceInfoResponse{}}
+	_, err := (&grpcAdapter{executionClient: client, ledgerClient: ledger}).simulateTransaction(context.Background(), SimulationRequest{Sender: sender, Transaction: transaction})
+	if err == nil || !strings.Contains(err.Error(), "latest_observed_checkpoint=null") {
+		t.Fatalf("simulateTransaction() error = %v, want latest_observed_checkpoint=null", err)
 	}
 }
 

@@ -101,7 +101,7 @@ type transactionSimulationProvider interface {
 //   - Simulation or validation error.
 //
 // Version:
-//   - 2026-09-01: Returned the checkpoint used by simulation.
+//   - 2026-09-01: Returned the latest observed checkpoint after simulation.
 //   - 2026-08-30: Added.
 func (c *GRPCClient) SimulateTransaction(ctx context.Context, request SimulationRequest) (*SimulationResult, error) {
 	if c == nil {
@@ -144,7 +144,7 @@ func (a *grpcAdapter) simulateTransaction(ctx context.Context, request Simulatio
 	response, err := a.executionClient.SimulateTransaction(ctx, &rpcv2.SimulateTransactionRequest{
 		Transaction: transaction,
 		ReadMask: &fieldmaskpb.FieldMask{Paths: []string{
-			"transaction.effects", "transaction.events", "transaction.checkpoint", "command_outputs", "suggested_gas_price",
+			"transaction.effects", "transaction.events", "command_outputs", "suggested_gas_price",
 		}},
 		Checks:         checks.Enum(),
 		DoGasSelection: &request.DoGasSelection,
@@ -162,10 +162,17 @@ func (a *grpcAdapter) simulateTransaction(ctx context.Context, request Simulatio
 	if !status.GetSuccess() {
 		return nil, fmt.Errorf("failed to call sui transaction simulation: %w", simulationExecutionError(status.GetError()))
 	}
-	if response.Transaction.Checkpoint == nil {
-		return nil, fmt.Errorf("failed to call sui transaction simulation: checkpoint=null")
+	if a.ledgerClient == nil {
+		return nil, fmt.Errorf("failed to call sui transaction simulation: ledger_client=null")
 	}
-	checkpoint := CheckpointSequenceNumber(response.Transaction.GetCheckpoint())
+	serviceInfo, err := a.ledgerClient.GetServiceInfo(ctx, &rpcv2.GetServiceInfoRequest{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to call sui transaction simulation: failed to get latest observed checkpoint: %w", err)
+	}
+	if serviceInfo == nil || serviceInfo.CheckpointHeight == nil {
+		return nil, fmt.Errorf("failed to call sui transaction simulation: latest_observed_checkpoint=null")
+	}
+	checkpoint := CheckpointSequenceNumber(serviceInfo.GetCheckpointHeight())
 	if err := checkpoint.Validate(); err != nil {
 		return nil, fmt.Errorf("failed to call sui transaction simulation: %w", err)
 	}
