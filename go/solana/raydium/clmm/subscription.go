@@ -95,6 +95,36 @@ func (s *SwapSubscriber) SubscribeSwaps(_ context.Context, poolAddress onchainSo
 	return &SwapSubscription{source: s.source, logs: logs, pool: pool}, nil
 }
 
+// Swap resolves one transaction signature into a configured Raydium CLMM swap.
+//
+// Parameters:
+//   - ctx: request context; nil uses context.Background.
+//   - poolAddress: configured pool address.
+//   - signature: transaction signature to inspect.
+//
+// Returns:
+//   - Normalized swap, or nil when the transaction is failed or does not change both pool vaults.
+//   - Resolution error.
+//
+// Version:
+//   - 2026-09-01: Added.
+func (s *SwapSubscriber) Swap(ctx context.Context, poolAddress onchainSolana.Address, signature onchainSolana.Signature) (*SwapEvent, error) {
+	if s == nil || s.source == nil {
+		return nil, fmt.Errorf("failed to resolve raydium clmm swap: subscriber=null")
+	}
+	pool, ok := s.pools[poolAddress]
+	if !ok {
+		return nil, fmt.Errorf("failed to resolve raydium clmm swap: pool=invalid")
+	}
+	if signature.IsZero() {
+		return nil, fmt.Errorf("failed to resolve raydium clmm swap: signature=empty")
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	return resolveSwap(ctx, s.source, pool, signature)
+}
+
 // Recv waits for the next transaction that changes both configured pool vaults.
 //
 // Parameters:
@@ -121,26 +151,39 @@ func (s *SwapSubscription) Recv(ctx context.Context) (*SwapEvent, error) {
 		if log == nil || log.Failed {
 			continue
 		}
-		transaction, err := s.source.Transaction(ctx, log.Signature)
+		event, err := resolveSwap(ctx, s.source, s.pool, log.Signature)
 		if err != nil {
 			return nil, fmt.Errorf("failed to receive raydium clmm swap: %w", err)
 		}
-		if transaction.Failed {
-			continue
+		if event != nil {
+			return event, nil
 		}
-		swap, found, err := ammtransaction.DeriveSwap(transaction, s.pool.Token0Vault, s.pool.Token0Mint, s.pool.Token1Vault, s.pool.Token1Mint)
-		if err != nil {
-			return nil, fmt.Errorf("failed to receive raydium clmm swap: %w", err)
-		}
-		if !found {
-			continue
-		}
-		event := &SwapEvent{Signature: transaction.Signature, Slot: transaction.Slot, Pool: s.pool.Address, InputMint: swap.InputMint, OutputMint: swap.OutputMint, AmountIn: swap.AmountIn, AmountOut: swap.AmountOut}
-		if transaction.Timestamp != nil {
-			event.Timestamp = transaction.Timestamp.UTC()
-		}
-		return event, nil
 	}
+}
+
+func resolveSwap(ctx context.Context, source transactionSource, pool Pool, signature onchainSolana.Signature) (*SwapEvent, error) {
+	transaction, err := source.Transaction(ctx, signature)
+	if err != nil {
+		return nil, fmt.Errorf("failed to resolve raydium clmm swap: %w", err)
+	}
+	if transaction == nil {
+		return nil, fmt.Errorf("failed to resolve raydium clmm swap: transaction=null")
+	}
+	if transaction.Failed {
+		return nil, nil
+	}
+	swap, found, err := ammtransaction.DeriveSwap(transaction, pool.Token0Vault, pool.Token0Mint, pool.Token1Vault, pool.Token1Mint)
+	if err != nil {
+		return nil, fmt.Errorf("failed to resolve raydium clmm swap: %w", err)
+	}
+	if !found {
+		return nil, nil
+	}
+	event := &SwapEvent{Signature: transaction.Signature, Slot: transaction.Slot, Pool: pool.Address, InputMint: swap.InputMint, OutputMint: swap.OutputMint, AmountIn: swap.AmountIn, AmountOut: swap.AmountOut}
+	if transaction.Timestamp != nil {
+		event.Timestamp = transaction.Timestamp.UTC()
+	}
+	return event, nil
 }
 
 // Close closes the underlying Solana log subscription.

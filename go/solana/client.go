@@ -136,18 +136,29 @@ func composeRPCClient(config RPCConfig, dependency interface {
 	return client
 }
 
-func (a *sdkRPCAdapter) getAddressSignatures(ctx context.Context, address Address, commitment Commitment, limit int) ([]addressSignature, error) {
+func (a *sdkRPCAdapter) getAddressSignatures(ctx context.Context, query SignaturesForAddressQuery, commitment Commitment) ([]AddressSignature, error) {
 	var publicKey solanaSDK.PublicKey
-	copy(publicKey[:], address[:])
-	result, err := a.client.GetSignaturesForAddressWithOpts(ctx, publicKey, &solanaRPC.GetSignaturesForAddressOpts{Commitment: solanaRPC.CommitmentType(commitment), Limit: &limit})
+	copy(publicKey[:], query.Address[:])
+	opts := &solanaRPC.GetSignaturesForAddressOpts{Commitment: solanaRPC.CommitmentType(commitment), Limit: &query.Limit}
+	if query.Before != nil {
+		var before solanaSDK.Signature
+		copy(before[:], query.Before[:])
+		opts.Before = before
+	}
+	if query.Until != nil {
+		var until solanaSDK.Signature
+		copy(until[:], query.Until[:])
+		opts.Until = until
+	}
+	result, err := a.client.GetSignaturesForAddressWithOpts(ctx, publicKey, opts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get solana rpc signatures for address: %w", a.sanitizeError(err))
 	}
-	values := make([]addressSignature, len(result))
+	values := make([]AddressSignature, len(result))
 	for i, value := range result {
-		copy(values[i].signature[:], value.Signature[:])
-		values[i].slot = Slot(value.Slot)
-		values[i].failed = value.Err != nil
+		copy(values[i].Signature[:], value.Signature[:])
+		values[i].Slot = Slot(value.Slot)
+		values[i].Failed = value.Err != nil
 	}
 	return values, nil
 }

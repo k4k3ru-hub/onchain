@@ -43,6 +43,13 @@ func TestSwapSubscriberDerivesConfiguredPoolSwap(t *testing.T) {
 	if event.InputMint != mintX || event.OutputMint != mintY || event.AmountIn != 10 || event.AmountOut != 20 || event.Slot != 99 {
 		t.Fatalf("Recv() = %+v", event)
 	}
+	resolved, err := subscriber.Swap(context.Background(), poolAddress, transaction.Signature)
+	if err != nil {
+		t.Fatalf("Swap() error = %v", err)
+	}
+	if resolved == nil || resolved.Signature != transaction.Signature || resolved.AmountIn != 10 || resolved.AmountOut != 20 {
+		t.Fatalf("Swap() = %+v", resolved)
+	}
 }
 
 func dlmmSwapAddress(value byte) onchainSolana.Address {

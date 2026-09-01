@@ -26,6 +26,10 @@ type fakeRPCDependency struct {
 	statusContext         context.Context
 	commitment            Commitment
 	statusSignatures      []Signature
+	addressSignatures     []AddressSignature
+	addressSignaturesErr  error
+	addressQuery          SignaturesForAddressQuery
+	addressCommitment     Commitment
 }
 
 func TestConvertAccountKeysIncludesLoadedAddressesInRuntimeOrder(t *testing.T) {
@@ -56,8 +60,10 @@ func (f *fakeRPCDependency) getAccountSnapshot(context.Context, []Address, Commi
 func (f *fakeRPCDependency) getTransaction(context.Context, Signature, Commitment) (*Transaction, error) {
 	return &Transaction{}, nil
 }
-func (f *fakeRPCDependency) getAddressSignatures(context.Context, Address, Commitment, int) ([]addressSignature, error) {
-	return nil, nil
+func (f *fakeRPCDependency) getAddressSignatures(_ context.Context, query SignaturesForAddressQuery, commitment Commitment) ([]AddressSignature, error) {
+	f.addressQuery = query
+	f.addressCommitment = commitment
+	return f.addressSignatures, f.addressSignaturesErr
 }
 
 func (f *fakeRPCDependency) getGenesisHash(context.Context) (Hash, error) {
@@ -113,6 +119,43 @@ func TestComposeRPCClient(t *testing.T) {
 	}
 	if client.config != config {
 		t.Errorf("composeRPCClient() config = %+v, want %+v", client.config, config)
+	}
+}
+
+func TestSignaturesForAddressPagePassesPaginationCursors(t *testing.T) {
+	address := Address{1}
+	before := Signature{2}
+	until := Signature{3}
+	want := []AddressSignature{{Signature: Signature{4}, Slot: 5, Failed: true}}
+	dependency := &fakeRPCDependency{addressSignatures: want}
+	client := composeRPCClient(RPCConfig{URL: "https://example.com", Commitment: CommitmentFinalized}, dependency)
+
+	got, err := client.SignaturesForAddressPage(context.Background(), SignaturesForAddressQuery{Address: address, Limit: 250, Before: &before, Until: &until})
+	if err != nil {
+		t.Fatalf("SignaturesForAddressPage() error = %v", err)
+	}
+	if len(got) != 1 || got[0] != want[0] {
+		t.Fatalf("SignaturesForAddressPage() = %+v, want %+v", got, want)
+	}
+	if dependency.addressQuery.Address != address || dependency.addressQuery.Limit != 250 || dependency.addressQuery.Before == nil || *dependency.addressQuery.Before != before || dependency.addressQuery.Until == nil || *dependency.addressQuery.Until != until || dependency.addressCommitment != CommitmentFinalized {
+		t.Fatalf("getAddressSignatures() query = %+v commitment = %q", dependency.addressQuery, dependency.addressCommitment)
+	}
+}
+
+func TestSignaturesForAddressPageRejectsInvalidQuery(t *testing.T) {
+	client := composeRPCClient(RPCConfig{URL: "https://example.com", Commitment: CommitmentFinalized}, &fakeRPCDependency{})
+	zeroSignature := Signature{}
+	tests := []SignaturesForAddressQuery{
+		{Limit: 1},
+		{Address: Address{1}},
+		{Address: Address{1}, Limit: 1001},
+		{Address: Address{1}, Limit: 1, Before: &zeroSignature},
+		{Address: Address{1}, Limit: 1, Until: &zeroSignature},
+	}
+	for _, query := range tests {
+		if _, err := client.SignaturesForAddressPage(context.Background(), query); err == nil {
+			t.Errorf("SignaturesForAddressPage(%+v) error = nil, want error", query)
+		}
 	}
 }
 

@@ -57,6 +57,13 @@ func TestSwapSubscriberDerivesConfiguredPoolSwap(t *testing.T) {
 	if event.Pool != poolAddress || event.InputMint != mint0 || event.OutputMint != mint1 || event.AmountIn != 10 || event.AmountOut != 20 || event.Slot != 99 || !event.Timestamp.Equal(timestamp) {
 		t.Fatalf("Recv() = %+v", event)
 	}
+	resolved, err := subscriber.Swap(context.Background(), poolAddress, transaction.Signature)
+	if err != nil {
+		t.Fatalf("Swap() error = %v", err)
+	}
+	if resolved == nil || resolved.Signature != transaction.Signature || resolved.AmountIn != 10 || resolved.AmountOut != 20 {
+		t.Fatalf("Swap() = %+v", resolved)
+	}
 	subscription.Close()
 	if !logs.closed {
 		t.Fatal("Close() did not close logs")
