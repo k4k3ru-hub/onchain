@@ -224,7 +224,14 @@ func (a *sdkRPCAdapter) getTransaction(ctx context.Context, signature Signature,
 	if err != nil {
 		return nil, fmt.Errorf("failed to get solana rpc transaction: %w", a.sanitizeError(err))
 	}
-	transaction := &Transaction{Signature: signature, Slot: Slot(result.Slot)}
+	if result == nil || result.Transaction == nil {
+		return nil, fmt.Errorf("failed to get solana rpc transaction: result=null")
+	}
+	sdkTransaction, err := result.Transaction.GetTransaction()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get solana rpc transaction: failed to decode transaction: %w", err)
+	}
+	transaction := &Transaction{Signature: signature, Slot: Slot(result.Slot), AccountKeys: convertAccountKeys(sdkTransaction, result.Meta)}
 	if result.BlockTime != nil {
 		value := time.Unix(int64(*result.BlockTime), 0).UTC()
 		transaction.Timestamp = &value
@@ -237,6 +244,22 @@ func (a *sdkRPCAdapter) getTransaction(ctx context.Context, signature Signature,
 		transaction.PostTokenBalances = convertTokenBalances(result.Meta.PostTokenBalances)
 	}
 	return transaction, nil
+}
+
+func convertAccountKeys(transaction *solanaSDK.Transaction, meta *solanaRPC.TransactionMeta) []Address {
+	if transaction == nil {
+		return nil
+	}
+	publicKeys := append(solanaSDK.PublicKeySlice(nil), transaction.Message.AccountKeys...)
+	if meta != nil {
+		publicKeys = append(publicKeys, meta.LoadedAddresses.Writable...)
+		publicKeys = append(publicKeys, meta.LoadedAddresses.ReadOnly...)
+	}
+	result := make([]Address, len(publicKeys))
+	for i, publicKey := range publicKeys {
+		copy(result[i][:], publicKey[:])
+	}
+	return result
 }
 
 func convertTokenBalances(values []solanaRPC.TokenBalance) []TokenBalance {

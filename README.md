@@ -73,3 +73,44 @@ root-level facade. All three clients batch mutable account reads with
 against one account snapshot and returns its RPC context slot in `batch.Slot`.
 Use the slot to reject cross-DEX evaluations that do not share the same observed
 Solana state. `QuoteExactInputs` remains available when the slot is not needed.
+
+## Solana AMM swap subscriptions
+
+Each Solana DEX package owns its swap event and subscriber types. Compose the
+standard Solana WebSocket log client and RPC transaction client explicitly:
+
+```go
+ws, err := solana.NewWSClient(ctx, solana.WSConfig{
+	URL:        wsURL,
+	Commitment: solana.CommitmentFinalized,
+})
+if err != nil {
+	return err
+}
+defer ws.Close()
+
+subscriber, err := dlmm.NewSwapSubscriber(client, rpc, ws.SubscribeLogs)
+if err != nil {
+	return err
+}
+subscription, err := subscriber.SubscribeSwaps(ctx, pool)
+if err != nil {
+	return err
+}
+defer subscription.Close()
+
+swap, err := subscription.Recv(ctx)
+if err != nil {
+	return err
+}
+```
+
+The subscriber uses `logsSubscribe` for the configured pool and resolves each
+successful signature with `getTransaction`. It derives the pool-level net swap
+from the two pool vault balance changes. `Transaction.AccountKeys` contains
+static keys followed by loaded writable and read-only address-table keys, so
+token balance account indexes resolve in Solana runtime order.
+
+One `SwapEvent` represents the net change for one pool in one transaction. If a
+transaction invokes the same pool more than once, the event intentionally
+aggregates those invocations and uses `EventIndex == 0`.

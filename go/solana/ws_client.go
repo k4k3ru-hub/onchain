@@ -16,9 +16,10 @@ type WSConfig struct {
 	Commitment Commitment
 }
 type WSClient struct {
-	provider  logSubscriptionProvider
-	closer    interface{ Close() }
-	closeOnce sync.Once
+	provider   logSubscriptionProvider
+	closer     interface{ Close() }
+	commitment Commitment
+	closeOnce  sync.Once
 }
 type logSubscriptionProvider interface {
 	subscribeLogs(Address, Commitment) (logReceiver, error)
@@ -47,7 +48,7 @@ func NewWSClient(ctx context.Context, config WSConfig) (*WSClient, error) {
 		return nil, fmt.Errorf("failed to create solana websocket client: %w", err)
 	}
 	adapter := &sdkWSAdapter{client: client}
-	return &WSClient{provider: adapter, closer: client}, nil
+	return &WSClient{provider: adapter, closer: client, commitment: config.Commitment}, nil
 }
 
 // Close closes the Solana WebSocket client.
@@ -62,6 +63,16 @@ func (c *WSClient) Close() {
 }
 
 // SubscribeLogs subscribes to logs for transactions mentioning an address.
+//
+// Parameters:
+//   - address: address that each matching transaction must mention.
+//
+// Returns:
+//   - Log subscription using the client commitment.
+//   - Subscription error.
+//
+// Version:
+//   - 2026-09-01: Applied the configured WebSocket commitment.
 func (c *WSClient) SubscribeLogs(address Address) (*LogSubscription, error) {
 	if c == nil || c.provider == nil {
 		return nil, fmt.Errorf("failed to subscribe solana logs: provider=null")
@@ -69,7 +80,7 @@ func (c *WSClient) SubscribeLogs(address Address) (*LogSubscription, error) {
 	if address.IsZero() {
 		return nil, fmt.Errorf("failed to subscribe solana logs: address=empty")
 	}
-	receiver, err := c.provider.subscribeLogs(address, CommitmentFinalized)
+	receiver, err := c.provider.subscribeLogs(address, c.commitment)
 	if err != nil {
 		return nil, fmt.Errorf("failed to subscribe solana logs: %w", err)
 	}

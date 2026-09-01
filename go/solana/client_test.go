@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+
+	solanaSDK "github.com/gagliardetto/solana-go"
+	solanaRPC "github.com/gagliardetto/solana-go/rpc"
 )
 
 type fakeRPCDependency struct {
@@ -23,6 +26,22 @@ type fakeRPCDependency struct {
 	statusContext         context.Context
 	commitment            Commitment
 	statusSignatures      []Signature
+}
+
+func TestConvertAccountKeysIncludesLoadedAddressesInRuntimeOrder(t *testing.T) {
+	static := solanaSDK.NewWallet().PublicKey()
+	writable := solanaSDK.NewWallet().PublicKey()
+	readOnly := solanaSDK.NewWallet().PublicKey()
+	transaction := &solanaSDK.Transaction{Message: solanaSDK.Message{AccountKeys: solanaSDK.PublicKeySlice{static}}}
+	meta := &solanaRPC.TransactionMeta{LoadedAddresses: solanaRPC.LoadedAddresses{
+		Writable: solanaSDK.PublicKeySlice{writable},
+		ReadOnly: solanaSDK.PublicKeySlice{readOnly},
+	}}
+
+	got := convertAccountKeys(transaction, meta)
+	if len(got) != 3 || got[0].String() != static.String() || got[1].String() != writable.String() || got[2].String() != readOnly.String() {
+		t.Fatalf("convertAccountKeys() = %v", got)
+	}
 }
 
 func (f *fakeRPCDependency) getBlock(context.Context, Slot, Commitment) (*Block, error) {

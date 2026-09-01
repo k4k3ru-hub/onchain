@@ -13,6 +13,7 @@ type Transaction struct {
 	Fee               uint64
 	Failed            bool
 	Logs              []string
+	AccountKeys       []Address
 	PreTokenBalances  []TokenBalance
 	PostTokenBalances []TokenBalance
 }
@@ -48,6 +49,7 @@ func (c *RPCClient) Transaction(ctx context.Context, signature Signature) (*Tran
 		return nil, fmt.Errorf("failed to get solana transaction: transaction=null")
 	}
 	transaction.Logs = append([]string(nil), transaction.Logs...)
+	transaction.AccountKeys = append([]Address(nil), transaction.AccountKeys...)
 	transaction.PreTokenBalances = cloneTokenBalances(transaction.PreTokenBalances)
 	transaction.PostTokenBalances = cloneTokenBalances(transaction.PostTokenBalances)
 	return transaction, nil
