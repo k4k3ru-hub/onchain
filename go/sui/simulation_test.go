@@ -129,9 +129,11 @@ func TestGRPCAdapterSimulationRequestsCompleteEvents(t *testing.T) {
 	transaction, _ := builder.Build()
 	success := true
 	packageID, module, eventType := packageAddress.String(), "fetcher", packageAddress.String()+"::fetcher::QuoteEvent"
+	checkpoint := uint64(123)
 	client := &testTransactionExecutionClient{result: &rpcv2.SimulateTransactionResponse{
 		Transaction: &rpcv2.ExecutedTransaction{
-			Effects: &rpcv2.TransactionEffects{Status: &rpcv2.ExecutionStatus{Success: &success}},
+			Effects:    &rpcv2.TransactionEffects{Status: &rpcv2.ExecutionStatus{Success: &success}},
+			Checkpoint: &checkpoint,
 			Events: &rpcv2.TransactionEvents{Events: []*rpcv2.Event{{
 				PackageId: &packageID,
 				Module:    &module,
@@ -146,11 +148,28 @@ func TestGRPCAdapterSimulationRequestsCompleteEvents(t *testing.T) {
 	if err != nil {
 		t.Fatalf("simulateTransaction() error = %v", err)
 	}
-	if len(result.Events) != 1 || len(result.Events[0].BCS) != 3 {
+	if len(result.Events) != 1 || len(result.Events[0].BCS) != 3 || result.Checkpoint != CheckpointSequenceNumber(checkpoint) {
 		t.Fatalf("simulateTransaction() events = %+v", result.Events)
 	}
-	if client.request == nil || client.request.ReadMask == nil || !containsString(client.request.ReadMask.Paths, "transaction.events") || containsString(client.request.ReadMask.Paths, "transaction.events.events") {
+	if client.request == nil || client.request.ReadMask == nil || !containsString(client.request.ReadMask.Paths, "transaction.events") || !containsString(client.request.ReadMask.Paths, "transaction.checkpoint") || containsString(client.request.ReadMask.Paths, "transaction.events.events") {
 		t.Fatalf("simulateTransaction() read mask = %+v", client.request.GetReadMask())
+	}
+}
+
+func TestGRPCAdapterSimulationRequiresCheckpoint(t *testing.T) {
+	sender, _ := ParseAddress("0x1")
+	packageAddress, _ := ParseAddress("0x2")
+	builder := NewProgrammableTransactionBuilder()
+	_, _ = builder.MoveCall(MoveCall{Package: packageAddress, Module: "fetcher", Function: "quote"})
+	transaction, _ := builder.Build()
+	success := true
+	client := &testTransactionExecutionClient{result: &rpcv2.SimulateTransactionResponse{
+		Transaction: &rpcv2.ExecutedTransaction{Effects: &rpcv2.TransactionEffects{Status: &rpcv2.ExecutionStatus{Success: &success}}},
+	}}
+
+	_, err := (&grpcAdapter{executionClient: client}).simulateTransaction(context.Background(), SimulationRequest{Sender: sender, Transaction: transaction})
+	if err == nil || !strings.Contains(err.Error(), "checkpoint=null") {
+		t.Fatalf("simulateTransaction() error = %v, want checkpoint=null", err)
 	}
 }
 

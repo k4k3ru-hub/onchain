@@ -82,6 +82,7 @@ type SimulationEvent struct {
 type SimulationResult struct {
 	CommandResults    []SimulationCommandResult
 	Events            []SimulationEvent
+	Checkpoint        CheckpointSequenceNumber
 	SuggestedGasPrice uint64
 }
 
@@ -100,6 +101,7 @@ type transactionSimulationProvider interface {
 //   - Simulation or validation error.
 //
 // Version:
+//   - 2026-09-01: Returned the checkpoint used by simulation.
 //   - 2026-08-30: Added.
 func (c *GRPCClient) SimulateTransaction(ctx context.Context, request SimulationRequest) (*SimulationResult, error) {
 	if c == nil {
@@ -142,7 +144,7 @@ func (a *grpcAdapter) simulateTransaction(ctx context.Context, request Simulatio
 	response, err := a.executionClient.SimulateTransaction(ctx, &rpcv2.SimulateTransactionRequest{
 		Transaction: transaction,
 		ReadMask: &fieldmaskpb.FieldMask{Paths: []string{
-			"transaction.effects", "transaction.events", "command_outputs", "suggested_gas_price",
+			"transaction.effects", "transaction.events", "transaction.checkpoint", "command_outputs", "suggested_gas_price",
 		}},
 		Checks:         checks.Enum(),
 		DoGasSelection: &request.DoGasSelection,
@@ -160,7 +162,14 @@ func (a *grpcAdapter) simulateTransaction(ctx context.Context, request Simulatio
 	if !status.GetSuccess() {
 		return nil, fmt.Errorf("failed to call sui transaction simulation: %w", simulationExecutionError(status.GetError()))
 	}
-	result := &SimulationResult{SuggestedGasPrice: response.GetSuggestedGasPrice(), CommandResults: make([]SimulationCommandResult, len(response.CommandOutputs))}
+	if response.Transaction.Checkpoint == nil {
+		return nil, fmt.Errorf("failed to call sui transaction simulation: checkpoint=null")
+	}
+	checkpoint := CheckpointSequenceNumber(response.Transaction.GetCheckpoint())
+	if err := checkpoint.Validate(); err != nil {
+		return nil, fmt.Errorf("failed to call sui transaction simulation: %w", err)
+	}
+	result := &SimulationResult{Checkpoint: checkpoint, SuggestedGasPrice: response.GetSuggestedGasPrice(), CommandResults: make([]SimulationCommandResult, len(response.CommandOutputs))}
 	for i, command := range response.CommandOutputs {
 		if command == nil {
 			return nil, fmt.Errorf("failed to call sui transaction simulation: command_output=null command_index=%d", i)
