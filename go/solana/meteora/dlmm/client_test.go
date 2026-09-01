@@ -10,10 +10,12 @@ import (
 
 type stubAccounts struct {
 	values        map[onchainSolana.Address]*onchainSolana.Account
+	accountCalls  int
 	snapshotCalls int
 }
 
 func (s *stubAccounts) Account(_ context.Context, address onchainSolana.Address) (*onchainSolana.Account, error) {
+	s.accountCalls++
 	return s.values[address], nil
 }
 
@@ -136,6 +138,7 @@ func TestQuoteExactInputsSharesOneAccountSnapshot(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewClient() error = %v", err)
 	}
+	accounts.accountCalls = 0
 	batch, err := client.QuoteExactInputsWithSlot(context.Background(), poolAddress, []ExactInputRequest{
 		{InputMint: testAddress(2), AmountIn: 1_000_000},
 		{InputMint: testAddress(2), AmountIn: 2_000_000},
@@ -149,6 +152,9 @@ func TestQuoteExactInputsSharesOneAccountSnapshot(t *testing.T) {
 	}
 	if accounts.snapshotCalls != 1 {
 		t.Fatalf("AccountSnapshot() calls = %d, want 1", accounts.snapshotCalls)
+	}
+	if accounts.accountCalls != 0 {
+		t.Fatalf("Account() calls = %d, want 0", accounts.accountCalls)
 	}
 }
 

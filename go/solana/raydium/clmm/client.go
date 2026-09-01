@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"math/big"
+	"sync"
 
 	solanaSDK "github.com/gagliardetto/solana-go"
 	onchainSolana "github.com/k4k3ru-hub/onchain/go/solana"
@@ -41,12 +42,13 @@ type Config struct {
 }
 
 type Client struct {
-	accounts  accountProvider
-	snapshots accountSnapshotProvider
-	programID onchainSolana.Address
-	pools     map[onchainSolana.Address]Pool
-	configs   map[onchainSolana.Address]AMMConfig
-	poolOrder []onchainSolana.Address
+	accounts   accountProvider
+	snapshots  accountSnapshotProvider
+	programID  onchainSolana.Address
+	pools      map[onchainSolana.Address]Pool
+	configs    map[onchainSolana.Address]AMMConfig
+	poolOrder  []onchainSolana.Address
+	quotePools sync.Map
 }
 
 type Pool struct {
@@ -213,6 +215,7 @@ func NewClient(ctx context.Context, accounts accountProvider, config Config) (*C
 			return nil, fmt.Errorf("failed to create raydium clmm client: tick_spacing=invalid pool_address=%q", address.String())
 		}
 		client.pools[address] = pool
+		client.quotePools.Store(address, pool)
 		client.poolOrder = append(client.poolOrder, address)
 	}
 	return client, nil
@@ -386,6 +389,7 @@ func (c *Client) QuoteExactInputs(ctx context.Context, poolAddress onchainSolana
 //   - Snapshot or quote error.
 //
 // Version:
+//   - 2026-09-01: Included pool refresh in the shared account snapshot.
 //   - 2026-09-01: Added.
 func (c *Client) QuoteExactInputsWithSlot(ctx context.Context, poolAddress onchainSolana.Address, requests []ExactInputRequest) (QuoteBatch, error) {
 	if c == nil || c.snapshots == nil {
@@ -401,31 +405,13 @@ func (c *Client) QuoteExactInputsWithSlot(ctx context.Context, poolAddress oncha
 	if ctx == nil {
 		ctx = context.Background()
 	}
-	pool, err := c.refreshPool(ctx, configured)
-	if err != nil {
-		return QuoteBatch{}, fmt.Errorf("failed to quote raydium clmm exact inputs with slot: %w", err)
+	pool := configured
+	if value, ok := c.quotePools.Load(poolAddress); ok {
+		pool = value.(Pool)
 	}
-	addresses := []onchainSolana.Address{pool.Address}
-	seen := map[onchainSolana.Address]struct{}{pool.Address: {}}
-	for index, request := range requests {
-		if request.AmountIn == 0 {
-			return QuoteBatch{}, fmt.Errorf("failed to quote raydium clmm exact inputs with slot: amount_in=empty request_index=%d", index)
-		}
-		zeroForOne := request.InputMint == pool.Token0Mint
-		if !zeroForOne && request.InputMint != pool.Token1Mint {
-			return QuoteBatch{}, fmt.Errorf("failed to quote raydium clmm exact inputs with slot: input_mint=invalid request_index=%d", index)
-		}
-		starts, _ := initializedTickArrayStarts(pool, zeroForOne, 16)
-		for _, start := range starts {
-			address, addressErr := tickArrayAddress(c.programID, pool.Address, start)
-			if addressErr != nil {
-				return QuoteBatch{}, fmt.Errorf("failed to quote raydium clmm exact inputs with slot: failed to derive tick array address: %w: start_tick_index=%d", addressErr, start)
-			}
-			if _, exists := seen[address]; !exists {
-				seen[address] = struct{}{}
-				addresses = append(addresses, address)
-			}
-		}
+	addresses, err := c.quoteSnapshotAddresses(pool, requests)
+	if err != nil {
+		return QuoteBatch{}, err
 	}
 	snapshot, err := c.snapshots.AccountSnapshot(ctx, addresses)
 	if err != nil {
@@ -436,6 +422,31 @@ func (c *Client) QuoteExactInputsWithSlot(ctx context.Context, poolAddress oncha
 		return QuoteBatch{}, fmt.Errorf("failed to quote raydium clmm exact inputs with slot: %w", err)
 	}
 	local := &Client{accounts: accounts, programID: c.programID, pools: c.pools, configs: c.configs, poolOrder: c.poolOrder}
+	refreshed, err := local.refreshPool(ctx, configured)
+	if err != nil {
+		return QuoteBatch{}, fmt.Errorf("failed to quote raydium clmm exact inputs with slot: %w", err)
+	}
+	required, err := c.quoteSnapshotAddresses(refreshed, requests)
+	if err != nil {
+		return QuoteBatch{}, err
+	}
+	if !accountsContain(accounts, required) {
+		addresses = required
+		snapshot, err = c.snapshots.AccountSnapshot(ctx, addresses)
+		if err != nil {
+			return QuoteBatch{}, fmt.Errorf("failed to quote raydium clmm exact inputs with slot: %w", err)
+		}
+		accounts, err = newSnapshotAccounts(addresses, snapshot)
+		if err != nil {
+			return QuoteBatch{}, fmt.Errorf("failed to quote raydium clmm exact inputs with slot: %w", err)
+		}
+		local = &Client{accounts: accounts, programID: c.programID, pools: c.pools, configs: c.configs, poolOrder: c.poolOrder}
+		refreshed, err = local.refreshPool(ctx, configured)
+		if err != nil {
+			return QuoteBatch{}, fmt.Errorf("failed to quote raydium clmm exact inputs with slot: %w", err)
+		}
+	}
+	c.quotePools.Store(poolAddress, refreshed)
 	quotes := make([]Quote, len(requests))
 	for index, request := range requests {
 		quotes[index], err = local.quoteExactInput(ctx, poolAddress, request.InputMint, request.AmountIn)
@@ -444,6 +455,32 @@ func (c *Client) QuoteExactInputsWithSlot(ctx context.Context, poolAddress oncha
 		}
 	}
 	return QuoteBatch{Slot: snapshot.Slot, Quotes: quotes}, nil
+}
+
+func (c *Client) quoteSnapshotAddresses(pool Pool, requests []ExactInputRequest) ([]onchainSolana.Address, error) {
+	addresses := []onchainSolana.Address{pool.Address}
+	seen := map[onchainSolana.Address]struct{}{pool.Address: {}}
+	for index, request := range requests {
+		if request.AmountIn == 0 {
+			return nil, fmt.Errorf("failed to quote raydium clmm exact inputs with slot: amount_in=empty request_index=%d", index)
+		}
+		zeroForOne := request.InputMint == pool.Token0Mint
+		if !zeroForOne && request.InputMint != pool.Token1Mint {
+			return nil, fmt.Errorf("failed to quote raydium clmm exact inputs with slot: input_mint=invalid request_index=%d", index)
+		}
+		starts, _ := initializedTickArrayStarts(pool, zeroForOne, 16)
+		for _, start := range starts {
+			address, addressErr := tickArrayAddress(c.programID, pool.Address, start)
+			if addressErr != nil {
+				return nil, fmt.Errorf("failed to quote raydium clmm exact inputs with slot: failed to derive tick array address: %w: start_tick_index=%d", addressErr, start)
+			}
+			if _, exists := seen[address]; !exists {
+				seen[address] = struct{}{}
+				addresses = append(addresses, address)
+			}
+		}
+	}
+	return addresses, nil
 }
 
 func (c *Client) quoteExactInput(ctx context.Context, poolAddress, inputMint onchainSolana.Address, amountIn uint64) (Quote, error) {
@@ -593,6 +630,15 @@ func newSnapshotAccounts(addresses []onchainSolana.Address, snapshot *onchainSol
 
 func (s snapshotAccounts) Account(_ context.Context, address onchainSolana.Address) (*onchainSolana.Account, error) {
 	return s[address], nil
+}
+
+func accountsContain(accounts snapshotAccounts, addresses []onchainSolana.Address) bool {
+	for _, address := range addresses {
+		if accounts[address] == nil {
+			return false
+		}
+	}
+	return true
 }
 
 // Pools returns detached metadata for the configured CLMM pools.
