@@ -154,6 +154,15 @@ func TestComposeHTTPClientComposesDependencies(t *testing.T) {
 	if client.contractCaller != ethClient {
 		t.Fatal("HTTP contract-call dependency was not composed")
 	}
+	if client.gasEstimator != ethClient {
+		t.Fatal("HTTP gas-estimator dependency was not composed")
+	}
+	if client.pendingNonceProvider != ethClient {
+		t.Fatal("HTTP pending-nonce dependency was not composed")
+	}
+	if client.gasTipCapSuggester != ethClient {
+		t.Fatal("HTTP gas-tip-cap dependency was not composed")
+	}
 	if client.blockHeaderByHasher != ethClient {
 		t.Fatal("HTTP block-header dependency was not composed")
 	}

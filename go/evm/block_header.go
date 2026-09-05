@@ -19,10 +19,11 @@ type blockHeaderByNumberer interface {
 }
 
 type BlockHeader struct {
-	Number     uint64
-	Hash       common.Hash
-	ParentHash common.Hash
-	Timestamp  uint64
+	Number        uint64
+	Hash          common.Hash
+	ParentHash    common.Hash
+	Timestamp     uint64
+	BaseFeePerGas *big.Int
 }
 
 // HeaderByHash gets an EVM block header by hash using the HTTP RPC client.
@@ -144,10 +145,14 @@ func convertBlockHeader(operation string, header *types.Header) (BlockHeader, er
 		return BlockHeader{}, fmt.Errorf("%s: block_number=out_of_range", operation)
 	}
 
-	return BlockHeader{
+	result := BlockHeader{
 		Number:     header.Number.Uint64(),
 		Hash:       header.Hash(),
 		ParentHash: header.ParentHash,
 		Timestamp:  header.Time,
-	}, nil
+	}
+	if header.BaseFee != nil {
+		result.BaseFeePerGas = new(big.Int).Set(header.BaseFee)
+	}
+	return result, nil
 }

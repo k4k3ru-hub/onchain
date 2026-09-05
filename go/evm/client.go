@@ -25,6 +25,9 @@ type HTTPClient struct {
 	blockHeaderByNumberer blockHeaderByNumberer
 	blockNumberer         blockNumberer
 	contractCaller        contractCaller
+	gasEstimator          gasEstimator
+	pendingNonceProvider  pendingNonceProvider
+	gasTipCapSuggester    gasTipCapSuggester
 	logFilterer           logFilterer
 	receiptProvider       transactionReceiptProvider
 	chainIDProvider       chainIDProvider
@@ -107,6 +110,9 @@ func composeHTTPClient(config HTTPConfig, ethClient *ethclient.Client) *HTTPClie
 		client.blockHeaderByNumberer = ethClient
 		client.blockNumberer = ethClient
 		client.contractCaller = ethClient
+		client.gasEstimator = ethClient
+		client.pendingNonceProvider = ethClient
+		client.gasTipCapSuggester = ethClient
 		client.logFilterer = ethClient
 		client.receiptProvider = ethClient
 		client.chainIDProvider = ethClient

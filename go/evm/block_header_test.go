@@ -51,6 +51,7 @@ func TestHeaderByHashDelegatesAndConvertsHeader(t *testing.T) {
 		Number:     big.NewInt(123),
 		ParentHash: common.HexToHash("0x1234"),
 		Time:       1_700_000_000,
+		BaseFee:    big.NewInt(1_000_000_000),
 	}
 	blockHash := header.Hash()
 	requestContext := context.WithValue(context.Background(), struct{}{}, "test")
@@ -78,6 +79,13 @@ func TestHeaderByHashDelegatesAndConvertsHeader(t *testing.T) {
 	}
 	if got.Timestamp != header.Time {
 		t.Errorf("HeaderByHash() Timestamp = %d, want %d", got.Timestamp, header.Time)
+	}
+	if got.BaseFeePerGas == nil || got.BaseFeePerGas.Cmp(header.BaseFee) != 0 {
+		t.Errorf("HeaderByHash() BaseFeePerGas = %v, want %v", got.BaseFeePerGas, header.BaseFee)
+	}
+	header.BaseFee.SetInt64(1)
+	if got.BaseFeePerGas.Int64() != 1_000_000_000 {
+		t.Errorf("HeaderByHash() BaseFeePerGas shares mutable input: got %v", got.BaseFeePerGas)
 	}
 }
 
