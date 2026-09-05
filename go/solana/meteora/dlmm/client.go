@@ -7,8 +7,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"math/big"
+	"slices"
 	"sync"
 
 	solanaSDK "github.com/gagliardetto/solana-go"
@@ -40,8 +42,11 @@ type accountSnapshotProvider interface {
 }
 
 type Config struct {
-	ProgramID onchainSolana.Address
-	Pools     []onchainSolana.Address
+	// Array counts are total unique arrays across requested directions; zero uses defaults 5/16.
+	InitialArrayCount int
+	MaxArrayCount     int
+	ProgramID         onchainSolana.Address
+	Pools             []onchainSolana.Address
 }
 
 type StaticParameters struct {
@@ -140,12 +145,14 @@ type QuoteBatch struct {
 }
 
 type Client struct {
-	accounts   accountProvider
-	snapshots  accountSnapshotProvider
-	programID  onchainSolana.Address
-	pools      map[onchainSolana.Address]Pool
-	poolOrder  []onchainSolana.Address
-	quotePools sync.Map
+	initialArrayCount int
+	maxArrayCount     int
+	accounts          accountProvider
+	snapshots         accountSnapshotProvider
+	programID         onchainSolana.Address
+	pools             map[onchainSolana.Address]Pool
+	poolOrder         []onchainSolana.Address
+	quotePools        sync.Map
 }
 
 // MainnetProgramAddress returns the Meteora DLMM mainnet program address.
@@ -169,10 +176,15 @@ func MainnetProgramAddress() onchainSolana.Address { return mainnetProgramID }
 //   - Client creation error.
 //
 // Version:
+//   - 2026-09-05: Added bounded adaptive array snapshots.
 //   - 2026-08-31: Added.
 func NewClient(ctx context.Context, accounts accountProvider, config Config) (*Client, error) {
 	if accounts == nil {
 		return nil, fmt.Errorf("failed to create meteora dlmm client: accounts=null")
+	}
+	initial, maximum, err := onchainSolana.NormalizeQuoteArrayCounts(config.InitialArrayCount, config.MaxArrayCount)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create meteora dlmm client: %w", err)
 	}
 	if config.ProgramID.IsZero() {
 		config.ProgramID = mainnetProgramID
@@ -183,7 +195,7 @@ func NewClient(ctx context.Context, accounts accountProvider, config Config) (*C
 	if ctx == nil {
 		ctx = context.Background()
 	}
-	client := &Client{accounts: accounts, programID: config.ProgramID, pools: make(map[onchainSolana.Address]Pool, len(config.Pools)), poolOrder: make([]onchainSolana.Address, 0, len(config.Pools))}
+	client := &Client{initialArrayCount: initial, maxArrayCount: maximum, accounts: accounts, programID: config.ProgramID, pools: make(map[onchainSolana.Address]Pool, len(config.Pools)), poolOrder: make([]onchainSolana.Address, 0, len(config.Pools))}
 	client.snapshots, _ = accounts.(accountSnapshotProvider)
 	for index, address := range config.Pools {
 		if address.IsZero() {
@@ -274,27 +286,35 @@ func (c *Client) fetchBinArrays(ctx context.Context, pool Pool, swapForY bool, l
 	indexes := initializedBinArrayIndexes(pool, swapForY, limit)
 	result := make([]BinArray, 0, len(indexes))
 	for _, index := range indexes {
-		address, addressErr := binArrayAddress(c.programID, pool.Address, int64(index))
-		if addressErr != nil {
-			return nil, fmt.Errorf("failed to discover meteora dlmm bin arrays: failed to derive bin array address: %w: bin_array_index=%d", addressErr, index)
+		array, err := c.readBinArray(ctx, pool, index)
+		if err != nil {
+			return nil, err
 		}
-		binAccount, accountErr := c.accounts.Account(ctx, address)
-		if accountErr != nil {
-			return nil, fmt.Errorf("failed to discover meteora dlmm bin arrays: failed to fetch bin array: %w: bin_array_address=%q", accountErr, address.String())
-		}
-		if binAccount == nil || binAccount.Owner != c.programID {
-			return nil, fmt.Errorf("failed to discover meteora dlmm bin arrays: bin_array_account=invalid bin_array_address=%q", address.String())
-		}
-		binArray, decodeErr := decodeBinArray(address, binAccount.Data)
-		if decodeErr != nil {
-			return nil, fmt.Errorf("failed to discover meteora dlmm bin arrays: %w: bin_array_address=%q", decodeErr, address.String())
-		}
-		if binArray.Pool != pool.Address || binArray.Index != int64(index) {
-			return nil, fmt.Errorf("failed to discover meteora dlmm bin arrays: bin_array_identity=invalid bin_array_address=%q", address.String())
-		}
-		result = append(result, binArray)
+		result = append(result, array)
 	}
 	return result, nil
+}
+
+func (c *Client) readBinArray(ctx context.Context, pool Pool, index int32) (BinArray, error) {
+	address, addressErr := binArrayAddress(c.programID, pool.Address, int64(index))
+	if addressErr != nil {
+		return BinArray{}, fmt.Errorf("failed to discover meteora dlmm bin arrays: failed to derive bin array address: %w: bin_array_index=%d", addressErr, index)
+	}
+	binAccount, accountErr := c.accounts.Account(ctx, address)
+	if accountErr != nil {
+		return BinArray{}, fmt.Errorf("failed to discover meteora dlmm bin arrays: failed to fetch bin array: %w: bin_array_address=%q", accountErr, address.String())
+	}
+	if binAccount == nil || binAccount.Owner != c.programID {
+		return BinArray{}, fmt.Errorf("failed to discover meteora dlmm bin arrays: bin_array_account=invalid bin_array_address=%q", address.String())
+	}
+	binArray, decodeErr := decodeBinArray(address, binAccount.Data)
+	if decodeErr != nil {
+		return BinArray{}, fmt.Errorf("failed to discover meteora dlmm bin arrays: %w: bin_array_address=%q", decodeErr, address.String())
+	}
+	if binArray.Pool != pool.Address || binArray.Index != int64(index) {
+		return BinArray{}, fmt.Errorf("failed to discover meteora dlmm bin arrays: bin_array_identity=invalid bin_array_address=%q", address.String())
+	}
+	return binArray, nil
 }
 
 func (c *Client) refreshPool(ctx context.Context, configured Pool) (Pool, error) {
@@ -328,6 +348,7 @@ func (c *Client) refreshPool(ctx context.Context, configured Pool) (Pool, error)
 //   - Quote error, including unsupported Token-2022 or bitmap-extension state.
 //
 // Version:
+//   - 2026-09-05: Added bounded adaptive array snapshots.
 //   - 2026-08-31: Added batched account snapshots when supported.
 func (c *Client) QuoteExactInput(ctx context.Context, poolAddress, inputMint onchainSolana.Address, amountIn uint64) (Quote, error) {
 	if c != nil && c.snapshots != nil {
@@ -352,6 +373,7 @@ func (c *Client) QuoteExactInput(ctx context.Context, poolAddress, inputMint onc
 //   - Snapshot or quote error.
 //
 // Version:
+//   - 2026-09-05: Added bounded adaptive array snapshots.
 //   - 2026-09-01: Delegated to the slot-aware quote batch API.
 //   - 2026-08-31: Added.
 func (c *Client) QuoteExactInputs(ctx context.Context, poolAddress onchainSolana.Address, requests []ExactInputRequest) ([]Quote, error) {
@@ -374,6 +396,7 @@ func (c *Client) QuoteExactInputs(ctx context.Context, poolAddress onchainSolana
 //   - Snapshot or quote error.
 //
 // Version:
+//   - 2026-09-05: Added bounded adaptive array snapshots.
 //   - 2026-09-01: Included pool refresh in the shared account snapshot.
 //   - 2026-09-01: Added.
 func (c *Client) QuoteExactInputsWithSlot(ctx context.Context, poolAddress onchainSolana.Address, requests []ExactInputRequest) (QuoteBatch, error) {
@@ -390,56 +413,102 @@ func (c *Client) QuoteExactInputsWithSlot(ctx context.Context, poolAddress oncha
 	if ctx == nil {
 		ctx = context.Background()
 	}
+	initial, maximum, err := onchainSolana.NormalizeQuoteArrayCounts(c.initialArrayCount, c.maxArrayCount)
+	if err != nil {
+		return QuoteBatch{}, err
+	}
 	pool := configured
 	if value, ok := c.quotePools.Load(poolAddress); ok {
 		pool = value.(Pool)
 	}
-	addresses, err := c.quoteSnapshotAddresses(pool, requests)
-	if err != nil {
-		return QuoteBatch{}, err
-	}
-	snapshot, err := c.snapshots.AccountSnapshot(ctx, addresses)
-	if err != nil {
-		return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: %w", err)
-	}
-	accounts, err := newSnapshotAccounts(addresses, snapshot)
-	if err != nil {
-		return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: %w", err)
-	}
-	local := &Client{accounts: accounts, programID: c.programID, pools: c.pools, poolOrder: c.poolOrder}
-	refreshed, err := local.refreshPool(ctx, configured)
-	if err != nil {
-		return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: %w", err)
-	}
-	required, err := c.quoteSnapshotAddresses(refreshed, requests)
-	if err != nil {
-		return QuoteBatch{}, err
-	}
-	if !accountsContain(accounts, required) {
-		addresses = required
-		snapshot, err = c.snapshots.AccountSnapshot(ctx, addresses)
+	var selected []onchainSolana.Address
+	for attempt := 0; attempt < 5; attempt++ {
+		if err := ctx.Err(); err != nil {
+			return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: %w", err)
+		}
+		base, candidates, err := c.quoteArrayCandidates(pool, requests)
+		if err != nil {
+			return QuoteBatch{}, err
+		}
+		selected = onchainSolana.SelectQuoteArrays(candidates, selected, initial)
+		if len(selected) > maximum {
+			return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: %w: max_array_count=%d", onchainSolana.ErrQuoteArrayLimit, maximum)
+		}
+		addresses := append(base, selected...)
+		snapshot, err := c.snapshots.AccountSnapshot(ctx, addresses)
 		if err != nil {
 			return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: %w", err)
 		}
-		accounts, err = newSnapshotAccounts(addresses, snapshot)
+		accounts, err := newSnapshotAccounts(addresses, snapshot)
 		if err != nil {
-			return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: %w", err)
+			return QuoteBatch{}, err
 		}
-		local = &Client{accounts: accounts, programID: c.programID, pools: c.pools, poolOrder: c.poolOrder}
-		refreshed, err = local.refreshPool(ctx, configured)
+		local := &Client{accounts: accounts, programID: c.programID, pools: c.pools, poolOrder: c.poolOrder}
+		refreshed, err := local.refreshPool(ctx, configured)
 		if err != nil {
-			return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: %w", err)
+			return QuoteBatch{}, err
+		}
+		pool = refreshed
+		quotes := make([]Quote, len(requests))
+		var needed []onchainSolana.Address
+		for index, request := range requests {
+			quotes[index], err = local.quoteExactInput(ctx, poolAddress, request.InputMint, request.AmountIn)
+			if err != nil {
+				var missing *onchainSolana.QuoteArrayRequiredError
+				if !errors.As(err, &missing) {
+					return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: %w: request_index=%d snapshot_slot=%d", err, index, snapshot.Slot)
+				}
+				needed = append(needed, missing.Address)
+			}
+		}
+		if len(needed) == 0 {
+			c.quotePools.Store(poolAddress, refreshed)
+			return QuoteBatch{Slot: snapshot.Slot, Quotes: quotes}, nil
+		}
+		// Recenter on refreshed state. Old initial-window arrays are not expansion hints.
+		retained := make([]onchainSolana.Address, 0, len(selected))
+		for _, address := range selected {
+			if !slices.Contains(candidates[:min(initial, len(candidates))], address) {
+				retained = append(retained, address)
+			}
+		}
+		_, candidates, err = c.quoteArrayCandidates(pool, requests)
+		if err != nil {
+			return QuoteBatch{}, err
+		}
+		selected = onchainSolana.SelectQuoteArrays(candidates, retained, initial)
+		for _, address := range needed {
+			if !slices.Contains(selected, address) {
+				selected = append(selected, address)
+			}
+		}
+		if len(selected) > maximum {
+			return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: %w: max_array_count=%d", onchainSolana.ErrQuoteArrayLimit, maximum)
 		}
 	}
-	c.quotePools.Store(poolAddress, refreshed)
-	quotes := make([]Quote, len(requests))
-	for index, request := range requests {
-		quotes[index], err = local.quoteExactInput(ctx, poolAddress, request.InputMint, request.AmountIn)
+	return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: %w: max_attempts=5", onchainSolana.ErrQuoteSnapshotLimit)
+}
+
+// quoteArrayCandidates interleaves directions so the initial budget covers both sides.
+func (c *Client) quoteArrayCandidates(pool Pool, requests []ExactInputRequest) ([]onchainSolana.Address, []onchainSolana.Address, error) {
+	base := []onchainSolana.Address{pool.Address, clockSysvarAddress}
+	groups := make([][]onchainSolana.Address, len(requests))
+	for i, request := range requests {
+		addresses, err := c.quoteSnapshotAddresses(pool, []ExactInputRequest{request})
 		if err != nil {
-			return QuoteBatch{}, fmt.Errorf("failed to quote meteora dlmm exact inputs with slot: %w: request_index=%d snapshot_slot=%d", err, index, snapshot.Slot)
+			return nil, nil, err
+		}
+		groups[i] = addresses[len(base):]
+	}
+	var candidates []onchainSolana.Address
+	for depth := 0; depth < 16; depth++ {
+		for _, group := range groups {
+			if depth < len(group) && !slices.Contains(candidates, group[depth]) {
+				candidates = append(candidates, group[depth])
+			}
 		}
 	}
-	return QuoteBatch{Slot: snapshot.Slot, Quotes: quotes}, nil
+	return base, candidates, nil
 }
 
 func (c *Client) quoteSnapshotAddresses(pool Pool, requests []ExactInputRequest) ([]onchainSolana.Address, error) {
@@ -514,17 +583,17 @@ func (c *Client) quoteExactInput(ctx context.Context, poolAddress, inputMint onc
 	if err := updateFeeReferences(&pool, clock.timestamp); err != nil {
 		return Quote{}, fmt.Errorf("failed to quote meteora dlmm exact input: %w", err)
 	}
-	arrays, err := c.fetchBinArrays(ctx, pool, swapForY, 16)
-	if err != nil {
-		return Quote{}, fmt.Errorf("failed to quote meteora dlmm exact input: %w", err)
-	}
+	starts := initializedBinArrayIndexes(pool, swapForY, 16)
 	feeOnInput := pool.Parameters.CollectFeeMode == 0 || !swapForY
 	supportLimitOrder := poolSupportsLimitOrders(pool)
 	remaining := amountIn
 	var amountOut, tradeFee, protocolFee uint64
 	arraysUsed := 0
-	for arrayIndex := range arrays {
-		array := arrays[arrayIndex]
+	for arrayIndex, start := range starts {
+		array, err := c.readBinArray(ctx, pool, start)
+		if err != nil {
+			return Quote{}, fmt.Errorf("failed to quote meteora dlmm exact input: %w", err)
+		}
 		arraysUsed = arrayIndex + 1
 		lowerBinID := int32(array.Index) * binArraySize
 		upperBinID := lowerBinID + binArraySize - 1
@@ -582,7 +651,7 @@ func (c *Client) quoteExactInput(ctx context.Context, poolAddress, inputMint onc
 	if (swapForY && floorDiv(pool.Parameters.MinBinID, binArraySize) < -bitmapCenter) || (!swapForY && floorDiv(pool.Parameters.MaxBinID, binArraySize) >= bitmapCenter) {
 		return Quote{}, fmt.Errorf("failed to quote meteora dlmm exact input: bitmap_extension=required amount_remaining=%d", remaining)
 	}
-	return Quote{}, fmt.Errorf("failed to quote meteora dlmm exact input: liquidity=insufficient amount_remaining=%d", remaining)
+	return Quote{}, fmt.Errorf("failed to quote meteora dlmm exact input: %w: amount_remaining=%d", onchainSolana.ErrQuoteArrayRange, remaining)
 }
 
 type snapshotAccounts map[onchainSolana.Address]*onchainSolana.Account
@@ -593,15 +662,17 @@ func newSnapshotAccounts(addresses []onchainSolana.Address, snapshot *onchainSol
 	}
 	result := make(snapshotAccounts, len(addresses))
 	for index, account := range snapshot.Accounts {
-		if account != nil {
-			result[addresses[index]] = account
-		}
+		result[addresses[index]] = account
 	}
 	return result, nil
 }
 
 func (s snapshotAccounts) Account(_ context.Context, address onchainSolana.Address) (*onchainSolana.Account, error) {
-	return s[address], nil
+	account, exists := s[address]
+	if !exists {
+		return nil, &onchainSolana.QuoteArrayRequiredError{Address: address}
+	}
+	return account, nil
 }
 
 func accountsContain(accounts snapshotAccounts, addresses []onchainSolana.Address) bool {
