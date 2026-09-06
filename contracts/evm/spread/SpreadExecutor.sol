@@ -14,13 +14,24 @@ contract SpreadExecutor is ISpreadExecutor {
     mapping(bytes32 callKey => bool allowed) private allowedBuyCalls;
     mapping(bytes32 callKey => bool allowed) private allowedSellCalls;
     bool private entered;
+    address public admin;
+    address public pendingAdmin;
+    address public pauser;
+    bool public paused;
 
     constructor(
         address[] memory buyTargets,
         bytes4[] memory buySelectors,
         address[] memory sellTargets,
-        bytes4[] memory sellSelectors
+        bytes4[] memory sellSelectors,
+        address initialAdmin,
+        address initialPauser
     ) {
+        if (initialAdmin == address(0) || initialPauser == address(0)) {
+            revert InvalidAddress();
+        }
+        admin = initialAdmin;
+        pauser = initialPauser;
         if (
             buyTargets.length == 0 || sellTargets.length == 0 || buyTargets.length != buySelectors.length
                 || sellTargets.length != sellSelectors.length
@@ -34,7 +45,7 @@ contract SpreadExecutor is ISpreadExecutor {
         address[] memory targets,
         bytes4[] memory selectors
     ) private {
-        for (uint256 i; i < targets.length; ++i) {
+        for (uint256 i = 0; i < targets.length; ++i) {
             if (targets[i] == address(0) || targets[i].code.length == 0 || selectors[i] == bytes4(0)) {
                 revert InvalidAddress();
             }
@@ -49,9 +60,27 @@ contract SpreadExecutor is ISpreadExecutor {
         entered = false;
     }
 
-    function executeSpread(
-        Execution calldata execution
-    ) external nonReentrant returns (uint256 quoteSpent, uint256 quoteReceived, uint256 quoteProfit) {
+    modifier onlyAdmin() {
+        if (msg.sender != admin) revert NotAdmin(msg.sender);
+        _;
+    }
+
+    modifier whenNotPaused() {
+        if (paused) revert Paused();
+        _;
+    }
+
+    modifier whenPaused() {
+        if (!paused) revert NotPaused();
+        _;
+    }
+
+    function executeSpread(Execution calldata execution)
+        external
+        nonReentrant
+        whenNotPaused
+        returns (uint256 quoteSpent, uint256 quoteReceived, uint256 quoteProfit)
+    {
         _validateExecution(execution);
 
         IERC20SpreadExecutor baseToken = IERC20SpreadExecutor(execution.baseToken);
@@ -62,12 +91,7 @@ contract SpreadExecutor is ISpreadExecutor {
         _safeTransferFrom(quoteToken, msg.sender, address(this), execution.maximumQuoteIn);
         quoteSpent = _executeBuy(execution, baseToken, quoteToken, initialBaseBalance);
         (quoteReceived, quoteProfit) = _executeSellAndSettle(
-            execution,
-            baseToken,
-            quoteToken,
-            initialBaseBalance,
-            initialQuoteBalance,
-            quoteSpent
+            execution, baseToken, quoteToken, initialBaseBalance, initialQuoteBalance, quoteSpent
         );
     }
 
@@ -141,6 +165,47 @@ contract SpreadExecutor is ISpreadExecutor {
         return allowedSellCalls[_callKey(target, selector)];
     }
 
+    function pause() external {
+        if (msg.sender != admin && msg.sender != pauser) revert NotPauser(msg.sender);
+        if (paused) revert Paused();
+        paused = true;
+        emit ExecutorPaused(msg.sender);
+    }
+
+    function unpause() external onlyAdmin {
+        if (!paused) revert NotPaused();
+        paused = false;
+        emit ExecutorUnpaused(msg.sender);
+    }
+
+    function setPauser(address newPauser) external onlyAdmin {
+        if (newPauser == address(0)) revert InvalidAddress();
+        address previousPauser = pauser;
+        pauser = newPauser;
+        emit PauserChanged(previousPauser, newPauser);
+    }
+
+    function transferAdmin(address newAdmin) external onlyAdmin {
+        if (newAdmin == address(0) || newAdmin == admin) revert InvalidAddress();
+        pendingAdmin = newAdmin;
+        emit AdminTransferStarted(admin, newAdmin);
+    }
+
+    function acceptAdmin() external {
+        if (msg.sender != pendingAdmin) revert NotAdmin(msg.sender);
+        address previousAdmin = admin;
+        admin = msg.sender;
+        pendingAdmin = address(0);
+        emit AdminTransferred(previousAdmin, msg.sender);
+    }
+
+    function rescueToken(address token, address recipient, uint256 amount) external nonReentrant onlyAdmin whenPaused {
+        if (token == address(0) || recipient == address(0)) revert InvalidAddress();
+        if (amount == 0) revert InvalidAmount();
+        _safeTransfer(IERC20SpreadExecutor(token), recipient, amount);
+        emit TokenRescued(token, recipient, amount);
+    }
+
     function _validateExecution(Execution calldata execution) private view {
         if (
             execution.baseToken == address(0) || execution.quoteToken == address(0)
@@ -148,9 +213,9 @@ contract SpreadExecutor is ISpreadExecutor {
         ) revert InvalidAddress();
         if (execution.baseToken == execution.quoteToken) revert InvalidAddress();
         if (execution.buy.target == execution.sell.target) revert DuplicateTarget(execution.buy.target);
-        if (
-            execution.baseAmount == 0 || execution.maximumQuoteIn == 0 || execution.minimumQuoteOut == 0
-        ) revert InvalidAmount();
+        if (execution.baseAmount == 0 || execution.maximumQuoteIn == 0 || execution.minimumQuoteOut == 0) {
+            revert InvalidAmount();
+        }
         if (execution.deadline < block.timestamp) revert DeadlineExpired(execution.deadline, block.timestamp);
         _validateVenueCall(Side.Buy, execution.buy);
         _validateVenueCall(Side.Sell, execution.sell);
@@ -180,12 +245,7 @@ contract SpreadExecutor is ISpreadExecutor {
         _callToken(token, abi.encodeCall(token.transfer, (recipient, amount)));
     }
 
-    function _safeTransferFrom(
-        IERC20SpreadExecutor token,
-        address sender,
-        address recipient,
-        uint256 amount
-    ) private {
+    function _safeTransferFrom(IERC20SpreadExecutor token, address sender, address recipient, uint256 amount) private {
         _callToken(token, abi.encodeCall(token.transferFrom, (sender, recipient, amount)));
     }
 

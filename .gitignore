@@ -24,6 +24,11 @@ profile.cov
 go.work
 go.work.sum
 
+# Foundry generated files
+cache/
+out/
+broadcast/
+
 # env file
 .env
 

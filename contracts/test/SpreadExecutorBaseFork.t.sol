@@ -67,7 +67,8 @@ contract SpreadExecutorBaseForkTest {
         buySelectors[0] = IAerodromeSlipstreamRouter.exactOutputSingle.selector;
         sellTargets[0] = UNISWAP_V3_ROUTER;
         sellSelectors[0] = IUniswapV3SwapRouter02.exactInputSingle.selector;
-        SpreadExecutor executor = new SpreadExecutor(buyTargets, buySelectors, sellTargets, sellSelectors);
+        SpreadExecutor executor =
+            new SpreadExecutor(buyTargets, buySelectors, sellTargets, sellSelectors, address(this), address(this));
 
         uint256 maximumQuoteIn = 2_000_000;
         uint256 baseAmount = 100_000_000_000_000;
@@ -87,8 +88,7 @@ contract SpreadExecutorBaseForkTest {
                 target: AERODROME_ROUTER,
                 data: abi.encodeCall(
                     IAerodromeSlipstreamRouter.exactOutputSingle,
-                    (
-                        IAerodromeSlipstreamRouter.ExactOutputSingleParams({
+                    (IAerodromeSlipstreamRouter.ExactOutputSingleParams({
                             tokenIn: USDC,
                             tokenOut: WETH,
                             tickSpacing: 100,
@@ -97,16 +97,14 @@ contract SpreadExecutorBaseForkTest {
                             amountOut: baseAmount,
                             amountInMaximum: maximumQuoteIn,
                             sqrtPriceLimitX96: 0
-                        })
-                    )
+                        }))
                 )
             }),
             sell: ISpreadExecutor.VenueCall({
                 target: UNISWAP_V3_ROUTER,
                 data: abi.encodeCall(
                     IUniswapV3SwapRouter02.exactInputSingle,
-                    (
-                        IUniswapV3SwapRouter02.ExactInputSingleParams({
+                    (IUniswapV3SwapRouter02.ExactInputSingleParams({
                             tokenIn: WETH,
                             tokenOut: USDC,
                             fee: 500,
@@ -114,8 +112,7 @@ contract SpreadExecutorBaseForkTest {
                             amountIn: baseAmount,
                             amountOutMinimum: 1,
                             sqrtPriceLimitX96: 0
-                        })
-                    )
+                        }))
                 )
             })
         });

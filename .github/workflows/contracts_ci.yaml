@@ -1,0 +1,43 @@
+name: Contracts CI
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/contracts_ci.yaml"
+      - "abi/**"
+      - "contracts/**"
+      - "foundry.toml"
+      - "go/evm/spreadexecutor/**"
+      - "scripts/generate-spread-executor.sh"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/contracts_ci.yaml"
+      - "abi/**"
+      - "contracts/**"
+      - "foundry.toml"
+      - "go/evm/spreadexecutor/**"
+      - "scripts/generate-spread-executor.sh"
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go/go.mod
+          cache-dependency-path: go/go.sum
+      - name: Check Solidity formatting
+        run: forge fmt --check
+      - name: Test contracts
+        run: forge test
+      - name: Generate ABI and Go binding
+        run: ./scripts/generate-spread-executor.sh
+      - name: Check generated contract files
+        run: git diff --exit-code -- abi/evm/spread/SpreadExecutor.json go/evm/spreadexecutor/spread_executor.go
