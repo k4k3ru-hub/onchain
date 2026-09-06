@@ -1,0 +1,1 @@
+{"version":1,"failures":[{"contract":"contracts/test/SpreadExecutorBaseFork.t.sol:SpreadExecutorBaseForkTest","test":"testBaseForkRejectsUnprofitableAerodromeToUniswapRoundTripAtomically"}]}
