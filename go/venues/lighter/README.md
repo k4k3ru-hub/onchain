@@ -1,9 +1,37 @@
 # Lighter Go SDK
 
-Public market data for the Robinhood Chain Lighter instance. REST and WebSocket
+Public market data for Lighter Core and the Robinhood Chain Lighter instance. REST and WebSocket
 have separate composition roots and lifecycles. No API key is required.
 Trading, signing, account APIs, deposits, withdrawals, and K4K3RU routing integration
 are outside this implementation.
+
+## Deployment selection
+
+Choose the deployment explicitly at the composition root. REST and WebSocket
+clients must be created for the same instance:
+
+| K4K3RU venue (proposed) | Instance | REST / WebSocket constructor |
+| --- | --- | --- |
+| `lighter` | Lighter Core mainnet | `NewCoreClient` |
+| `lighter-robinhood` | Robinhood Chain mainnet | `NewRobinhoodClient` |
+
+Core endpoints: `https://mainnet.zklighter.elliot.ai` and
+`wss://mainnet.zklighter.elliot.ai/stream`. Robinhood endpoints:
+`https://api.rh.lighter.xyz` and `wss://api.rh.lighter.xyz/stream`.
+Named constructors reject conflicting endpoint overrides, while accepting injected
+HTTP clients or WebSocket dialers. Use `NewClient` with an explicit URL for custom
+deployments or test servers. For compatibility, `NewClient` with no URL still
+selects Robinhood; its existing behavior has not switched to Core.
+
+Both instances share the six REST operations and five public subscription groups
+below. The official REST paths, parameters and schemas were compared on 2026-09-06.
+Keep independent connections, market discovery, symbol mappings, caches and book
+state per venue. A numeric market ID is scoped to one instance, not globally
+unique. Never fall back to the other instance on an error. Do not infer quote or
+collateral assets from an input chain or reuse another instance's market metadata.
+
+These K4K3RU venue identifiers describe the intended integration mapping; this SDK
+change does not register providers or enable symbols in Market Hub.
 
 ## REST
 
@@ -16,7 +44,7 @@ import (
 )
 
 func listMarkets(ctx context.Context) (*order_books.Result, error) {
-    client, err := rest.NewClient(rest.ClientParams{})
+    client, err := rest.NewCoreClient(rest.ClientParams{})
     if err != nil {
         return nil, err
     }
@@ -40,7 +68,7 @@ WebSocket order books contain price levels. Funding history uses the upstream
 timestamp units without conversion; `CountBack: 0` requests all available points
 within the server's limit (documented maximum 750).
 
-Defaults: `https://api.rh.lighter.xyz`, 10-second request timeout, 8 MiB response
+Transport defaults: 10-second request timeout, 8 MiB response
 limit. `ClientParams` accepts an `HTTPClient`, base URL and limits. Non-success
 HTTP status or API code produces an inspectable `*rest.ResponseError`. Errors
 omit remote bodies/messages; underlying transport errors remain inspectable via
@@ -59,7 +87,7 @@ import (
 )
 
 func watch(ctx context.Context, marketID int64, consume func(*protocol.Message) error) (err error) {
-    client, err := websocket.NewClient(websocket.ClientParams{ReadOnly: true})
+    client, err := websocket.NewCoreClient(websocket.ClientParams{ReadOnly: true})
     if err != nil {
         return err
     }
@@ -88,7 +116,7 @@ support `subscriptions.Params{All: true}`. Subscribe success confirms sending,
 not server acceptance; read acknowledgements and errors with `Recv`.
 
 The constructor performs no network I/O. `Connect` starts a session with 30-second
-control pings. Defaults: `wss://api.rh.lighter.xyz/stream`, 10-second connect timeout,
+control pings. Transport defaults: 10-second connect timeout,
 5-second write timeout, 8 MiB message limit. Keep receiving to process server control
 frames; application `ping` messages receive an automatic `pong` during `Recv`.
 Inject a SDK-owned `Dialer` / `Connection` to substitute the transport.
@@ -121,9 +149,11 @@ The socket adapter uses the module's existing `gorilla/websocket` dependency.
 
 Robinhood's Lighter deployment has separate contracts, sequencer and liquidity from
 Lighter Core. Endpoint overrides are available for compatible deployments, but this
-SDK's documented contract targets the Robinhood instance.
+SDK supports the shared public market-data contract on both instances.
 
-Sources: [Robinhood Lighter domains](https://docs.robinhood.com/chain/lighter-domains/),
+Sources: [Lighter Core API](https://apidocs.lighter.xyz/docs/get-started),
+[Core WebSocket](https://apidocs.lighter.xyz/docs/websocket-reference),
+[Robinhood Lighter domains](https://docs.robinhood.com/chain/lighter-domains/),
 [API reference](https://apidocs.rh.lighter.xyz/llms.txt),
 [WebSocket reference](https://apidocs.rh.lighter.xyz/docs/websocket-reference).
 

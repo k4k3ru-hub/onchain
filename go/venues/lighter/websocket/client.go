@@ -58,6 +58,8 @@ type session struct {
 
 // NewClient composes subscription clients without opening a network connection.
 // Zero options select Robinhood mainnet, 10s connect, 5s writes, and 30s pings.
+// For compatibility, an omitted endpoint still selects Robinhood mainnet.
+// Prefer NewCoreClient or NewRobinhoodClient for explicit deployment selection.
 //
 // Version:
 //   - 2026-09-06: Added.

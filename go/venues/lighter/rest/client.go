@@ -51,6 +51,8 @@ func (e *ResponseError) Error() string {
 
 // NewClient composes all market operations with one injectable HTTP dependency.
 // The default timeout is 10 seconds and the response limit is 8 MiB.
+// For compatibility, an omitted endpoint still selects Robinhood mainnet.
+// Prefer NewCoreClient or NewRobinhoodClient for explicit deployment selection.
 //
 // Version:
 //   - 2026-09-06: Added.

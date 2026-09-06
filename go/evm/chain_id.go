@@ -10,13 +10,15 @@ import (
 type ChainID uint64
 
 const (
-	ChainIDEthereumMainnet ChainID = 1
-	ChainIDBNBMainnet      ChainID = 56
-	ChainIDPolygonMainnet  ChainID = 137
-	ChainIDBaseMainnet     ChainID = 8453
-	ChainIDBaseSepolia     ChainID = 84532
-	ChainIDPolygonAmoy     ChainID = 80002
-	ChainIDEthereumSepolia ChainID = 11155111
+	ChainIDRobinhoodMainnet ChainID = 4663
+	ChainIDRobinhoodTestnet ChainID = 46630
+	ChainIDEthereumMainnet  ChainID = 1
+	ChainIDBNBMainnet       ChainID = 56
+	ChainIDPolygonMainnet   ChainID = 137
+	ChainIDBaseMainnet      ChainID = 8453
+	ChainIDBaseSepolia      ChainID = 84532
+	ChainIDPolygonAmoy      ChainID = 80002
+	ChainIDEthereumSepolia  ChainID = 11155111
 )
 
 type ChainNetwork struct {
@@ -31,6 +33,8 @@ type chainDefinition struct {
 }
 
 var chainDefinitions = [...]chainDefinition{
+	{chainID: ChainIDRobinhoodMainnet, chain: core.ChainRobinhood, network: core.NetworkMainnet},
+	{chainID: ChainIDRobinhoodTestnet, chain: core.ChainRobinhood, network: core.NetworkTestnet},
 	{
 		chainID: ChainIDEthereumMainnet,
 		chain:   core.ChainEthereum,
@@ -96,6 +100,7 @@ func (id ChainID) String() string {
 //   - Validation error.
 //
 // Version:
+//   - 2026-09-06: Added Robinhood Chain Mainnet and Testnet.
 //   - 2026-08-24: Added Ethereum Sepolia and Base Sepolia.
 //   - 2026-08-22: Added Polygon Mainnet and Amoy.
 //   - 2026-08-19: Added.
@@ -120,6 +125,7 @@ func (id ChainID) Validate() error {
 //   - Resolution error.
 //
 // Version:
+//   - 2026-09-06: Added Robinhood Chain Mainnet and Testnet.
 //   - 2026-08-24: Added Ethereum Sepolia and Base Sepolia.
 //   - 2026-08-22: Added Polygon Mainnet and Amoy.
 //   - 2026-08-19: Added.
@@ -160,6 +166,7 @@ func ResolveChainID(chain core.Chain, network core.Network) (ChainID, error) {
 //   - Resolution error.
 //
 // Version:
+//   - 2026-09-06: Added Robinhood Chain Mainnet and Testnet.
 //   - 2026-08-24: Added Ethereum Sepolia and Base Sepolia.
 //   - 2026-08-22: Added Polygon Mainnet and Amoy.
 //   - 2026-08-19: Added.
