@@ -1,9 +1,10 @@
-# Arcus Perps Go SDK
+# Arcus Go SDK
 
 Public perpetuals market data for Arcus on Robinhood Chain. REST and WebSocket
 have separate composition roots with manually injected transports. No credentials
-are required. The Spot RFQ API, trading/signing, account data and K4K3RU routing
-integration are outside this SDK's scope.
+are required. Public Spot Router data is available through the independent
+`spot.NewClient` composition root described below. Trading/signing, account data
+and K4K3RU routing integration are outside this SDK's scope.
 
 ## REST
 
@@ -179,3 +180,67 @@ Specification sources (checked 2026-09-06):
 [mainnet changelog](https://docs.arcus.xyz/changelog).
 Mainnet and testnet features can differ during rollout; optional fields or
 uncached forecasts may be absent.
+
+## Spot Router public data
+
+Added 2026-09-07 using the official
+[Arcus Spot SDK API contracts](https://github.com/arcus-xyz/arcus-spot-sdk).
+This module implements the public HTTP contract directly with existing SDK
+conventions; it does not add the official SDK as a production dependency.
+
+```go
+import (
+    "context"
+    "github.com/k4k3ru-hub/onchain/go/venues/arcus/spot"
+    "github.com/k4k3ru-hub/onchain/go/venues/arcus/spot/price"
+)
+
+func ponsPrice(ctx context.Context) (*price.Result, error) {
+    client, err := spot.NewClient(spot.ClientParams{})
+    if err != nil { return nil, err }
+    return client.Price.Send(ctx, price.Params{
+        ChainID: 4663,
+        SellToken: "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+        BuyToken: "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+        SellAmount: "1000000000000000000", // 1 PONS (18 decimals).
+    })
+}
+```
+
+| Operation | Endpoint | Meaning |
+| --- | --- | --- |
+| `Price.Send` | `GET /v1/price` | Indicative amounts from individual routing venues |
+| `Tokens.Send` | `GET /v1/tokens` | Token metadata; no pair/liquidity guarantee |
+| `Health.Send` | `GET /health` | Router health and chain ID |
+
+Types live in the owning `spot/price`, `spot/tokens`, and `spot/health` packages.
+Each operation accepts an injected `spot/transport.Executor`. The root injects
+one HTTP executor; timeout defaults to 10 seconds and response size to 8 MiB.
+`HTTPClient`, timeout, size limit and base URL are injectable. The default HTTP
+client rejects redirects. Default mainnet endpoint is
+`https://router.spot.arcus.xyz`; testnet is
+`https://router.spot.testnet.arcus.xyz`. Base URLs may include a trailing `/v1`.
+No constructor makes a network request. Callers own retry and rate-limit policy.
+
+`Price.Params.ChainID == 0` omits chain selection, matching the router contract.
+Sell/buy tokens must be distinct EVM hex addresses. Sell amount is a positive
+uint256 decimal integer in the sell token's base units. Buy/sell amounts remain
+strings; no floating-point conversion or price normalization occurs.
+
+Check both `All` and `Errors`. The router may recommend `rialto`, `lifi`, or
+another venue: do not attribute every router result to Arcus RFQ. Unknown venue
+names and raw indicative price data are retained. These are indicative prices,
+not BBO, order-book depth, executed trades, or firm executable quotes.
+`/v1/quote`, signatures, submission, and onchain trade-history retrieval are not
+implemented by this public-data addition.
+
+Non-2xx responses are inspectable as `*spot.ResponseError` (`StatusCode`, optional
+`Code`). Error messages omit remote payloads. Unlike the official SDK's 404
+fallback for tokens, a missing token endpoint is an error rather than a successful
+empty list. Empty arrays returned with HTTP 200 remain valid empty results.
+
+Read-only mainnet check on 2026-09-07: `/v1/tokens` returned PONS (18 decimals)
+and USDG (6 decimals). A request to sell 1 PONS for USDG returned `NO_QUOTES`.
+This does not establish that the pair is permanently unavailable, nor that a
+registered token has currently available liquidity. No MarketHub venue/config,
+service, or running E2E environment was changed.
