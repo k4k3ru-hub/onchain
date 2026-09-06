@@ -2,6 +2,16 @@
 
 Go SDK primitives for EVM, Solana, and Sui integrations.
 
+## Venue SDKs
+
+[`go/venues/lighter`](go/venues/lighter/README.md) provides public REST and WebSocket
+market data for the Robinhood Chain Lighter instance. Separate client constructors
+compose operation groups with manually injected HTTP and WebSocket transports.
+
+[`go/venues/arcus`](go/venues/arcus/README.md) provides Arcus perpetuals market data
+through separate REST and WebSocket composition roots, including order books,
+trades, candles, market information, and realized/predicted funding.
+
 ## Shared pool catalogs
 
 Use `core.PoolReference` as the stable key shared by market evaluation and
