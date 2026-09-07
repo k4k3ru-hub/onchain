@@ -17,6 +17,7 @@ type WSConfig struct {
 }
 type WSClient struct {
 	provider   logSubscriptionProvider
+	accounts   accountChangeProvider
 	closer     interface{ Close() }
 	commitment Commitment
 	closeOnce  sync.Once
@@ -33,6 +34,9 @@ type sdkWSAdapter struct{ client *solanaWS.Client }
 type sdkLogReceiver struct{ subscription *solanaWS.LogSubscription }
 
 // NewWSClient creates a Solana WebSocket RPC client.
+//
+// Version:
+//   - 2026-09-07: Composed account change subscriptions.
 func NewWSClient(ctx context.Context, config WSConfig) (*WSClient, error) {
 	if ctx == nil {
 		ctx = context.Background()
@@ -48,7 +52,7 @@ func NewWSClient(ctx context.Context, config WSConfig) (*WSClient, error) {
 		return nil, fmt.Errorf("failed to create solana websocket client: %w", err)
 	}
 	adapter := &sdkWSAdapter{client: client}
-	return &WSClient{provider: adapter, closer: client, commitment: config.Commitment}, nil
+	return &WSClient{accounts: adapter, provider: adapter, closer: client, commitment: config.Commitment}, nil
 }
 
 // Close closes the Solana WebSocket client.
