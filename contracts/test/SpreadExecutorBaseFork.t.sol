@@ -55,7 +55,7 @@ contract SpreadExecutorBaseForkTest {
     address private constant UNISWAP_WETH_USDC_POOL = 0xd0b53D9277642d899DF5C87A3966A349A798F224;
 
     function testBaseForkRejectsUnprofitableAerodromeToUniswapRoundTripAtomically() external {
-        string memory rpcURL = vm.envOr("BASE_RPC_URL", string(""));
+        string memory rpcURL = vm.envOr("BASE_HTTP_RPC_URL", string(""));
         if (bytes(rpcURL).length == 0) return;
         vm.createSelectFork(rpcURL);
 

@@ -22,6 +22,7 @@ type Deployment struct {
 	ChainID  uint64
 	Venue    Venue
 	Factory  common.Address
+	Router   common.Address
 	QuoterV2 common.Address
 }
 

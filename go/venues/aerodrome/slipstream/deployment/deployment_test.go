@@ -13,7 +13,7 @@ func TestBaseMainnetDeployments(t *testing.T) {
 		t.Fatalf("ListByChainID() length = %d, want 2", len(deployments))
 	}
 	for _, deployment := range deployments {
-		if deployment.ChainID != 8453 || deployment.Venue != VenueAerodrome || deployment.Factory == ([20]byte{}) || deployment.QuoterV2 == ([20]byte{}) {
+		if deployment.ChainID != 8453 || deployment.Venue != VenueAerodrome || deployment.Factory == ([20]byte{}) || deployment.Router == ([20]byte{}) || deployment.QuoterV2 == ([20]byte{}) {
 			t.Fatalf("ListByChainID() deployment = %+v", deployment)
 		}
 		resolved, err := ByID(deployment.ID)
