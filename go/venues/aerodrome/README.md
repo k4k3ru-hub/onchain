@@ -21,6 +21,7 @@ The `slipstream` package provides:
 - Factory-based pool resolution and current Swap fee lookup
 - exact-input and exact-output QuoterV2 calls
 - `slot0`, active liquidity, and tick-spacing reads
+- block-coherent local bid/ask quoting with dynamic fees and a bounded-age state cache
 - block-range Swap filtering
 - WebSocket Swap subscriptions
 
@@ -69,7 +70,7 @@ The onchain module owns `slipstream`, `slipstream/protocol`, and
 `slipstream/deployment` directly, with no aliases or dependency on the original
 Aerodrome module. Existing users can continue using the original package;
 named types from the two paths are distinct, so migrate related imports together.
-No state cache or local quote arithmetic is introduced in this migration.
+The migration itself did not change quoting. Local state quoting was added separately on 2026-09-08.
 
 Individual constructors remain available for independent HTTP and WS lifecycles:
 `NewFactoryClient`, `NewQuoterClient`, `NewPoolStateClient`,
@@ -79,3 +80,32 @@ Constructor composition and injected-RPC operation tests migrate with the code.
 
 From `onchain/go`, run `GOWORK=off go test ./venues/aerodrome/...` and
 `GOWORK=off go vet ./venues/aerodrome/...`.
+
+## Local market-data quotes
+
+`slipstream.NewStateCache(stateRPC, poolAddress, deployment.Factory, maxAge)`
+constructs a separate cache per pool. `stateRPC` implements `slipstream.StateRPC`;
+`*evm.HTTPClient` is one implementation. The supplied pool must belong to the
+supplied factory. Keep the HTTP and WebSocket clients on the same chain.
+
+Run `cache.Run(ctx, wsRPC)` under the application's subscription supervisor and
+handle its returned error. It watches all logs from the pool and factory.
+`cache.QuotePair(ctx, baseAmount, baseIsToken0)` returns the quote-token output
+for selling the base amount and input for buying that same base amount, together
+with `FeePPM`, `BlockNumber`, `BlockHash`, and the original `ObservedAt`.
+
+All mutable reads, including `pool.fee()`, use one block number. A canonical hash
+check follows any contract reads. Pool/factory logs invalidate the snapshot;
+logs already covered by the verified snapshot block do not. Removed logs,
+disconnects and reconnects invalidate it. Without an active subscription each
+quote refreshes. Fee-module-only updates and missed notifications are bounded by
+`maxAge`; reuse never advances `ObservedAt`. This is a bounded-age market-data
+quote, not a promise that an old block's fee still applies at transaction execution.
+
+The arithmetic handles initialized tick crossings using Slipstream's ten-word
+tick layout and total liquidity net. Staked liquidity controls fee distribution,
+not the trader's swap curve. Calls are bounded to 64 contract reads per pair and
+2048 steps per direction; incomplete or invalid state returns an error.
+Quoter methods remain available for execution checks and parity verification.
+Custom fee modules whose output depends on transient swap execution state require
+separate verification; the cache does not simulate arbitrary module logic.
