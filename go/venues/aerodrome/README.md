@@ -96,7 +96,12 @@ with `FeePPM`, `BlockNumber`, `BlockHash`, and the original `ObservedAt`.
 
 All mutable reads, including `pool.fee()`, use one block number. A canonical hash
 check follows any contract reads. Pool/factory logs invalidate the snapshot;
-logs already covered by the verified snapshot block do not. Removed logs,
+logs already covered by the verified snapshot block do not. During a quote,
+notifications are also accepted if every intervening invalidation is a non-removed
+log with the captured block number and hash. Mixed blocks, missing or conflicting
+hashes, and lifecycle changes still reject the quote; a later matching log cannot
+clear an earlier unsafe notification. Accepted quotes retain their observation time
+and can be reused without another capture. Removed logs,
 disconnects and reconnects invalidate it. Without an active subscription each
 quote refreshes. Fee-module-only updates and missed notifications are bounded by
 `maxAge`; reuse never advances `ObservedAt`. This is a bounded-age market-data

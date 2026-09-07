@@ -38,6 +38,12 @@ type poolSnapshot struct {
 	ticks            map[int32]*big.Int
 }
 
+type quoteNotifications struct {
+	count  uint64
+	block  evm.BlockHeader
+	unsafe bool
+}
+
 type StateCache struct {
 	rpc              StateRPC
 	pool             common.Address
@@ -46,6 +52,7 @@ type StateCache struct {
 	gate             chan struct{}
 	mu               sync.Mutex
 	generation       uint64
+	notifications    *quoteNotifications // active quote only; protected by mu
 	active           bool
 	running          bool
 	floor            uint64
@@ -79,7 +86,7 @@ func NewStateCache(rpc StateRPC, pool, factory common.Address, maxAge time.Durat
 // Reconnection and disconnect both invalidate the snapshot; without a subscription every quote refreshes.
 //
 // Version:
-//   - 2026-09-08: Track observed block hashes for lag recovery; clear them on removal or disconnect.
+//   - 2026-09-08: Track notifications during quotes as well as observed hashes for lag recovery.
 func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 	if c == nil || ctx == nil || ws == nil {
 		return fmt.Errorf("failed to watch slipstream state: dependency=null")
@@ -129,6 +136,14 @@ func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 				continue
 			}
 			c.generation++
+			if n := c.notifications; n != nil {
+				n.count++
+				h := evm.BlockHeader{Number: log.BlockNumber, Hash: log.BlockHash}
+				if log.Removed || log.BlockHash == (common.Hash{}) || (n.count > 1 && (n.block.Number != h.Number || n.block.Hash != h.Hash)) {
+					n.unsafe = true
+				}
+				n.block = h
+			}
 			if log.BlockNumber >= c.floor {
 				c.floor = log.BlockNumber
 				c.floorHash = log.BlockHash
@@ -143,11 +158,13 @@ func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 
 // QuotePair quotes a base exact-input bid and opposite exact-output ask on one snapshot.
 // Lagging latest headers use an observed block only after its number and hash are verified.
+// Notifications received during capture are accepted only when every change belongs
+// to the captured block and hash; removals and lifecycle changes still invalidate.
 // Verified immutable tick spacing is reused across snapshots.
 // Snapshot reads are bounded to 64 contract calls per pair and 2048 swap steps per direction.
 //
 // Version:
-//   - 2026-09-08: Recover lagging latest headers using verified observed blocks.
+//   - 2026-09-08: Accept concurrent notifications proven to belong to the captured block.
 func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsToken0 bool) (LocalPair, error) {
 	if c == nil || ctx == nil || baseAmount == nil || baseAmount.Sign() <= 0 || baseAmount.BitLen() > 255 {
 		return LocalPair{}, fmt.Errorf("failed to quote slipstream state: amount=out_of_range")
@@ -160,10 +177,13 @@ func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsT
 	defer func() { c.gate <- struct{}{} }()
 	c.mu.Lock()
 	gen, active, floor, floorHash := c.generation, c.active, c.floor, c.floorHash
+	notifications := &quoteNotifications{}
+	c.notifications = notifications
 	if !active {
 		floorHash = common.Hash{}
 	}
 	c.mu.Unlock()
+	defer func() { c.mu.Lock(); c.notifications = nil; c.mu.Unlock() }()
 	budget := 64
 	s := c.snapshot
 	if s == nil || !active || gen != c.cachedGeneration || time.Since(s.observed) >= c.maxAge {
@@ -201,6 +221,12 @@ func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsT
 	}
 	c.mu.Lock()
 	changed := gen != c.generation
+	// Lifecycle changes increment generation without recording a log. Require
+	// every intervening change to be a non-removed notification in this block.
+	if changed && active && c.active && !notifications.unsafe && notifications.count == c.generation-gen && notifications.block.Number == s.header.Number && notifications.block.Hash == s.header.Hash {
+		changed = false
+		gen = c.generation
+	}
 	if !changed {
 		c.covered = s.header
 	}

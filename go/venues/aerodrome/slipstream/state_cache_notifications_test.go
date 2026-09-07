@@ -1,0 +1,123 @@
+package slipstream
+
+import (
+	"context"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"math/big"
+	"strings"
+	"testing"
+	"time"
+)
+
+// TestConcurrentCapturedBlockNotifications verifies safe adoption and conservative rejection.
+//
+// Version:
+//   - 2026-09-08: Added.
+func TestConcurrentCapturedBlockNotifications(t *testing.T) {
+	same := types.Log{BlockNumber: 100, BlockHash: common.HexToHash("01")}
+	newer := types.Log{BlockNumber: 101, BlockHash: common.HexToHash("02")}
+	removed := same
+	removed.Removed = true
+	wrong := same
+	wrong.BlockHash = common.HexToHash("03")
+	missing := same
+	missing.BlockHash = common.Hash{}
+	older := same
+	older.BlockNumber = 99
+	for _, tc := range []struct {
+		name               string
+		logs               []types.Log
+		disconnect, reject bool
+	}{
+		{"same_block", []types.Log{same}, false, false},
+		{"pool_and_factory", []types.Log{same, same}, false, false},
+		{"newer", []types.Log{newer}, false, true},
+		{"newer_then_same", []types.Log{newer, same}, false, true},
+		{"removed_then_same", []types.Log{removed, same}, false, true},
+		{"wrong_then_same", []types.Log{wrong, same}, false, true},
+		{"missing_hash", []types.Log{missing}, false, true},
+		{"older_unverified", []types.Log{older}, false, true},
+		{"disconnect", []types.Log{same}, true, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			c, f := newTestCache(t)
+			ctx, cancel := context.WithCancel(context.Background())
+			ws := &stateWS{ready: make(chan struct{})}
+			done := make(chan error, 1)
+			go func() { done <- c.Run(ctx, ws) }()
+			defer func() {
+				cancel()
+				if err := <-done; err != nil {
+					t.Error(err)
+				}
+			}()
+			<-ws.ready
+			wait := func(check func() bool) {
+				t.Helper()
+				deadline := time.Now().Add(time.Second)
+				for {
+					c.mu.Lock()
+					ok := check()
+					c.mu.Unlock()
+					if ok {
+						return
+					}
+					if time.Now().After(deadline) {
+						t.Fatal("notification timeout")
+					}
+					time.Sleep(time.Millisecond)
+				}
+			}
+			wait(func() bool { return c.active })
+			f.hook = func() {
+				f.hook = nil
+				for i, log := range tc.logs {
+					log.Address = c.pool
+					if i%2 == 1 {
+						log.Address = c.factory
+					}
+					c.mu.Lock()
+					gen := c.generation
+					c.mu.Unlock()
+					ws.logs <- log
+					wait(func() bool { return c.generation > gen })
+				}
+				if tc.disconnect {
+					cancel()
+					wait(func() bool { return !c.active })
+				}
+			}
+			pair, err := c.QuotePair(context.Background(), big.NewInt(1000000), true)
+			if tc.reject {
+				if err == nil || !strings.Contains(err.Error(), "snapshot=invalidated") {
+					t.Fatalf("expected invalidation: %v", err)
+				}
+				if c.snapshot != nil {
+					t.Fatal("rejected snapshot retained")
+				}
+			} else {
+				if err != nil {
+					t.Fatal(err)
+				}
+				if pair.BlockNumber != 100 || pair.BlockHash != same.BlockHash {
+					t.Fatal("wrong provenance")
+				}
+				calls := f.calls
+				reused, err := c.QuotePair(context.Background(), big.NewInt(1000000), true)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if f.calls != calls || !reused.ObservedAt.Equal(pair.ObservedAt) || reused.BidAmountOut.Cmp(pair.BidAmountOut) != 0 || reused.AskAmountIn.Cmp(pair.AskAmountIn) != 0 {
+					t.Fatal("snapshot not reused coherently")
+				}
+			}
+			c.mu.Lock()
+			pending := c.notifications != nil
+			c.mu.Unlock()
+			if pending {
+				t.Fatal("quote observations leaked")
+			}
+		})
+	}
+}
