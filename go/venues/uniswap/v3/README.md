@@ -58,3 +58,19 @@ and [TickMath](https://github.com/Uniswap/v3-core/blob/main/contracts/libraries/
 Tests cover reference numeric vectors, both directions, tick crossing, cache
 reuse, expiry, invalidation and concurrency. Live same-block Quoter parity and
 provider load remain deployment validation tasks.
+
+## Avoiding redundant refresh work
+
+After the first successfully verified pair, the cache retains `tickSpacing`.
+This property is immutable in the [official pool implementation](https://github.com/Uniswap/v3-core/blob/main/contracts/UniswapV3Pool.sol).
+Later snapshots still read mutable slot0, liquidity, bitmap words and ticks at
+one block; one contract call per subsequent refresh is removed. An HTTP head
+behind the highest observed pool log is rejected before any contract reads.
+
+A delayed non-removed log matching both the verified snapshot block number and
+hash is already represented by that block's terminal state and does not
+invalidate the cache again. Other blocks, different hashes and removed logs
+still invalidate; older blocks are conservatively treated as updates. TTL and
+observation timestamps are unchanged. This common v3 optimization applies to
+all configured chains, including Base. It does not guarantee fewer than two
+RPC calls per quote on busy pools; deployment measurements remain necessary.

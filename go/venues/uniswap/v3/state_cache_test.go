@@ -245,3 +245,93 @@ func TestStateSubscriptionInvalidatesAllLogsAndDisconnect(t *testing.T) {
 		t.Fatal("disconnect not invalidated")
 	}
 }
+
+func TestCacheRefreshReusesOnlyVerifiedSpacing(t *testing.T) {
+	c, f := newTestCache(t)
+	if _, err := c.QuotePair(context.Background(), big.NewInt(1000000), true); err != nil {
+		t.Fatal(err)
+	}
+	first := f.calls
+	if c.spacing != 60 {
+		t.Fatal("spacing not retained")
+	}
+	if _, err := c.QuotePair(context.Background(), big.NewInt(1000000), true); err != nil {
+		t.Fatal(err)
+	}
+	if f.calls-first != first-1 {
+		t.Fatalf("expected one fewer read on disconnected refresh: first=%d second=%d", first, f.calls-first)
+	}
+	c2, f2 := newTestCache(t)
+	f2.reorg = true
+	if _, err := c2.QuotePair(context.Background(), big.NewInt(1000000), true); err == nil {
+		t.Fatal("expected reorg rejection")
+	}
+	if c2.spacing != 0 {
+		t.Fatal("unverified spacing retained")
+	}
+}
+
+func TestBehindHeadSkipsAllContractReads(t *testing.T) {
+	c, f := newTestCache(t)
+	c.floor = 101
+	if _, err := c.QuotePair(context.Background(), big.NewInt(1000000), true); err == nil {
+		t.Fatal("expected lag rejection")
+	}
+	if f.calls != 0 {
+		t.Fatalf("lagging head performed %d contract reads", f.calls)
+	}
+}
+
+func TestCoveredLogDoesNotInvalidateButRemovedLogDoes(t *testing.T) {
+	c, _ := newTestCache(t)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	ws := &stateWS{ready: make(chan struct{})}
+	done := make(chan error, 1)
+	go func() { done <- c.Run(ctx, ws) }()
+	<-ws.ready
+	deadline := time.Now().Add(time.Second)
+	for {
+		c.mu.Lock()
+		active := c.active
+		c.mu.Unlock()
+		if active {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("not active")
+		}
+		time.Sleep(time.Millisecond)
+	}
+	if _, err := c.QuotePair(ctx, big.NewInt(1000000), true); err != nil {
+		t.Fatal(err)
+	}
+	c.mu.Lock()
+	gen := c.generation
+	h := c.covered
+	c.mu.Unlock()
+	ws.logs <- types.Log{Address: c.pool, BlockNumber: h.Number, BlockHash: h.Hash}
+	ws.logs <- types.Log{Address: c.pool, BlockNumber: h.Number, BlockHash: h.Hash, Removed: true}
+	for {
+		c.mu.Lock()
+		current := c.generation
+		c.mu.Unlock()
+		if current > gen {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("removed log not processed")
+		}
+		time.Sleep(time.Millisecond)
+	}
+	cancel()
+	if err := <-done; err != nil {
+		t.Fatal(err)
+	}
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	// One removal and one disconnect; the covered non-removed log does not count.
+	if c.generation != gen+2 {
+		t.Fatalf("generation=%d want=%d", c.generation, gen+2)
+	}
+}

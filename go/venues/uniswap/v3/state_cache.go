@@ -47,7 +47,9 @@ type StateCache struct {
 	active           bool
 	running          bool
 	floor            uint64
-	snapshot         *poolSnapshot // protected by gate
+	covered          evm.BlockHeader // protected by mu
+	spacing          int32           // immutable after a verified snapshot; protected by gate
+	snapshot         *poolSnapshot   // protected by gate
 	cachedGeneration uint64
 }
 
@@ -68,11 +70,12 @@ func NewStateCache(client *HTTPClient, rpc StateRPC, pool common.Address, maxAge
 	return c, nil
 }
 
-// Run invalidates on every pool log, including Mint/Burn and removed logs, until disconnect.
+// Run invalidates on pool logs, including Mint/Burn and removed logs, until disconnect.
+// Non-removed logs from the exact verified snapshot block are already reflected in state.
 // Reconnection and disconnect both invalidate the snapshot; without a subscription every quote refreshes.
 //
 // Version:
-//   - 2026-09-07: Added.
+//   - 2026-09-07: Ignore non-removed logs already covered by the verified block.
 func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 	if ctx == nil || ws == nil {
 		return fmt.Errorf("failed to watch uniswap v3 state: dependency=null")
@@ -116,6 +119,10 @@ func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 				continue
 			}
 			c.mu.Lock()
+			if !log.Removed && log.BlockHash != (common.Hash{}) && log.BlockNumber == c.covered.Number && log.BlockHash == c.covered.Hash {
+				c.mu.Unlock()
+				continue
+			}
 			c.generation++
 			if log.BlockNumber > c.floor {
 				c.floor = log.BlockNumber
@@ -126,10 +133,11 @@ func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 }
 
 // QuotePair quotes a base exact-input bid and opposite exact-output ask on one snapshot.
+// Verified immutable tick spacing is reused across snapshots; lagging heads fail before contract reads.
 // Snapshot reads are bounded to 64 contract calls per pair and 2048 swap steps per direction.
 //
 // Version:
-//   - 2026-09-07: Added.
+//   - 2026-09-07: Reuse verified immutable spacing and reject lag before state reads.
 func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsToken0 bool) (LocalPair, error) {
 	if ctx == nil || baseAmount == nil || baseAmount.Sign() <= 0 || baseAmount.BitLen() > 255 {
 		return LocalPair{}, fmt.Errorf("failed to quote uniswap v3 state: amount=out_of_range")
@@ -147,7 +155,7 @@ func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsT
 	s := c.snapshot
 	if s == nil || !active || gen != c.cachedGeneration || time.Since(s.observed) >= c.maxAge {
 		var err error
-		s, err = c.capture(ctx, &budget)
+		s, err = c.capture(ctx, &budget, floor)
 		if err != nil {
 			c.snapshot = nil
 			return LocalPair{}, err
@@ -180,12 +188,16 @@ func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsT
 	}
 	c.mu.Lock()
 	changed := gen != c.generation
+	if !changed {
+		c.covered = s.header
+	}
 	c.mu.Unlock()
 	if changed || time.Since(s.observed) >= c.maxAge {
 		c.snapshot = nil
 		return LocalPair{}, fmt.Errorf("failed to quote uniswap v3 state: snapshot=invalidated")
 	}
 	c.snapshot = s
+	c.spacing = s.spacing
 	c.cachedGeneration = gen
 	return LocalPair{BidAmountOut: bid, AskAmountIn: ask, BlockNumber: s.header.Number, BlockHash: s.header.Hash, ObservedAt: s.observed}, nil
 }
@@ -209,13 +221,16 @@ func (c *StateCache) read(ctx context.Context, s *poolSnapshot, sig string, arg 
 	}
 	return result, nil
 }
-func (c *StateCache) capture(ctx context.Context, budget *int) (*poolSnapshot, error) {
+func (c *StateCache) capture(ctx context.Context, budget *int, floor uint64) (*poolSnapshot, error) {
 	header, err := c.rpc.LatestHeader(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to capture uniswap v3 state: %w", err)
 	}
 	if header.Hash == (common.Hash{}) {
 		return nil, fmt.Errorf("failed to capture uniswap v3 state: block_hash=empty")
+	}
+	if header.Number < floor {
+		return nil, fmt.Errorf("failed to quote uniswap v3 state: rpc_head=behind")
 	}
 	s := &poolSnapshot{header: header, observed: time.Now().UTC(), words: make(map[int32]*big.Int), ticks: make(map[int32]*big.Int)}
 	data, err := c.read(ctx, s, "slot0()", nil, budget)
@@ -241,6 +256,10 @@ func (c *StateCache) capture(ctx context.Context, budget *int) (*poolSnapshot, e
 	s.liquidity = new(big.Int).SetBytes(data)
 	if s.liquidity.BitLen() > 128 {
 		return nil, fmt.Errorf("failed to capture uniswap v3 state: liquidity=out_of_range")
+	}
+	if c.spacing > 0 {
+		s.spacing = c.spacing
+		return s, nil
 	}
 	data, err = c.read(ctx, s, "tickSpacing()", nil, budget)
 	if err != nil {
