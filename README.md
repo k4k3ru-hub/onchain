@@ -146,3 +146,6 @@ token balance account indexes resolve in Solana runtime order.
 One `SwapEvent` represents the net change for one pool in one transaction. If a
 transaction invokes the same pool more than once, the event intentionally
 aggregates those invocations and uses `EventIndex == 0`.
+
+[`go/venues/uniswap/v3`](go/venues/uniswap/v3/README.md) provides Uniswap v3
+QuoterV2, pool-state and Swap HTTP/WebSocket clients with injected RPC dependencies.
