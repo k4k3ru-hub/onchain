@@ -64,8 +64,15 @@ provider load remain deployment validation tasks.
 After the first successfully verified pair, the cache retains `tickSpacing`.
 This property is immutable in the [official pool implementation](https://github.com/Uniswap/v3-core/blob/main/contracts/UniswapV3Pool.sol).
 Later snapshots still read mutable slot0, liquidity, bitmap words and ticks at
-one block; one contract call per subsequent refresh is removed. An HTTP head
-behind the highest observed pool log is rejected before any contract reads.
+one block; one contract call per subsequent refresh is removed. If HTTP `latest`
+is behind the highest observed pool log, an active subscription with a known
+non-removed block hash permits one explicit-number header lookup. Only an exact
+number/hash match allows state reads at that observed block. Missing hashes,
+removed logs and disconnects disable this fallback until a qualifying log arrives.
+Unavailable or mismatching headers fail before contract reads; final canonical
+hash verification and concurrent invalidation checks still apply. The fallback
+adds at most one header request and has no internal retry loop. It does not
+establish provider freshness beyond the observed block or guarantee recovery.
 
 A delayed non-removed log matching both the verified snapshot block number and
 hash is already represented by that block's terminal state and does not

@@ -2,6 +2,7 @@ package v3
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/big"
 	"sync"
@@ -333,5 +334,156 @@ func TestCoveredLogDoesNotInvalidateButRemovedLogDoes(t *testing.T) {
 	// One removal and one disconnect; the covered non-removed log does not count.
 	if c.generation != gen+2 {
 		t.Fatalf("generation=%d want=%d", c.generation, gen+2)
+	}
+}
+
+type observedStateFake struct {
+	*stateFake
+	headers       int
+	header        evm.BlockHeader
+	err           error
+	finalMismatch bool
+}
+
+func (f *observedStateFake) HeaderByNumber(_ context.Context, number uint64) (evm.BlockHeader, error) {
+	f.headers++
+	if number != 101 {
+		f.t.Fatalf("unexpected block: %d", number)
+	}
+	if f.err != nil {
+		return evm.BlockHeader{}, f.err
+	}
+	h := f.header
+	if f.finalMismatch && f.headers > 1 {
+		h.Hash = common.HexToHash("03")
+	}
+	return h, nil
+}
+
+func TestObservedBlockRecoversLagAndReusesSnapshot(t *testing.T) {
+	c, base := newTestCache(t)
+	c.active, c.floor, c.floorHash = true, 101, common.HexToHash("02")
+	f := &observedStateFake{stateFake: base, header: evm.BlockHeader{Number: 101, Hash: c.floorHash}}
+	c.rpc = f
+	got, err := c.QuotePair(context.Background(), big.NewInt(1000000), true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.BlockNumber != 101 || got.BlockHash != c.floorHash || f.headers != 2 {
+		t.Fatalf("unexpected quote or header count: quote=%+v headers=%d", got, f.headers)
+	}
+	for _, n := range base.blocks {
+		if n != 101 {
+			t.Fatalf("state read at wrong block: %d", n)
+		}
+	}
+	calls := base.calls
+	if _, err = c.QuotePair(context.Background(), big.NewInt(1000000), true); err != nil {
+		t.Fatal(err)
+	}
+	if f.headers != 2 || base.calls != calls {
+		t.Fatal("verified snapshot was not reused")
+	}
+}
+
+func TestObservedBlockRecoveryRejectsUnsafeState(t *testing.T) {
+	for _, scenario := range []string{"missing_hash", "disconnected", "not_found", "deadline", "wrong_number", "wrong_hash", "reorg", "invalidation"} {
+		t.Run(scenario, func(t *testing.T) {
+			c, base := newTestCache(t)
+			c.active, c.floor, c.floorHash = true, 101, common.HexToHash("02")
+			f := &observedStateFake{stateFake: base, header: evm.BlockHeader{Number: 101, Hash: c.floorHash}}
+			c.rpc = f
+			switch scenario {
+			case "missing_hash":
+				c.floorHash = common.Hash{}
+			case "disconnected":
+				c.active = false
+			case "not_found":
+				f.err = ethereum.NotFound
+			case "deadline":
+				f.err = context.DeadlineExceeded
+			case "wrong_number":
+				f.header.Number = 100
+			case "wrong_hash":
+				f.header.Hash = common.HexToHash("03")
+			case "reorg":
+				f.finalMismatch = true
+			case "invalidation":
+				base.hook = func() { c.mu.Lock(); c.generation++; c.mu.Unlock() }
+			}
+			_, err := c.QuotePair(context.Background(), big.NewInt(1000000), true)
+			if err == nil || c.snapshot != nil || c.spacing != 0 {
+				t.Fatal("unsafe state accepted or cached")
+			}
+			if f.err != nil && !errors.Is(err, f.err) {
+				t.Fatalf("underlying error lost: %v", err)
+			}
+			if scenario != "reorg" && scenario != "invalidation" && base.calls != 0 {
+				t.Fatal("unsafe header allowed contract reads")
+			}
+			if f.headers > 2 {
+				t.Fatal("unbounded header retries")
+			}
+		})
+	}
+}
+
+func TestObservedHashTracksLogsAndClearsOnRemovalAndDisconnect(t *testing.T) {
+	c, _ := newTestCache(t)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	ws := &stateWS{ready: make(chan struct{})}
+	done := make(chan error, 1)
+	go func() { done <- c.Run(ctx, ws) }()
+	<-ws.ready
+	wait := func(check func() bool) {
+		t.Helper()
+		deadline := time.Now().Add(time.Second)
+		for {
+			c.mu.Lock()
+			ok := check()
+			c.mu.Unlock()
+			if ok {
+				return
+			}
+			if time.Now().After(deadline) {
+				t.Fatal("subscription update timed out")
+			}
+			time.Sleep(time.Millisecond)
+		}
+	}
+	wait(func() bool { return c.active })
+	for _, log := range []types.Log{
+		{BlockNumber: 101, BlockHash: common.HexToHash("01")},
+		{BlockNumber: 101, BlockHash: common.HexToHash("01"), Removed: true},
+		{BlockNumber: 101, BlockHash: common.HexToHash("02")},
+		{BlockNumber: 100, BlockHash: common.HexToHash("03"), Removed: true},
+		{BlockNumber: 102, BlockHash: common.HexToHash("04")},
+	} {
+		c.mu.Lock()
+		gen := c.generation
+		c.mu.Unlock()
+		log.Address = c.pool
+		ws.logs <- log
+		wait(func() bool { return c.generation > gen })
+		c.mu.Lock()
+		h := c.floorHash
+		c.mu.Unlock()
+		want := log.BlockHash
+		if log.Removed {
+			want = common.Hash{}
+		}
+		if h != want {
+			t.Fatalf("hash=%s want=%s", h, want)
+		}
+	}
+	cancel()
+	if err := <-done; err != nil {
+		t.Fatal(err)
+	}
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.floorHash != (common.Hash{}) {
+		t.Fatal("disconnected hash retained")
 	}
 }
