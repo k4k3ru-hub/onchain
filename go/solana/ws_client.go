@@ -36,6 +36,7 @@ type sdkLogReceiver struct{ subscription *solanaWS.LogSubscription }
 // NewWSClient creates a Solana WebSocket RPC client.
 //
 // Version:
+//   - 2026-09-07: Used 31-bit request IDs for RPC gateway compatibility.
 //   - 2026-09-07: Composed account change subscriptions.
 func NewWSClient(ctx context.Context, config WSConfig) (*WSClient, error) {
 	if ctx == nil {
@@ -47,7 +48,7 @@ func NewWSClient(ctx context.Context, config WSConfig) (*WSClient, error) {
 	if err := config.Commitment.Validate(); err != nil {
 		return nil, fmt.Errorf("failed to create solana websocket client: %w", err)
 	}
-	client, err := solanaWS.Connect(ctx, strings.TrimSpace(config.URL))
+	client, err := solanaWS.ConnectWithOptions(ctx, strings.TrimSpace(config.URL), &solanaWS.Options{ShortID: true})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create solana websocket client: %w", err)
 	}
