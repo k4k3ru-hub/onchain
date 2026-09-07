@@ -4,6 +4,10 @@ Go SDK primitives for EVM, Solana, and Sui integrations.
 
 ## Venue SDKs
 
+[`go/venues/aerodrome`](go/venues/aerodrome/README.md) provides Aerodrome
+Slipstream deployment metadata, Factory and Quoter calls, pool state reads,
+and Swap filtering/subscriptions with explicitly injected RPC clients.
+
 [`go/venues/lighter`](go/venues/lighter/README.md) provides public REST and WebSocket
 market data for Lighter Core and its independent Robinhood Chain instance. Explicit
 deployment constructors select each instance. Separate REST and WebSocket constructors
