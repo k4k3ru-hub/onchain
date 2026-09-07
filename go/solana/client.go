@@ -3,6 +3,7 @@ package solana
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -10,11 +11,13 @@ import (
 
 	solanaSDK "github.com/gagliardetto/solana-go"
 	solanaRPC "github.com/gagliardetto/solana-go/rpc"
+	"github.com/gagliardetto/solana-go/rpc/jsonrpc"
 )
 
 const rpcURLMaxLength = 2048
 
 type RPCConfig struct {
+	HTTPClient *http.Client // Optional caller-owned transport; nil retains SDK defaults.
 	URL        string
 	Commitment Commitment
 }
@@ -56,6 +59,7 @@ func (e *sanitizedRPCError) Unwrap() error { return e.err }
 //   - Client creation error.
 //
 // Version:
+//   - 2026-09-07: Accept an injected HTTP client for shared transport policies.
 //   - 2026-08-22: Added.
 func NewRPCClient(ctx context.Context, config RPCConfig) (*RPCClient, error) {
 	if ctx == nil {
@@ -66,7 +70,11 @@ func NewRPCClient(ctx context.Context, config RPCConfig) (*RPCClient, error) {
 	}
 
 	endpoint := strings.TrimSpace(config.URL)
-	adapter := &sdkRPCAdapter{client: solanaRPC.New(endpoint), endpoint: endpoint}
+	client := solanaRPC.New(endpoint)
+	if config.HTTPClient != nil {
+		client = solanaRPC.NewWithCustomRPCClient(jsonrpc.NewClientWithOpts(endpoint, &jsonrpc.RPCClientOpts{HTTPClient: config.HTTPClient}))
+	}
+	adapter := &sdkRPCAdapter{client: client, endpoint: endpoint}
 	return composeRPCClient(config, adapter), nil
 }
 
