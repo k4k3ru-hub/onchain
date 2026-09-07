@@ -39,9 +39,11 @@ type poolSnapshot struct {
 }
 
 type quoteNotifications struct {
-	count  uint64
-	block  evm.BlockHeader
-	unsafe bool
+	count                uint64
+	block                evm.BlockHeader
+	unsafe               bool
+	minBlock, maxBlock   uint64
+	removed, missingHash bool
 }
 
 type StateCache struct {
@@ -52,6 +54,7 @@ type StateCache struct {
 	gate             chan struct{}
 	mu               sync.Mutex
 	generation       uint64
+	diagnostics      map[string]uint64   // cumulative bounded-label counts; protected by mu
 	notifications    *quoteNotifications // active quote only; protected by mu
 	active           bool
 	running          bool
@@ -86,7 +89,7 @@ func NewStateCache(rpc StateRPC, pool, factory common.Address, maxAge time.Durat
 // Reconnection and disconnect both invalidate the snapshot; without a subscription every quote refreshes.
 //
 // Version:
-//   - 2026-09-08: Track notifications during quotes as well as observed hashes for lag recovery.
+//   - 2026-09-08: Count notification sources and block relationships without changing invalidation.
 func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 	if c == nil || ctx == nil || ws == nil {
 		return fmt.Errorf("failed to watch slipstream state: dependency=null")
@@ -112,8 +115,16 @@ func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 	c.active = true
 	c.floorHash = common.Hash{}
 	c.generation++
+	c.countDiagnostic("lifecycle.connected")
 	c.mu.Unlock()
-	defer func() { c.mu.Lock(); c.active = false; c.floorHash = common.Hash{}; c.generation++; c.mu.Unlock() }()
+	defer func() {
+		c.mu.Lock()
+		c.active = false
+		c.floorHash = common.Hash{}
+		c.generation++
+		c.countDiagnostic("lifecycle.disconnected")
+		c.mu.Unlock()
+	}()
 	for {
 		select {
 		case <-ctx.Done():
@@ -131,6 +142,7 @@ func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 				continue
 			}
 			c.mu.Lock()
+			c.recordNotification(log)
 			if !log.Removed && log.BlockHash != (common.Hash{}) && log.BlockNumber == c.covered.Number && log.BlockHash == c.covered.Hash {
 				c.mu.Unlock()
 				continue
@@ -138,6 +150,15 @@ func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 			c.generation++
 			if n := c.notifications; n != nil {
 				n.count++
+				if n.count == 1 {
+					n.minBlock = log.BlockNumber
+					n.maxBlock = log.BlockNumber
+				} else {
+					n.minBlock = min(n.minBlock, log.BlockNumber)
+					n.maxBlock = max(n.maxBlock, log.BlockNumber)
+				}
+				n.removed = n.removed || log.Removed
+				n.missingHash = n.missingHash || log.BlockHash == (common.Hash{})
 				h := evm.BlockHeader{Number: log.BlockNumber, Hash: log.BlockHash}
 				if log.Removed || log.BlockHash == (common.Hash{}) || (n.count > 1 && (n.block.Number != h.Number || n.block.Hash != h.Hash)) {
 					n.unsafe = true
@@ -164,7 +185,7 @@ func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 // Snapshot reads are bounded to 64 contract calls per pair and 2048 swap steps per direction.
 //
 // Version:
-//   - 2026-09-08: Accept concurrent notifications proven to belong to the captured block.
+//   - 2026-09-08: Count refresh and rejection reasons while preserving quote acceptance rules.
 func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsToken0 bool) (LocalPair, error) {
 	if c == nil || ctx == nil || baseAmount == nil || baseAmount.Sign() <= 0 || baseAmount.BitLen() > 255 {
 		return LocalPair{}, fmt.Errorf("failed to quote slipstream state: amount=out_of_range")
@@ -187,6 +208,18 @@ func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsT
 	budget := 64
 	s := c.snapshot
 	if s == nil || !active || gen != c.cachedGeneration || time.Since(s.observed) >= c.maxAge {
+		c.mu.Lock()
+		switch {
+		case s == nil:
+			c.countDiagnostic("refresh.no_snapshot")
+		case !active:
+			c.countDiagnostic("refresh.subscription_inactive")
+		case gen != c.cachedGeneration:
+			c.countDiagnostic("refresh.notifications_or_lifecycle")
+		default:
+			c.countDiagnostic("refresh.expired")
+		}
+		c.mu.Unlock()
 		var err error
 		s, err = c.capture(ctx, &budget, floor, floorHash)
 		if err != nil {
@@ -225,13 +258,22 @@ func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsT
 	// every intervening change to be a non-removed notification in this block.
 	if changed && active && c.active && !notifications.unsafe && notifications.count == c.generation-gen && notifications.block.Number == s.header.Number && notifications.block.Hash == s.header.Hash {
 		changed = false
+		c.countDiagnostic("quote.concurrent_notifications_accepted")
 		gen = c.generation
+	}
+	if changed {
+		c.recordInvalidation(notifications, c.generation-gen, s.header)
 	}
 	if !changed {
 		c.covered = s.header
 	}
 	c.mu.Unlock()
 	if changed || time.Since(s.observed) >= c.maxAge {
+		if !changed {
+			c.mu.Lock()
+			c.countDiagnostic("invalidation.expired")
+			c.mu.Unlock()
+		}
 		c.snapshot = nil
 		return LocalPair{}, fmt.Errorf("failed to quote slipstream state: snapshot=invalidated")
 	}

@@ -89,6 +89,25 @@ func TestConcurrentCapturedBlockNotifications(t *testing.T) {
 				}
 			}
 			pair, err := c.QuotePair(context.Background(), big.NewInt(1000000), true)
+			stats := c.Diagnostics()
+			if tc.name == "pool_and_factory" && (stats["notification.pool.no_snapshot"] != 1 || stats["notification.factory.no_snapshot"] != 1) {
+				t.Fatalf("notification sources mixed: %v", stats)
+			}
+			if stats["refresh.no_snapshot"] != 1 {
+				t.Fatalf("missing refresh reason: %v", stats)
+			}
+			if tc.reject {
+				reason := map[string]string{"newer": "newer_block", "newer_then_same": "mixed_blocks", "removed_then_same": "removed", "wrong_then_same": "hash_mismatch", "missing_hash": "missing_hash", "older_unverified": "older_block", "disconnect": "lifecycle"}[tc.name]
+				if stats["invalidation.total"] != 1 || stats["invalidation."+reason] != 1 {
+					t.Fatalf("missing rejection reason: %v", stats)
+				}
+			} else if stats["quote.concurrent_notifications_accepted"] != 1 {
+				t.Fatalf("missing adoption: %v", stats)
+			}
+			stats["refresh.no_snapshot"] = 999
+			if c.Diagnostics()["refresh.no_snapshot"] != 1 {
+				t.Fatal("mutable counters escaped")
+			}
 			if tc.reject {
 				if err == nil || !strings.Contains(err.Error(), "snapshot=invalidated") {
 					t.Fatalf("expected invalidation: %v", err)

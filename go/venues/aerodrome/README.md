@@ -114,3 +114,28 @@ not the trader's swap curve. Calls are bounded to 64 contract reads per pair and
 Quoter methods remain available for execution checks and parity verification.
 Custom fee modules whose output depends on transient swap execution state require
 separate verification; the cache does not simulate arbitrary module logic.
+
+### Cache diagnostics
+
+`cache.Diagnostics()` returns a detached cumulative counter map. It does not log
+or perform RPC. MarketHub emits deltas in its existing per-pool minute aggregate.
+
+- `refresh.*`: one primary reason per refresh, in priority order: `no_snapshot`,
+  `subscription_inactive`, `notifications_or_lifecycle`, `expired`. A rejected
+  quote clears the snapshot, so its next refresh is `no_snapshot`.
+- `notification.pool.*` / `notification.factory.*`: event counts relative to the
+  **last accepted snapshot**, including ignored `same_block` notifications.
+  Labels are `no_snapshot`, `newer_block`, `older_block`, `hash_mismatch`,
+  `missing_hash`, `removed`. Removed/missing hashes take priority.
+- `invalidation.*`: rejected quote counts relative to the **captured quote block**.
+  `total` counts generation-change rejections; `newer_block`, `older_block`,
+  `mixed_blocks`, `hash_mismatch`, `missing_hash`, `removed`, `lifecycle` may overlap.
+  `hash_mismatch` identifies conflicting hashes when all observed events are in
+  the captured block; mixed blocks are not treated as proven hash conflicts.
+  `expired` counts age-only rejections separately.
+- `lifecycle.connected` / `lifecycle.disconnected`: subscription transitions.
+- `quote.concurrent_notifications_accepted`: quotes adopted despite intervening
+  notifications verified to be in the captured block.
+
+Counters are observational. Existing expiry, canonicality and invalidation rules
+are unchanged. No event topics, addresses, endpoint URLs or payloads become labels.
