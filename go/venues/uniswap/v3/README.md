@@ -2,7 +2,7 @@
 
 This package owns the migrated Uniswap v3 HTTP/WS clients, QuoterV2 calls,
 Swap parsing/filtering/subscriptions, slot0 reads, pool keys, and deployment data.
-It is copied from `uniswap/go/v3` without behavior changes; imports now use
+The original clients were migrated from `uniswap/go/v3`; imports use
 `github.com/k4k3ru-hub/onchain/go/venues/uniswap/v3`.
 
 Import `.../v3/protocol` for pool keys and currencies and `.../v3/deployment` for
@@ -29,5 +29,32 @@ and `deployment.ByChainID` supplies supported deployment addresses.
 
 Run `go test ./venues/uniswap/v3/...` and `go vet ./venues/uniswap/v3/...`
 from `onchain/go`. Existing constructor, quote, event, and deployment tests moved
-with the implementation. State caching and local tick-crossing quotes are a
-subsequent change; this migration still calls QuoterV2 for quotes.
+with the implementation. Existing quote methods still call QuoterV2.
+
+## Local state quotes
+
+Compose `NewStateCache(httpClient, stateRPC, poolAddress, maxAge)` per pool.
+Run `cache.Run(ctx, wsRPC)` in a supervised goroutine and call
+`cache.QuotePair(ctx, baseAmount, baseIsToken0)` for an exact-input bid and
+reverse exact-output ask. These are independent simulations on one snapshot.
+The returned amounts include the pool fee and price impact.
+
+All contract reads use one block number; canonical hash verification follows
+new reads. Pool logs (including liquidity changes and removed logs), reconnects,
+and disconnects invalidate the snapshot. Without a live subscription each pair
+refreshes. TTL bounds reuse when a notification is lost; this is not a guarantee
+that every event was received. `ObservedAt` is the snapshot acquisition time and
+is preserved on reuse; it is not the block timestamp.
+
+Only bitmap words and initialized ticks encountered by the simulation are read.
+Each pair permits 64 contract calls, plus header reads; each direction permits
+2048 steps. Exhausted budgets, insufficient liquidity, changed snapshots and
+reorgs return errors without partial quotes. Cache hits need no RPC; active
+pools can invalidate every poll and cost more RPC than two Quoter calls.
+
+Integer rounding follows [SwapMath](https://github.com/Uniswap/v3-core/blob/main/contracts/libraries/SwapMath.sol),
+[SqrtPriceMath](https://github.com/Uniswap/v3-core/blob/main/contracts/libraries/SqrtPriceMath.sol)
+and [TickMath](https://github.com/Uniswap/v3-core/blob/main/contracts/libraries/TickMath.sol).
+Tests cover reference numeric vectors, both directions, tick crossing, cache
+reuse, expiry, invalidation and concurrency. Live same-block Quoter parity and
+provider load remain deployment validation tasks.
