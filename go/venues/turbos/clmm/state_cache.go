@@ -18,12 +18,13 @@ type StateReader interface {
 	DynamicValuesByKeysAtCheckpoint(context.Context, sui.Address, sui.CheckpointSequenceNumber, []sui.DynamicFieldKey) ([]json.RawMessage, error)
 }
 type StateCache struct {
-	reader StateReader
-	pool   sui.Address
-	maxAge time.Duration
-	gate   chan struct{}
-	floor  atomic.Uint64
-	state  *quoteState
+	accepted sui.Checkpoint // Protected by gate; independent of trade progress.
+	reader   StateReader
+	pool     sui.Address
+	maxAge   time.Duration
+	gate     chan struct{}
+	floor    atomic.Uint64
+	state    *quoteState
 }
 type quoteState struct {
 	pool          Pool
@@ -66,6 +67,7 @@ func (c *StateCache) ObserveCheckpoint(cp sui.CheckpointSequenceNumber) {
 // AmountIn includes fees, matching Turbos compute_swap_result. Partial fills are rejected.
 //
 // Version:
+//   - 2026-09-08: Reject checkpoint regression relative to successful quotes.
 //   - 2026-09-08: Added.
 func (c *StateCache) QuotePair(ctx context.Context, p QuotePairParams) (QuotePairResult, error) {
 	if c == nil {
@@ -90,6 +92,13 @@ func (c *StateCache) QuotePair(ctx context.Context, p QuotePairParams) (QuotePai
 	if head.Timestamp.IsZero() || time.Since(head.Timestamp) > c.maxAge || head.SequenceNumber.Uint64() < c.floor.Load() {
 		return QuotePairResult{}, fmt.Errorf("failed to quote turbos cached state: checkpoint=invalid")
 	}
+	if head.SequenceNumber < c.accepted.SequenceNumber || head.Timestamp.Before(c.accepted.Timestamp) {
+		return QuotePairResult{}, fmt.Errorf("failed to quote turbos cached state: checkpoint=regressed")
+	}
+	if head.SequenceNumber == c.accepted.SequenceNumber && head.Digest != c.accepted.Digest {
+		return QuotePairResult{}, fmt.Errorf("failed to quote turbos cached state: checkpoint_digest=mismatch")
+	}
+
 	obj, err := c.reader.ObjectAtCheckpoint(ctx, c.pool, head.SequenceNumber)
 	if err != nil {
 		return QuotePairResult{}, fmt.Errorf("failed to quote turbos cached state: %w", err)
@@ -120,6 +129,7 @@ func (c *StateCache) QuotePair(ctx context.Context, p QuotePairParams) (QuotePai
 	}
 	bid.Checkpoint = head.SequenceNumber
 	ask.Checkpoint = head.SequenceNumber
+	c.accepted = head
 	return QuotePairResult{Bid: bid, Ask: ask, Checkpoint: head.SequenceNumber, PoolVersion: obj.Version, PoolDigest: obj.Digest, StateTimestamp: head.Timestamp}, nil
 }
 func capturePool(obj *sui.Object, cp sui.CheckpointSequenceNumber) (*quoteState, error) {

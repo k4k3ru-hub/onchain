@@ -163,3 +163,28 @@ func TestStateNeighbors(t *testing.T) {
 		t.Fatal("missing full refresh after link change")
 	}
 }
+
+// TestQuoteCheckpointProgressIsMonotonic verifies quote-owned progress without trade observations.
+//
+// Version:
+//   - 2026-09-08: Added.
+func TestQuoteCheckpointProgressIsMonotonic(t *testing.T) {
+	c, f, p := cacheFixture(t)
+	first, err := c.QuotePair(context.Background(), p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.cp = first.Checkpoint - 1
+	if _, err := c.QuotePair(context.Background(), p); err == nil {
+		t.Fatal("accepted checkpoint regression")
+	}
+	f.cp = first.Checkpoint
+	if _, err := c.QuotePair(context.Background(), p); err != nil {
+		t.Fatal(err)
+	}
+	f.cp = first.Checkpoint + 1
+	next, err := c.QuotePair(context.Background(), p)
+	if err != nil || next.Checkpoint != first.Checkpoint+1 {
+		t.Fatalf("next=%+v err=%v", next, err)
+	}
+}

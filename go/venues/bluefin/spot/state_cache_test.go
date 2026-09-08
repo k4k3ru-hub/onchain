@@ -283,3 +283,53 @@ func TestUnsupportedDeploymentRejectsBeforeBitmapRead(t *testing.T) {
 		t.Fatalf("unsupported deployment %v reads %d", e, f.reads)
 	}
 }
+
+// TestQuoteCheckpointProgressIsMonotonic verifies quote-owned progress without trade observations.
+//
+// Version:
+//   - 2026-09-08: Added.
+func TestQuoteCheckpointProgressIsMonotonic(t *testing.T) {
+	c, f, p := stateFixture(t)
+	first, err := c.QuotePair(context.Background(), p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.head.SequenceNumber = first.Checkpoint - 1
+	if _, err := c.QuotePair(context.Background(), p); err == nil {
+		t.Fatal("accepted checkpoint regression")
+	}
+	f.head.SequenceNumber = first.Checkpoint
+	if _, err := c.QuotePair(context.Background(), p); err != nil {
+		t.Fatal(err)
+	}
+	f.head.SequenceNumber = first.Checkpoint + 1
+	next, err := c.QuotePair(context.Background(), p)
+	if err != nil || next.Checkpoint != first.Checkpoint+1 {
+		t.Fatalf("next=%+v err=%v", next, err)
+	}
+}
+
+// TestQuoteRejectsRegressedTimeAndChangedDigest verifies quote-local identity and freshness.
+//
+// Version:
+//   - 2026-09-08: Added.
+func TestQuoteRejectsRegressedTimeAndChangedDigest(t *testing.T) {
+	c, f, p := stateFixture(t)
+	if _, err := c.QuotePair(context.Background(), p); err != nil {
+		t.Fatal(err)
+	}
+	head := f.head
+	f.head.Timestamp = head.Timestamp.Add(-time.Millisecond)
+	if _, err := c.QuotePair(context.Background(), p); err == nil {
+		t.Fatal("accepted regressed timestamp")
+	}
+	f.head = head
+	f.head.Digest[0] = 1
+	if _, err := c.QuotePair(context.Background(), p); err == nil {
+		t.Fatal("accepted changed checkpoint digest")
+	}
+	f.head = head
+	if _, err := c.QuotePair(context.Background(), p); err != nil {
+		t.Fatal(err)
+	}
+}

@@ -17,6 +17,7 @@ type StateReader interface {
 }
 
 type StateCache struct {
+	accepted sui.Checkpoint // Protected by gate; independent of trade progress.
 	gate     chan struct{}
 	reader   StateReader
 	pool     sui.Address
@@ -58,6 +59,7 @@ func (c *StateCache) ObserveCheckpoint(checkpoint sui.CheckpointSequenceNumber) 
 // No simulation fallback or partial fill is returned on an invalid snapshot.
 //
 // Version:
+//   - 2026-09-08: Reject checkpoint regression relative to successful quotes.
 //   - 2026-09-08: Added.
 func (c *StateCache) QuotePair(ctx context.Context, params QuotePairParams) (QuotePairResult, error) {
 	if c == nil {
@@ -86,6 +88,13 @@ func (c *StateCache) QuotePair(ctx context.Context, params QuotePairParams) (Quo
 	if checkpoint.Uint64() < c.floor.Load() {
 		return QuotePairResult{}, fmt.Errorf("failed to quote cetus cached state: checkpoint=behind")
 	}
+	if head.SequenceNumber < c.accepted.SequenceNumber || head.Timestamp.Before(c.accepted.Timestamp) {
+		return QuotePairResult{}, fmt.Errorf("failed to quote cetus cached state: checkpoint=regressed")
+	}
+	if head.SequenceNumber == c.accepted.SequenceNumber && head.Digest != c.accepted.Digest {
+		return QuotePairResult{}, fmt.Errorf("failed to quote cetus cached state: checkpoint_digest=mismatch")
+	}
+
 	obj, err := c.reader.ObjectAtCheckpoint(ctx, c.pool, checkpoint)
 	if err != nil {
 		return QuotePairResult{}, fmt.Errorf("failed to quote cetus cached state: %w", err)
@@ -126,6 +135,7 @@ func (c *StateCache) QuotePair(ctx context.Context, params QuotePairParams) (Quo
 	}
 	bid.Checkpoint = checkpoint
 	ask.Checkpoint = checkpoint
+	c.accepted = head
 	return QuotePairResult{Bid: bid, Ask: ask, Checkpoint: checkpoint, PoolVersion: c.version, PoolDigest: c.digest, StateTimestamp: head.Timestamp}, nil
 }
 
