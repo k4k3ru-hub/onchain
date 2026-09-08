@@ -153,3 +153,5 @@ aggregates those invocations and uses `EventIndex == 0`.
 
 [`go/venues/uniswap/v3`](go/venues/uniswap/v3/README.md) provides Uniswap v3
 QuoterV2, pool-state and Swap HTTP/WebSocket clients with injected RPC dependencies.
+
+[`go/venues/cetus`](go/venues/cetus/README.md) provides the Cetus CLMM Go SDK.
