@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/k4k3ru-hub/onchain/go/quotestate"
 	sui "github.com/k4k3ru-hub/onchain/go/sui"
 	"math/big"
 	"sync/atomic"
@@ -60,6 +61,7 @@ func (c *StateCache) ObserveCheckpoint(checkpoint sui.CheckpointSequenceNumber) 
 // No simulation fallback or partial fill is returned on an invalid snapshot.
 //
 // Version:
+//   - 2026-09-09: Classify state-change retries separately from transport failures.
 //   - 2026-09-08: Reject checkpoint regression relative to successful quotes.
 //   - 2026-09-08: Added.
 func (c *StateCache) QuotePair(ctx context.Context, params QuotePairParams) (QuotePairResult, error) {
@@ -78,7 +80,7 @@ func (c *StateCache) QuotePair(ctx context.Context, params QuotePairParams) (Quo
 		return QuotePairResult{}, fmt.Errorf("failed to quote cetus cached state: %w", ctx.Err())
 	}
 	defer func() { <-c.gate }()
-	head, err := c.reader.LatestCheckpoint(ctx)
+	head, err := sui.QuoteCheckpoint(ctx, c.reader, sui.CheckpointSequenceNumber(c.floor.Load()))
 	checkpoint := head.SequenceNumber
 	if err != nil {
 		return QuotePairResult{}, fmt.Errorf("failed to quote cetus cached state: %w", err)
@@ -87,7 +89,7 @@ func (c *StateCache) QuotePair(ctx context.Context, params QuotePairParams) (Quo
 		return QuotePairResult{}, fmt.Errorf("failed to quote cetus cached state: checkpoint=expired")
 	}
 	if checkpoint.Uint64() < c.floor.Load() {
-		return QuotePairResult{}, fmt.Errorf("failed to quote cetus cached state: checkpoint=behind")
+		return QuotePairResult{}, fmt.Errorf("failed to quote cetus cached state: %w: checkpoint=behind", quotestate.ErrStateChanged)
 	}
 	if head.SequenceNumber < c.accepted.SequenceNumber || head.Timestamp.Before(c.accepted.Timestamp) {
 		return QuotePairResult{}, fmt.Errorf("failed to quote cetus cached state: checkpoint=regressed")
@@ -132,7 +134,7 @@ func (c *StateCache) QuotePair(ctx context.Context, params QuotePairParams) (Quo
 		return QuotePairResult{}, fmt.Errorf("failed to quote cetus cached state: %w", err)
 	}
 	if checkpoint.Uint64() < c.floor.Load() || time.Since(c.observed) > c.maxAge || time.Since(head.Timestamp) > c.maxAge {
-		return QuotePairResult{}, fmt.Errorf("failed to quote cetus cached state: snapshot=invalidated")
+		return QuotePairResult{}, fmt.Errorf("failed to quote cetus cached state: %w: snapshot=invalidated", quotestate.ErrStateChanged)
 	}
 	bid.Checkpoint = checkpoint
 	ask.Checkpoint = checkpoint
@@ -242,6 +244,7 @@ func parseTick(raw json.RawMessage) (Tick, error) {
 // Callers should use a bounded startup or recovery context; no quote is published.
 //
 // Version:
+//   - 2026-09-09: Classify state-change retries separately from transport failures.
 //   - 2026-09-08: Added.
 func (c *StateCache) Warm(ctx context.Context) error {
 	if c == nil {
@@ -257,7 +260,7 @@ func (c *StateCache) Warm(ctx context.Context) error {
 	}
 	defer func() { <-c.gate }()
 	started := time.Now()
-	head, err := c.reader.LatestCheckpoint(ctx)
+	head, err := sui.QuoteCheckpoint(ctx, c.reader, sui.CheckpointSequenceNumber(c.floor.Load()))
 	if err != nil {
 		return fmt.Errorf("failed to warm cetus state: %w", err)
 	}

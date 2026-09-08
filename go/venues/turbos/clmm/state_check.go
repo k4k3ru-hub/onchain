@@ -14,6 +14,7 @@ import (
 // It performs no swap calculation and never uses trade progress as proof of state validity.
 //
 // Version:
+//   - 2026-09-09: Classify state-change retries separately from transport failures.
 //   - 2026-09-09: Added.
 func (c *StateCache) CheckState(ctx context.Context) (result quotestate.Check, err error) {
 	if c == nil || ctx == nil {
@@ -31,12 +32,15 @@ func (c *StateCache) CheckState(ctx context.Context) (result quotestate.Check, e
 		<-c.gate
 	}()
 	started := time.Now().UTC()
-	head, err := c.reader.LatestCheckpoint(ctx)
+	head, err := sui.QuoteCheckpoint(ctx, c.reader, sui.CheckpointSequenceNumber(c.floor.Load()))
 	if err != nil {
 		return result, fmt.Errorf("failed to check quote state: %w", err)
 	}
-	if head.Timestamp.IsZero() || time.Since(head.Timestamp) > c.maxAge || head.Timestamp.After(time.Now()) || head.SequenceNumber.Uint64() < c.floor.Load() {
+	if head.Timestamp.IsZero() || time.Since(head.Timestamp) > c.maxAge || head.Timestamp.After(time.Now()) {
 		return result, fmt.Errorf("failed to check turbos state: checkpoint=invalid")
+	}
+	if head.SequenceNumber.Uint64() < c.floor.Load() {
+		return result, fmt.Errorf("failed to verify quote checkpoint: %w: checkpoint=behind", quotestate.ErrStateChanged)
 	}
 	if head.SequenceNumber < c.accepted.SequenceNumber || head.Timestamp.Before(c.accepted.Timestamp) {
 		return result, fmt.Errorf("failed to check turbos state: checkpoint=regressed")
@@ -85,7 +89,7 @@ func (c *StateCache) CheckState(ctx context.Context) (result quotestate.Check, e
 		return result, fmt.Errorf("failed to check quote state: %w", err)
 	}
 	if head.SequenceNumber.Uint64() < c.floor.Load() {
-		return result, fmt.Errorf("failed to check turbos state: snapshot=invalidated")
+		return result, fmt.Errorf("failed to check turbos state: %w: snapshot=invalidated", quotestate.ErrStateChanged)
 	}
 	key := fmt.Sprintf("%x", sha256.Sum256(encoded))
 	// Reuse decoded fields only after verifying every consumed field again.

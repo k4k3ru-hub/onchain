@@ -35,6 +35,7 @@ func (c *StateCache) signalChange() {
 // Original quote timestamps must not be replaced by CheckedAt.
 //
 // Version:
+//   - 2026-09-09: Classify state-change retries separately from transport failures.
 //   - 2026-09-09: Added.
 func (c *StateCache) CheckState(ctx context.Context) (result quotestate.Check, err error) {
 	if c == nil || ctx == nil {
@@ -122,7 +123,7 @@ func (c *StateCache) CheckState(ctx context.Context) (result quotestate.Check, e
 		if active && c.active && !notifications.unsafe && notifications.count == c.generation-gen && notifications.block.Number == fresh.header.Number && notifications.block.Hash == fresh.header.Hash {
 			gen = c.generation
 		} else {
-			return result, fmt.Errorf("failed to check quote state: snapshot=invalidated")
+			return result, fmt.Errorf("failed to check quote state: %w: snapshot=invalidated", quotestate.ErrStateChanged)
 		}
 	}
 	if reorg {

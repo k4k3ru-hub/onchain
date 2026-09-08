@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/k4k3ru-hub/onchain/go/quotestate"
 	"slices"
 	"sync"
 	"time"
@@ -166,6 +167,7 @@ func (s *StateCache) invalidate(slot solana.Slot) {
 // A notification arriving during refresh rejects that refresh for this call.
 //
 // Version:
+//   - 2026-09-09: Classify state-change retries separately from transport failures.
 //   - 2026-09-07: Added.
 func (s *StateCache) QuoteExactInputs(ctx context.Context, requests []ExactInputRequest) (CachedQuote, error) {
 	if s == nil {
@@ -234,7 +236,7 @@ func (s *StateCache) QuoteExactInputs(ctx context.Context, requests []ExactInput
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if generation != s.generation {
-		return CachedQuote{}, fmt.Errorf("failed to quote cached meteora dlmm state: state changed during calculation")
+		return CachedQuote{}, fmt.Errorf("failed to quote cached meteora dlmm state: %w: state changed during calculation", quotestate.ErrStateChanged)
 	}
 	s.snapshot, s.observedAt = snapshot, observed
 	if refreshedPool != nil {

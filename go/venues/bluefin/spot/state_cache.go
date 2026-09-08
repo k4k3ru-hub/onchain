@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"github.com/k4k3ru-hub/onchain/go/quotestate"
 	sui "github.com/k4k3ru-hub/onchain/go/sui"
 	"math/big"
 	"strings"
@@ -70,6 +71,7 @@ func (c *StateCache) ObserveCheckpoint(cp sui.CheckpointSequenceNumber) {
 // AmountIn includes fees. FeeAmount excludes the separately reported protocol share. Partial fills are rejected.
 //
 // Version:
+//   - 2026-09-09: Classify state-change retries separately from transport failures.
 //   - 2026-09-08: Reject checkpoint regression relative to successful quotes.
 //   - 2026-09-08: Added.
 func (c *StateCache) QuotePair(ctx context.Context, p QuotePairParams) (QuotePairResult, error) {
@@ -88,12 +90,15 @@ func (c *StateCache) QuotePair(ctx context.Context, p QuotePairParams) (QuotePai
 		return QuotePairResult{}, fmt.Errorf("failed to quote bluefin cached state: %w", ctx.Err())
 	}
 	defer func() { <-c.gate }()
-	head, err := c.reader.LatestCheckpoint(ctx)
+	head, err := sui.QuoteCheckpoint(ctx, c.reader, sui.CheckpointSequenceNumber(c.floor.Load()))
 	if err != nil {
 		return QuotePairResult{}, fmt.Errorf("failed to quote bluefin cached state: %w", err)
 	}
-	if head.Timestamp.IsZero() || time.Since(head.Timestamp) > c.maxAge || head.SequenceNumber.Uint64() < c.floor.Load() {
+	if head.Timestamp.IsZero() || time.Since(head.Timestamp) > c.maxAge {
 		return QuotePairResult{}, fmt.Errorf("failed to quote bluefin cached state: checkpoint=invalid")
+	}
+	if head.SequenceNumber.Uint64() < c.floor.Load() {
+		return QuotePairResult{}, fmt.Errorf("failed to verify quote checkpoint: %w: checkpoint=behind", quotestate.ErrStateChanged)
 	}
 	if head.SequenceNumber < c.accepted.SequenceNumber || head.Timestamp.Before(c.accepted.Timestamp) {
 		return QuotePairResult{}, fmt.Errorf("failed to quote bluefin cached state: checkpoint=regressed")
@@ -128,7 +133,7 @@ func (c *StateCache) QuotePair(ctx context.Context, p QuotePairParams) (QuotePai
 		return QuotePairResult{}, fmt.Errorf("failed to quote bluefin cached state: %w", err)
 	}
 	if head.SequenceNumber.Uint64() < c.floor.Load() || time.Since(head.Timestamp) > c.maxAge || time.Since(c.state.captured) > c.maxAge {
-		return QuotePairResult{}, fmt.Errorf("failed to quote bluefin cached state: snapshot=invalidated")
+		return QuotePairResult{}, fmt.Errorf("failed to quote bluefin cached state: %w: snapshot=invalidated", quotestate.ErrStateChanged)
 	}
 	bid.Checkpoint = head.SequenceNumber
 	ask.Checkpoint = head.SequenceNumber

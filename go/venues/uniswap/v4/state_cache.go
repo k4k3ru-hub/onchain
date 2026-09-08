@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/k4k3ru-hub/onchain/go/quotestate"
 	"math/big"
 	"sync"
 	"time"
@@ -182,6 +183,7 @@ func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 // Snapshot reads are bounded to 64 contract calls per pair and 2048 swap steps per direction.
 //
 // Version:
+//   - 2026-09-09: Classify state-change retries separately from transport failures.
 //   - 2026-09-07: Recover lagging latest headers using verified observed blocks.
 func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsToken0 bool) (LocalPair, error) {
 	if ctx == nil || baseAmount == nil || baseAmount.Sign() <= 0 || baseAmount.BitLen() > 128 {
@@ -211,7 +213,7 @@ func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsT
 	}
 	if s.header.Number < floor {
 		c.snapshot = nil
-		return LocalPair{}, fmt.Errorf("failed to quote uniswap v4 state: rpc_head=behind")
+		return LocalPair{}, fmt.Errorf("failed to quote uniswap v4 state: %w: rpc_head=behind", quotestate.ErrStateChanged)
 	}
 	bid, err := c.quote(ctx, s, baseAmount, baseIsToken0, true, &budget)
 	if err != nil {
@@ -242,7 +244,7 @@ func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsT
 	c.mu.Unlock()
 	if changed || time.Since(s.observed) >= c.maxAge {
 		c.snapshot = nil
-		return LocalPair{}, fmt.Errorf("failed to quote uniswap v4 state: snapshot=invalidated")
+		return LocalPair{}, fmt.Errorf("failed to quote uniswap v4 state: %w: snapshot=invalidated", quotestate.ErrStateChanged)
 	}
 	c.snapshot = s
 	c.cachedGeneration = gen
@@ -279,7 +281,7 @@ func (c *StateCache) capture(ctx context.Context, budget *int, floor uint64, flo
 	}
 	if header.Number < floor {
 		if floorHash == (common.Hash{}) {
-			return nil, fmt.Errorf("failed to quote uniswap v4 state: rpc_head=behind")
+			return nil, fmt.Errorf("failed to quote uniswap v4 state: %w: rpc_head=behind", quotestate.ErrStateChanged)
 		}
 		header, err = c.rpc.HeaderByNumber(ctx, floor)
 		if err != nil {

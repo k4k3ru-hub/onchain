@@ -28,3 +28,9 @@ These checks perform state RPC reads; they are not a zero-RPC or rate-limit guar
 Implementations are in `venues/uniswap/{v3,v4}`, `venues/aerodrome/slipstream`,
 `venues/cetus/clmm`, `venues/bluefin/spot`, `venues/momentum/clmm`,
 `venues/turbos/clmm`, `solana/raydium/{cpmm,clmm}`, and `solana/meteora/dlmm`.
+
+State consistency errors wrap `ErrStateChanged`. `IsStateChange` returns true
+only when every leaf in a joined error is a consistency failure, preserving RPC
+backoff when transport failures are also present. Sui `QuoteCheckpoint` can
+recover a lagging latest response using an explicitly numbered checkpoint;
+notification-floor and coherent-state validation are not relaxed.

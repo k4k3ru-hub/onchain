@@ -33,6 +33,7 @@ func (s *StateCache) signalChange() {
 // CheckState verifies every tracked account in one RPC context without swap calculation.
 //
 // Version:
+//   - 2026-09-09: Classify state-change retries separately from transport failures.
 //   - 2026-09-09: Added.
 func (s *StateCache) CheckState(ctx context.Context) (result quotestate.Check, err error) {
 	if s == nil || ctx == nil {
@@ -82,7 +83,7 @@ func (s *StateCache) CheckState(ctx context.Context) (result quotestate.Check, e
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if gen != s.generation {
-		return result, fmt.Errorf("failed to check clmm state: snapshot=invalidated")
+		return result, fmt.Errorf("failed to check clmm state: %w: snapshot=invalidated", quotestate.ErrStateChanged)
 	}
 	if s.checkedKey == key {
 		s.snapshot = make(snapshotAccounts, len(addresses))
