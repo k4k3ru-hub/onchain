@@ -17,17 +17,18 @@ type StateReader interface {
 }
 
 type StateCache struct {
-	accepted sui.Checkpoint // Protected by gate; independent of trade progress.
-	gate     chan struct{}
-	reader   StateReader
-	pool     sui.Address
-	maxAge   time.Duration
-	snapshot *LocalSnapshot
-	anchors  []Tick
-	version  uint64
-	digest   sui.ObjectDigest
-	observed time.Time
-	floor    atomic.Uint64
+	checkedKey string
+	accepted   sui.Checkpoint // Protected by gate; independent of trade progress.
+	gate       chan struct{}
+	reader     StateReader
+	pool       sui.Address
+	maxAge     time.Duration
+	snapshot   *LocalSnapshot
+	anchors    []Tick
+	version    uint64
+	digest     sui.ObjectDigest
+	observed   time.Time
+	floor      atomic.Uint64
 }
 
 // NewStateCache composes a checkpoint-pinned Cetus state cache.

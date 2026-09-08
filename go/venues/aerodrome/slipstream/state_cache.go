@@ -48,23 +48,25 @@ type quoteNotifications struct {
 }
 
 type StateCache struct {
-	rpc              StateRPC
-	pool             common.Address
-	factory          common.Address
-	maxAge           time.Duration
-	gate             chan struct{}
-	mu               sync.Mutex
-	generation       uint64
-	diagnostics      map[string]uint64   // cumulative bounded-label counts; protected by mu
-	notifications    *quoteNotifications // active quote only; protected by mu
-	active           bool
-	running          bool
-	floor            uint64
-	floorHash        common.Hash     // non-removed observed block; protected by mu
-	covered          evm.BlockHeader // protected by mu
-	spacing          int32           // immutable after a verified snapshot; protected by gate
-	snapshot         *poolSnapshot   // protected by gate
-	cachedGeneration uint64
+	verificationEpoch uint64
+	rpc               StateRPC
+	pool              common.Address
+	factory           common.Address
+	maxAge            time.Duration
+	gate              chan struct{}
+	mu                sync.Mutex
+	generation        uint64
+	updates           chan struct{}
+	diagnostics       map[string]uint64   // cumulative bounded-label counts; protected by mu
+	notifications     *quoteNotifications // active quote only; protected by mu
+	active            bool
+	running           bool
+	floor             uint64
+	floorHash         common.Hash     // non-removed observed block; protected by mu
+	covered           evm.BlockHeader // protected by mu
+	spacing           int32           // immutable after a verified snapshot; protected by gate
+	snapshot          *poolSnapshot   // protected by gate
+	cachedGeneration  uint64
 }
 
 // NewStateCache creates a bounded-age, block-coherent local quote cache for a configured pool.
@@ -90,6 +92,7 @@ func NewStateCache(rpc StateRPC, pool, factory common.Address, maxAge time.Durat
 // Reconnection and disconnect both invalidate the snapshot; without a subscription every quote refreshes.
 //
 // Version:
+//   - 2026-09-09: Support independent quote-state verification and freshness.
 //   - 2026-09-08: Count notification sources and block relationships without changing invalidation.
 func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 	if c == nil || ctx == nil || ws == nil {
@@ -116,6 +119,7 @@ func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 	c.active = true
 	c.floorHash = common.Hash{}
 	c.generation++
+	c.signalChange()
 	c.countDiagnostic("lifecycle.connected")
 	c.mu.Unlock()
 	defer func() {
@@ -123,6 +127,7 @@ func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 		c.active = false
 		c.floorHash = common.Hash{}
 		c.generation++
+		c.signalChange()
 		c.countDiagnostic("lifecycle.disconnected")
 		c.mu.Unlock()
 	}()
@@ -149,6 +154,7 @@ func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 				continue
 			}
 			c.generation++
+			c.signalChange()
 			if n := c.notifications; n != nil {
 				n.count++
 				if n.count == 1 {
@@ -171,6 +177,7 @@ func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 				c.floorHash = log.BlockHash
 			}
 			if log.Removed {
+				c.verificationEpoch++
 				c.floorHash = common.Hash{}
 			}
 			c.mu.Unlock()

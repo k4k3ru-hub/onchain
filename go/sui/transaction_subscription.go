@@ -111,6 +111,24 @@ func (a *grpcAdapter) subscribeTransactions(ctx context.Context, address Address
 	return &grpcTransactionReceiver{stream: stream, cancel: cancel}, nil
 }
 
+func (a *grpcAdapter) subscribeObjectTransactions(ctx context.Context, address Address) (liveTransactionReceiver, error) {
+	streamContext, cancel := context.WithCancel(ctx)
+	addressValue := address.String()
+	filter := &rpcv2.TransactionFilter{Terms: []*rpcv2.TransactionTerm{{Literals: []*rpcv2.TransactionLiteral{{
+		Predicate: &rpcv2.TransactionLiteral_AffectedObject{AffectedObject: &rpcv2.AffectedObjectFilter{ObjectId: &addressValue}},
+	}}}}}
+	request := &rpcv2.SubscribeTransactionsRequest{
+		ReadMask: &fieldmaskpb.FieldMask{Paths: []string{"digest", "effects.status", "checkpoint", "timestamp"}},
+		Filter:   filter,
+	}
+	stream, err := a.client.SubscribeTransactions(streamContext, request)
+	if err != nil {
+		cancel()
+		return nil, err
+	}
+	return &grpcTransactionReceiver{stream: stream, cancel: cancel}, nil
+}
+
 func (r *grpcTransactionReceiver) Recv() (*TransactionNotification, error) {
 	response, err := r.stream.Recv()
 	if err != nil {
@@ -177,4 +195,33 @@ func decodeGRPCTransaction(value *rpcv2.ExecutedTransaction) (*TransactionEffect
 		effects.BalanceChanges = append(effects.BalanceChanges, BalanceChange{Address: address, CoinType: change.GetCoinType(), Amount: amount})
 	}
 	return effects, nil
+}
+
+// SubscribeObjectTransactions subscribes to transactions affecting a pool or configuration object.
+// It includes liquidity and administrative changes, not only Swap events.
+// Watermarks are progress hints; callers must verify state before extending quote validity.
+//
+// Version:
+//   - 2026-09-09: Added.
+func (c *GRPCClient) SubscribeObjectTransactions(ctx context.Context, object Address) (*TransactionSubscription, error) {
+	if c == nil || object.IsZero() {
+		return nil, fmt.Errorf("failed to subscribe sui object changes: parameters=invalid")
+	}
+	provider, ok := c.transactionProvider.(interface {
+		subscribeObjectTransactions(context.Context, Address) (liveTransactionReceiver, error)
+	})
+	if !ok {
+		return nil, fmt.Errorf("failed to subscribe sui object changes: provider=unsupported")
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	receiver, err := provider.subscribeObjectTransactions(ctx, object)
+	if err != nil {
+		return nil, fmt.Errorf("failed to subscribe sui object changes: %w", err)
+	}
+	if receiver == nil {
+		return nil, fmt.Errorf("failed to subscribe sui object changes: receiver=null")
+	}
+	return &TransactionSubscription{receiver: receiver}, nil
 }

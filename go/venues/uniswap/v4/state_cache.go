@@ -39,23 +39,25 @@ type poolSnapshot struct {
 }
 
 type StateCache struct {
-	rpc              StateRPC
-	pool             common.Address
-	stateView        common.Address
-	poolID           common.Hash
-	fee              uint32
-	maxAge           time.Duration
-	gate             chan struct{}
-	mu               sync.Mutex
-	generation       uint64
-	active           bool
-	running          bool
-	floor            uint64
-	floorHash        common.Hash     // non-removed observed block; protected by mu
-	covered          evm.BlockHeader // protected by mu
-	spacing          int32           // immutable pool key tick spacing
-	snapshot         *poolSnapshot   // protected by gate
-	cachedGeneration uint64
+	verificationEpoch uint64
+	rpc               StateRPC
+	pool              common.Address
+	stateView         common.Address
+	poolID            common.Hash
+	fee               uint32
+	maxAge            time.Duration
+	gate              chan struct{}
+	mu                sync.Mutex
+	generation        uint64
+	updates           chan struct{}
+	active            bool
+	running           bool
+	floor             uint64
+	floorHash         common.Hash     // non-removed observed block; protected by mu
+	covered           evm.BlockHeader // protected by mu
+	spacing           int32           // immutable pool key tick spacing
+	snapshot          *poolSnapshot   // protected by gate
+	cachedGeneration  uint64
 }
 
 // PoolConfig identifies a hook-free fixed-fee v4 pool and its state reader.
@@ -101,6 +103,7 @@ func NewStateCache(rpc StateRPC, config PoolConfig, maxAge time.Duration) (*Stat
 // Reconnection and disconnect both invalidate the snapshot; without a subscription every quote refreshes.
 //
 // Version:
+//   - 2026-09-09: Support independent quote-state verification and freshness.
 //   - 2026-09-07: Track observed block hashes for lag recovery; clear them on removal or disconnect.
 func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 	if ctx == nil || ws == nil {
@@ -127,8 +130,16 @@ func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 	c.active = true
 	c.floorHash = common.Hash{}
 	c.generation++
+	c.signalChange()
 	c.mu.Unlock()
-	defer func() { c.mu.Lock(); c.active = false; c.floorHash = common.Hash{}; c.generation++; c.mu.Unlock() }()
+	defer func() {
+		c.mu.Lock()
+		c.active = false
+		c.floorHash = common.Hash{}
+		c.generation++
+		c.signalChange()
+		c.mu.Unlock()
+	}()
 	for {
 		select {
 		case <-ctx.Done():
@@ -151,11 +162,13 @@ func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 				continue
 			}
 			c.generation++
+			c.signalChange()
 			if log.BlockNumber >= c.floor {
 				c.floor = log.BlockNumber
 				c.floorHash = log.BlockHash
 			}
 			if log.Removed {
+				c.verificationEpoch++
 				c.floorHash = common.Hash{}
 			}
 			c.mu.Unlock()

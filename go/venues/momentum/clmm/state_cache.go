@@ -18,13 +18,14 @@ type StateReader interface {
 	DynamicValuesByKeysAtCheckpoint(context.Context, sui.Address, sui.CheckpointSequenceNumber, []sui.DynamicFieldKey) ([]json.RawMessage, error)
 }
 type StateCache struct {
-	accepted sui.Checkpoint // Protected by gate; independent of trade progress.
-	reader   StateReader
-	pool     sui.Address
-	maxAge   time.Duration
-	gate     chan struct{}
-	floor    atomic.Uint64
-	state    *quoteState
+	checkedKey string
+	accepted   sui.Checkpoint // Protected by gate; independent of trade progress.
+	reader     StateReader
+	pool       sui.Address
+	maxAge     time.Duration
+	gate       chan struct{}
+	floor      atomic.Uint64
+	state      *quoteState
 }
 type quoteState struct {
 	pool          Pool

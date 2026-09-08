@@ -32,6 +32,8 @@ type StateCache struct {
 	refresh     sync.Mutex
 	mu          sync.Mutex
 	generation  uint64
+	updates     chan struct{}
+	checkedKey  string
 	minimumSlot solana.Slot
 	connected   int
 	active      map[solana.Address]bool
@@ -153,6 +155,7 @@ func (s *StateCache) watch(ctx context.Context, address solana.Address, subscrib
 }
 func (s *StateCache) invalidate(slot solana.Slot) {
 	s.generation++
+	s.signalChange()
 	s.snapshot = nil
 	if slot > s.minimumSlot {
 		s.minimumSlot = slot
