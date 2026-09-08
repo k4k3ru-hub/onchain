@@ -3,6 +3,7 @@ package clmm
 import (
 	"context"
 	"fmt"
+	"time"
 
 	onchainSui "github.com/k4k3ru-hub/onchain/go/sui"
 )
@@ -13,9 +14,12 @@ type QuotePairParams struct {
 }
 
 type QuotePairResult struct {
-	Bid        QuoteResult
-	Ask        QuoteResult
-	Checkpoint onchainSui.CheckpointSequenceNumber
+	StateTimestamp time.Time
+	PoolVersion    uint64
+	PoolDigest     onchainSui.ObjectDigest
+	Bid            QuoteResult
+	Ask            QuoteResult
+	Checkpoint     onchainSui.CheckpointSequenceNumber
 }
 
 // QuotePair simulates bid and ask quotes in one programmable transaction.
@@ -29,6 +33,7 @@ type QuotePairResult struct {
 //   - Quote or simulation error.
 //
 // Version:
+//   - 2026-09-08: Include simulation input pool provenance.
 //   - 2026-09-01: Added.
 func (q *Quoter) QuotePair(ctx context.Context, params QuotePairParams) (QuotePairResult, error) {
 	if q == nil || q.simulator == nil {
@@ -64,7 +69,15 @@ func (q *Quoter) QuotePair(ctx context.Context, params QuotePairParams) (QuotePa
 		return QuotePairResult{}, fmt.Errorf("failed to quote cetus clmm pair: ask=invalid: %w", err)
 	}
 	bid.Checkpoint, ask.Checkpoint = simulation.Checkpoint, simulation.Checkpoint
-	return QuotePairResult{Bid: bid, Ask: ask, Checkpoint: simulation.Checkpoint}, nil
+	result := QuotePairResult{Bid: bid, Ask: ask, Checkpoint: simulation.Checkpoint}
+	for _, object := range simulation.InputObjects {
+		if object.Address == params.Bid.Pool.Address {
+			result.PoolVersion = object.Version
+			result.PoolDigest = object.Digest
+			break
+		}
+	}
+	return result, nil
 }
 
 func (q *Quoter) appendPairQuote(builder *onchainSui.ProgrammableTransactionBuilder, poolConfig Pool, amount uint64, a2b, byAmountIn bool) error {

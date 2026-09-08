@@ -28,6 +28,7 @@ type QuoteExactOutputParams struct {
 }
 
 type QuoteResult struct {
+	// AmountIn is the input excluding FeeAmount, as returned by the Cetus fetcher.
 	AmountIn       uint64
 	AmountOut      uint64
 	FeeAmount      uint64

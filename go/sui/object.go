@@ -33,6 +33,21 @@ type MoveObject struct {
 // Version:
 //   - 2026-08-23: Added.
 func (c *RPCClient) Object(ctx context.Context, address Address) (*Object, error) {
+	return c.objectAt(ctx, address, nil)
+}
+
+// ObjectAtCheckpoint returns the object as of an explicit checkpoint.
+//
+// Version:
+//   - 2026-09-08: Added.
+func (c *RPCClient) ObjectAtCheckpoint(ctx context.Context, address Address, checkpoint CheckpointSequenceNumber) (*Object, error) {
+	if err := checkpoint.Validate(); err != nil {
+		return nil, fmt.Errorf("failed to get sui object at checkpoint: %w", err)
+	}
+	return c.objectAt(ctx, address, &checkpoint)
+}
+
+func (c *RPCClient) objectAt(ctx context.Context, address Address, checkpoint *CheckpointSequenceNumber) (*Object, error) {
 	if c == nil {
 		return nil, fmt.Errorf("failed to get sui object: rpc_client=null")
 	}
@@ -64,7 +79,11 @@ func (c *RPCClient) Object(ctx context.Context, address Address) (*Object, error
 			} `json:"asMovePackage"`
 		} `json:"object"`
 	}
-	query := fmt.Sprintf(`query { object(address: %q) { address version digest objectBcs asMoveObject { contents { type { repr } json } } asMovePackage { address } } }`, address.String())
+	bound := ""
+	if checkpoint != nil {
+		bound = fmt.Sprintf(", atCheckpoint: %d", checkpoint.Uint64())
+	}
+	query := fmt.Sprintf(`query { object(address: %q%s) { address version digest objectBcs asMoveObject { contents { type { repr } json } } asMovePackage { address } } }`, address.String(), bound)
 	if err := c.caller.query(ctx, query, &result); err != nil {
 		return nil, fmt.Errorf("failed to get sui object: %w", err)
 	}

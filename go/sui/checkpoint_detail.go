@@ -132,3 +132,11 @@ func (c *RPCClient) getCheckpoint(ctx context.Context, query string) (Checkpoint
 		NetworkTotalTransactions: value.NetworkTotalTransactions,
 	}, nil
 }
+
+// LatestCheckpoint returns the latest indexed checkpoint including its timestamp.
+//
+// Version:
+//   - 2026-09-08: Added.
+func (c *RPCClient) LatestCheckpoint(ctx context.Context) (Checkpoint, error) {
+	return c.getCheckpoint(ctx, `query { checkpoint { sequenceNumber digest previousCheckpointDigest epoch { epochId } timestamp networkTotalTransactions } }`)
+}

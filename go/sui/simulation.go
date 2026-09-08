@@ -80,6 +80,8 @@ type SimulationEvent struct {
 }
 
 type SimulationResult struct {
+	// InputObjects records exact input versions when supplied by simulation effects.
+	InputObjects      []SimulationObjectReference
 	CommandResults    []SimulationCommandResult
 	Events            []SimulationEvent
 	Checkpoint        CheckpointSequenceNumber
@@ -101,6 +103,7 @@ type transactionSimulationProvider interface {
 //   - Simulation or validation error.
 //
 // Version:
+//   - 2026-09-08: Preserve exact simulation input object references.
 //   - 2026-09-01: Returned the latest observed checkpoint after simulation.
 //   - 2026-08-30: Added.
 func (c *GRPCClient) SimulateTransaction(ctx context.Context, request SimulationRequest) (*SimulationResult, error) {
@@ -176,7 +179,11 @@ func (a *grpcAdapter) simulateTransaction(ctx context.Context, request Simulatio
 	if err := checkpoint.Validate(); err != nil {
 		return nil, fmt.Errorf("failed to call sui transaction simulation: %w", err)
 	}
-	result := &SimulationResult{Checkpoint: checkpoint, SuggestedGasPrice: response.GetSuggestedGasPrice(), CommandResults: make([]SimulationCommandResult, len(response.CommandOutputs))}
+	inputObjects, err := simulationInputObjects(response.Transaction.Effects)
+	if err != nil {
+		return nil, fmt.Errorf("failed to call sui transaction simulation: %w", err)
+	}
+	result := &SimulationResult{InputObjects: inputObjects, Checkpoint: checkpoint, SuggestedGasPrice: response.GetSuggestedGasPrice(), CommandResults: make([]SimulationCommandResult, len(response.CommandOutputs))}
 	for i, command := range response.CommandOutputs {
 		if command == nil {
 			return nil, fmt.Errorf("failed to call sui transaction simulation: command_output=null command_index=%d", i)
