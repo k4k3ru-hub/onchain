@@ -139,3 +139,17 @@ or perform RPC. MarketHub emits deltas in its existing per-pool minute aggregate
 
 Counters are observational. Existing expiry, canonicality and invalidation rules
 are unchanged. No event topics, addresses, endpoint URLs or payloads become labels.
+
+### Batched core state
+
+Readers implementing `ReadContracts(ctx, target, calldata, blockNumber)` fetch
+`slot0()`, `liquidity()` and `fee()` in a single JSON-RPC batch at the selected
+block. All three results must succeed before decoding or publishing. The SDK HTTP
+client composes its batch transport alongside the existing single-call reader.
+Injected readers without this optional capability retain sequential reads.
+Runtime batch failures propagate without individual retries or fallback requests.
+
+The logical read budget still consumes three calls. Header selection, lazy bitmap
+and tick reads, expiry and final canonical hash verification are unchanged.
+Batching reduces typical warm-spacing refresh exchanges from six to four, not the
+six logical RPC methods. Provider quota/billing savings are not implied.

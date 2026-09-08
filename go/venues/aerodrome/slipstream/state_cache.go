@@ -2,6 +2,7 @@ package slipstream
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/big"
 	"sync"
@@ -185,7 +186,7 @@ func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 // Snapshot reads are bounded to 64 contract calls per pair and 2048 swap steps per direction.
 //
 // Version:
-//   - 2026-09-08: Count refresh and rejection reasons while preserving quote acceptance rules.
+//   - 2026-09-08: Batch independent core-state reads when the injected reader supports it.
 func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsToken0 bool) (LocalPair, error) {
 	if c == nil || ctx == nil || baseAmount == nil || baseAmount.Sign() <= 0 || baseAmount.BitLen() > 255 {
 		return LocalPair{}, fmt.Errorf("failed to quote slipstream state: amount=out_of_range")
@@ -323,7 +324,8 @@ func (c *StateCache) capture(ctx context.Context, budget *int, floor uint64, flo
 		}
 	}
 	s := &poolSnapshot{header: header, observed: time.Now().UTC(), words: make(map[int32]*big.Int), ticks: make(map[int32]*big.Int)}
-	data, err := c.read(ctx, s, "slot0()", nil, budget)
+	values, err := c.readCoreState(ctx, s, budget)
+	data := values[0]
 	if err != nil {
 		return nil, err
 	}
@@ -336,10 +338,7 @@ func (c *StateCache) capture(ctx context.Context, budget *int, floor uint64, flo
 	}
 	s.price = slot.SqrtPriceX96
 	s.tick = slot.Tick
-	data, err = c.read(ctx, s, "liquidity()", nil, budget)
-	if err != nil {
-		return nil, err
-	}
+	data = values[1]
 	if len(data) != 32 {
 		return nil, fmt.Errorf("failed to capture slipstream state: liquidity=invalid")
 	}
@@ -349,10 +348,7 @@ func (c *StateCache) capture(ctx context.Context, budget *int, floor uint64, flo
 	}
 	// CLPool captures fee() once at swap start, before crossing any ticks.
 	// It calls the factory from the pool; do not substitute a fixed tick-spacing fee.
-	data, err = c.read(ctx, s, "fee()", nil, budget)
-	if err != nil {
-		return nil, err
-	}
+	data = values[2]
 	fee, err := decodeUnsignedWord(data, 24, "fee")
 	if err != nil {
 		return nil, err
@@ -502,4 +498,44 @@ func (c *StateCache) quote(ctx context.Context, s *poolSnapshot, amount *big.Int
 		}
 	}
 	return nil, fmt.Errorf("failed to quote slipstream state: liquidity_or_step_budget=insufficient")
+}
+
+// batchStateReader is optional: injected readers without it retain sequential reads.
+type batchStateReader interface {
+	ReadContracts(context.Context, common.Address, [][]byte, uint64) ([][]byte, []error, error)
+}
+
+func (c *StateCache) readCoreState(ctx context.Context, s *poolSnapshot, budget *int) ([3][]byte, error) {
+	var values [3][]byte
+	names := []string{"slot0()", "liquidity()", "fee()"}
+	if batch, ok := c.rpc.(batchStateReader); ok {
+		if *budget < 3 {
+			return values, fmt.Errorf("failed to read slipstream state: rpc_budget=exhausted")
+		}
+		*budget -= 3
+		data := make([][]byte, 3)
+		for i, name := range names {
+			data[i] = crypto.Keccak256([]byte(name))[:4]
+		}
+		result, failures, err := batch.ReadContracts(ctx, c.pool, data, s.header.Number)
+		if err != nil {
+			return values, fmt.Errorf("failed to read slipstream state batch: %w", err)
+		}
+		if len(result) != 3 || len(failures) != 3 {
+			return values, fmt.Errorf("failed to read slipstream state batch: result=invalid")
+		}
+		if err := errors.Join(failures...); err != nil {
+			return values, fmt.Errorf("failed to read slipstream state batch: %w", err)
+		}
+		copy(values[:], result)
+		return values, nil
+	}
+	for i, name := range names {
+		v, err := c.read(ctx, s, name, nil, budget)
+		if err != nil {
+			return values, err
+		}
+		values[i] = v
+	}
+	return values, nil
 }
