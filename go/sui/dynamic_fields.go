@@ -88,11 +88,42 @@ func (c *RPCClient) DynamicUint64ValuesAtCheckpoint(ctx context.Context, parent 
 	if ctx == nil {
 		ctx = context.Background()
 	}
-	parts := make([]string, len(keys))
+	typed := make([]DynamicFieldKey, len(keys))
 	for i, k := range keys {
 		var b [8]byte
 		binary.LittleEndian.PutUint64(b[:], k)
-		parts[i] = fmt.Sprintf(`{type: "u64", bcs: %q}`, base64.StdEncoding.EncodeToString(b[:]))
+		typed[i] = DynamicFieldKey{Type: "u64", BCS: append([]byte(nil), b[:]...)}
+	}
+	return c.DynamicValuesByKeysAtCheckpoint(ctx, parent, checkpoint, typed)
+}
+
+// DynamicFieldKey identifies a Move dynamic field using its owning type and BCS bytes.
+type DynamicFieldKey struct {
+	Type string
+	BCS  []byte
+}
+
+// DynamicValuesByKeysAtCheckpoint reads typed Move dynamic values in caller order.
+// Missing fields remain nil. All keys are resolved at the same checkpoint.
+//
+// Version:
+//   - 2026-09-08: Added.
+func (c *RPCClient) DynamicValuesByKeysAtCheckpoint(ctx context.Context, parent Address, checkpoint CheckpointSequenceNumber, keys []DynamicFieldKey) ([]json.RawMessage, error) {
+	if c == nil || c.caller == nil || parent.IsZero() || len(keys) == 0 || len(keys) > 50 {
+		return nil, fmt.Errorf("failed to get sui keyed dynamic values: parameters=invalid")
+	}
+	if err := checkpoint.Validate(); err != nil {
+		return nil, fmt.Errorf("failed to get sui keyed dynamic values: %w", err)
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	parts := make([]string, len(keys))
+	for i, k := range keys {
+		if strings.TrimSpace(k.Type) == "" || len(k.Type) > 4096 || len(k.BCS) > 4096 {
+			return nil, fmt.Errorf("failed to get sui keyed dynamic values: key=invalid")
+		}
+		parts[i] = fmt.Sprintf(`{type: %q, bcs: %q}`, k.Type, base64.StdEncoding.EncodeToString(k.BCS))
 	}
 	query := fmt.Sprintf(`query { address(address: %q, atCheckpoint: %d) { multiGetDynamicFields(keys: [%s]) { value { ... on MoveValue { json } } } } }`, parent.String(), checkpoint.Uint64(), strings.Join(parts, ","))
 	var r struct {
@@ -112,9 +143,13 @@ func (c *RPCClient) DynamicUint64ValuesAtCheckpoint(ctx context.Context, parent 
 	}
 	out := make([]json.RawMessage, len(keys))
 	for i, f := range r.Address.Fields {
-		if f != nil && f.Value != nil && string(f.Value.JSON) != "null" {
-			out[i] = append(json.RawMessage(nil), f.Value.JSON...)
+		if f == nil {
+			continue
 		}
+		if f.Value == nil || len(f.Value.JSON) == 0 || string(f.Value.JSON) == "null" {
+			return nil, fmt.Errorf("failed to get sui keyed dynamic values: value=null")
+		}
+		out[i] = append(json.RawMessage(nil), f.Value.JSON...)
 	}
 	return out, nil
 }
