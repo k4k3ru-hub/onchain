@@ -50,6 +50,8 @@ type StateCache struct {
 	retainedHash          common.Hash
 	retainedIndex         uint
 	retainedHasLog        bool
+	retainedRecovery      chan struct{}
+	retainedBaseAmount    *big.Int
 	rpc                   StateRPC
 	pool                  common.Address
 	stateView             common.Address
@@ -287,7 +289,7 @@ func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsT
 
 func (c *StateCache) read(ctx context.Context, s *poolSnapshot, sig string, arg *big.Int, budget *int) ([]byte, error) {
 	if *budget <= 0 {
-		return nil, fmt.Errorf("failed to read uniswap v4 state: rpc_budget=exhausted")
+		return nil, fmt.Errorf("failed to read uniswap v4 state: %w", errStateReadBudget)
 	}
 	*budget--
 	data := append([]byte(nil), crypto.Keccak256([]byte(sig))[:4]...)
