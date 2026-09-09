@@ -73,6 +73,7 @@ func NewStateCache(client *Client, pool solana.Address, maxAge time.Duration) (*
 // A failure invalidates the coherent cache and is returned so the owner can reconnect.
 //
 // Version:
+//   - 2026-09-09: Preserve bootstrap inputs across subscription replacement; clear on session exit.
 //   - 2026-09-09: Withdraw calculation snapshots when an account subscription disconnects.
 //   - 2026-09-09: Retain full account updates for local snapshot quotes.
 //   - 2026-09-07: Added.
@@ -87,10 +88,21 @@ func (s *StateCache) Run(ctx context.Context, subscribe SubscribeAccountChangesF
 	}
 	s.running = true
 	s.mu.Unlock()
-	defer func() { s.mu.Lock(); s.running = false; s.mu.Unlock() }()
+	defer func() {
+		s.mu.Lock()
+		defer s.mu.Unlock()
+		s.running = false
+		s.retained.Reset()
+		s.publishQuoteSnapshotLocked()
+	}()
 	for ctx.Err() == nil {
 		s.mu.Lock()
 		addresses := append([]solana.Address(nil), s.addresses...)
+		// This subscription set already includes changes queued before capture.
+		select {
+		case <-s.changed:
+		default:
+		}
 		s.mu.Unlock()
 		session, cancel := context.WithCancel(ctx)
 		results := make(chan error, len(addresses))
@@ -181,9 +193,6 @@ func (s *StateCache) watch(ctx context.Context, address solana.Address, subscrib
 	}
 }
 func (s *StateCache) invalidate(slot solana.Slot) {
-	if s.connected == 0 {
-		s.retained.Reset()
-	}
 	defer s.publishQuoteSnapshotLocked()
 	s.generation++
 	s.signalChange()
