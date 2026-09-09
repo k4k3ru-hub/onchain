@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	solanaSDK "github.com/gagliardetto/solana-go"
 	solanaRPC "github.com/gagliardetto/solana-go/rpc"
@@ -36,6 +37,7 @@ type sdkLogReceiver struct{ subscription *solanaWS.LogSubscription }
 // NewWSClient creates a Solana WebSocket RPC client.
 //
 // Version:
+//   - 2026-09-09: Refresh liveness on data and use 15-second WebSocket heartbeats.
 //   - 2026-09-07: Used 31-bit request IDs for RPC gateway compatibility.
 //   - 2026-09-07: Composed account change subscriptions.
 func NewWSClient(ctx context.Context, config WSConfig) (*WSClient, error) {
@@ -48,11 +50,11 @@ func NewWSClient(ctx context.Context, config WSConfig) (*WSClient, error) {
 	if err := config.Commitment.Validate(); err != nil {
 		return nil, fmt.Errorf("failed to create solana websocket client: %w", err)
 	}
-	client, err := solanaWS.ConnectWithOptions(ctx, strings.TrimSpace(config.URL), &solanaWS.Options{ShortID: true})
+	client, err := dialStreamWS(ctx, strings.TrimSpace(config.URL), 60*time.Second, 15*time.Second)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create solana websocket client: %w", err)
 	}
-	adapter := &sdkWSAdapter{client: client}
+	adapter := client
 	return &WSClient{accounts: adapter, provider: adapter, closer: client, commitment: config.Commitment}, nil
 }
 

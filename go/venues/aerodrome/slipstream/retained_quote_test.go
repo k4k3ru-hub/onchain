@@ -66,8 +66,13 @@ func TestRetainedLiquidityUpdatesOracleAndInvalidatesGaps(t *testing.T) {
 	if frozen.pool.ticks[-60].Int64() != 100 || frozen.fee.oracle.slots[0].timestamp != 102 {
 		t.Fatal("snapshot aliases live state")
 	}
+	liquidity := new(big.Int).Set(c.retained.pool.liquidity)
+	if err := c.applyRetainedLog(log, 102); err != nil || c.retained.pool.liquidity.Cmp(liquidity) != 0 {
+		t.Fatal("duplicate changed liquidity or reset session", err)
+	}
+	log.Data[63]++
 	if err := c.applyRetainedLog(log, 102); err == nil || c.retained != nil {
-		t.Fatal("out-of-order delta did not discard state")
+		t.Fatal("conflicting replay accepted")
 	}
 }
 

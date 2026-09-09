@@ -55,12 +55,26 @@ func TestRetainedSwapQuotesWithoutRPC(t *testing.T) {
 	if third.BlockNumber != first.BlockNumber || third.BlockHash != first.BlockHash || !third.ObservedAt.Equal(first.ObservedAt) {
 		t.Fatal("relabelled baseline")
 	}
+	c.running = true
+	c.retainedBaseAmount = new(big.Int).Set(amount)
+	c.retainedRecovery = make(chan struct{}, 1)
 	delete(c.retained.words, 0)
 	if _, err := c.QuoteRetainedPair(ctx, amount, true); err == nil {
 		t.Fatal("missing bitmap accepted")
 	}
 	if rpc.calls != calls {
 		t.Fatal("missing bitmap fetched")
+	}
+	select {
+	case <-c.retainedRecovery:
+	default:
+		t.Fatal("missing coverage did not request recovery")
+	}
+	if _, err := c.QuoteRetainedPair(ctx, new(big.Int).Mul(amount, big.NewInt(2)), true); err == nil {
+		t.Fatal("missing coverage accepted")
+	}
+	if len(c.retainedRecovery) != 0 {
+		t.Fatal("large query requested reference recovery")
 	}
 }
 func firstPrice() *big.Int { return power2(96) }
@@ -161,5 +175,46 @@ func TestRetainedSessionRecoversRemovedLogs(t *testing.T) {
 	}
 	if _, err := c.QuoteRetainedPair(ctx, big.NewInt(1000000), true); err == nil {
 		t.Fatal("retained removed state")
+	}
+}
+
+// TestRetainedCoverageEndsSession verifies missing inputs release the producer for reinitialization.
+//
+// Version:
+//   - 2026-09-09: Added.
+func TestRetainedCoverageEndsSession(t *testing.T) {
+	c, rpc := newTestCache(t)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	amount := big.NewInt(1000000)
+	ws := &stateWS{ready: make(chan struct{})}
+	err := c.run(ctx, ws, func(ctx context.Context) error {
+		if _, err := c.QuotePair(ctx, amount, true); err != nil {
+			return err
+		}
+		c.mu.Lock()
+		c.retainedBaseAmount = new(big.Int).Set(amount)
+		delete(c.retained.words, 0)
+		c.mu.Unlock()
+		calls := rpc.calls
+		if _, err := c.QuoteRetainedPair(ctx, amount, true); err == nil {
+			t.Fatal("missing coverage accepted")
+		}
+		if rpc.calls != calls {
+			t.Fatal("trade quote fetched missing state")
+		}
+		return nil
+	})
+	if err == nil || ctx.Err() != nil {
+		t.Fatalf("producer did not end for recovery: %v", err)
+	}
+	if c.running || c.retained != nil {
+		t.Fatal("session was not released")
+	}
+	if _, err := c.QuotePair(context.Background(), amount, true); err != nil {
+		t.Fatalf("reinitialization failed: %v", err)
+	}
+	if _, err := c.QuoteRetainedPair(context.Background(), amount, true); err != nil {
+		t.Fatalf("reinitialized local quote failed: %v", err)
 	}
 }

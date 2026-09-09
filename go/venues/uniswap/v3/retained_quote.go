@@ -2,6 +2,7 @@ package v3
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/big"
 	"time"
@@ -11,17 +12,25 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
+var errStateReadBudget = errors.New("rpc_budget=exhausted")
+
 // RunRetained initializes once after subscribing and applies Swap/Mint/Burn state.
 // Removed logs or unsupported state deltas terminate the session for reinitialization.
 // This state producer never publishes a quote.
 //
 // Version:
-//   - 2026-09-09: Added.
+//   - 2026-09-09: Recover missing reference-quote coverage through the state session.
 func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, baseAmount *big.Int, baseIsToken0 bool) error {
 	if c == nil {
 		return fmt.Errorf("failed to run retained state: cache=null")
 	}
+	if baseAmount == nil || baseAmount.Sign() <= 0 {
+		return fmt.Errorf("failed to run retained state: amount=invalid")
+	}
 	return c.run(ctx, ws, func(ctx context.Context) error {
+		c.mu.Lock()
+		c.retainedBaseAmount = new(big.Int).Set(baseAmount)
+		c.mu.Unlock()
 		_, err := c.QuotePair(ctx, baseAmount, baseIsToken0)
 		return err
 	})
@@ -33,6 +42,7 @@ func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, baseAmount
 // streamed core fields may be newer and do not imply an atomic on-chain snapshot.
 //
 // Version:
+//   - 2026-09-09: Notify the state producer of missing reference-quote coverage without waiting.
 //   - 2026-09-09: Keep local capture time separate from input provenance.
 func (c *StateCache) QuoteRetainedPair(ctx context.Context, amount *big.Int, baseIsToken0 bool) (LocalPair, error) {
 	if c == nil || ctx == nil {
@@ -46,7 +56,8 @@ func (c *StateCache) QuoteRetainedPair(ctx context.Context, amount *big.Int, bas
 	}
 	c.mu.Lock()
 	capturedAt := time.Now()
-	snapshot := clonePoolSnapshot(c.retained)
+	source := c.retained
+	snapshot := clonePoolSnapshot(source)
 	c.mu.Unlock()
 	if snapshot == nil {
 		return LocalPair{}, fmt.Errorf("failed to quote retained state: snapshot=null")
@@ -54,10 +65,12 @@ func (c *StateCache) QuoteRetainedPair(ctx context.Context, amount *big.Int, bas
 	budget := 0
 	bid, err := c.quote(ctx, snapshot, amount, baseIsToken0, true, &budget)
 	if err != nil {
+		c.requestRetainedRecovery(source, amount, err)
 		return LocalPair{}, fmt.Errorf("failed to quote retained bid: %w", err)
 	}
 	ask, err := c.quote(ctx, snapshot, amount, !baseIsToken0, false, &budget)
 	if err != nil {
+		c.requestRetainedRecovery(source, amount, err)
 		return LocalPair{}, fmt.Errorf("failed to quote retained ask: %w", err)
 	}
 	if err := ctx.Err(); err != nil {
@@ -231,4 +244,21 @@ func applyRetainedLiquidity(s *poolSnapshot, log types.Log) error {
 		}
 	}
 	return nil
+}
+
+// Reference-sized failures request recovery once. Larger quantity queries must
+// not force baseline captures that cannot cover their requested amount.
+func (c *StateCache) requestRetainedRecovery(source *poolSnapshot, amount *big.Int, err error) {
+	if !errors.Is(err, errStateReadBudget) {
+		return
+	}
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if !c.running || c.retained != source || c.retainedBaseAmount == nil || amount.Cmp(c.retainedBaseAmount) > 0 {
+		return
+	}
+	select {
+	case c.retainedRecovery <- struct{}{}:
+	default:
+	}
 }

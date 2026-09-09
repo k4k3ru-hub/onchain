@@ -41,28 +41,30 @@ type poolSnapshot struct {
 }
 
 type StateCache struct {
-	verificationEpoch uint64
-	retained          *poolSnapshot
-	retainedBlock     uint64
-	retainedHash      common.Hash
-	retainedIndex     uint
-	retainedHasLog    bool
-	rpc               StateRPC
-	pool              common.Address
-	fee               uint32
-	maxAge            time.Duration
-	gate              chan struct{}
-	mu                sync.Mutex
-	generation        uint64
-	updates           chan struct{}
-	active            bool
-	running           bool
-	floor             uint64
-	floorHash         common.Hash     // non-removed observed block; protected by mu
-	covered           evm.BlockHeader // protected by mu
-	spacing           int32           // immutable after a verified snapshot; protected by gate
-	snapshot          *poolSnapshot   // protected by gate
-	cachedGeneration  uint64
+	verificationEpoch  uint64
+	retained           *poolSnapshot
+	retainedBlock      uint64
+	retainedHash       common.Hash
+	retainedIndex      uint
+	retainedHasLog     bool
+	retainedRecovery   chan struct{}
+	retainedBaseAmount *big.Int
+	rpc                StateRPC
+	pool               common.Address
+	fee                uint32
+	maxAge             time.Duration
+	gate               chan struct{}
+	mu                 sync.Mutex
+	generation         uint64
+	updates            chan struct{}
+	active             bool
+	running            bool
+	floor              uint64
+	floorHash          common.Hash     // non-removed observed block; protected by mu
+	covered            evm.BlockHeader // protected by mu
+	spacing            int32           // immutable after a verified snapshot; protected by gate
+	snapshot           *poolSnapshot   // protected by gate
+	cachedGeneration   uint64
 }
 
 // NewStateCache creates a bounded-age, block-coherent local quote cache for a configured pool.
@@ -103,6 +105,8 @@ func (c *StateCache) run(ctx context.Context, ws WSRPCClient, bootstrap func(con
 		return fmt.Errorf("failed to watch uniswap v3 state: subscription=active")
 	}
 	c.running = true
+	recovery := make(chan struct{}, 1)
+	c.retainedRecovery = recovery
 	c.mu.Unlock()
 	defer func() { c.mu.Lock(); c.running = false; c.mu.Unlock() }()
 	logs := make(chan types.Log, 256)
@@ -140,6 +144,8 @@ func (c *StateCache) run(ctx context.Context, ws WSRPCClient, bootstrap func(con
 		select {
 		case <-ctx.Done():
 			return nil
+		case <-recovery:
+			return fmt.Errorf("failed to retain uniswap v3 state: quote coverage requires reinitialization")
 		case err, ok := <-sub.Err():
 			if !ok || err == nil {
 				return fmt.Errorf("failed to watch uniswap v3 state: subscription=closed")
@@ -260,7 +266,7 @@ func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsT
 
 func (c *StateCache) read(ctx context.Context, s *poolSnapshot, sig string, arg *big.Int, budget *int) ([]byte, error) {
 	if *budget <= 0 {
-		return nil, fmt.Errorf("failed to read uniswap v3 state: rpc_budget=exhausted")
+		return nil, fmt.Errorf("failed to read uniswap v3 state: %w", errStateReadBudget)
 	}
 	*budget--
 	data := append([]byte(nil), crypto.Keccak256([]byte(sig))[:4]...)

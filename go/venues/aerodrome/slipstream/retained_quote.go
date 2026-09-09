@@ -1,9 +1,11 @@
 package slipstream
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"math/big"
+	"slices"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -19,6 +21,7 @@ type retainedPoolState struct {
 	index     uint
 	hasLog    bool
 	timestamp uint64
+	lastLog   types.Log
 }
 
 // QuoteRetainedPair calculates from a detached copy of retained pool inputs.
@@ -106,8 +109,15 @@ func (c *StateCache) applyRetainedLog(log types.Log, timestamp uint64) error {
 		}
 		return nil
 	}
+	// Some RPC streams replay their latest notification. Exact duplicates must
+	// not apply liquidity deltas twice or force a fresh state capture.
+	if s.hasLog && log.BlockNumber == s.block && log.BlockHash == s.hash && log.Index == s.index && timestamp == s.timestamp &&
+		log.Address == s.lastLog.Address && log.TxHash == s.lastLog.TxHash && log.TxIndex == s.lastLog.TxIndex &&
+		slices.Equal(log.Topics, s.lastLog.Topics) && bytes.Equal(log.Data, s.lastLog.Data) {
+		return nil
+	}
 	if len(log.Topics) == 0 || timestamp < s.timestamp || s.hasLog && (log.BlockNumber < s.block || log.BlockNumber == s.block && (log.BlockHash != s.hash || log.Index <= s.index || timestamp != s.timestamp)) {
-		return fail(fmt.Errorf("failed to validate retained event: sequence=invalid"))
+		return fail(fmt.Errorf("failed to validate retained event: sequence=invalid block_number=%d log_index=%d previous_block_number=%d previous_log_index=%d timestamp=%d previous_timestamp=%d", log.BlockNumber, log.Index, s.block, s.index, timestamp, s.timestamp))
 	}
 	// A factory change may replace the fee module; always reconstruct the session.
 	if log.Address == c.factory {
@@ -129,6 +139,9 @@ func (c *StateCache) applyRetainedLog(log types.Log, timestamp uint64) error {
 	} else {
 		return fail(fmt.Errorf("failed to validate retained event: address=mismatch"))
 	}
+	s.lastLog = log
+	s.lastLog.Topics = slices.Clone(log.Topics)
+	s.lastLog.Data = bytes.Clone(log.Data)
 	s.block, s.hash, s.index, s.hasLog, s.timestamp = log.BlockNumber, log.BlockHash, log.Index, true, timestamp
 	return nil
 }
