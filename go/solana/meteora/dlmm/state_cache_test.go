@@ -53,10 +53,14 @@ func TestStateCacheReuseDetachedClockAndExpiry(t *testing.T) {
 	if len(source.sizes) != calls || first.Quotes[0] != second.Quotes[0] || first.Slot != second.Slot || !first.ObservedAt.Equal(second.ObservedAt) {
 		t.Fatal("cache changed without refresh")
 	}
+	clockWatched := false
 	for _, address := range c.addresses {
 		if address == clockSysvarAddress {
-			t.Fatal("clock subscribed")
+			clockWatched = true
 		}
+	}
+	if !clockWatched {
+		t.Fatal("chain clock is not streamed")
 	}
 	now = now.Add(30 * time.Second)
 	if _, err = c.QuoteExactInputs(context.Background(), req); err == nil {
@@ -229,7 +233,7 @@ func TestStateCacheExpandsForLargerQuote(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if expanded.Quotes[0].BinArraysUsed != 2 || len(c.addresses) != 3 {
+	if expanded.Quotes[0].BinArraysUsed != 2 || len(c.addresses) != 4 {
 		t.Fatal("larger quote did not expand cached arrays")
 	}
 	full, err := client.QuoteExactInputsWithSlot(context.Background(), pool, []ExactInputRequest{{InputMint: mint, AmountIn: 1_000_000}})

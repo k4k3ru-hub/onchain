@@ -18,12 +18,14 @@ type AccountChanges interface {
 }
 type SubscribeAccountChangesFunc func(solana.Address) (AccountChanges, error)
 type CachedQuote struct {
+	// CapturedAt is the local retained-input capture time, not an on-chain confirmation.
+	CapturedAt time.Time
 	QuoteBatch
 	ObservedAt time.Time
 }
 
-// StateCache retains a coherent RPC snapshot, invalidated by account notifications.
-// Notifications are not merged: independent account streams are not atomic snapshots.
+// StateCache supports coherent RPC quotes and independent receiver-side retained quotes.
+// Retained account streams do not assert cross-account atomicity.
 type StateCache struct {
 	client      *Client
 	pool        solana.Address
@@ -42,6 +44,7 @@ type StateCache struct {
 	snapshot    snapshotAccounts
 	changed     chan struct{}
 	observedAt  time.Time
+	retained    solana.AccountState
 }
 
 // NewStateCache creates a bounded-age cache for a discovered Meteora DLMM pool.
@@ -63,10 +66,12 @@ func NewStateCache(client *Client, pool solana.Address, maxAge time.Duration) (*
 	return &StateCache{client: client, pool: pool, addresses: []solana.Address{pool}, maxAge: maxAge, now: time.Now, changed: make(chan struct{}, 1), active: make(map[solana.Address]bool)}, nil
 }
 
-// Run maintains one subscription session until cancellation or a stream failure.
-// A failure invalidates the cache and is returned so the owner can reconnect.
+// Run maintains account streams until cancellation or a stream failure.
+// Full payload receivers also update the independent retained calculation inputs.
+// A failure invalidates the coherent cache and is returned so the owner can reconnect.
 //
 // Version:
+//   - 2026-09-09: Retain full account updates for local snapshot quotes.
 //   - 2026-09-07: Added.
 func (s *StateCache) Run(ctx context.Context, subscribe SubscribeAccountChangesFunc) error {
 	if s == nil || ctx == nil || subscribe == nil {
@@ -140,6 +145,25 @@ func (s *StateCache) watch(ctx context.Context, address solana.Address, subscrib
 		s.invalidate(0)
 		s.mu.Unlock()
 	}()
+	if stream, ok := sub.(interface {
+		RecvState(context.Context) (*solana.AccountUpdate, error)
+	}); ok {
+		for {
+			update, err := stream.RecvState(ctx)
+			if err != nil {
+				return fmt.Errorf("failed to receive retained account state: %w", err)
+			}
+			if update == nil || update.Account == nil || update.Account.Address != address {
+				return fmt.Errorf("failed to receive retained account state: account=invalid")
+			}
+			if err := s.retained.Apply(update, s.now()); err != nil {
+				return fmt.Errorf("failed to retain account state: %w", err)
+			}
+			s.mu.Lock()
+			s.invalidate(update.Slot)
+			s.mu.Unlock()
+		}
+	}
 	for {
 		slot, err := sub.Recv(ctx)
 		if err != nil {
@@ -239,6 +263,11 @@ func (s *StateCache) QuoteExactInputs(ctx context.Context, requests []ExactInput
 		return CachedQuote{}, fmt.Errorf("failed to quote cached meteora dlmm state: %w: state changed during calculation", quotestate.ErrStateChanged)
 	}
 	s.snapshot, s.observedAt = snapshot, observed
+	seedAccounts := make([]*solana.Account, 0, len(snapshot))
+	for _, account := range snapshot {
+		seedAccounts = append(seedAccounts, account)
+	}
+	s.retained.Seed(seedAccounts, result.Slot, observed)
 	if refreshedPool != nil {
 		s.client.quotePools.Store(s.pool, refreshedPool)
 	}
@@ -305,15 +334,8 @@ func (p *cacheSnapshotProvider) AccountSnapshot(ctx context.Context, requested [
 		accounts[addresses[i]] = &copyAccount
 	}
 	p.minimum = value.Slot
-	// Clock belongs to the snapshot but is not watched: otherwise every slot
-	// invalidates the cache. Quotes retain the original snapshot timestamp and
-	// Clock until the bounded maxAge expires; host time never advances chain time.
-	p.addresses = nil
-	for _, address := range addresses {
-		if address != clockSysvarAddress {
-			p.addresses = append(p.addresses, address)
-		}
-	}
+	// Retain Clock notifications as calculation inputs, without triggering quotes.
+	p.addresses = addresses
 	p.accounts = accounts
 	return &solana.AccountSnapshot{Slot: value.Slot, Accounts: detached[:len(requested)]}, nil
 }

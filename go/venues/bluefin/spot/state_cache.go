@@ -9,6 +9,7 @@ import (
 	sui "github.com/k4k3ru-hub/onchain/go/sui"
 	"math/big"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -19,16 +20,21 @@ type StateReader interface {
 	DynamicValuesByKeysAtCheckpoint(context.Context, sui.Address, sui.CheckpointSequenceNumber, []sui.DynamicFieldKey) ([]json.RawMessage, error)
 }
 type StateCache struct {
-	checkedKey string
-	accepted   sui.Checkpoint // Protected by gate; independent of trade progress.
-	reader     StateReader
-	pool       sui.Address
-	maxAge     time.Duration
-	gate       chan struct{}
-	floor      atomic.Uint64
-	state      *quoteState
+	retainedMu      sync.Mutex
+	retained        *quoteState
+	retainedHead    sui.Checkpoint
+	retainedRunning bool
+	checkedKey      string
+	accepted        sui.Checkpoint // Protected by gate; independent of trade progress.
+	reader          StateReader
+	pool            sui.Address
+	maxAge          time.Duration
+	gate            chan struct{}
+	floor           atomic.Uint64
+	state           *quoteState
 }
 type quoteState struct {
+	retainedOnly  bool
 	pool          Pool
 	tickIndex     int32
 	spacing       uint32
@@ -71,7 +77,7 @@ func (c *StateCache) ObserveCheckpoint(cp sui.CheckpointSequenceNumber) {
 // AmountIn includes fees. FeeAmount excludes the separately reported protocol share. Partial fills are rejected.
 //
 // Version:
-//   - 2026-09-09: Classify state-change retries separately from transport failures.
+//   - 2026-09-09: Seed detached retained inputs after verified initialization.
 //   - 2026-09-08: Reject checkpoint regression relative to successful quotes.
 //   - 2026-09-08: Added.
 func (c *StateCache) QuotePair(ctx context.Context, p QuotePairParams) (QuotePairResult, error) {
@@ -138,6 +144,11 @@ func (c *StateCache) QuotePair(ctx context.Context, p QuotePairParams) (QuotePai
 	bid.Checkpoint = head.SequenceNumber
 	ask.Checkpoint = head.SequenceNumber
 	c.accepted = head
+	c.retainedMu.Lock()
+	c.retained = cloneRetainedState(c.state)
+	c.retained.retainedOnly = true
+	c.retainedHead = head
+	c.retainedMu.Unlock()
 	return QuotePairResult{Bid: bid, Ask: ask, Checkpoint: head.SequenceNumber, PoolVersion: obj.Version, PoolDigest: obj.Digest, StateTimestamp: head.Timestamp}, nil
 }
 func capturePool(obj *sui.Object, cp sui.CheckpointSequenceNumber) (*quoteState, error) {
@@ -205,6 +216,9 @@ const integerKeyType = "0x714a63a0dba6da4f017b42d5d0fb78867f18bcde904868e51d951a
 func validU128(n *big.Int) bool { return n != nil && n.Sign() > 0 && n.BitLen() <= 128 }
 
 func (c *StateCache) field(ctx context.Context, s *quoteState, parent sui.Address, index int32) (json.RawMessage, error) {
+	if s.retainedOnly {
+		return nil, fmt.Errorf("failed to read retained bluefin field: coverage=insufficient")
+	}
 	var b [4]byte
 	binary.LittleEndian.PutUint32(b[:], uint32(index))
 	values, err := c.reader.DynamicValuesByKeysAtCheckpoint(ctx, parent, s.checkpoint, []sui.DynamicFieldKey{{Type: s.keyType, BCS: b[:]}})

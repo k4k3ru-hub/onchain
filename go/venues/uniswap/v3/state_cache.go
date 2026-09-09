@@ -22,6 +22,8 @@ type StateRPC interface {
 }
 
 type LocalPair struct {
+	// CapturedAt is the local retained-input capture time, not an on-chain confirmation.
+	CapturedAt                time.Time
 	BidAmountOut, AskAmountIn *big.Int
 	BlockNumber               uint64
 	BlockHash                 common.Hash
@@ -35,10 +37,16 @@ type poolSnapshot struct {
 	tick, spacing    int32
 	words            map[int32]*big.Int
 	ticks            map[int32]*big.Int
+	gross            map[int32]*big.Int
 }
 
 type StateCache struct {
 	verificationEpoch uint64
+	retained          *poolSnapshot
+	retainedBlock     uint64
+	retainedHash      common.Hash
+	retainedIndex     uint
+	retainedHasLog    bool
 	rpc               StateRPC
 	pool              common.Address
 	fee               uint32
@@ -82,6 +90,10 @@ func NewStateCache(client *HTTPClient, rpc StateRPC, pool common.Address, maxAge
 //   - 2026-09-09: Support independent quote-state verification and freshness.
 //   - 2026-09-07: Track observed block hashes for lag recovery; clear them on removal or disconnect.
 func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
+	return c.run(ctx, ws, nil)
+}
+
+func (c *StateCache) run(ctx context.Context, ws WSRPCClient, bootstrap func(context.Context) error) error {
 	if ctx == nil || ws == nil {
 		return fmt.Errorf("failed to watch uniswap v3 state: dependency=null")
 	}
@@ -111,11 +123,19 @@ func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 	defer func() {
 		c.mu.Lock()
 		c.active = false
+		if bootstrap != nil {
+			c.retained = nil
+		}
 		c.floorHash = common.Hash{}
 		c.generation++
 		c.signalChange()
 		c.mu.Unlock()
 	}()
+	if bootstrap != nil {
+		if err := bootstrap(ctx); err != nil {
+			return fmt.Errorf("failed to initialize retained state: %w", err)
+		}
+	}
 	for {
 		select {
 		case <-ctx.Done():
@@ -133,6 +153,14 @@ func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 				continue
 			}
 			c.mu.Lock()
+			if bootstrap != nil {
+				err := c.applyRetainedLog(log)
+				c.mu.Unlock()
+				if err != nil {
+					return err
+				}
+				continue
+			}
 			if !log.Removed && log.BlockHash != (common.Hash{}) && log.BlockNumber == c.covered.Number && log.BlockHash == c.covered.Hash {
 				c.mu.Unlock()
 				continue
@@ -215,6 +243,9 @@ func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsT
 	changed := gen != c.generation
 	if !changed {
 		c.covered = s.header
+		c.retained = clonePoolSnapshot(s)
+		c.retainedBlock, c.retainedHash = s.header.Number, s.header.Hash
+		c.retainedHasLog = false
 	}
 	c.mu.Unlock()
 	if changed || time.Since(s.observed) >= c.maxAge {
@@ -360,6 +391,10 @@ func (c *StateCache) liquidityNet(ctx context.Context, s *poolSnapshot, tick int
 	if n.Cmp(new(big.Int).Neg(power2(127))) < 0 || n.Cmp(power2(127)) >= 0 {
 		return nil, fmt.Errorf("failed to read uniswap v3 tick: liquidity_net=out_of_range")
 	}
+	if s.gross == nil {
+		s.gross = make(map[int32]*big.Int)
+	}
+	s.gross[tick] = new(big.Int).SetBytes(data[:32])
 	s.ticks[tick] = n
 	return n, nil
 }

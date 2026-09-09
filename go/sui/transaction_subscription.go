@@ -12,8 +12,9 @@ import (
 )
 
 type TransactionNotification struct {
-	Effects   *TransactionEffects
-	Watermark EventWatermark
+	Effects       *TransactionEffects
+	Watermark     EventWatermark
+	ObjectChanges []ObjectChange
 }
 
 type TransactionSubscription struct {
@@ -22,7 +23,8 @@ type TransactionSubscription struct {
 }
 
 type grpcTransactionReceiver struct {
-	stream interface {
+	includeObjects bool
+	stream         interface {
 		Recv() (*rpcv2.SubscribeTransactionsResponse, error)
 	}
 	cancel    context.CancelFunc
@@ -148,6 +150,13 @@ func (r *grpcTransactionReceiver) Recv() (*TransactionNotification, error) {
 			return nil, err
 		}
 		notification.Effects = effects
+		if r.includeObjects {
+			changes, err := decodeObjectChanges(response.Transaction)
+			if err != nil {
+				return nil, err
+			}
+			notification.ObjectChanges = changes
+		}
 	}
 	return notification, nil
 }

@@ -16,6 +16,8 @@ type QuotePairParams struct {
 }
 
 type QuotePairResult struct {
+	// CapturedAt is the local retained-input capture time, not an on-chain confirmation.
+	CapturedAt     time.Time
 	StateTimestamp time.Time
 	PoolVersion    uint64
 	PoolDigest     onchainSui.ObjectDigest

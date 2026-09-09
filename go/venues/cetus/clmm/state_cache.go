@@ -7,6 +7,7 @@ import (
 	"github.com/k4k3ru-hub/onchain/go/quotestate"
 	sui "github.com/k4k3ru-hub/onchain/go/sui"
 	"math/big"
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -18,18 +19,21 @@ type StateReader interface {
 }
 
 type StateCache struct {
-	checkedKey string
-	accepted   sui.Checkpoint // Protected by gate; independent of trade progress.
-	gate       chan struct{}
-	reader     StateReader
-	pool       sui.Address
-	maxAge     time.Duration
-	snapshot   *LocalSnapshot
-	anchors    []Tick
-	version    uint64
-	digest     sui.ObjectDigest
-	observed   time.Time
-	floor      atomic.Uint64
+	retainedRunning bool
+	retainedMu      sync.Mutex
+	retained        *retainedSnapshot
+	checkedKey      string
+	accepted        sui.Checkpoint // Protected by gate; independent of trade progress.
+	gate            chan struct{}
+	reader          StateReader
+	pool            sui.Address
+	maxAge          time.Duration
+	snapshot        *LocalSnapshot
+	anchors         []Tick
+	version         uint64
+	digest          sui.ObjectDigest
+	observed        time.Time
+	floor           atomic.Uint64
 }
 
 // NewStateCache composes a checkpoint-pinned Cetus state cache.
@@ -244,7 +248,7 @@ func parseTick(raw json.RawMessage) (Tick, error) {
 // Callers should use a bounded startup or recovery context; no quote is published.
 //
 // Version:
-//   - 2026-09-09: Classify state-change retries separately from transport failures.
+//   - 2026-09-09: Seed detached retained inputs during initialization.
 //   - 2026-09-08: Added.
 func (c *StateCache) Warm(ctx context.Context) error {
 	if c == nil {
@@ -280,5 +284,12 @@ func (c *StateCache) Warm(ctx context.Context) error {
 	c.version = obj.Version
 	c.digest = obj.Digest
 	c.observed = started
+	handle, err := retainedTickHandle(obj)
+	if err != nil {
+		return err
+	}
+	c.retainedMu.Lock()
+	c.retained = &retainedSnapshot{snapshot: cloneLocalSnapshot(s), handle: handle, baseline: head, version: obj.Version, digest: obj.Digest}
+	c.retainedMu.Unlock()
 	return nil
 }

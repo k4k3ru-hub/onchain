@@ -129,6 +129,9 @@ func TestComposeClientsComposeEVMDependencies(t *testing.T) {
 	if wsClient.logSubscriber != wsETHClient {
 		t.Fatal("WebSocket log-subscription dependency was not composed")
 	}
+	if wsClient.headSubscriber != wsETHClient {
+		t.Fatal("WebSocket header-subscription dependency was not composed")
+	}
 }
 
 func TestFilterLogsRejectsNilReceiver(t *testing.T) {

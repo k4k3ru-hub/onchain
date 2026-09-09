@@ -1,0 +1,249 @@
+package clmm
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"math/big"
+	"time"
+
+	"github.com/k4k3ru-hub/onchain/go/sui"
+)
+
+type ObjectStateSubscriber interface {
+	SubscribeObjectState(context.Context, sui.Address) (*sui.TransactionSubscription, error)
+}
+
+// RunRetained subscribes before initializing and applies full objects without publishing quotes.
+// Initialization may acquire state; Trade calculation never invokes it.
+//
+// Version:
+//   - 2026-09-09: Added.
+func (c *StateCache) RunRetained(ctx context.Context, subscribed ObjectStateSubscriber, initialize func(context.Context) error) error {
+	if c == nil || ctx == nil || subscribed == nil || initialize == nil {
+		return fmt.Errorf("failed to retain turbos state: dependency=null")
+	}
+	c.retainedMu.Lock()
+	if c.retainedRunning {
+		c.retainedMu.Unlock()
+		return fmt.Errorf("failed to retain turbos state: subscription=active")
+	}
+	c.retainedRunning = true
+	c.retained = nil
+	c.retainedMu.Unlock()
+	defer func() { c.retainedMu.Lock(); c.retainedRunning = false; c.retained = nil; c.retainedMu.Unlock() }()
+	sub, err := subscribed.SubscribeObjectState(ctx, c.pool)
+	if err != nil {
+		return fmt.Errorf("failed to subscribe retained turbos state: %w", err)
+	}
+	if sub == nil {
+		return fmt.Errorf("failed to subscribe retained turbos state: subscription=null")
+	}
+	defer sub.Close()
+	initCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	err = initialize(initCtx)
+	cancel()
+	if err != nil {
+		return fmt.Errorf("failed to initialize retained turbos state: %w", err)
+	}
+	for {
+		n, err := sub.Recv(ctx)
+		if err != nil {
+			return fmt.Errorf("failed to receive retained turbos state: %w", err)
+		}
+		if n.Effects == nil {
+			continue
+		}
+		if err := c.applyRetainedObjects(n); err != nil {
+			return err
+		}
+	}
+}
+
+// QuoteRetainedPair calculates from one detached set of retained inputs with no position wait or RPC.
+// Checkpoint/time describe the initial verified input baseline; pool version may be newer.
+//
+// Version:
+//   - 2026-09-09: Keep local capture time separate from input provenance.
+func (c *StateCache) QuoteRetainedPair(ctx context.Context, p QuotePairParams) (QuotePairResult, error) {
+	if c == nil {
+		return QuotePairResult{}, fmt.Errorf("failed to quote retained turbos state: cache=null")
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	if p.Bid.Pool.Address != c.pool || p.Ask.Pool.Address != c.pool || p.Bid.A2B == p.Ask.A2B {
+		return QuotePairResult{}, fmt.Errorf("failed to quote retained turbos state: parameters=invalid")
+	}
+	if err := ctx.Err(); err != nil {
+		return QuotePairResult{}, fmt.Errorf("failed to quote retained turbos state: %w", err)
+	}
+	c.retainedMu.Lock()
+	capturedAt := time.Now()
+	s := cloneRetainedState(c.retained)
+	head := c.retainedHead
+	c.retainedMu.Unlock()
+	if s == nil {
+		return QuotePairResult{}, fmt.Errorf("failed to quote retained turbos state: snapshot=null")
+	}
+
+	bid, err := c.quote(ctx, s, p.Bid.AmountIn, p.Bid.A2B, true, p.Bid.SqrtPriceLimit)
+	if err != nil {
+		return QuotePairResult{}, fmt.Errorf("failed to quote retained turbos bid: %w", err)
+	}
+	ask, err := c.quote(ctx, s, p.Ask.AmountOut, p.Ask.A2B, false, p.Ask.SqrtPriceLimit)
+	if err != nil {
+		return QuotePairResult{}, fmt.Errorf("failed to quote retained turbos ask: %w", err)
+	}
+	if err := ctx.Err(); err != nil {
+		return QuotePairResult{}, fmt.Errorf("failed to quote retained turbos state: %w", err)
+	}
+	bid.Checkpoint = head.SequenceNumber
+	ask.Checkpoint = head.SequenceNumber
+	return QuotePairResult{CapturedAt: capturedAt, Bid: bid, Ask: ask, Checkpoint: head.SequenceNumber, PoolVersion: s.version, PoolDigest: s.digest, StateTimestamp: head.Timestamp}, nil
+}
+func cloneRetainedState(source *quoteState) *quoteState {
+	if source == nil {
+		return nil
+	}
+	s := *source
+	s.pool.SqrtPrice = new(big.Int).Set(source.pool.SqrtPrice)
+	s.pool.Liquidity = new(big.Int).Set(source.pool.Liquidity)
+	s.words = make(map[int32]*big.Int, len(source.words))
+	s.nets = make(map[int32]*big.Int, len(source.nets))
+	for k, v := range source.words {
+		s.words[k] = new(big.Int).Set(v)
+	}
+	for k, v := range source.nets {
+		s.nets[k] = new(big.Int).Set(v)
+	}
+	return &s
+}
+func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification) (err error) {
+	c.retainedMu.Lock()
+	defer c.retainedMu.Unlock()
+	defer func() {
+		if err != nil {
+			c.retained = nil
+		}
+	}()
+	old := c.retained
+	if old == nil || n == nil || n.Effects == nil || n.Effects.Checkpoint == nil {
+		return fmt.Errorf("failed to apply retained turbos objects: state=null")
+	}
+	if *n.Effects.Checkpoint <= c.retainedHead.SequenceNumber {
+		return nil
+	}
+	var changed *sui.ObjectChange
+	for i := range n.ObjectChanges {
+		if n.ObjectChanges[i].Address == c.pool {
+			changed = &n.ObjectChanges[i]
+			break
+		}
+	}
+	if changed == nil {
+		for _, v := range n.ObjectChanges {
+			if v.InputParent == old.bitmap || v.OutputParent == old.bitmap || v.InputParent == old.ticks || v.OutputParent == old.ticks || v.InputParent == c.pool || v.OutputParent == c.pool {
+				return fmt.Errorf("failed to apply retained turbos objects: pool_change=missing")
+			}
+		}
+		return nil
+	}
+	if changed.After == nil {
+		return fmt.Errorf("failed to apply retained turbos objects: pool=deleted")
+	}
+	if changed.After.Version < old.version {
+		return nil
+	}
+	if changed.After.Version == old.version {
+		if changed.After.Digest != old.digest {
+			return fmt.Errorf("failed to apply retained turbos objects: digest=mismatch")
+		}
+		return nil
+	}
+	if changed.Before == nil || changed.Before.Version != old.version || changed.Before.Digest != old.digest {
+		return fmt.Errorf("failed to apply retained turbos objects: input_version=mismatch")
+	}
+	next, err := capturePool(changed.After, old.checkpoint)
+	if err != nil {
+		return fmt.Errorf("failed to apply retained turbos pool: %w", err)
+	}
+	if next.bitmap != old.bitmap || next.ticks != old.ticks || next.keyType != old.keyType || next.pool.CoinTypeA != old.pool.CoinTypeA || next.pool.CoinTypeB != old.pool.CoinTypeB {
+		return fmt.Errorf("failed to apply retained turbos pool: configuration=changed")
+	}
+	next.words = old.words
+	next.nets = old.nets
+	next.retainedOnly = true
+	next.captured = old.captured
+	for _, change := range n.ObjectChanges {
+		parent := change.OutputParent
+		obj := change.After
+		remove := change.Deleted || ((change.InputParent == old.bitmap || change.InputParent == old.ticks) && change.OutputParent != change.InputParent)
+		if remove {
+			parent = change.InputParent
+			obj = change.Before
+		}
+		if parent != old.bitmap && parent != old.ticks {
+			continue
+		}
+		if obj == nil || obj.Move == nil {
+			return fmt.Errorf("failed to apply retained turbos field: object=null")
+		}
+		var field struct {
+			Name struct {
+				Bits json.RawMessage `json:"bits"`
+			} `json:"name"`
+			Value json.RawMessage `json:"value"`
+		}
+		if err := json.Unmarshal(obj.Move.JSON, &field); err != nil {
+			return fmt.Errorf("failed to decode retained turbos field: %w", err)
+		}
+		index, err := jsonUnsigned(field.Name.Bits)
+		if err != nil {
+			return fmt.Errorf("failed to decode retained turbos key: %w", err)
+		}
+		if index.BitLen() > 32 {
+			return fmt.Errorf("failed to decode retained turbos key: index=out_of_range")
+		}
+		key := int32(uint32(index.Uint64()))
+		if parent == old.bitmap {
+			bits := new(big.Int)
+			if !remove {
+				bits, err = jsonUnsigned(field.Value)
+				if err != nil {
+					return fmt.Errorf("failed to decode retained turbos bitmap: %w", err)
+				}
+			}
+			if bits.BitLen() > 256 {
+				return fmt.Errorf("failed to decode retained turbos bitmap: word=out_of_range")
+			}
+			next.words[key] = bits
+		} else {
+			if remove {
+				delete(next.nets, key)
+				continue
+			}
+			var value struct {
+				Net struct {
+					Bits json.RawMessage `json:"bits"`
+				} `json:"liquidity_net"`
+			}
+			if err := json.Unmarshal(field.Value, &value); err != nil {
+				return fmt.Errorf("failed to decode retained turbos tick: %w", err)
+			}
+			net, err := jsonUnsigned(value.Net.Bits)
+			if err != nil {
+				return fmt.Errorf("failed to decode retained turbos net: %w", err)
+			}
+			if net.BitLen() > 128 {
+				return fmt.Errorf("failed to decode retained turbos net: liquidity=out_of_range")
+			}
+			if net.Bit(127) != 0 {
+				net.Sub(net, new(big.Int).Lsh(big.NewInt(1), 128))
+			}
+			next.nets[key] = net
+		}
+	}
+	c.retained = next
+	return nil
+}

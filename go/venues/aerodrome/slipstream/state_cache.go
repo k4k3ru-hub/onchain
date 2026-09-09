@@ -23,6 +23,7 @@ type StateRPC interface {
 }
 
 type LocalPair struct {
+	CapturedAt                time.Time
 	BidAmountOut, AskAmountIn *big.Int
 	BlockNumber               uint64
 	BlockHash                 common.Hash
@@ -38,6 +39,7 @@ type poolSnapshot struct {
 	fee              uint32
 	words            map[int32]*big.Int
 	ticks            map[int32]*big.Int
+	gross            map[int32]*big.Int
 }
 
 type quoteNotifications struct {
@@ -49,6 +51,7 @@ type quoteNotifications struct {
 }
 
 type StateCache struct {
+	retained          *retainedPoolState // protected by mu; independent of the legacy quote gate
 	verificationEpoch uint64
 	rpc               StateRPC
 	pool              common.Address
@@ -436,6 +439,14 @@ func (c *StateCache) liquidityNet(ctx context.Context, s *poolSnapshot, tick int
 		return nil, fmt.Errorf("failed to read slipstream tick: liquidity_net=out_of_range")
 	}
 	s.ticks[tick] = n
+	gross, err := decodeUnsignedWord(data[:32], 128, "liquidity_gross")
+	if err != nil {
+		return nil, err
+	}
+	if s.gross == nil {
+		s.gross = make(map[int32]*big.Int)
+	}
+	s.gross[tick] = gross
 	return n, nil
 }
 func (c *StateCache) quote(ctx context.Context, s *poolSnapshot, amount *big.Int, zero, input bool, budget *int) (*big.Int, error) {

@@ -40,6 +40,7 @@ type WSClient struct {
 	config          WSConfig
 	ethClient       *ethclient.Client
 	logSubscriber   logSubscriber
+	headSubscriber  headSubscriber
 	chainIDProvider chainIDProvider
 	clientCloser    clientCloser
 	closeOnce       sync.Once
@@ -131,6 +132,7 @@ func composeWSClient(config WSConfig, ethClient *ethclient.Client) *WSClient {
 	}
 	if ethClient != nil {
 		client.logSubscriber = ethClient
+		client.headSubscriber = ethClient
 		client.chainIDProvider = ethClient
 		client.clientCloser = ethClient
 	}
