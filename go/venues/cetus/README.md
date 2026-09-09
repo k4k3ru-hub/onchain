@@ -1,5 +1,15 @@
 # Cetus CLMM
 
+## Independent reward inputs
+
+`client.PoolRewards(ctx, poolAddress)` reads the pool reward manager through the
+client's injected object reader. `clmm.ParsePoolRewards(object)` can instead decode
+an already available full pool object without a network request. Both preserve
+object version, manager update time, reward coin type and raw Q64 emissions.
+They do not calculate APR: valuation, funding availability and the denominator
+must be established separately. Missing reward managers return an error; explicit
+empty reward lists remain empty. See [yield acquisition status](../YIELD.md).
+
 ## Retained stream quotes
 
 `StateCache.RunRetained` initializes state and then applies streamed full pool and

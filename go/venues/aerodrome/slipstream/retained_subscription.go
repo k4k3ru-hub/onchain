@@ -17,14 +17,38 @@ type retainedHeaderSubscriber interface {
 	SubscribeHeaders(context.Context) (*evm.HeaderSubscription, error)
 }
 
+type RunRetainedParams struct {
+	Amount       *big.Int
+	BaseIsToken0 bool
+	// FromBlock is forwarded to the log subscriber; nil preserves its default.
+	FromBlock *big.Int
+}
+
 // RunRetained subscribes before initialization and maintains local quote inputs.
 // RPC reads occur only during initialization. State notifications never publish
 // quotes. On failure all retained inputs are discarded; the caller may reconnect.
 //
 // Version:
+//   - 2026-09-10: Delegate to RunRetainedWithParams using the subscriber's default start block.
 //   - 2026-09-09: Publish retained input updates and withdraw unavailable state.
 //   - 2026-09-09: Added.
 func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, amount *big.Int, baseIsToken0 bool) error {
+	return c.RunRetainedWithParams(ctx, ws, RunRetainedParams{Amount: amount, BaseIsToken0: baseIsToken0})
+}
+
+// RunRetainedWithParams subscribes before initialization using the requested start block.
+// FromBlock controls the subscription filter, not historical replay guarantees.
+//
+// Parameters:
+//   - params: Reference quote amount, direction, and optional subscription start block.
+//
+// Returns:
+//   - Subscription or state initialization error.
+//
+// Version:
+//   - 2026-09-10: Added.
+func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, params RunRetainedParams) error {
+	amount, baseIsToken0 := params.Amount, params.BaseIsToken0
 	if c == nil || ctx == nil || ws == nil || amount == nil || amount.Sign() <= 0 || amount.BitLen() > 255 {
 		return fmt.Errorf("failed to run retained slipstream state: configuration=invalid")
 	}
@@ -65,7 +89,14 @@ func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, amount *bi
 	}
 	defer heads.Close()
 	logs := make(chan types.Log, 4096)
-	sub, err := ws.SubscribeFilterLogs(ctx, ethereum.FilterQuery{Addresses: []common.Address{c.pool, c.factory, module}}, logs)
+	var fromBlock *big.Int
+	if params.FromBlock != nil {
+		fromBlock = new(big.Int).Set(params.FromBlock)
+	}
+	sub, err := ws.SubscribeFilterLogs(ctx, ethereum.FilterQuery{
+		Addresses: []common.Address{c.pool, c.factory, module},
+		FromBlock: fromBlock,
+	}, logs)
 	if err != nil {
 		return fmt.Errorf("failed to subscribe retained logs: %w", err)
 	}

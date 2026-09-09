@@ -1,5 +1,16 @@
 # Momentum CLMM
 
+## Independent indexed statistics
+
+The separate `github.com/k4k3ru-hub/onchain/go/venues/momentum/api` package exposes
+`api.NewClient(api.Config{HTTPClient: httpClient})`, which composes `client.Pools`.
+Call `Pools.Get(ctx, poolAddress)` or `Pools.List(ctx)` for upstream pool statistics
+and `APRBreakdown`. `Pools.RewardsAPY` preserves the legacy APY-labelled response.
+Missing numeric fields remain nil; decimal text is retained as `json.Number`.
+These calls do not poll, retry, run quotes, or normalize APR units. HTTP failures
+expose `*api.HTTPError` with status and Retry-After for caller scheduling.
+See [yield acquisition status](../YIELD.md) for source and verification limits.
+
 ## Retained stream quotes
 
 `StateCache.RunRetained` initializes state and then applies streamed full pool and

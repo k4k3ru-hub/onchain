@@ -25,6 +25,14 @@ The `slipstream` package provides:
 - block-range Swap filtering
 - WebSocket Swap subscriptions
 
+For retained pool-state subscriptions, use `StateCache.RunRetainedWithParams`
+with `slipstream.RunRetainedParams` to choose the reference `Amount`,
+`BaseIsToken0`, and `FromBlock`. The SDK forwards `FromBlock` to the injected
+subscriber; nil preserves that subscriber's default. Callers using go-ethereum
+can pass `big.NewInt(int64(rpc.LatestBlockNumber))` for live subscriptions.
+This filter does not guarantee historical replay. `RunRetained` remains available
+and uses the subscriber's default start block.
+
 ## Composition
 
 Create one client for each deployment. Pool addresses must first be resolved from that deployment's Factory.
