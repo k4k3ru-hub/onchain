@@ -147,3 +147,62 @@ func TestRetainedVersionGapStillQuotesLocally(t *testing.T) {
 		t.Fatal("older notification rolled back state", err)
 	}
 }
+
+// TestRetainedConfigTypes verifies typed config dispatch and invalidation on trading flag changes.
+//
+// Version:
+//   - 2026-09-10: Added.
+func TestRetainedConfigTypes(t *testing.T) {
+	for _, tc := range []struct {
+		name, typ, payload       string
+		remove, moved, wantError bool
+	}{
+		{name: "struct key", typ: "0x2::dynamic_field::Field<0x1::config::Key,bool>", payload: `{"name":{"dummy_field":false},"value":true}`},
+		{name: "object field wrapper", typ: "0x2::dynamic_field::Field<0x2::dynamic_object_field::Wrapper<0x1::string::String>,0x2::object::ID>", payload: `{"name":{"name":"other"},"value":"0x3"}`},
+		{name: "unrelated bytes", typ: "0x2::dynamic_field::Field<vector<u8>,bool>", payload: `{"name":[111,116,104,101,114],"value":true}`},
+		{name: "pause", typ: "0x2::dynamic_field::Field<vector<u8>,bool>", payload: `{"name":[112,97,117,115,101],"value":true}`, wantError: true},
+		{name: "enabled base64", typ: "0x2::dynamic_field::Field<vector<u8>,bool>", payload: `{"name":"dHJhZGluZ19lbmFibGVk","value":false}`, wantError: true},
+		{name: "deleted pause", typ: "0x2::dynamic_field::Field<vector<u8>,bool>", payload: `{"name":[112,97,117,115,101],"value":true}`, remove: true, wantError: true},
+		{name: "moved pause", typ: "0x2::dynamic_field::Field<vector<u8>,bool>", payload: `{"name":[112,97,117,115,101],"value":true}`, moved: true, wantError: true},
+		{name: "malformed bytes", typ: "0x2::dynamic_field::Field<vector<u8>,bool>", payload: `{"name":{"unexpected":true},"value":true}`, wantError: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			c, f, p := stateFixture(t)
+			if _, err := c.QuotePair(context.Background(), p); err != nil {
+				t.Fatal(err)
+			}
+			reads := f.reads
+			before := *f.obj
+			after := before
+			after.Version++
+			cp := sui.CheckpointSequenceNumber(124)
+			obj := &sui.Object{Move: &sui.MoveObject{Type: tc.typ, JSON: json.RawMessage(tc.payload)}}
+			change := sui.ObjectChange{InputParent: c.pool, OutputParent: c.pool, Before: obj, After: obj}
+			if tc.remove || tc.moved {
+				change.OutputParent = sui.Address{}
+				change.After = nil
+				change.Deleted = tc.remove
+			}
+			n := &sui.TransactionNotification{Effects: &sui.TransactionEffects{Checkpoint: &cp, Successful: true}, ObjectChanges: []sui.ObjectChange{{Address: c.pool, Before: &before, After: &after}, change}}
+			err := c.applyRetainedObjects(n)
+			if (err != nil) != tc.wantError {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if tc.wantError {
+				if c.retained != nil {
+					t.Fatal("invalid state retained")
+				}
+			} else {
+				if c.retained == nil || c.retained.version != after.Version {
+					t.Fatal("pool update lost")
+				}
+				if _, err := c.QuoteRetainedPair(context.Background(), p); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if f.reads != reads {
+				t.Fatal("notification processing performed RPC")
+			}
+		})
+	}
+}

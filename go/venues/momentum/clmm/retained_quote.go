@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
+	"strings"
 	"time"
 
 	"github.com/k4k3ru-hub/onchain/go/sui"
@@ -187,7 +188,7 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification) (err e
 	for _, change := range n.ObjectChanges {
 		parent := change.OutputParent
 		obj := change.After
-		remove := change.Deleted || ((change.InputParent == old.bitmap || change.InputParent == old.ticks) && change.OutputParent != change.InputParent)
+		remove := change.Deleted || ((change.InputParent == old.bitmap || change.InputParent == old.ticks || change.InputParent == c.pool) && change.OutputParent != change.InputParent)
 		if remove {
 			parent = change.InputParent
 			obj = change.Before
@@ -196,6 +197,15 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification) (err e
 			if parent == c.pool {
 				if obj == nil || obj.Move == nil {
 					return fmt.Errorf("failed to apply retained momentum config: object=null")
+				}
+				// Only vector<u8> dynamic-field keys control trading. Other pool
+				// children can have struct keys and must not invalidate quotes.
+				fieldType, err := sui.NormalizeMoveType(obj.Move.Type)
+				if err != nil {
+					return fmt.Errorf("failed to decode retained momentum config type: %w", err)
+				}
+				if !strings.HasPrefix(fieldType, "0x0000000000000000000000000000000000000000000000000000000000000002::dynamic_field::Field<vector<u8>,") {
+					continue
 				}
 				var f struct {
 					Name  json.RawMessage `json:"name"`
