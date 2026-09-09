@@ -41,30 +41,31 @@ type poolSnapshot struct {
 }
 
 type StateCache struct {
-	verificationEpoch  uint64
-	retained           *poolSnapshot
-	retainedBlock      uint64
-	retainedHash       common.Hash
-	retainedIndex      uint
-	retainedHasLog     bool
-	retainedRecovery   chan struct{}
-	retainedBaseAmount *big.Int
-	rpc                StateRPC
-	pool               common.Address
-	fee                uint32
-	maxAge             time.Duration
-	gate               chan struct{}
-	mu                 sync.Mutex
-	generation         uint64
-	updates            chan struct{}
-	active             bool
-	running            bool
-	floor              uint64
-	floorHash          common.Hash     // non-removed observed block; protected by mu
-	covered            evm.BlockHeader // protected by mu
-	spacing            int32           // immutable after a verified snapshot; protected by gate
-	snapshot           *poolSnapshot   // protected by gate
-	cachedGeneration   uint64
+	quoteSnapshotObserver func(*QuoteSnapshot)
+	verificationEpoch     uint64
+	retained              *poolSnapshot
+	retainedBlock         uint64
+	retainedHash          common.Hash
+	retainedIndex         uint
+	retainedHasLog        bool
+	retainedRecovery      chan struct{}
+	retainedBaseAmount    *big.Int
+	rpc                   StateRPC
+	pool                  common.Address
+	fee                   uint32
+	maxAge                time.Duration
+	gate                  chan struct{}
+	mu                    sync.Mutex
+	generation            uint64
+	updates               chan struct{}
+	active                bool
+	running               bool
+	floor                 uint64
+	floorHash             common.Hash     // non-removed observed block; protected by mu
+	covered               evm.BlockHeader // protected by mu
+	spacing               int32           // immutable after a verified snapshot; protected by gate
+	snapshot              *poolSnapshot   // protected by gate
+	cachedGeneration      uint64
 }
 
 // NewStateCache creates a bounded-age, block-coherent local quote cache for a configured pool.
@@ -129,6 +130,7 @@ func (c *StateCache) run(ctx context.Context, ws WSRPCClient, bootstrap func(con
 		c.active = false
 		if bootstrap != nil {
 			c.retained = nil
+			c.publishQuoteSnapshotLocked()
 		}
 		c.floorHash = common.Hash{}
 		c.generation++
@@ -161,6 +163,7 @@ func (c *StateCache) run(ctx context.Context, ws WSRPCClient, bootstrap func(con
 			c.mu.Lock()
 			if bootstrap != nil {
 				err := c.applyRetainedLog(log)
+				c.publishQuoteSnapshotLocked()
 				c.mu.Unlock()
 				if err != nil {
 					return err
@@ -192,6 +195,7 @@ func (c *StateCache) run(ctx context.Context, ws WSRPCClient, bootstrap func(con
 // Snapshot reads are bounded to 64 contract calls per pair and 2048 swap steps per direction.
 //
 // Version:
+//   - 2026-09-09: Publish detached calculation inputs to the snapshot observer.
 //   - 2026-09-09: Classify state-change retries separately from transport failures.
 //   - 2026-09-07: Recover lagging latest headers using verified observed blocks.
 func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsToken0 bool) (LocalPair, error) {
@@ -252,6 +256,7 @@ func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsT
 		c.retained = clonePoolSnapshot(s)
 		c.retainedBlock, c.retainedHash = s.header.Number, s.header.Hash
 		c.retainedHasLog = false
+		c.publishQuoteSnapshotLocked()
 	}
 	c.mu.Unlock()
 	if changed || time.Since(s.observed) >= c.maxAge {

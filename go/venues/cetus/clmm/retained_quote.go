@@ -26,6 +26,7 @@ type ObjectStateSubscriber interface {
 // Disconnects discard state. The caller reconnects and initializes again.
 //
 // Version:
+//   - 2026-09-09: Publish retained input updates and withdraw unavailable state.
 //   - 2026-09-09: Added.
 func (c *StateCache) RunRetained(ctx context.Context, subscriber ObjectStateSubscriber) error {
 	if c == nil || ctx == nil || subscriber == nil {
@@ -38,8 +39,15 @@ func (c *StateCache) RunRetained(ctx context.Context, subscriber ObjectStateSubs
 	}
 	c.retainedRunning = true
 	c.retained = nil
+	c.publishQuoteSnapshotLocked()
 	c.retainedMu.Unlock()
-	defer func() { c.retainedMu.Lock(); c.retainedRunning = false; c.retained = nil; c.retainedMu.Unlock() }()
+	defer func() {
+		c.retainedMu.Lock()
+		c.retainedRunning = false
+		c.retained = nil
+		c.publishQuoteSnapshotLocked()
+		c.retainedMu.Unlock()
+	}()
 	sub, err := subscriber.SubscribeObjectState(ctx, c.pool)
 	if err != nil {
 		return fmt.Errorf("failed to run retained cetus state: %w", err)
@@ -153,7 +161,7 @@ func retainedTickHandle(obj *sui.Object) (sui.Address, error) {
 
 func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification) (err error) {
 	c.retainedMu.Lock()
-	defer c.retainedMu.Unlock()
+	defer func() { c.publishQuoteSnapshotLocked(); c.retainedMu.Unlock() }()
 	defer func() {
 		if err != nil {
 			c.retained = nil

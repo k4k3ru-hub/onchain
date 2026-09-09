@@ -20,18 +20,19 @@ type StateReader interface {
 	DynamicValuesByKeysAtCheckpoint(context.Context, sui.Address, sui.CheckpointSequenceNumber, []sui.DynamicFieldKey) ([]json.RawMessage, error)
 }
 type StateCache struct {
-	retainedMu      sync.Mutex
-	retained        *quoteState
-	retainedHead    sui.Checkpoint
-	retainedRunning bool
-	checkedKey      string
-	accepted        sui.Checkpoint // Protected by gate; independent of trade progress.
-	reader          StateReader
-	pool            sui.Address
-	maxAge          time.Duration
-	gate            chan struct{}
-	floor           atomic.Uint64
-	state           *quoteState
+	quoteSnapshotObserver func(*QuoteSnapshot)
+	retainedMu            sync.Mutex
+	retained              *quoteState
+	retainedHead          sui.Checkpoint
+	retainedRunning       bool
+	checkedKey            string
+	accepted              sui.Checkpoint // Protected by gate; independent of trade progress.
+	reader                StateReader
+	pool                  sui.Address
+	maxAge                time.Duration
+	gate                  chan struct{}
+	floor                 atomic.Uint64
+	state                 *quoteState
 }
 type quoteState struct {
 	retainedOnly  bool
@@ -74,6 +75,7 @@ func (c *StateCache) ObserveCheckpoint(cp sui.CheckpointSequenceNumber) {
 // AmountIn includes fees, matching Momentum compute_swap_result. Partial fills are rejected.
 //
 // Version:
+//   - 2026-09-09: Publish detached calculation inputs to the snapshot observer.
 //   - 2026-09-09: Seed detached retained inputs after verified initialization.
 //   - 2026-09-08: Reject checkpoint regression relative to successful quotes.
 //   - 2026-09-08: Added.
@@ -148,6 +150,7 @@ func (c *StateCache) QuotePair(ctx context.Context, p QuotePairParams) (QuotePai
 	c.retained = cloneRetainedState(c.state)
 	c.retained.retainedOnly = true
 	c.retainedHead = head
+	c.publishQuoteSnapshotLocked()
 	c.retainedMu.Unlock()
 	return QuotePairResult{Bid: bid, Ask: ask, Checkpoint: head.SequenceNumber, PoolVersion: obj.Version, PoolDigest: obj.Digest, StateTimestamp: head.Timestamp}, nil
 }

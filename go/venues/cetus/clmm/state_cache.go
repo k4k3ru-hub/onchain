@@ -19,21 +19,22 @@ type StateReader interface {
 }
 
 type StateCache struct {
-	retainedRunning bool
-	retainedMu      sync.Mutex
-	retained        *retainedSnapshot
-	checkedKey      string
-	accepted        sui.Checkpoint // Protected by gate; independent of trade progress.
-	gate            chan struct{}
-	reader          StateReader
-	pool            sui.Address
-	maxAge          time.Duration
-	snapshot        *LocalSnapshot
-	anchors         []Tick
-	version         uint64
-	digest          sui.ObjectDigest
-	observed        time.Time
-	floor           atomic.Uint64
+	quoteSnapshotObserver func(*QuoteSnapshot)
+	retainedRunning       bool
+	retainedMu            sync.Mutex
+	retained              *retainedSnapshot
+	checkedKey            string
+	accepted              sui.Checkpoint // Protected by gate; independent of trade progress.
+	gate                  chan struct{}
+	reader                StateReader
+	pool                  sui.Address
+	maxAge                time.Duration
+	snapshot              *LocalSnapshot
+	anchors               []Tick
+	version               uint64
+	digest                sui.ObjectDigest
+	observed              time.Time
+	floor                 atomic.Uint64
 }
 
 // NewStateCache composes a checkpoint-pinned Cetus state cache.
@@ -248,6 +249,7 @@ func parseTick(raw json.RawMessage) (Tick, error) {
 // Callers should use a bounded startup or recovery context; no quote is published.
 //
 // Version:
+//   - 2026-09-09: Publish detached calculation inputs to the snapshot observer.
 //   - 2026-09-09: Seed detached retained inputs during initialization.
 //   - 2026-09-08: Added.
 func (c *StateCache) Warm(ctx context.Context) error {
@@ -290,6 +292,7 @@ func (c *StateCache) Warm(ctx context.Context) error {
 	}
 	c.retainedMu.Lock()
 	c.retained = &retainedSnapshot{snapshot: cloneLocalSnapshot(s), handle: handle, baseline: head, version: obj.Version, digest: obj.Digest}
+	c.publishQuoteSnapshotLocked()
 	c.retainedMu.Unlock()
 	return nil
 }

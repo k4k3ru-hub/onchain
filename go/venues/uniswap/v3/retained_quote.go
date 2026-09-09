@@ -19,6 +19,7 @@ var errStateReadBudget = errors.New("rpc_budget=exhausted")
 // This state producer never publishes a quote.
 //
 // Version:
+//   - 2026-09-09: Publish retained input updates and withdraw unavailable state.
 //   - 2026-09-09: Recover missing reference-quote coverage through the state session.
 func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, baseAmount *big.Int, baseIsToken0 bool) error {
 	if c == nil {
@@ -27,6 +28,7 @@ func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, baseAmount
 	if baseAmount == nil || baseAmount.Sign() <= 0 {
 		return fmt.Errorf("failed to run retained state: amount=invalid")
 	}
+	defer func() { c.mu.Lock(); c.retained = nil; c.publishQuoteSnapshotLocked(); c.mu.Unlock() }()
 	return c.run(ctx, ws, func(ctx context.Context) error {
 		c.mu.Lock()
 		c.retainedBaseAmount = new(big.Int).Set(baseAmount)

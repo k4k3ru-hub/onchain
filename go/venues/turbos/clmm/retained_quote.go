@@ -18,6 +18,7 @@ type ObjectStateSubscriber interface {
 // Initialization may acquire state; Trade calculation never invokes it.
 //
 // Version:
+//   - 2026-09-09: Publish retained input updates and withdraw unavailable state.
 //   - 2026-09-09: Added.
 func (c *StateCache) RunRetained(ctx context.Context, subscribed ObjectStateSubscriber, initialize func(context.Context) error) error {
 	if c == nil || ctx == nil || subscribed == nil || initialize == nil {
@@ -30,8 +31,15 @@ func (c *StateCache) RunRetained(ctx context.Context, subscribed ObjectStateSubs
 	}
 	c.retainedRunning = true
 	c.retained = nil
+	c.publishQuoteSnapshotLocked()
 	c.retainedMu.Unlock()
-	defer func() { c.retainedMu.Lock(); c.retainedRunning = false; c.retained = nil; c.retainedMu.Unlock() }()
+	defer func() {
+		c.retainedMu.Lock()
+		c.retainedRunning = false
+		c.retained = nil
+		c.publishQuoteSnapshotLocked()
+		c.retainedMu.Unlock()
+	}()
 	sub, err := subscribed.SubscribeObjectState(ctx, c.pool)
 	if err != nil {
 		return fmt.Errorf("failed to subscribe retained turbos state: %w", err)
@@ -121,7 +129,7 @@ func cloneRetainedState(source *quoteState) *quoteState {
 }
 func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification) (err error) {
 	c.retainedMu.Lock()
-	defer c.retainedMu.Unlock()
+	defer func() { c.publishQuoteSnapshotLocked(); c.retainedMu.Unlock() }()
 	defer func() {
 		if err != nil {
 			c.retained = nil

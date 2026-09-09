@@ -101,3 +101,14 @@ func copyRetainedAccount(value RetainedAccount) RetainedAccount {
 	value.Account = &copied
 	return value
 }
+
+// Reset discards all retained accounts after a disconnected state session.
+// Previously frozen snapshots remain independent.
+//
+// Version:
+//   - 2026-09-09: Added.
+func (s *AccountState) Reset() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.accounts = nil
+}

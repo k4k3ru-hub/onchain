@@ -51,29 +51,30 @@ type quoteNotifications struct {
 }
 
 type StateCache struct {
-	replayBase        *retainedPoolState
-	replayState       *retainedPoolState
-	replayLogs        []types.Log
-	retained          *retainedPoolState // protected by mu; independent of the legacy quote gate
-	verificationEpoch uint64
-	rpc               StateRPC
-	pool              common.Address
-	factory           common.Address
-	maxAge            time.Duration
-	gate              chan struct{}
-	mu                sync.Mutex
-	generation        uint64
-	updates           chan struct{}
-	diagnostics       map[string]uint64   // cumulative bounded-label counts; protected by mu
-	notifications     *quoteNotifications // active quote only; protected by mu
-	active            bool
-	running           bool
-	floor             uint64
-	floorHash         common.Hash     // non-removed observed block; protected by mu
-	covered           evm.BlockHeader // protected by mu
-	spacing           int32           // immutable after a verified snapshot; protected by gate
-	snapshot          *poolSnapshot   // protected by gate
-	cachedGeneration  uint64
+	quoteSnapshotObserver func(*QuoteSnapshot)
+	replayBase            *retainedPoolState
+	replayState           *retainedPoolState
+	replayLogs            []types.Log
+	retained              *retainedPoolState // protected by mu; independent of the legacy quote gate
+	verificationEpoch     uint64
+	rpc                   StateRPC
+	pool                  common.Address
+	factory               common.Address
+	maxAge                time.Duration
+	gate                  chan struct{}
+	mu                    sync.Mutex
+	generation            uint64
+	updates               chan struct{}
+	diagnostics           map[string]uint64   // cumulative bounded-label counts; protected by mu
+	notifications         *quoteNotifications // active quote only; protected by mu
+	active                bool
+	running               bool
+	floor                 uint64
+	floorHash             common.Hash     // non-removed observed block; protected by mu
+	covered               evm.BlockHeader // protected by mu
+	spacing               int32           // immutable after a verified snapshot; protected by gate
+	snapshot              *poolSnapshot   // protected by gate
+	cachedGeneration      uint64
 }
 
 // NewStateCache creates a bounded-age, block-coherent local quote cache for a configured pool.

@@ -22,6 +22,7 @@ type retainedHeaderSubscriber interface {
 // quotes. On failure all retained inputs are discarded; the caller may reconnect.
 //
 // Version:
+//   - 2026-09-09: Publish retained input updates and withdraw unavailable state.
 //   - 2026-09-09: Added.
 func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, amount *big.Int, baseIsToken0 bool) error {
 	if c == nil || ctx == nil || ws == nil || amount == nil || amount.Sign() <= 0 || amount.BitLen() > 255 {
@@ -37,8 +38,9 @@ func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, amount *bi
 		return fmt.Errorf("failed to run retained slipstream state: subscription=active")
 	}
 	c.running, c.retained = true, nil
+	c.publishQuoteSnapshotLocked()
 	c.mu.Unlock()
-	defer func() { c.mu.Lock(); c.running, c.retained = false, nil; c.mu.Unlock() }()
+	defer func() { c.mu.Lock(); c.running, c.retained = false, nil; c.publishQuoteSnapshotLocked(); c.mu.Unlock() }()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	initCtx, stopInit := context.WithTimeout(ctx, 30*time.Second)
@@ -99,6 +101,7 @@ func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, amount *bi
 	stopInit()
 	c.mu.Lock()
 	c.retained = state
+	c.publishQuoteSnapshotLocked()
 	c.mu.Unlock()
 	headers := map[common.Hash]evm.BlockHeader{state.pool.header.Hash: state.pool.header}
 	order := []common.Hash{state.pool.header.Hash}
@@ -119,6 +122,7 @@ func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, amount *bi
 			}
 			c.mu.Lock()
 			err := c.applyRetainedLog(log, timestamp)
+			c.publishQuoteSnapshotLocked()
 			c.mu.Unlock()
 			if err != nil {
 				return err

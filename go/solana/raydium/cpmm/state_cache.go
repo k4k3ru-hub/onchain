@@ -26,22 +26,23 @@ type CachedQuote struct {
 // StateCache supports coherent RPC quotes and independent receiver-side retained quotes.
 // Retained account streams do not assert cross-account atomicity.
 type StateCache struct {
-	client      *Client
-	pool        solana.Address
-	addresses   []solana.Address
-	maxAge      time.Duration
-	now         func() time.Time
-	refresh     sync.Mutex
-	mu          sync.Mutex
-	generation  uint64
-	updates     chan struct{}
-	checkedKey  string
-	minimumSlot solana.Slot
-	connected   int
-	running     bool
-	snapshot    *solana.AccountSnapshot
-	observedAt  time.Time
-	retained    solana.AccountState
+	quoteSnapshotObserver func(*QuoteSnapshot)
+	client                *Client
+	pool                  solana.Address
+	addresses             []solana.Address
+	maxAge                time.Duration
+	now                   func() time.Time
+	refresh               sync.Mutex
+	mu                    sync.Mutex
+	generation            uint64
+	updates               chan struct{}
+	checkedKey            string
+	minimumSlot           solana.Slot
+	connected             int
+	running               bool
+	snapshot              *solana.AccountSnapshot
+	observedAt            time.Time
+	retained              solana.AccountState
 }
 
 // NewStateCache creates a bounded-age cache for a discovered CPMM pool.
@@ -68,6 +69,7 @@ func NewStateCache(client *Client, pool solana.Address, maxAge time.Duration) (*
 // A failure invalidates the coherent cache and is returned so the owner can reconnect.
 //
 // Version:
+//   - 2026-09-09: Withdraw calculation snapshots when an account subscription disconnects.
 //   - 2026-09-09: Retain full account updates for local snapshot quotes.
 //   - 2026-09-07: Added.
 func (s *StateCache) Run(ctx context.Context, subscribe SubscribeAccountChangesFunc) error {
@@ -144,6 +146,10 @@ func (s *StateCache) watch(ctx context.Context, address solana.Address, subscrib
 	}
 }
 func (s *StateCache) invalidate(slot solana.Slot) {
+	if s.connected == 0 {
+		s.retained.Reset()
+	}
+	defer s.publishQuoteSnapshotLocked()
 	s.generation++
 	s.signalChange()
 	s.snapshot = nil
@@ -157,6 +163,7 @@ func (s *StateCache) invalidate(slot solana.Slot) {
 // A notification arriving during refresh rejects that refresh for this call.
 //
 // Version:
+//   - 2026-09-09: Publish initialized account inputs to the snapshot observer.
 //   - 2026-09-09: Classify state-change retries separately from transport failures.
 //   - 2026-09-07: Added.
 func (s *StateCache) QuoteExactInputs(ctx context.Context, requests []ExactInputRequest) (CachedQuote, error) {
@@ -227,6 +234,7 @@ func (s *StateCache) QuoteExactInputs(ctx context.Context, requests []ExactInput
 	}
 	s.snapshot = snapshot
 	s.retained.Seed(snapshot.Accounts, snapshot.Slot, observed)
+	s.publishQuoteSnapshotLocked()
 	if snapshot.Slot > s.minimumSlot {
 		s.minimumSlot = snapshot.Slot
 	}
