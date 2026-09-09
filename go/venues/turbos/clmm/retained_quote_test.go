@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/k4k3ru-hub/onchain/go/sui"
 	"math/big"
 	"testing"
@@ -59,6 +60,7 @@ func TestRetainedPairDoesNotReadOrWait(t *testing.T) {
 // TestRetainedObjectUpdates verifies pool, bitmap and signed tick updates, ownership removal and full replacements across version gaps.
 //
 // Version:
+//   - 2026-09-10: Supply typed dynamic-field fixtures.
 //   - 2026-09-09: Added.
 func TestRetainedObjectUpdates(t *testing.T) {
 	c, f, p := stateFixture(t)
@@ -69,8 +71,8 @@ func TestRetainedObjectUpdates(t *testing.T) {
 	after := before
 	after.Version++
 	cp := sui.CheckpointSequenceNumber(124)
-	tick := &sui.Object{Move: &sui.MoveObject{JSON: json.RawMessage(`{"name":{"bits":"10"},"value":{"liquidity_net":{"bits":"340282366920938463463374607431768211451"}}}`)}}
-	word := &sui.Object{Move: &sui.MoveObject{JSON: json.RawMessage(`{"name":{"bits":"0"},"value":"1024"}`)}}
+	tick := &sui.Object{Move: &sui.MoveObject{Type: "0x2::dynamic_field::Field<" + c.retained.keyType + ",u256>", JSON: json.RawMessage(`{"name":{"bits":"10"},"value":{"liquidity_net":{"bits":"340282366920938463463374607431768211451"}}}`)}}
+	word := &sui.Object{Move: &sui.MoveObject{Type: "0x2::dynamic_field::Field<" + c.retained.keyType + ",u256>", JSON: json.RawMessage(`{"name":{"bits":"0"},"value":"1024"}`)}}
 	n := &sui.TransactionNotification{Effects: &sui.TransactionEffects{Checkpoint: &cp, Successful: true}, ObjectChanges: []sui.ObjectChange{
 		{Address: c.pool, Before: &before, After: &after},
 		{OutputParent: c.retained.ticks, After: tick},
@@ -152,6 +154,7 @@ func TestRetainedVersionGapStillQuotesLocally(t *testing.T) {
 // TestRetainedMissingKeyDoesNotMutateBaseline verifies malformed fields cannot partially change held inputs.
 //
 // Version:
+//   - 2026-09-10: Verify malformed indexed fields after type filtering.
 //   - 2026-09-09: Added.
 func TestRetainedMissingKeyDoesNotMutateBaseline(t *testing.T) {
 	c, f, p := stateFixture(t)
@@ -163,8 +166,8 @@ func TestRetainedMissingKeyDoesNotMutateBaseline(t *testing.T) {
 	after := before
 	after.Version++
 	cp := sui.CheckpointSequenceNumber(124)
-	word := &sui.Object{Move: &sui.MoveObject{JSON: json.RawMessage(`{"name":{"bits":"0"},"value":"1024"}`)}}
-	invalid := &sui.Object{Move: &sui.MoveObject{JSON: json.RawMessage(`{"name":{},"value":"0"}`)}}
+	word := &sui.Object{Move: &sui.MoveObject{Type: "0x2::dynamic_field::Field<" + c.retained.keyType + ",u256>", JSON: json.RawMessage(`{"name":{"bits":"0"},"value":"1024"}`)}}
+	invalid := &sui.Object{Move: &sui.MoveObject{Type: "0x2::dynamic_field::Field<" + c.retained.keyType + ",u256>", JSON: json.RawMessage(`{"name":{},"value":"0"}`)}}
 	original := new(big.Int).Set(old.words[0])
 	n := &sui.TransactionNotification{Effects: &sui.TransactionEffects{Checkpoint: &cp, Successful: true}, ObjectChanges: []sui.ObjectChange{{Address: c.pool, Before: &before, After: &after}, {OutputParent: old.bitmap, After: word}, {OutputParent: old.bitmap, After: invalid}}}
 	if err := c.applyRetainedObjects(n); err == nil {
@@ -175,5 +178,59 @@ func TestRetainedMissingKeyDoesNotMutateBaseline(t *testing.T) {
 	}
 	if c.retained != nil {
 		t.Fatal("incomplete state remained available")
+	}
+}
+
+// TestRetainedUnrelatedFields verifies non-index fields preserve live pool updates and quotes.
+//
+// Version:
+//   - 2026-09-10: Added.
+func TestRetainedUnrelatedFields(t *testing.T) {
+	for _, typ := range []string{
+		"0x2::dynamic_field::Field<0x2::dynamic_object_field::Wrapper<0x1::string::String>,0x2::object::ID>",
+		"0x0000000000000000000000000000000000000000000000000000000000000002::dynamic_field::Field<0x0000000000000000000000000000000000000000000000000000000000000002::dynamic_object_field::Wrapper<0x0000000000000000000000000000000000000000000000000000000000000001::string::String>,0x0000000000000000000000000000000000000000000000000000000000000002::object::ID>",
+		"0x2::dynamic_field::Field<vector<u8>,bool>",
+		"0x2::dynamic_field::Field<0x99::i32::I32,u256>",
+	} {
+		for _, remove := range []bool{false, true} {
+			t.Run(fmt.Sprintf("%s/deleted=%t", typ, remove), func(t *testing.T) {
+				c, f, p := stateFixture(t)
+				want, err := c.QuotePair(context.Background(), p)
+				if err != nil {
+					t.Fatal(err)
+				}
+				reads := f.reads
+				before := *f.obj
+				after := before
+				after.Version++
+				cp := sui.CheckpointSequenceNumber(124)
+				obj := &sui.Object{Move: &sui.MoveObject{Type: typ, JSON: json.RawMessage(`{"name":{"name":"metadata"},"value":"0x3"}`)}}
+				change := sui.ObjectChange{InputParent: c.pool, OutputParent: c.pool, Before: obj, After: obj}
+				if remove {
+					change.Deleted = true
+					change.After = nil
+					change.OutputParent = sui.Address{}
+				}
+				n := &sui.TransactionNotification{Effects: &sui.TransactionEffects{Checkpoint: &cp, Successful: true}, ObjectChanges: []sui.ObjectChange{{Address: c.pool, Before: &before, After: &after}, change}}
+				if err := c.applyRetainedObjects(n); err != nil {
+					t.Fatal(err)
+				}
+				// An unrelated child-only notification also needs no pool replacement.
+				n.ObjectChanges = n.ObjectChanges[1:]
+				if err := c.applyRetainedObjects(n); err != nil {
+					t.Fatal(err)
+				}
+				if c.retained == nil || c.retained.version != after.Version {
+					t.Fatal("pool update lost")
+				}
+				got, err := c.QuoteRetainedPair(context.Background(), p)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if got.Bid.AmountOut.Cmp(want.Bid.AmountOut) != 0 || got.Ask.AmountIn.Cmp(want.Ask.AmountIn) != 0 || f.reads != reads {
+					t.Fatal("quote changed or RPC invoked")
+				}
+			})
+		}
 	}
 }

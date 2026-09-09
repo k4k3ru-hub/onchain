@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
+	"strings"
 	"time"
 
 	"github.com/k4k3ru-hub/onchain/go/sui"
@@ -152,7 +153,17 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification) (err e
 	if changed == nil {
 		for _, v := range n.ObjectChanges {
 			if v.InputParent == old.bitmap || v.OutputParent == old.bitmap || v.InputParent == old.ticks || v.OutputParent == old.ticks || v.InputParent == c.pool || v.OutputParent == c.pool {
-				return fmt.Errorf("failed to apply retained turbos objects: pool_change=missing")
+				obj := v.After
+				if v.Deleted || (v.InputParent != v.OutputParent && (v.InputParent == old.bitmap || v.InputParent == old.ticks)) {
+					obj = v.Before
+				}
+				indexed, err := retainedIndexField(obj, old.keyType)
+				if err != nil {
+					return err
+				}
+				if indexed {
+					return fmt.Errorf("failed to apply retained turbos objects: pool_change=missing")
+				}
 			}
 		}
 		return nil
@@ -198,6 +209,13 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification) (err e
 		}
 		if obj == nil || obj.Move == nil {
 			return fmt.Errorf("failed to apply retained turbos field: object=null")
+		}
+		isTickField, err := retainedIndexField(obj, old.keyType)
+		if err != nil {
+			return err
+		}
+		if !isTickField {
+			continue
 		}
 		var field struct {
 			Name struct {
@@ -259,4 +277,38 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification) (err e
 	}
 	c.retained = next
 	return nil
+}
+
+// retainedIndexField distinguishes indexed liquidity fields from other pool children.
+func retainedIndexField(obj *sui.Object, keyType string) (bool, error) {
+	if obj == nil || obj.Move == nil {
+		return false, fmt.Errorf("failed to identify retained turbos field: object=null")
+	}
+	typ, err := sui.NormalizeMoveType(obj.Move.Type)
+	if err != nil {
+		return false, fmt.Errorf("failed to identify retained turbos field: %w", err)
+	}
+	if !strings.HasPrefix(typ, "0x0000000000000000000000000000000000000000000000000000000000000002::dynamic_field::Field<") {
+		return false, nil
+	}
+	args, err := moveTypeArguments(typ)
+	if err != nil {
+		return false, fmt.Errorf("failed to identify retained turbos field: %w", err)
+	}
+	if len(args) != 2 {
+		return false, fmt.Errorf("failed to identify retained turbos field: type_arguments=invalid")
+	}
+	// Primitive keys cannot match the pool's signed index struct.
+	if !strings.Contains(args[0], "::") {
+		return false, nil
+	}
+	key, err := sui.NormalizeMoveType(args[0])
+	if err != nil {
+		return false, fmt.Errorf("failed to identify retained turbos key type: %w", err)
+	}
+	expected, err := sui.NormalizeMoveType(keyType)
+	if err != nil {
+		return false, fmt.Errorf("failed to identify retained turbos index type: %w", err)
+	}
+	return key == expected, nil
 }
