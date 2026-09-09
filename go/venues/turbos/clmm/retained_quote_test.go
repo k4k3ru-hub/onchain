@@ -55,7 +55,7 @@ func TestRetainedPairDoesNotReadOrWait(t *testing.T) {
 	}
 }
 
-// TestRetainedObjectUpdates verifies pool, bitmap and signed tick updates, ownership removal and gap discard.
+// TestRetainedObjectUpdates verifies pool, bitmap and signed tick updates, ownership removal and full replacements across version gaps.
 //
 // Version:
 //   - 2026-09-09: Added.
@@ -95,7 +95,55 @@ func TestRetainedObjectUpdates(t *testing.T) {
 		t.Fatal("moved tick retained")
 	}
 	after.Version++
+	if err := c.applyRetainedObjects(n); err != nil || c.retained == nil {
+		t.Fatal("full replacement rejected across input version gap", err)
+	}
+	n.ObjectChanges = n.ObjectChanges[:1]
+	n.ObjectChanges[0].Before = nil
+	after.Version++
+	if err := c.applyRetainedObjects(n); err != nil {
+		t.Fatal("full replacement required before payload", err)
+	}
+	n.ObjectChanges[0].After = &sui.Object{Address: c.pool, Version: after.Version + 1}
 	if err := c.applyRetainedObjects(n); err == nil || c.retained != nil {
-		t.Fatal("gap not discarded")
+		t.Fatal("malformed pool was accepted")
+	}
+}
+
+// TestRetainedVersionGapStillQuotesLocally verifies full pool replacements without network or version waits.
+//
+// Version:
+//   - 2026-09-09: Added.
+func TestRetainedVersionGapStillQuotesLocally(t *testing.T) {
+	c, f, p := stateFixture(t)
+	if _, err := c.QuotePair(context.Background(), p); err != nil {
+		t.Fatal(err)
+	}
+	reads := f.reads
+	f.fail = errors.New("RPC unavailable")
+	c.gate <- struct{}{}
+	defer func() { <-c.gate }()
+	before := *f.obj
+	before.Version += 9
+	after := before
+	after.Version++
+	cp := sui.CheckpointSequenceNumber(124)
+	n := &sui.TransactionNotification{Effects: &sui.TransactionEffects{Checkpoint: &cp, Successful: true}, ObjectChanges: []sui.ObjectChange{{Address: c.pool, Before: &before, After: &after}}}
+	if err := c.applyRetainedObjects(n); err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
+	got, err := c.QuoteRetainedPair(ctx, p)
+	if err != nil || got.Bid.AmountOut.Sign() <= 0 || got.Ask.AmountIn.Sign() <= 0 {
+		t.Fatal("quote failed after version gap", err)
+	}
+	if c.retained.version != after.Version || f.reads != reads {
+		t.Fatal("replacement missing or RPC used")
+	}
+	older := *f.obj
+	n.ObjectChanges[0].After = &older
+	if err := c.applyRetainedObjects(n); err != nil || c.retained.version != after.Version {
+		t.Fatal("older notification rolled back state", err)
 	}
 }

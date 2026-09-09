@@ -161,9 +161,10 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification) (err e
 		}
 		return nil
 	}
-	if changed.Before == nil || changed.Before.Version != old.version || changed.Before.Digest != old.digest {
-		return fmt.Errorf("failed to apply retained turbos objects: input_version=mismatch")
-	}
+	// Pool and field payloads are full replacements, not arithmetic deltas.
+	// Keep the latest received components even when the input version differs
+	// from our baseline. Trade quotes freeze these receiver-side snapshots;
+	// they do not claim a transaction-atomic pool/tick state.
 	next, err := capturePool(changed.After, old.checkpoint)
 	if err != nil {
 		return fmt.Errorf("failed to apply retained turbos pool: %w", err)

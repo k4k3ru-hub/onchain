@@ -54,8 +54,20 @@ func TestRetainedQuoteUsesStreamWithoutCheckpointReads(t *testing.T) {
 		t.Fatal("duplicate rejected", err)
 	}
 	n.ObjectChanges[0].After = &sui.Object{Address: c.pool, Version: after.Version + 2, Move: after.Move}
+	if err := c.applyRetainedObjects(n); err != nil || c.retained == nil {
+		t.Fatal("full replacement rejected across input version gap", err)
+	}
+	if _, err := c.QuoteRetainedPair(ctx, params); err != nil {
+		t.Fatal("quote failed after replacement", err)
+	}
+	n.ObjectChanges[0].Before = nil
+	n.ObjectChanges[0].After.Version++
+	if err := c.applyRetainedObjects(n); err != nil {
+		t.Fatal("full replacement required before payload", err)
+	}
+	n.ObjectChanges[0].After = &sui.Object{Address: c.pool, Version: c.retained.version + 1}
 	if err := c.applyRetainedObjects(n); err == nil || c.retained != nil {
-		t.Fatal("gap not discarded")
+		t.Fatal("malformed pool was accepted")
 	}
 }
 

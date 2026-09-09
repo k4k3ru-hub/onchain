@@ -1,5 +1,25 @@
 # Momentum CLMM
 
+## Retained stream quotes
+
+`StateCache.RunRetained` initializes state and then applies streamed full pool and
+field payloads. `QuoteRetainedPair` freezes the currently retained components and
+calculates locally: no Trade/checkpoint alignment, waits, retries or RPC reads.
+State notifications update retained inputs; the application chooses when to quote
+(e.g. on Trade receipt), without publishing again for a late state notification.
+
+A newer full pool payload replaces the pool even when its input version/digest
+differs from the retained version. Supplied tick/bitmap values replace their
+entries; entries absent from the notification remain as last received. This is a
+receiver-side snapshot and does not assert atomic consistency across components.
+Older pool notifications do not roll state back. Conflicting same-version digests,
+malformed or deleted required inputs, incompatible configuration and disconnects
+still invalidate the state session. These replacement rules must not be applied
+to arithmetic deltas that require a continuous predecessor.
+
+The checkpoint-validated `QuotePair` / simulation behavior documented below is a
+separate path; it is not the retained Trade quote path.
+
 The owning package is `github.com/k4k3ru-hub/onchain/go/venues/momentum/clmm`.
 Migrated from momentum commit `8d0d216f5361bd6e9366b7e005b268dec9e82456`.
 The original module is preserved; its types and the migrated package's types are

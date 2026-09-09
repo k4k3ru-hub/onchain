@@ -1,5 +1,25 @@
 # Bluefin Spot
 
+## Retained stream quotes
+
+`StateCache.RunRetained` initializes state and then applies streamed full pool and
+field payloads. `QuoteRetainedPair` freezes the currently retained components and
+calculates locally: no Trade/checkpoint alignment, waits, retries or RPC reads.
+State notifications update retained inputs; the application chooses when to quote
+(e.g. on Trade receipt), without publishing again for a late state notification.
+
+A newer full pool payload replaces the pool even when its input version/digest
+differs from the retained version. Supplied tick/bitmap values replace their
+entries; entries absent from the notification remain as last received. This is a
+receiver-side snapshot and does not assert atomic consistency across components.
+Older pool notifications do not roll state back. Conflicting same-version digests,
+malformed or deleted required inputs, incompatible configuration and disconnects
+still invalidate the state session. These replacement rules must not be applied
+to arithmetic deltas that require a continuous predecessor.
+
+The checkpoint-validated `QuotePair` / simulation behavior documented below is a
+separate path; it is not the retained Trade quote path.
+
 Owning package: `github.com/k4k3ru-hub/onchain/go/venues/bluefin/spot`.
 Migrated from `bluefin` commit `f3ceb68ef69c42d88f4144007af6cc0cd721df78`.
 The original module remains intact; consumers use the new owning types consistently,
