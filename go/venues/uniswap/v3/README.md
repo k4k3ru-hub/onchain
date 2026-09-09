@@ -47,6 +47,29 @@ that every event was received. `ObservedAt` is the snapshot acquisition time and
 is preserved on reuse; it is not the block timestamp.
 
 Only bitmap words and initialized ticks encountered by the simulation are read.
+This describes `QuotePair`. `RunRetained` additionally preloads the current
+bitmap word and one adjacent word on each side (three words, clipped at protocol
+tick limits). When either adjacent word is unavailable after a streamed update,
+the producer asynchronously captures a new window around the current on-chain
+tick. Missing reference-quote tick details also trigger capture, including when
+consumers use detached quote snapshots. Large jumps fetch the new neighborhood
+directly rather than traversing the intervening words.
+
+The live subscription and usable quote inputs remain active during capture.
+Each candidate is read at one verified block, then buffered stream deltas after
+that block are replayed before publication. The replay buffer is bounded to
+4,096 pool logs; overflow, removed logs, and incompatible deltas still require
+session recovery. Refreshes run one at a time, at least one second apart;
+failed refreshes retain usable inputs and retry with delays up to 30 seconds.
+Capture has a 30-second timeout. Initial capture errors return to the caller.
+
+Three words are the prefetch window, not a three-RPC total budget: core state,
+reference-quote tick details and header verification are also required. Sparse
+liquidity can require additional words for the reference quote, subject to the
+same 64-contract-call cap. Each refresh replaces its old window rather than
+mixing tick data from different blocks. Quote consumers never fetch missing
+inputs; an uncovered quote fails until producer capture catches up.
+
 Each pair permits 64 contract calls, plus header reads; each direction permits
 2048 steps. Exhausted budgets, insufficient liquidity, changed snapshots and
 reorgs return errors without partial quotes. Cache hits need no RPC; active

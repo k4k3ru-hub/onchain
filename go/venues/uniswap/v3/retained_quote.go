@@ -14,28 +14,22 @@ import (
 
 var errStateReadBudget = errors.New("rpc_budget=exhausted")
 
-// RunRetained initializes once after subscribing and applies Swap/Mint/Burn state.
+// RunRetained subscribes and maintains a three-word window around the current tick.
 // Removed logs or unsupported state deltas terminate the session for reinitialization.
 // This state producer never publishes a quote.
 //
 // Version:
+//   - 2026-09-10: Refresh coverage asynchronously without restarting the subscription.
 //   - 2026-09-09: Publish retained input updates and withdraw unavailable state.
 //   - 2026-09-09: Recover missing reference-quote coverage through the state session.
 func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, baseAmount *big.Int, baseIsToken0 bool) error {
 	if c == nil {
 		return fmt.Errorf("failed to run retained state: cache=null")
 	}
-	if baseAmount == nil || baseAmount.Sign() <= 0 {
+	if baseAmount == nil || baseAmount.Sign() <= 0 || baseAmount.BitLen() > 255 {
 		return fmt.Errorf("failed to run retained state: amount=invalid")
 	}
-	defer func() { c.mu.Lock(); c.retained = nil; c.publishQuoteSnapshotLocked(); c.mu.Unlock() }()
-	return c.run(ctx, ws, func(ctx context.Context) error {
-		c.mu.Lock()
-		c.retainedBaseAmount = new(big.Int).Set(baseAmount)
-		c.mu.Unlock()
-		_, err := c.QuotePair(ctx, baseAmount, baseIsToken0)
-		return err
-	})
+	return c.runRetainedSubscription(ctx, ws, new(big.Int).Set(baseAmount), baseIsToken0)
 }
 
 // QuoteRetainedPair calculates from a detached copy of currently retained inputs.
