@@ -23,7 +23,7 @@ func (c *StateCache) captureRetainedFeeState(ctx context.Context, s *poolSnapsho
 	if err != nil {
 		return retainedFeeState{}, err
 	}
-	oracle, err := c.captureRetainedOracle(ctx, s)
+	oracle, err := c.captureRetainedOracle(ctx, s, config.secondsAgo)
 	if err != nil {
 		return retainedFeeState{}, err
 	}

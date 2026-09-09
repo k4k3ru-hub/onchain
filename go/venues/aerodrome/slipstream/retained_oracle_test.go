@@ -69,3 +69,38 @@ func TestRetainedOracleWrapAndFee(t *testing.T) {
 		t.Fatalf("initial fee=%d err=%v", fee, err)
 	}
 }
+
+// TestPartialOracleMatchesFullRing verifies evolving windows, growth and ring overwrite.
+//
+// Version:
+//   - 2026-09-09: Added.
+func TestPartialOracleMatchesFullRing(t *testing.T) {
+	full := retainedOracle{slots: make([]tickObservation, 32), index: 31, next: 40}
+	for i := range full.slots {
+		full.slots[i] = tickObservation{timestamp: uint32(100 + 2*i), cumulative: int64(i*i - 100), initialized: true}
+	}
+	partial := full.clone()
+	partial.known = make([]bool, 32)
+	for i := range partial.slots {
+		partial.known[i] = i >= 20
+		if !partial.known[i] {
+			partial.slots[i] = tickObservation{}
+		}
+	}
+	for now := uint32(162); now < 350; now++ {
+		if now%3 == 0 {
+			for _, o := range []*retainedOracle{&full, &partial} {
+				if err := o.write(now, int32(now%37)-20); err != nil {
+					t.Fatal(err)
+				}
+			}
+		}
+		for ago := uint32(0); ago <= 20; ago++ {
+			a, aok, aerr := full.observe(now, ago, -7)
+			b, bok, berr := partial.observe(now, ago, -7)
+			if aerr != nil || berr != nil || a != b || aok != bok {
+				t.Fatalf("now=%d ago=%d full=%d/%v/%v partial=%d/%v/%v", now, ago, a, aok, aerr, b, bok, berr)
+			}
+		}
+	}
+}

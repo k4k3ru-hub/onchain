@@ -117,6 +117,11 @@ func (c *StateCache) applyRetainedLog(log types.Log, timestamp uint64) error {
 		if err := applyFeeModuleLog(&s.fee.config, c.pool, common.Address{}, log); err != nil {
 			return fail(err)
 		}
+		// A larger oracle window may require history omitted at initialization.
+		// Recover the state session instead of guessing a fee or reading in Quote.
+		if _, _, err := s.fee.oracle.observe(uint32(timestamp), s.fee.config.secondsAgo, s.pool.tick); err != nil {
+			return fail(err)
+		}
 	} else if log.Address == c.pool {
 		if err := applyRetainedPoolEvent(s, log, uint32(timestamp)); err != nil {
 			return fail(err)

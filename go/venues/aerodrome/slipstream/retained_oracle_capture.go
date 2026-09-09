@@ -12,7 +12,8 @@ import (
 
 // captureRetainedOracle is initialization-only. All calls are pinned to the
 // captured pool block; the producer must verify that block hash after capture.
-func (c *StateCache) captureRetainedOracle(ctx context.Context, s *poolSnapshot) (retainedOracle, error) {
+// Read newest to oldest until the fee window is covered, preserving unknown slots.
+func (c *StateCache) captureRetainedOracle(ctx context.Context, s *poolSnapshot, secondsAgo uint32) (retainedOracle, error) {
 	if c == nil || c.rpc == nil || s == nil || ctx == nil {
 		return retainedOracle{}, fmt.Errorf("failed to capture retained oracle: dependency=null")
 	}
@@ -28,12 +29,13 @@ func (c *StateCache) captureRetainedOracle(ctx context.Context, s *poolSnapshot)
 	if !slot.Unlocked || slot.SqrtPriceX96.Cmp(s.price) != 0 || slot.Tick != s.tick || slot.ObservationCardinality == 0 || slot.ObservationIndex >= slot.ObservationCardinality || slot.ObservationCardinalityNext < slot.ObservationCardinality {
 		return retainedOracle{}, fmt.Errorf("failed to capture retained oracle: slot=mismatch")
 	}
-	result := retainedOracle{slots: make([]tickObservation, int(slot.ObservationCardinality)), index: slot.ObservationIndex, next: slot.ObservationCardinalityNext}
-	for start := 0; start < len(result.slots); start += 64 {
-		count := min(64, len(result.slots)-start)
+	result := retainedOracle{slots: make([]tickObservation, int(slot.ObservationCardinality)), known: make([]bool, int(slot.ObservationCardinality)), index: slot.ObservationIndex, next: slot.ObservationCardinalityNext}
+	for start := 0; start < len(result.slots); start += 16 {
+		count := min(16, len(result.slots)-start)
 		calls := make([][]byte, count)
 		for i := range calls {
-			calls[i] = append(append([]byte(nil), crypto.Keccak256([]byte("observations(uint256)"))[:4]...), new(big.Int).SetUint64(uint64(start+i)).FillBytes(make([]byte, 32))...)
+			index := (int(result.index) - start - i + len(result.slots)) % len(result.slots)
+			calls[i] = append(append([]byte(nil), crypto.Keccak256([]byte("observations(uint256)"))[:4]...), new(big.Int).SetUint64(uint64(index)).FillBytes(make([]byte, 32))...)
 		}
 		var outputs [][]byte
 		if batch, ok := c.rpc.(batchStateReader); ok {
@@ -58,11 +60,24 @@ func (c *StateCache) captureRetainedOracle(ctx context.Context, s *poolSnapshot)
 			}
 		}
 		for i, value := range outputs {
+			index := (int(result.index) - start - i + len(result.slots)) % len(result.slots)
 			observation, err := decodeTickObservation(value)
 			if err != nil {
-				return retainedOracle{}, fmt.Errorf("failed to capture retained oracle observation: %w: index=%d", err, start+i)
+				return retainedOracle{}, fmt.Errorf("failed to capture retained oracle observation: %w: index=%d", err, index)
 			}
-			result.slots[start+i] = observation
+			result.slots[index] = observation
+			result.known[index] = true
+		}
+		// A loaded observation at or before the target closes the required window.
+		for i := 0; i < count; i++ {
+			index := (int(result.index) - start - i + len(result.slots)) % len(result.slots)
+			observation := result.slots[index]
+			if observation.initialized && uint32(s.header.Timestamp)-observation.timestamp >= secondsAgo {
+				if err := result.validate(); err != nil {
+					return retainedOracle{}, fmt.Errorf("failed to capture retained oracle: %w", err)
+				}
+				return result, nil
+			}
 		}
 	}
 	if err := result.validate(); err != nil {

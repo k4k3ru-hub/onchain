@@ -70,3 +70,20 @@ func TestRetainedLiquidityUpdatesOracleAndInvalidatesGaps(t *testing.T) {
 		t.Fatal("out-of-order delta did not discard state")
 	}
 }
+
+// TestRetainedFeeWindowExpansionRecoversMissingHistory verifies session recovery rather than a fallback fee.
+//
+// Version:
+//   - 2026-09-09: Added.
+func TestRetainedFeeWindowExpansionRecoversMissingHistory(t *testing.T) {
+	c := retainedTestCache()
+	c.retained.fee.oracle = retainedOracle{slots: []tickObservation{{90, 0, true}, {100, 100, true}, {}}, known: []bool{true, true, false}, index: 1, next: 3}
+	c.retained.fee.config.secondsAgo = 2
+	log := feeEvent("SecondsAgoSet(uint32)", feeValue(20))
+	log.Address = c.retained.fee.module
+	log.BlockNumber = 101
+	log.BlockHash = common.HexToHash("02")
+	if err := c.applyRetainedLog(log, 102); err == nil || c.retained != nil {
+		t.Fatal("missing expanded history did not reset session")
+	}
+}

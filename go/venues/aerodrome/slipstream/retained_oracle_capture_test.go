@@ -13,8 +13,10 @@ import (
 
 type oracleCaptureFake struct {
 	*stateFake
-	batches []int
-	fail    error
+	batches     []int
+	fail        error
+	cardinality int
+	now         uint32
 }
 
 // CallContract returns the pinned oracle slot configuration.
@@ -30,8 +32,12 @@ func (f *oracleCaptureFake) CallContract(ctx context.Context, msg ethereum.CallM
 		return nil, err
 	}
 	if len(data) == 192 {
-		big.NewInt(129).FillBytes(data[96:128])
-		big.NewInt(129).FillBytes(data[128:160])
+		cardinality := f.cardinality
+		if cardinality == 0 {
+			cardinality = 129
+		}
+		big.NewInt(int64(cardinality)).FillBytes(data[96:128])
+		big.NewInt(int64(cardinality)).FillBytes(data[128:160])
 	}
 	return data, nil
 }
@@ -50,6 +56,12 @@ func (f *oracleCaptureFake) ReadContracts(_ context.Context, _ common.Address, c
 	for i := range calls {
 		values[i] = make([]byte, 128)
 		big.NewInt(100).FillBytes(values[i][:32])
+		if f.now != 0 {
+			index := int(new(big.Int).SetBytes(calls[i][4:]).Int64())
+			distance := (f.cardinality - index) % f.cardinality
+			big.NewInt(int64(f.now - uint32(distance*2))).FillBytes(values[i][:32])
+			big.NewInt(int64(f.now-uint32(distance*2)) * 10).FillBytes(values[i][32:64])
+		}
 		big.NewInt(1).FillBytes(values[i][96:])
 	}
 	failures[0] = f.fail
@@ -63,17 +75,17 @@ func (f *oracleCaptureFake) ReadContracts(_ context.Context, _ common.Address, c
 func TestCaptureRetainedOraclePinsAndBatches(t *testing.T) {
 	f := &oracleCaptureFake{stateFake: &stateFake{t: t}}
 	c := &StateCache{rpc: f, pool: common.HexToAddress("0x1")}
-	s := &poolSnapshot{header: evm.BlockHeader{Number: 100}, price: power2(96)}
-	o, err := c.captureRetainedOracle(context.Background(), s)
+	s := &poolSnapshot{header: evm.BlockHeader{Number: 100, Timestamp: 100}, price: power2(96)}
+	o, err := c.captureRetainedOracle(context.Background(), s, 2)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(o.slots) != 129 || len(f.batches) != 3 || f.batches[0] != 64 || f.batches[1] != 64 || f.batches[2] != 1 {
+	if len(o.slots) != 129 || len(f.batches) != 9 || f.batches[0] != 16 || f.batches[8] != 1 {
 		t.Fatalf("batch shape=%v", f.batches)
 	}
 	sentinel := errors.New("missing observation")
 	f.fail = sentinel
-	if _, err := c.captureRetainedOracle(context.Background(), s); !errors.Is(err, sentinel) {
+	if _, err := c.captureRetainedOracle(context.Background(), s, 2); !errors.Is(err, sentinel) {
 		t.Fatalf("lost failure: %v", err)
 	}
 	if _, err := decodeTickObservation(nil); err == nil {
@@ -83,5 +95,40 @@ func TestCaptureRetainedOraclePinsAndBatches(t *testing.T) {
 	data[127] = 2
 	if _, err := decodeTickObservation(data); err == nil {
 		t.Fatal("noncanonical bool accepted")
+	}
+}
+
+// TestCaptureRetainedOracleLoadsOnlyFeeWindow verifies RPC reduction without changing ring cardinality.
+//
+// Version:
+//   - 2026-09-09: Added.
+func TestCaptureRetainedOracleLoadsOnlyFeeWindow(t *testing.T) {
+	f := &oracleCaptureFake{stateFake: &stateFake{t: t}, cardinality: 65535, now: 200000}
+	c := &StateCache{rpc: f, pool: common.HexToAddress("0x1")}
+	s := &poolSnapshot{header: evm.BlockHeader{Number: 100, Timestamp: uint64(f.now)}, price: power2(96)}
+	o, err := c.captureRetainedOracle(context.Background(), s, 20)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(o.slots) != 65535 || len(f.batches) != 1 || f.batches[0] != 16 {
+		t.Fatalf("unexpected capture: ring=%d batches=%v", len(o.slots), f.batches)
+	}
+	got, ok, err := o.observe(f.now, 19, 10)
+	if err != nil || !ok || got != int64(f.now-19)*10 {
+		t.Fatalf("interpolation=%d %v %v", got, ok, err)
+	}
+	if _, _, err := o.observe(f.now, 40, 10); err == nil {
+		t.Fatal("unloaded history treated as absent on chain")
+	}
+	before := o.clone()
+	if err := o.write(f.now+2, 10); err != nil {
+		t.Fatal(err)
+	}
+	if !o.known[1] || before.known[1] {
+		t.Fatal("coverage write or copy failed")
+	}
+	got, ok, err = o.observe(f.now+2, 20, 10)
+	if err != nil || !ok || got != int64(f.now-18)*10 {
+		t.Fatalf("stream continuation=%d %v %v", got, ok, err)
 	}
 }
