@@ -92,3 +92,37 @@ func TestRetainedFeeWindowExpansionRecoversMissingHistory(t *testing.T) {
 		t.Fatal("missing expanded history did not reset session")
 	}
 }
+
+// TestRetainedSameBlockReplay verifies late logs are replayed without double-counting liquidity.
+//
+// Version:
+//   - 2026-09-09: Added.
+func TestRetainedSameBlockReplay(t *testing.T) {
+	c := retainedTestCache()
+	mk := func(index uint, amount int64) types.Log {
+		lower := new(big.Int).Sub(power2(256), big.NewInt(60))
+		log := types.Log{Address: c.pool, BlockNumber: 101, BlockHash: common.HexToHash("02"), Index: index, Topics: []common.Hash{crypto.Keccak256Hash([]byte("Mint(address,address,int24,int24,uint128,uint256,uint256)")), {}, common.BigToHash(lower), common.BigToHash(big.NewInt(60))}, Data: make([]byte, 128)}
+		big.NewInt(amount).FillBytes(log.Data[32:64])
+		return log
+	}
+	late, early := mk(60, 100), mk(55, 50)
+	if err := c.applyRetainedLog(late, 102); err != nil {
+		t.Fatal(err)
+	}
+	frozen := cloneRetainedPool(c.retained)
+	if err := c.applyRetainedLog(early, 102); err != nil {
+		t.Fatal(err)
+	}
+	if c.retained.pool.liquidity.Int64() != 1000000000000000150 || c.retained.pool.ticks[-60].Int64() != 150 {
+		t.Fatal("replay lost or doubled delta")
+	}
+	if frozen.pool.liquidity.Int64() != 1000000000000000100 {
+		t.Fatal("changed published snapshot")
+	}
+	if err := c.applyRetainedLog(early, 102); err != nil {
+		t.Fatal(err)
+	}
+	if c.retained.pool.ticks[-60].Int64() != 150 {
+		t.Fatal("duplicate applied")
+	}
+}

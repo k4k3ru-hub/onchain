@@ -172,8 +172,9 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification) (err e
 	if next.bitmap != old.bitmap || next.ticks != old.ticks || next.keyType != old.keyType || next.pool.CoinTypeA != old.pool.CoinTypeA || next.pool.CoinTypeB != old.pool.CoinTypeB {
 		return fmt.Errorf("failed to apply retained turbos pool: configuration=changed")
 	}
-	next.words = old.words
-	next.nets = old.nets
+	detached := cloneRetainedState(old)
+	next.words = detached.words
+	next.nets = detached.nets
 	next.retainedOnly = true
 	next.captured = old.captured
 	for _, change := range n.ObjectChanges {
@@ -198,6 +199,9 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification) (err e
 		}
 		if err := json.Unmarshal(obj.Move.JSON, &field); err != nil {
 			return fmt.Errorf("failed to decode retained turbos field: %w", err)
+		}
+		if len(field.Name.Bits) == 0 || string(field.Name.Bits) == "null" {
+			return fmt.Errorf("failed to decode retained turbos key: name_bits=null object_type=%q", obj.Move.Type)
 		}
 		index, err := jsonUnsigned(field.Name.Bits)
 		if err != nil {

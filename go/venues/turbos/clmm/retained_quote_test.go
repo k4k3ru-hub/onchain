@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/k4k3ru-hub/onchain/go/sui"
+	"math/big"
 	"testing"
 	"time"
 )
@@ -145,5 +146,34 @@ func TestRetainedVersionGapStillQuotesLocally(t *testing.T) {
 	n.ObjectChanges[0].After = &older
 	if err := c.applyRetainedObjects(n); err != nil || c.retained.version != after.Version {
 		t.Fatal("older notification rolled back state", err)
+	}
+}
+
+// TestRetainedMissingKeyDoesNotMutateBaseline verifies malformed fields cannot partially change held inputs.
+//
+// Version:
+//   - 2026-09-09: Added.
+func TestRetainedMissingKeyDoesNotMutateBaseline(t *testing.T) {
+	c, f, p := stateFixture(t)
+	if _, err := c.QuotePair(context.Background(), p); err != nil {
+		t.Fatal(err)
+	}
+	old := c.retained
+	before := *f.obj
+	after := before
+	after.Version++
+	cp := sui.CheckpointSequenceNumber(124)
+	word := &sui.Object{Move: &sui.MoveObject{JSON: json.RawMessage(`{"name":{"bits":"0"},"value":"1024"}`)}}
+	invalid := &sui.Object{Move: &sui.MoveObject{JSON: json.RawMessage(`{"name":{},"value":"0"}`)}}
+	original := new(big.Int).Set(old.words[0])
+	n := &sui.TransactionNotification{Effects: &sui.TransactionEffects{Checkpoint: &cp, Successful: true}, ObjectChanges: []sui.ObjectChange{{Address: c.pool, Before: &before, After: &after}, {OutputParent: old.bitmap, After: word}, {OutputParent: old.bitmap, After: invalid}}}
+	if err := c.applyRetainedObjects(n); err == nil {
+		t.Fatal("missing key accepted")
+	}
+	if old.words[0].Cmp(original) != 0 {
+		t.Fatal("failed update mutated baseline")
+	}
+	if c.retained != nil {
+		t.Fatal("incomplete state remained available")
 	}
 }

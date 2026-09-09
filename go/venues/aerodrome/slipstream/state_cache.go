@@ -51,6 +51,9 @@ type quoteNotifications struct {
 }
 
 type StateCache struct {
+	replayBase        *retainedPoolState
+	replayState       *retainedPoolState
+	replayLogs        []types.Log
 	retained          *retainedPoolState // protected by mu; independent of the legacy quote gate
 	verificationEpoch uint64
 	rpc               StateRPC

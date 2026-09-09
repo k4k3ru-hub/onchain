@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/big"
 	"slices"
+	"sort"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -91,6 +92,52 @@ func cloneRetainedPool(source *retainedPoolState) *retainedPoolState {
 // applyRetainedLog runs under mu. The producer supplies the block timestamp
 // matched by hash. Failure clears every retained input before recovery.
 func (c *StateCache) applyRetainedLog(log types.Log, timestamp uint64) error {
+	s := c.retained
+	if s == nil || s.pool == nil || log.Removed || log.BlockNumber <= s.pool.header.Number {
+		return c.applyOrderedRetainedLog(log, timestamp)
+	}
+	if c.replayState != s || len(c.replayLogs) == 0 || log.BlockNumber > c.replayLogs[0].BlockNumber {
+		c.replayBase = cloneRetainedPool(s)
+		c.replayLogs = nil
+	}
+	if len(c.replayLogs) > 0 && log.BlockNumber == c.replayLogs[0].BlockNumber && log.BlockHash == c.replayLogs[0].BlockHash && timestamp == s.timestamp {
+		for _, prev := range c.replayLogs {
+			if prev.Index == log.Index {
+				if prev.Address == log.Address && prev.TxHash == log.TxHash && prev.TxIndex == log.TxIndex && slices.Equal(prev.Topics, log.Topics) && bytes.Equal(prev.Data, log.Data) {
+					return nil
+				}
+				c.retained = nil
+				return fmt.Errorf("failed to apply retained slipstream log: conflicting event replay")
+			}
+		}
+	}
+	if len(c.replayLogs) >= 4096 {
+		c.retained = nil
+		return fmt.Errorf("failed to apply retained slipstream log: events=too_long")
+	}
+	log.Topics = slices.Clone(log.Topics)
+	log.Data = bytes.Clone(log.Data)
+	if len(c.replayLogs) > 0 && log.BlockNumber == s.block && log.BlockHash == s.hash && timestamp == s.timestamp && log.Index < s.index {
+		events := append(slices.Clone(c.replayLogs), log)
+		sort.Slice(events, func(i, j int) bool { return events[i].Index < events[j].Index })
+		c.retained = cloneRetainedPool(c.replayBase)
+		for _, event := range events {
+			if err := c.applyOrderedRetainedLog(event, timestamp); err != nil {
+				return err
+			}
+		}
+		c.replayLogs = events
+	} else {
+		if err := c.applyOrderedRetainedLog(log, timestamp); err != nil {
+			return err
+		}
+		c.replayLogs = append(c.replayLogs, log)
+	}
+	c.replayState = c.retained
+	return nil
+}
+
+func (c *StateCache) applyOrderedRetainedLog(log types.Log, timestamp uint64) error {
 	fail := func(err error) error {
 		c.retained = nil
 		return fmt.Errorf("failed to apply retained slipstream log: %w", err)
