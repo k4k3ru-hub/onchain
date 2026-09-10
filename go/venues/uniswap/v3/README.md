@@ -63,6 +63,25 @@ session recovery. Refreshes run one at a time, at least one second apart;
 failed refreshes retain usable inputs and retry with delays up to 30 seconds.
 Capture has a 30-second timeout. Initial capture errors return to the caller.
 
+`RunRetainedWithEvents` additionally forwards accepted live Swaps through
+`RetainedEvents.OnSwap`, with the original dequeue receipt time. It uses the same
+pool log subscription as retained state updates. Callbacks run serially outside
+the cache lock: snapshot observers are notified before the live Swap callback.
+No Swap callback is emitted by background replay. Callbacks should return promptly;
+a callback error ends the session and preserves its error chain.
+
+In this mode, initial capture failures and state invalidations retry in place,
+without closing the live subscription. Swaps continue while quote inputs are
+unavailable. Invalidations cancel obsolete captures; an epoch check prevents
+late results from reinstalling invalid state. Recovery baselines must reach the
+highest discarded stream block before buffered deltas can be replayed.
+A bounded 4,096-log history suppresses exact duplicates without refreshing their
+receipt time. Content conflicts, out-of-order logs, removed logs and hash
+mismatches have separate reasons. An evicted old log is treated conservatively
+as an ordering violation, not guessed to be a duplicate. `OnRecovery` reports
+failures so applications can schedule historical reconciliation; subscription
+transport failures still return to the caller for reconnection.
+
 Session invalidation errors include a reason, pool, block number/hash and log
 index, distinguishing removed logs, missing hashes, baseline/stream hash
 mismatches, ordering violations, missing state/topics and unsupported events.

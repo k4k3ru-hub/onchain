@@ -29,7 +29,7 @@ func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, baseAmount
 	if baseAmount == nil || baseAmount.Sign() <= 0 || baseAmount.BitLen() > 255 {
 		return fmt.Errorf("failed to run retained state: amount=invalid")
 	}
-	return c.runRetainedSubscription(ctx, ws, new(big.Int).Set(baseAmount), baseIsToken0)
+	return c.runRetainedSubscription(ctx, ws, new(big.Int).Set(baseAmount), baseIsToken0, nil)
 }
 
 // QuoteRetainedPair calculates from a detached copy of currently retained inputs.
@@ -282,4 +282,30 @@ func (c *StateCache) requestRetainedRecovery(source *poolSnapshot, amount *big.I
 	case c.retainedRecovery <- struct{}{}:
 	default:
 	}
+}
+
+// RetainedEvents receives serialized notifications outside the state-cache lock.
+// OnSwap must return promptly; it is invoked once for each accepted live Swap,
+// including while the initial or recovery snapshot is being acquired.
+// OnRecovery reports invalidation or capture failure without closing the stream.
+type RetainedEvents struct {
+	OnSubscribed func()
+	OnSwap       func(context.Context, Swap, time.Time) error
+	OnRecovery   func(error)
+}
+
+// RunRetainedWithEvents maintains pool inputs and emits live Swaps from one subscription.
+// State recovery keeps the subscription open and rejects obsolete capture results.
+// Callbacks run serially outside the state lock; replay never re-emits live Swaps.
+//
+// Version:
+//   - 2026-09-10: Added.
+func (c *StateCache) RunRetainedWithEvents(ctx context.Context, ws WSRPCClient, baseAmount *big.Int, baseIsToken0 bool, events RetainedEvents) error {
+	if c == nil || ctx == nil || ws == nil {
+		return fmt.Errorf("failed to run retained events: dependency=null")
+	}
+	if baseAmount == nil || baseAmount.Sign() <= 0 || baseAmount.BitLen() > 255 {
+		return fmt.Errorf("failed to run retained events: amount=out_of_range")
+	}
+	return c.runRetainedSubscription(ctx, ws, new(big.Int).Set(baseAmount), baseIsToken0, &events)
 }

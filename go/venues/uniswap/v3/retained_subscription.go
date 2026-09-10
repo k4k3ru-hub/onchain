@@ -18,6 +18,7 @@ const retainedReplayLimit = 4096
 type retainedCaptureResult struct {
 	snapshot *poolSnapshot
 	err      error
+	epoch    uint64
 }
 
 // bitmapWord uses floor division, including negative ticks that are not spaced.
@@ -88,7 +89,7 @@ func (c *StateCache) captureRetainedWindow(ctx context.Context, amount *big.Int,
 	return s, nil
 }
 
-func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient, amount *big.Int, baseIsToken0 bool) error {
+func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient, amount *big.Int, baseIsToken0 bool, events *RetainedEvents) error {
 	if ctx == nil || ws == nil {
 		return fmt.Errorf("failed to run retained state: dependency=null")
 	}
@@ -129,6 +130,9 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 	c.mu.Lock()
 	c.active = true
 	c.mu.Unlock()
+	if events != nil && events.OnSubscribed != nil {
+		events.OnSubscribed()
+	}
 	results := make(chan retainedCaptureResult, 1)
 	type receivedLog struct {
 		log types.Log
@@ -138,27 +142,52 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 	busy, pending := false, true
 	delay := time.Second
 	var nextAttempt time.Time
+	var epoch uint64
+	var observedBlock, recoveryFloor uint64
+	var captureCancel context.CancelFunc
+	var order retainedLogOrder
+	invalidate := func(err error) {
+		epoch++
+		recoveryFloor = observedBlock
+		if captureCancel != nil {
+			captureCancel()
+		}
+		replay = nil
+		c.mu.Lock()
+		c.retained = nil
+		c.generation++
+		c.publishQuoteSnapshotLocked()
+		c.mu.Unlock()
+		pending = true
+		nextAttempt = time.Now().Add(delay)
+		if events.OnRecovery != nil {
+			events.OnRecovery(err)
+		}
+	}
+
 	timer := time.NewTimer(time.Hour)
 	defer timer.Stop()
 	for {
 		if pending && !busy && !time.Now().Before(nextAttempt) {
 			c.mu.Lock()
-			var floor uint64
+			floor := recoveryFloor
 			var hash common.Hash
 			if c.retained != nil {
 				floor, hash = c.retainedBlock, c.retainedHash
+				replay = nil
 			}
 			c.mu.Unlock()
 			busy, pending = true, false
-			replay = nil
+			readCtx, stop := context.WithTimeout(ctx, 30*time.Second)
+			captureCancel = stop
+			captureEpoch := epoch
 			workers.Add(1)
 			go func() {
 				defer workers.Done()
-				readCtx, stop := context.WithTimeout(ctx, 30*time.Second)
 				defer stop()
 				s, err := c.captureRetainedWindow(readCtx, amount, baseIsToken0, floor, hash)
 				select {
-				case results <- retainedCaptureResult{s, err}:
+				case results <- retainedCaptureResult{snapshot: s, err: err, epoch: captureEpoch}:
 				case <-ctx.Done():
 				}
 			}()
@@ -176,14 +205,22 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 			return fmt.Errorf("failed to watch retained state: %w", err)
 		case result := <-results:
 			busy = false
+			captureCancel = nil
+			if result.epoch != epoch {
+				timer.Reset(max(time.Until(nextAttempt), time.Millisecond))
+				continue
+			}
 			if result.err != nil {
 				// Keep usable streamed inputs during a failed refresh. Initial
 				// capture errors remain visible to the application's retry loop.
 				c.mu.Lock()
 				hasState := c.retained != nil
 				c.mu.Unlock()
-				if !hasState {
+				if !hasState && events == nil {
 					return result.err
+				}
+				if events != nil && events.OnRecovery != nil {
+					events.OnRecovery(result.err)
 				}
 				pending = true
 				nextAttempt = time.Now().Add(delay)
@@ -192,10 +229,20 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 				continue
 			}
 			candidate := &StateCache{retained: result.snapshot, retainedBlock: result.snapshot.header.Number, retainedHash: result.snapshot.header.Hash}
+			var replayErr error
 			for _, log := range replay {
 				if err := candidate.applyRetainedLog(log.log, log.at); err != nil {
-					return fmt.Errorf("failed to replay retained window: %w", err)
+					replayErr = fmt.Errorf("failed to replay retained window: %w", err)
+					break
 				}
+			}
+			if replayErr != nil {
+				if events == nil {
+					return replayErr
+				}
+				invalidate(replayErr)
+				timer.Reset(delay)
+				continue
 			}
 			replay = nil
 			c.mu.Lock()
@@ -216,15 +263,36 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 			if log.Address != c.pool {
 				continue
 			}
-			if log.Removed {
-				return retainedReinitializationError(log, "removed log")
+			if events != nil {
+				observedBlock = max(observedBlock, log.BlockNumber)
+				duplicate, err := order.accept(log)
+				if duplicate {
+					continue
+				}
+				if err != nil {
+					invalidate(err)
+					timer.Reset(delay)
+					continue
+				}
+			} else {
+				if log.Removed {
+					return retainedReinitializationError(log, "removed log")
+				}
+				if log.BlockHash == (common.Hash{}) {
+					return retainedReinitializationError(log, "missing block hash")
+				}
 			}
-			if log.BlockHash == (common.Hash{}) {
-				return retainedReinitializationError(log, "missing block hash")
-			}
-			if busy {
+			c.mu.Lock()
+			missingState := c.retained == nil
+			c.mu.Unlock()
+			if busy || (events != nil && missingState) {
 				if len(replay) >= retainedReplayLimit {
-					return fmt.Errorf("failed to buffer retained logs: replay=too_long max_length=%d", retainedReplayLimit)
+					err := fmt.Errorf("failed to buffer retained logs: replay=too_long max_length=%d", retainedReplayLimit)
+					if events == nil {
+						return err
+					}
+					invalidate(err)
+					timer.Reset(delay)
 				}
 				replay = append(replay, receivedLog{log, receivedAt})
 			}
@@ -233,12 +301,28 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 				err := c.applyRetainedLog(log, receivedAt)
 				if err != nil {
 					c.mu.Unlock()
-					return err
+					if events == nil {
+						return err
+					}
+					invalidate(err)
+					timer.Reset(delay)
+					continue
 				}
 				pending = pending || c.retainedNeedsCapture(amount, baseIsToken0)
 				c.publishQuoteSnapshotLocked()
 			}
 			c.mu.Unlock()
+			if events != nil && events.OnSwap != nil && len(log.Topics) > 0 && log.Topics[0] == swapEventSignatureHash() {
+				swap, err := DecodeSwapLog(log)
+				if err != nil {
+					invalidate(fmt.Errorf("failed to decode retained live swap: %w", err))
+					timer.Reset(delay)
+					continue
+				}
+				if err := events.OnSwap(ctx, swap, receivedAt); err != nil {
+					return fmt.Errorf("failed to consume retained live swap: %w", err)
+				}
+			}
 		}
 	}
 }
