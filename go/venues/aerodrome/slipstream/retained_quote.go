@@ -15,15 +15,16 @@ import (
 )
 
 type retainedPoolState struct {
-	received  time.Time
-	pool      *poolSnapshot
-	fee       retainedFeeState
-	block     uint64
-	hash      common.Hash
-	index     uint
-	hasLog    bool
-	timestamp uint64
-	lastLog   types.Log
+	replayRevision uint64
+	received       time.Time
+	pool           *poolSnapshot
+	fee            retainedFeeState
+	block          uint64
+	hash           common.Hash
+	index          uint
+	hasLog         bool
+	timestamp      uint64
+	lastLog        types.Log
 }
 
 // QuoteRetainedPair calculates from a detached copy of retained pool inputs.
@@ -129,6 +130,7 @@ func (c *StateCache) applyRetainedLog(log types.Log, timestamp uint64, receipt .
 			}
 		}
 		c.replayLogs = events
+		c.retained.replayRevision = s.replayRevision + 1
 	} else {
 		if err := c.applyOrderedRetainedLog(log, timestamp); err != nil {
 			return err

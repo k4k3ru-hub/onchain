@@ -96,6 +96,7 @@ func TestRetainedFeeWindowExpansionRecoversMissingHistory(t *testing.T) {
 // TestRetainedSameBlockReplay verifies late logs are replayed without double-counting liquidity.
 //
 // Version:
+//   - 2026-09-11: Publish a correction revision at the unchanged maximum log position.
 //   - 2026-09-09: Added.
 func TestRetainedSameBlockReplay(t *testing.T) {
 	c := retainedTestCache()
@@ -110,6 +111,7 @@ func TestRetainedSameBlockReplay(t *testing.T) {
 		t.Fatal(err)
 	}
 	frozen := cloneRetainedPool(c.retained)
+	before := c.CaptureQuoteSnapshot().Inputs()
 	if err := c.applyRetainedLog(early, 102); err != nil {
 		t.Fatal(err)
 	}
@@ -119,10 +121,17 @@ func TestRetainedSameBlockReplay(t *testing.T) {
 	if frozen.pool.liquidity.Int64() != 1000000000000000100 {
 		t.Fatal("changed published snapshot")
 	}
+	after := c.CaptureQuoteSnapshot().Inputs()
+	if before.ReplayRevision != 0 || after.ReplayRevision != 1 || *before.Position.Index != *after.Position.Index || before.Fields["liquidity"] == after.Fields["liquidity"] {
+		t.Fatal("replay correction provenance missing")
+	}
 	if err := c.applyRetainedLog(early, 102); err != nil {
 		t.Fatal(err)
 	}
 	if c.retained.pool.ticks[-60].Int64() != 150 {
 		t.Fatal("duplicate applied")
+	}
+	if c.CaptureQuoteSnapshot().Inputs().ReplayRevision != 1 {
+		t.Fatal("duplicate advanced correction revision")
 	}
 }

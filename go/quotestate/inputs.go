@@ -21,6 +21,8 @@ type Segment struct{ Lower, Upper int64 }
 // were fetched at Position. Baseline identifies initialization; Fields describes
 // the latest pool object, and coverage lists actually retained bitmap words/ticks.
 type Inputs struct {
+	// ReplayRevision advances only after validated late-log replay within a baseline.
+	ReplayRevision     uint64
 	UnavailableReason  string // Empty means no known pool-level prohibition; quantity checks still apply.
 	Baseline, Position Position
 	ReceivedAt         time.Time
