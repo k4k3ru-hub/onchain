@@ -30,15 +30,17 @@ type EventQuery struct {
 }
 
 type Event struct {
-	Checkpoint     CheckpointSequenceNumber
-	SequenceNumber uint64
-	Sender         Address
-	Timestamp      time.Time
-	Transaction    TransactionDigest
-	Package        Address
-	Module         string
-	Type           string
-	JSON           json.RawMessage
+	// TransactionIndex is nil when the transport does not expose checkpoint-local ordering.
+	TransactionIndex *uint64
+	Checkpoint       CheckpointSequenceNumber
+	SequenceNumber   uint64
+	Sender           Address
+	Timestamp        time.Time
+	Transaction      TransactionDigest
+	Package          Address
+	Module           string
+	Type             string
+	JSON             json.RawMessage
 }
 
 type EventPage struct {

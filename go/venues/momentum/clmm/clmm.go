@@ -362,20 +362,22 @@ func AppendRepayFlashSwap(builder *onchainSui.ProgrammableTransactionBuilder, de
 }
 
 type Swap struct {
-	Checkpoint      onchainSui.CheckpointSequenceNumber
-	SequenceNumber  uint64
-	Transaction     onchainSui.TransactionDigest
-	EventIndex      uint32
-	Timestamp       time.Time
-	Sender          onchainSui.Address
-	Pool            onchainSui.Address
-	XForY           bool
-	AmountX         uint64
-	AmountY         uint64
-	FeeAmount       uint64
-	ProtocolFee     uint64
-	SqrtPriceBefore string
-	SqrtPriceAfter  string
+	// TransactionIndex is checkpoint-local; nil means unavailable, not index zero.
+	TransactionIndex *uint64
+	Checkpoint       onchainSui.CheckpointSequenceNumber
+	SequenceNumber   uint64
+	Transaction      onchainSui.TransactionDigest
+	EventIndex       uint32
+	Timestamp        time.Time
+	Sender           onchainSui.Address
+	Pool             onchainSui.Address
+	XForY            bool
+	AmountX          uint64
+	AmountY          uint64
+	FeeAmount        uint64
+	ProtocolFee      uint64
+	SqrtPriceBefore  string
+	SqrtPriceAfter   string
 }
 
 // ParseSwapEvent parses a historical Momentum SwapEvent.
@@ -388,6 +390,7 @@ type Swap struct {
 //   - Parse error.
 //
 // Version:
+//   - 2026-09-10: Preserve checkpoint-local transaction ordering.
 //   - 2026-09-03: Preserved the checkpoint from historical events.
 //   - 2026-09-01: Accepted the deployed trade::SwapEvent type.
 //   - 2026-08-30: Added.
@@ -398,6 +401,10 @@ func ParseSwapEvent(event onchainSui.Event) (Swap, error) {
 	}
 	swap.Checkpoint, swap.SequenceNumber = event.Checkpoint, event.SequenceNumber
 	swap.Transaction, swap.Timestamp = event.Transaction, event.Timestamp
+	if event.TransactionIndex != nil {
+		index := *event.TransactionIndex
+		swap.TransactionIndex = &index
+	}
 	return swap, nil
 }
 
@@ -411,6 +418,7 @@ func ParseSwapEvent(event onchainSui.Event) (Swap, error) {
 //   - Parse error.
 //
 // Version:
+//   - 2026-09-10: Preserve checkpoint-local transaction ordering.
 //   - 2026-08-30: Added.
 func ParseLiveSwapEvent(event onchainSui.LiveEvent) (Swap, error) {
 	swap, err := parseSwapJSON(event.Type, event.JSON)
@@ -418,6 +426,8 @@ func ParseLiveSwapEvent(event onchainSui.LiveEvent) (Swap, error) {
 		return Swap{}, err
 	}
 	swap.Checkpoint, swap.Transaction, swap.EventIndex = event.Checkpoint, event.Transaction, event.EventIndex
+	index := event.TransactionIndex
+	swap.TransactionIndex = &index
 	return swap, nil
 }
 

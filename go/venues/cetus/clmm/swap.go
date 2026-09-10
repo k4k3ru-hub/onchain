@@ -10,19 +10,21 @@ import (
 )
 
 type Swap struct {
-	Checkpoint      onchainSui.CheckpointSequenceNumber
-	SequenceNumber  uint64
-	Transaction     onchainSui.TransactionDigest
-	EventIndex      uint32
-	Timestamp       time.Time
-	Pool            onchainSui.Address
-	Sender          onchainSui.Address
-	A2B             bool
-	AmountIn        uint64
-	AmountOut       uint64
-	FeeAmount       uint64
-	BeforeSqrtPrice string
-	AfterSqrtPrice  string
+	// TransactionIndex is checkpoint-local; nil means unavailable, not index zero.
+	TransactionIndex *uint64
+	Checkpoint       onchainSui.CheckpointSequenceNumber
+	SequenceNumber   uint64
+	Transaction      onchainSui.TransactionDigest
+	EventIndex       uint32
+	Timestamp        time.Time
+	Pool             onchainSui.Address
+	Sender           onchainSui.Address
+	A2B              bool
+	AmountIn         uint64
+	AmountOut        uint64
+	FeeAmount        uint64
+	BeforeSqrtPrice  string
+	AfterSqrtPrice   string
 }
 
 // ParseSwapEvent parses a Cetus CLMM swap event.
@@ -35,6 +37,7 @@ type Swap struct {
 //   - Parse or validation error.
 //
 // Version:
+//   - 2026-09-10: Preserve checkpoint-local transaction ordering.
 //   - 2026-08-31: Supported the current atob field and optional sender in Cetus swap events.
 //   - 2026-08-30: Added.
 func ParseSwapEvent(event onchainSui.Event) (Swap, error) {
@@ -46,6 +49,10 @@ func ParseSwapEvent(event onchainSui.Event) (Swap, error) {
 	swap.Checkpoint = event.Checkpoint
 	swap.Transaction = event.Transaction
 	swap.Timestamp = event.Timestamp
+	if event.TransactionIndex != nil {
+		index := *event.TransactionIndex
+		swap.TransactionIndex = &index
+	}
 	return swap, nil
 }
 
@@ -59,6 +66,7 @@ func ParseSwapEvent(event onchainSui.Event) (Swap, error) {
 //   - Parse or validation error.
 //
 // Version:
+//   - 2026-09-10: Preserve checkpoint-local transaction ordering.
 //   - 2026-08-30: Added.
 func ParseLiveSwapEvent(event onchainSui.LiveEvent) (Swap, error) {
 	swap, err := parseSwapEvent(event.Type, event.JSON)
@@ -68,6 +76,8 @@ func ParseLiveSwapEvent(event onchainSui.LiveEvent) (Swap, error) {
 	swap.Checkpoint = event.Checkpoint
 	swap.Transaction = event.Transaction
 	swap.EventIndex = event.EventIndex
+	index := event.TransactionIndex
+	swap.TransactionIndex = &index
 	return swap, nil
 }
 
