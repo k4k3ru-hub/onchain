@@ -2,7 +2,9 @@ package v3
 
 import (
 	"context"
+	"errors"
 	"math/big"
+	"strings"
 	"testing"
 	"time"
 
@@ -14,6 +16,7 @@ import (
 // TestRetainedSwapQuotesWithoutRPC verifies stream inputs and detached math.
 //
 // Version:
+//   - 2026-09-11: Verify local coverage wording and preserved recovery cause.
 //   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Added.
 func TestRetainedSwapQuotesWithoutRPC(t *testing.T) {
@@ -72,8 +75,12 @@ func TestRetainedSwapQuotesWithoutRPC(t *testing.T) {
 	c.retainedBaseAmount = new(big.Int).Set(amount)
 	c.retainedRecovery = make(chan struct{}, 1)
 	delete(c.retained.words, 0)
-	if _, err := c.QuoteRetainedPair(ctx, amount, true); err == nil {
-		t.Fatal("missing bitmap accepted")
+	if _, err := c.QuoteRetainedPair(ctx, amount, true); !errors.Is(err, errStateReadBudget) || !strings.Contains(err.Error(), "coverage=insufficient") || strings.Contains(err.Error(), "rpc_budget=exhausted") {
+		t.Fatalf("unexpected local coverage error: %v", err)
+	}
+	frozenMissing := c.CaptureQuoteSnapshot()
+	if _, err := frozenMissing.QuotePair(ctx, amount, true); !errors.Is(err, errStateReadBudget) || !strings.Contains(err.Error(), "coverage=insufficient") {
+		t.Fatalf("unexpected frozen coverage error: %v", err)
 	}
 	if rpc.calls != calls {
 		t.Fatal("missing bitmap fetched")

@@ -61,15 +61,8 @@ func (c *StateCache) captureRetainedWindow(ctx context.Context, amount *big.Int,
 	}
 	center := bitmapWord(s.tick, s.spacing)
 	minWord, maxWord := bitmapWord(-887272, s.spacing), bitmapWord(887272, s.spacing)
-	for word := max(center-1, minWord); word <= min(center+1, maxWord); word++ {
-		data, err := reader.read(ctx, s, "tickBitmap(int16)", big.NewInt(int64(word)), &budget)
-		if err != nil {
-			return nil, fmt.Errorf("failed to capture retained bitmap: %w: word=%d", err, word)
-		}
-		if len(data) != 32 {
-			return nil, fmt.Errorf("failed to capture retained bitmap: result=invalid word=%d", word)
-		}
-		s.words[word] = new(big.Int).SetBytes(data)
+	if err := reader.readBitmapWindow(ctx, s, max(center-1, minWord), min(center+1, maxWord), &budget); err != nil {
+		return nil, err
 	}
 	// Only fetch tick details required by the reference pair. A sparse pool may
 	// require additional words; all contract reads share the existing 64-call cap.

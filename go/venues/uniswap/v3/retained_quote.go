@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -38,6 +39,7 @@ func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, baseAmount
 // streamed core fields may be newer and do not imply an atomic on-chain snapshot.
 //
 // Version:
+//   - 2026-09-11: Report missing local inputs as coverage=insufficient.
 //   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Notify the state producer of missing reference-quote coverage without waiting.
 //   - 2026-09-09: Keep local capture time separate from input provenance.
@@ -63,12 +65,12 @@ func (c *StateCache) QuoteRetainedPair(ctx context.Context, amount *big.Int, bas
 	bid, err := c.quote(ctx, snapshot, amount, baseIsToken0, true, &budget)
 	if err != nil {
 		c.requestRetainedRecovery(source, amount, err)
-		return LocalPair{}, fmt.Errorf("failed to quote retained bid: %w", err)
+		return LocalPair{}, fmt.Errorf("failed to quote retained bid: %w", retainedQuoteError(err))
 	}
 	ask, err := c.quote(ctx, snapshot, amount, !baseIsToken0, false, &budget)
 	if err != nil {
 		c.requestRetainedRecovery(source, amount, err)
-		return LocalPair{}, fmt.Errorf("failed to quote retained ask: %w", err)
+		return LocalPair{}, fmt.Errorf("failed to quote retained ask: %w", retainedQuoteError(err))
 	}
 	if err := ctx.Err(); err != nil {
 		return LocalPair{}, fmt.Errorf("failed to quote retained state: %w", err)
@@ -308,4 +310,29 @@ func (c *StateCache) RunRetainedWithEvents(ctx context.Context, ws WSRPCClient, 
 		return fmt.Errorf("failed to run retained events: amount=out_of_range")
 	}
 	return c.runRetainedSubscription(ctx, ws, new(big.Int).Set(baseAmount), baseIsToken0, &events)
+}
+
+// retainedCoverageError preserves the read-budget cause while describing the
+// zero-RPC consumer's missing inputs rather than bootstrap RPC exhaustion.
+type retainedCoverageError struct{ cause error }
+
+// Error describes missing local quote coverage.
+//
+// Version:
+//   - 2026-09-11: Added.
+func (e retainedCoverageError) Error() string {
+	return strings.ReplaceAll(e.cause.Error(), errStateReadBudget.Error(), "coverage=insufficient")
+}
+
+// Unwrap preserves the cause used by coverage recovery.
+//
+// Version:
+//   - 2026-09-11: Added.
+func (e retainedCoverageError) Unwrap() error { return e.cause }
+
+func retainedQuoteError(err error) error {
+	if errors.Is(err, errStateReadBudget) {
+		return retainedCoverageError{cause: err}
+	}
+	return err
 }

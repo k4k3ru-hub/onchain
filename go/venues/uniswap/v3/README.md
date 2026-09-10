@@ -131,3 +131,18 @@ still invalidate; older blocks are conservatively treated as updates. TTL and
 observation timestamps are unchanged. This common v3 optimization applies to
 all configured chains, including Base. It does not guarantee fewer than two
 RPC calls per quote on busy pools; deployment measurements remain necessary.
+
+## Retained bitmap batching
+
+Retained-window acquisition reads the current bitmap word and its immediate
+neighbors (center ±1, clipped to valid tick bounds). Readers implementing the
+optional `ReadContracts` method fetch these words in one batch pinned to the
+snapshot block. Readers without that method retain sequential acquisition.
+The 64-read acquisition budget counts each bitmap call, not the batch envelope.
+Transport errors, individual failures and malformed results reject the window;
+failed batches are not retried as individual calls. Final block-hash verification
+still applies. Tick details remain fetched as needed for the reference quote.
+
+Local retained and frozen quotes never fetch missing inputs. They report
+`coverage=insufficient`, preserving the underlying error identity for recovery.
+Actual acquisition-budget exhaustion still reports `rpc_budget=exhausted`.
