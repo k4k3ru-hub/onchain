@@ -114,3 +114,45 @@ func TestRetainedTickObjectsUpdatesAndDeletes(t *testing.T) {
 		t.Fatal("missing directional tick coverage accepted")
 	}
 }
+
+// TestUnknownTickRecovery verifies invalidation is visible and a newer full capture restores quotes.
+//
+// Version:
+//   - 2026-09-11: Added.
+func TestUnknownTickRecovery(t *testing.T) {
+	c, reader, params := cacheFixture(t)
+	ctx := context.Background()
+	if err := c.Warm(ctx); err != nil {
+		t.Fatal(err)
+	}
+	old := c.CaptureQuoteSnapshot()
+	after := *reader.obj
+	after.Version++
+	cp := sui.CheckpointSequenceNumber(124)
+	tick := &sui.Object{Move: &sui.MoveObject{JSON: json.RawMessage(`{"value":{"value":{"index":{"bits":200},"sqrt_price":"36893488147419103232","liquidity_net":{"bits":"0"}}}}`)}}
+	n := &sui.TransactionNotification{Effects: &sui.TransactionEffects{Checkpoint: &cp}, ObjectChanges: []sui.ObjectChange{{Address: c.pool, After: &after}, {InputParent: c.retained.handle, Before: tick, Deleted: true}}}
+	err := c.applyRetainedObjects(n)
+	if err == nil || !strings.Contains(err.Error(), "tick=unknown tick_index=200") || c.CaptureQuoteSnapshot() != nil {
+		t.Fatalf("invalid tick was not withdrawn: %v", err)
+	}
+	if c.floor.Load() != cp.Uint64() {
+		t.Fatal("recovery lost rejected checkpoint")
+	}
+	if err := c.Warm(ctx); err == nil {
+		t.Fatal("lagging baseline was installed")
+	}
+	reader.cp = cp
+	reader.obj = &after
+	if err := c.Warm(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if c.CaptureQuoteSnapshot() == nil {
+		t.Fatal("recovery did not publish ready state")
+	}
+	if _, err := c.QuoteRetainedPair(ctx, params); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := old.QuotePair(ctx, params); err != nil {
+		t.Fatal("old detached inputs were mutated", err)
+	}
+}

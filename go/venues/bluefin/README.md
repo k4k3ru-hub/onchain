@@ -2,6 +2,14 @@
 
 ## Retained stream quotes
 
+The state producer checks coverage for the reference pair last initialized by
+`QuotePair`. If streamed state needs an uncached bitmap/tick field, `RunRetained`
+waits one second and invokes its initializer with a 30-second timeout on the same
+subscription. Failed refreshes return to the caller's reconnect supervisor.
+Recovery must include the triggering checkpoint. This acquisition runs in the
+state producer; live Swap consumers and detached quote snapshots do not read RPC.
+Other quote quantities can still exceed the retained range.
+
 `StateCache.RunRetained` initializes state and then applies streamed full pool and
 field payloads. `QuoteRetainedPair` freezes the currently retained components and
 calculates locally: no Trade/checkpoint alignment, waits, retries or RPC reads.

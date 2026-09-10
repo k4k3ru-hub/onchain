@@ -29,6 +29,7 @@ type ObjectStateSubscriber interface {
 // Disconnects discard state. The caller reconnects and initializes again.
 //
 // Version:
+//   - 2026-09-11: Require recovery to include the rejected transaction checkpoint.
 //   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Publish retained input updates and withdraw unavailable state.
 //   - 2026-09-09: Added.
@@ -170,6 +171,9 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification, receip
 	defer func() { c.publishQuoteSnapshotLocked(); c.retainedMu.Unlock() }()
 	defer func() {
 		if err != nil {
+			if n != nil && n.Effects != nil && n.Effects.Checkpoint != nil {
+				c.ObserveCheckpoint(*n.Effects.Checkpoint)
+			}
 			c.retained = nil
 		}
 	}()
@@ -255,7 +259,7 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification, receip
 		}
 		if remove {
 			if found < 0 {
-				return fmt.Errorf("failed to remove retained cetus tick: tick=unknown")
+				return fmt.Errorf("failed to remove retained cetus tick: tick=unknown tick_index=%d checkpoint=%d pool_id=%q", tick.Index, n.Effects.Checkpoint.Uint64(), c.pool.String())
 			}
 			s.snapshot.Ticks = append(s.snapshot.Ticks[:found], s.snapshot.Ticks[found+1:]...)
 		} else if found >= 0 {

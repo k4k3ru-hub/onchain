@@ -160,3 +160,50 @@ func TestRetainedVersionGapStillQuotesLocally(t *testing.T) {
 		t.Fatal("older notification rolled back state", err)
 	}
 }
+
+// TestRetainedCoverageRecovery verifies producer recapture repairs missing fields without quote IO.
+//
+// Version:
+//   - 2026-09-11: Added.
+func TestRetainedCoverageRecovery(t *testing.T) {
+	c, reader, params := stateFixture(t)
+	ctx := context.Background()
+	if _, err := c.QuotePair(ctx, params); err != nil {
+		t.Fatal(err)
+	}
+	if c.retainedCoverageMissing(ctx) {
+		t.Fatal("initial reference coverage missing")
+	}
+	frozen := c.CaptureQuoteSnapshot()
+	c.retainedMu.Lock()
+	c.retained.words = nil
+	c.retainedMu.Unlock()
+	reads := reader.reads
+	if !c.retainedCoverageMissing(ctx) {
+		t.Fatal("producer missed bitmap coverage loss")
+	}
+	if reader.reads != reads {
+		t.Fatal("coverage probe invoked RPC")
+	}
+	reader.obj.Version++
+	reader.head.SequenceNumber++
+	reader.cp = reader.head.SequenceNumber
+	reader.head.Timestamp = time.Now()
+	c.ObserveCheckpoint(reader.head.SequenceNumber)
+	if _, err := c.QuotePair(ctx, params); err != nil {
+		t.Fatal(err)
+	}
+	if reader.reads <= reads || c.retainedCoverageMissing(ctx) {
+		t.Fatal("recapture did not restore reference coverage")
+	}
+	reads = reader.reads
+	if _, err := frozen.QuotePair(ctx, params); err != nil {
+		t.Fatal("frozen inputs were mutated", err)
+	}
+	if _, err := c.QuoteRetainedPair(ctx, params); err != nil {
+		t.Fatal(err)
+	}
+	if reader.reads != reads {
+		t.Fatal("recovered local quote invoked RPC")
+	}
+}

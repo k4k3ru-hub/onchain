@@ -12,6 +12,12 @@ empty reward lists remain empty. See [yield acquisition status](../YIELD.md).
 
 ## Retained stream quotes
 
+An unknown tick deletion invalidates retained inputs and reports `tick_index`,
+`checkpoint`, and `pool_id`. It is not silently ignored. The rejected checkpoint
+becomes the minimum recovery checkpoint, so a subsequent `Warm` cannot install a
+lagging baseline. The caller reconnects and performs a fresh capture; quote
+snapshots become available again only after initialization succeeds.
+
 `StateCache.RunRetained` initializes state and then applies streamed full pool and
 field payloads. `QuoteRetainedPair` freezes the currently retained components and
 calculates locally: no Trade/checkpoint alignment, waits, retries or RPC reads.

@@ -24,6 +24,7 @@ type StateCache struct {
 	retainedMu            sync.Mutex
 	retained              *quoteState
 	retainedHead          sui.Checkpoint
+	retainedReference     *QuotePairParams
 	retainedRunning       bool
 	checkedKey            string
 	accepted              sui.Checkpoint // Protected by gate; independent of trade progress.
@@ -82,6 +83,7 @@ func (c *StateCache) ObserveCheckpoint(cp sui.CheckpointSequenceNumber) {
 // Version:
 //   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Publish detached calculation inputs to the snapshot observer.
+//   - 2026-09-11: Retain the reference quantity for producer-side coverage recovery.
 //   - 2026-09-09: Seed detached retained inputs after verified initialization.
 //   - 2026-09-08: Reject checkpoint regression relative to successful quotes.
 //   - 2026-09-08: Added.
@@ -155,6 +157,14 @@ func (c *StateCache) QuotePair(ctx context.Context, p QuotePairParams) (QuotePai
 	c.retained = cloneRetainedState(c.state)
 	c.retained.retainedOnly = true
 	c.retainedHead = head
+	reference := p
+	if p.Bid.SqrtPriceLimit != nil {
+		reference.Bid.SqrtPriceLimit = new(big.Int).Set(p.Bid.SqrtPriceLimit)
+	}
+	if p.Ask.SqrtPriceLimit != nil {
+		reference.Ask.SqrtPriceLimit = new(big.Int).Set(p.Ask.SqrtPriceLimit)
+	}
+	c.retainedReference = &reference
 	c.publishQuoteSnapshotLocked()
 	c.retainedMu.Unlock()
 	return QuotePairResult{ReceivedAt: c.state.received, Bid: bid, Ask: ask, Checkpoint: head.SequenceNumber, PoolVersion: obj.Version, PoolDigest: obj.Digest, StateTimestamp: head.Timestamp}, nil
@@ -225,7 +235,7 @@ func validU128(n *big.Int) bool { return n != nil && n.Sign() > 0 && n.BitLen() 
 
 func (c *StateCache) field(ctx context.Context, s *quoteState, parent sui.Address, index int32) (json.RawMessage, error) {
 	if s.retainedOnly {
-		return nil, fmt.Errorf("failed to read retained bluefin field: coverage=insufficient")
+		return nil, fmt.Errorf("failed to read retained bluefin field: %w", errRetainedCoverage)
 	}
 	var b [4]byte
 	binary.LittleEndian.PutUint32(b[:], uint32(index))

@@ -3,6 +3,7 @@ package spot
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/k4k3ru-hub/onchain/go/quotestate"
 	"math/big"
@@ -19,6 +20,7 @@ type ObjectStateSubscriber interface {
 // Initialization may acquire state; Trade calculation never invokes it.
 //
 // Version:
+//   - 2026-09-11: Reacquire missing reference coverage in the state producer.
 //   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Publish retained input updates and withdraw unavailable state.
 //   - 2026-09-09: Added.
@@ -66,7 +68,29 @@ func (c *StateCache) RunRetained(ctx context.Context, subscribed ObjectStateSubs
 			continue
 		}
 		if err := c.applyRetainedObjects(n, receivedAt); err != nil {
+			if n.Effects.Checkpoint != nil {
+				c.ObserveCheckpoint(*n.Effects.Checkpoint)
+			}
 			return err
+		}
+		if c.retainedCoverageMissing(ctx) {
+			if n.Effects.Checkpoint != nil {
+				c.ObserveCheckpoint(*n.Effects.Checkpoint)
+			}
+			// The state producer owns IO; live Swap and detached quote consumers do not.
+			timer := time.NewTimer(time.Second)
+			select {
+			case <-ctx.Done():
+				timer.Stop()
+				return ctx.Err()
+			case <-timer.C:
+			}
+			refreshCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+			err := initialize(refreshCtx)
+			cancel()
+			if err != nil {
+				return fmt.Errorf("failed to refresh retained bluefin coverage: %w", err)
+			}
 		}
 	}
 }
@@ -273,4 +297,18 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification, receip
 	}
 	c.retained = next
 	return nil
+}
+
+var errRetainedCoverage = errors.New("coverage=insufficient")
+
+// retainedCoverageMissing checks only the configured reference pair, without IO.
+func (c *StateCache) retainedCoverageMissing(ctx context.Context) bool {
+	c.retainedMu.Lock()
+	reference := c.retainedReference
+	c.retainedMu.Unlock()
+	if reference == nil {
+		return false
+	}
+	_, err := c.QuoteRetainedPair(ctx, *reference)
+	return errors.Is(err, errRetainedCoverage)
 }
