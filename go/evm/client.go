@@ -31,6 +31,7 @@ type HTTPClient struct {
 	gasTipCapSuggester    gasTipCapSuggester
 	logFilterer           logFilterer
 	receiptProvider       transactionReceiptProvider
+	transactionSender     transactionSender
 	chainIDProvider       chainIDProvider
 	clientCloser          clientCloser
 	closeOnce             sync.Once
@@ -118,6 +119,7 @@ func composeHTTPClient(config HTTPConfig, ethClient *ethclient.Client) *HTTPClie
 		client.gasTipCapSuggester = ethClient
 		client.logFilterer = ethClient
 		client.receiptProvider = ethClient
+		client.transactionSender = ethClient
 		client.chainIDProvider = ethClient
 		client.clientCloser = ethClient
 	}
