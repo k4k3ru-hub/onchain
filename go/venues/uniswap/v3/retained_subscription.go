@@ -211,8 +211,11 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 			if log.Address != c.pool {
 				continue
 			}
-			if log.Removed || log.BlockHash == (common.Hash{}) {
-				return fmt.Errorf("failed to apply retained pool log: state requires reinitialization")
+			if log.Removed {
+				return retainedReinitializationError(log, "removed log")
+			}
+			if log.BlockHash == (common.Hash{}) {
+				return retainedReinitializationError(log, "missing block hash")
 			}
 			if busy {
 				if len(replay) >= retainedReplayLimit {

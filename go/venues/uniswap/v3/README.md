@@ -63,6 +63,14 @@ session recovery. Refreshes run one at a time, at least one second apart;
 failed refreshes retain usable inputs and retry with delays up to 30 seconds.
 Capture has a 30-second timeout. Initial capture errors return to the caller.
 
+Session invalidation errors include a reason, pool, block number/hash and log
+index, distinguishing removed logs, missing hashes, baseline/stream hash
+mismatches, ordering violations, missing state/topics and unsupported events.
+Callers should reset reconnect backoff after a sustained session. MarketHub
+resets to one second after a session lasts at least 30 seconds; short sessions
+continue exponential backoff up to 30 seconds. Session duration includes initial
+capture, so this is a reconnect heuristic rather than proof of quote readiness.
+
 Three words are the prefetch window, not a three-RPC total budget: core state,
 reference-quote tick details and header verification are also required. Sparse
 liquidity can require additional words for the reference quote, subject to the

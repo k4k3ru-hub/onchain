@@ -2,6 +2,7 @@ package v3
 
 import (
 	"context"
+	"errors"
 	"math/big"
 	"sync"
 	"testing"
@@ -114,6 +115,7 @@ type windowRPC struct {
 	tick    int32
 	started chan struct{}
 	release chan struct{}
+	failure error
 }
 
 // LatestHeader returns the controlled chain tip.
@@ -141,6 +143,7 @@ func windowHeader(number uint64) evm.BlockHeader {
 // CallContract reads a pinned fixture and can suspend a refresh while logs arrive.
 //
 // Version:
+//   - 2026-09-10: Support a transient capture failure.
 //   - 2026-09-10: Added.
 func (r *windowRPC) CallContract(ctx context.Context, msg ethereum.CallMsg, block *big.Int) ([]byte, error) {
 	r.mu.Lock()
@@ -158,6 +161,11 @@ func (r *windowRPC) CallContract(ctx context.Context, msg ethereum.CallMsg, bloc
 	}
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if r.failure != nil {
+		err := r.failure
+		r.failure = nil
+		return nil, err
+	}
 	data, err := r.fake.CallContract(ctx, msg, block)
 	if err != nil {
 		return nil, err
@@ -171,6 +179,98 @@ func (r *windowRPC) CallContract(ctx context.Context, msg ethereum.CallMsg, bloc
 		n.FillBytes(data[32:64])
 	}
 	return data, nil
+}
+
+// TestRetainedMissingCoverageRetriesWithoutRestart verifies quote-triggered repair survives an RPC failure.
+//
+// Version:
+//   - 2026-09-10: Added.
+func TestRetainedMissingCoverageRetriesWithoutRestart(t *testing.T) {
+	c, fake := newTestCache(t)
+	rpc := &windowRPC{fake: fake, height: 100}
+	c.rpc = rpc
+	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
+	defer cancel()
+	updates := make(chan struct{}, 128)
+	c.SetQuoteSnapshotObserver(func(*QuoteSnapshot) {
+		select {
+		case updates <- struct{}{}:
+		default:
+		}
+	})
+	waitState := func(check func() bool) {
+		t.Helper()
+		for {
+			c.mu.Lock()
+			ok := check()
+			c.mu.Unlock()
+			if ok {
+				return
+			}
+			select {
+			case <-updates:
+			case <-ctx.Done():
+				t.Fatal("state recovery timed out")
+			}
+		}
+	}
+	ws := &stateWS{ready: make(chan struct{})}
+	done := make(chan error, 1)
+	go func() { done <- c.RunRetained(ctx, ws, big.NewInt(1000000), true) }()
+	defer func() {
+		cancel()
+		if err := <-done; err != nil {
+			t.Error(err)
+		}
+	}()
+	<-ws.ready
+	waitState(func() bool { return c.retained != nil })
+	c.mu.Lock()
+	source, generation := c.retained, c.generation
+	delete(source.words, 0)
+	c.mu.Unlock()
+	started, release := make(chan struct{}), make(chan struct{})
+	rpc.mu.Lock()
+	rpc.started, rpc.release, rpc.failure = started, release, errors.New("temporary rpc failure")
+	before := fake.calls
+	rpc.mu.Unlock()
+	if _, err := c.QuoteRetainedPair(ctx, big.NewInt(1000000), true); !errors.Is(err, errStateReadBudget) {
+		t.Fatalf("missing coverage did not fail locally: %v", err)
+	}
+	select {
+	case <-started:
+	case <-ctx.Done():
+		t.Fatal("quote did not request capture")
+	}
+	rpc.mu.Lock()
+	after := fake.calls
+	rpc.mu.Unlock()
+	if after != before {
+		t.Fatal("quote fetched missing inputs while capture was blocked")
+	}
+	c.mu.Lock()
+	retained := c.retained == source && c.running && c.active
+	c.mu.Unlock()
+	if !retained {
+		t.Fatal("repair discarded the streamed state")
+	}
+	close(release)
+	waitState(func() bool { return c.retained != source && c.retained != nil && c.retained.words[0] != nil })
+	c.mu.Lock()
+	sameSession := c.running && c.active && c.generation == generation
+	c.mu.Unlock()
+	if !sameSession {
+		t.Fatal("coverage repair restarted the subscription")
+	}
+	rpc.mu.Lock()
+	defer rpc.mu.Unlock()
+	before = fake.calls
+	if _, err := c.QuoteRetainedPair(ctx, big.NewInt(1000000), true); err != nil {
+		t.Fatalf("quote remained unavailable after retry: %v", err)
+	}
+	if fake.calls != before {
+		t.Fatal("recovered quote made an RPC call")
+	}
 }
 
 // TestRetainedWindowRefreshKeepsStreamAndReplaysDeltas verifies nonblocking refresh and liquidity replay.

@@ -15,11 +15,11 @@ import (
 var errStateReadBudget = errors.New("rpc_budget=exhausted")
 
 // RunRetained subscribes and maintains a three-word window around the current tick.
-// Removed logs or unsupported state deltas terminate the session for reinitialization.
+// Removed logs or unsupported state deltas terminate the session with a reason for reinitialization.
 // This state producer never publishes a quote.
 //
 // Version:
-//   - 2026-09-10: Refresh coverage asynchronously without restarting the subscription.
+//   - 2026-09-10: Identify reinitialization reasons and refresh coverage asynchronously.
 //   - 2026-09-09: Publish retained input updates and withdraw unavailable state.
 //   - 2026-09-09: Recover missing reference-quote coverage through the state session.
 func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, baseAmount *big.Int, baseIsToken0 bool) error {
@@ -100,15 +100,18 @@ func cloneRetainedIntegers(source map[int32]*big.Int) map[int32]*big.Int {
 // applyRetainedLog runs under mu. Events before the bootstrap block are already
 // incorporated. Within subsequent blocks, reception must follow log order.
 func (c *StateCache) applyRetainedLog(log types.Log) error {
-	fail := func() error {
+	fail := func(reason string) error {
 		c.retained = nil
-		return fmt.Errorf("failed to apply retained pool log: state requires reinitialization")
+		return retainedReinitializationError(log, reason)
 	}
-	if log.Removed || log.BlockHash == (common.Hash{}) {
-		return fail()
+	if log.Removed {
+		return fail("removed log")
+	}
+	if log.BlockHash == (common.Hash{}) {
+		return fail("missing block hash")
 	}
 	if c.retained == nil {
-		return fail()
+		return fail("missing snapshot")
 	}
 	baseline := c.retained.header
 	if log.BlockNumber < baseline.Number {
@@ -116,15 +119,25 @@ func (c *StateCache) applyRetainedLog(log types.Log) error {
 	}
 	if log.BlockNumber == baseline.Number {
 		if log.BlockHash != baseline.Hash {
-			return fail()
+			return fail("baseline hash mismatch")
 		}
 		return nil
 	}
-	if c.retainedHasLog && (log.BlockNumber < c.retainedBlock || log.BlockNumber == c.retainedBlock && (log.BlockHash != c.retainedHash || log.Index <= c.retainedIndex)) {
-		return fail()
+	if c.retainedHasLog {
+		if log.BlockNumber < c.retainedBlock {
+			return fail("block order regression")
+		}
+		if log.BlockNumber == c.retainedBlock {
+			if log.BlockHash != c.retainedHash {
+				return fail("stream block hash mismatch")
+			}
+			if log.Index <= c.retainedIndex {
+				return fail("duplicate or out of order log")
+			}
+		}
 	}
 	if len(log.Topics) == 0 {
-		return fail()
+		return fail("missing event topics")
 	}
 	switch log.Topics[0] {
 	case swapEventSignatureHash():
@@ -147,10 +160,14 @@ func (c *StateCache) applyRetainedLog(log types.Log) error {
 		// These do not change executable liquidity, price, tick or swap fee.
 	default:
 		// Unknown events require producer recovery before applying further deltas.
-		return fail()
+		return fail("unsupported event")
 	}
 	c.retainedBlock, c.retainedHash, c.retainedIndex, c.retainedHasLog = log.BlockNumber, log.BlockHash, log.Index, true
 	return nil
+}
+
+func retainedReinitializationError(log types.Log, reason string) error {
+	return fmt.Errorf("failed to apply retained pool log: state requires reinitialization: reason=%q pool=%q block_number=%d block_hash=%q log_index=%d", reason, log.Address.Hex(), log.BlockNumber, log.BlockHash.Hex(), log.Index)
 }
 
 func applyRetainedLiquidity(s *poolSnapshot, log types.Log) error {
