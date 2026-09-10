@@ -58,6 +58,7 @@ func TestRetainedPairDoesNotReadOrWait(t *testing.T) {
 // TestRetainedObjectUpdates verifies pool, bitmap and signed tick updates, ownership removal and full replacements across version gaps.
 //
 // Version:
+//   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Added.
 func TestRetainedObjectUpdates(t *testing.T) {
 	c, f, p := stateFixture(t)
@@ -75,14 +76,21 @@ func TestRetainedObjectUpdates(t *testing.T) {
 		{OutputParent: c.retained.ticks, After: tick},
 		{OutputParent: c.retained.bitmap, After: word},
 	}}
-	if err := c.applyRetainedObjects(n); err != nil {
+	received := c.retained.received.Add(time.Second)
+	if err := c.applyRetainedObjects(n, received); err != nil {
 		t.Fatal(err)
 	}
 	if c.retained.nets[10].Int64() != -5 || c.retained.words[0].Uint64() != 1024 || c.retained.version != after.Version {
 		t.Fatal("stream updates lost")
 	}
-	if err := c.applyRetainedObjects(n); err != nil {
+	if !c.retained.received.Equal(received) {
+		t.Fatal("accepted receipt lost")
+	}
+	if err := c.applyRetainedObjects(n, received.Add(time.Hour)); err != nil {
 		t.Fatal("duplicate", err)
+	}
+	if !c.retained.received.Equal(received) {
+		t.Fatal("duplicate refreshed receipt")
 	}
 	before = after
 	after.Version++

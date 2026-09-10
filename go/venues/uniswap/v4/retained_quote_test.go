@@ -14,6 +14,7 @@ import (
 // TestRetainedSwapQuotesWithoutRPC verifies stream inputs and detached math.
 //
 // Version:
+//   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Added.
 func TestRetainedSwapQuotesWithoutRPC(t *testing.T) {
 	c, rpc := newTestCache(t)
@@ -36,12 +37,24 @@ func TestRetainedSwapQuotesWithoutRPC(t *testing.T) {
 	big.NewInt(1).FillBytes(log.Data[128:160])
 	big.NewInt(3000).FillBytes(log.Data[160:192])
 	frozen := clonePoolSnapshot(c.retained)
-	if err := c.applyRetainedLog(log); err != nil {
+	received := first.ReceivedAt.Add(time.Second)
+	if err := c.applyRetainedLog(log, received); err != nil {
 		t.Fatal(err)
 	}
 	third, err := c.QuoteRetainedPair(ctx, amount, true)
 	if err != nil {
 		t.Fatal(err)
+	}
+	if first.ReceivedAt.IsZero() || !second.ReceivedAt.Equal(first.ReceivedAt) || !third.ReceivedAt.Equal(received) {
+		t.Fatal("receipt changed during calculation or replay")
+	}
+	old := log
+	old.BlockNumber, old.BlockHash = first.BlockNumber, first.BlockHash
+	if err := c.applyRetainedLog(old, received.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	if !c.retained.received.Equal(received) {
+		t.Fatal("baseline replay refreshed receipt")
 	}
 	if third.BidAmountOut.Cmp(first.BidAmountOut) <= 0 {
 		t.Fatal("stream price not used")

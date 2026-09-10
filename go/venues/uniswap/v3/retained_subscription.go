@@ -130,7 +130,11 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 	c.active = true
 	c.mu.Unlock()
 	results := make(chan retainedCaptureResult, 1)
-	var replay []types.Log
+	type receivedLog struct {
+		log types.Log
+		at  time.Time
+	}
+	var replay []receivedLog
 	busy, pending := false, true
 	delay := time.Second
 	var nextAttempt time.Time
@@ -189,7 +193,7 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 			}
 			candidate := &StateCache{retained: result.snapshot, retainedBlock: result.snapshot.header.Number, retainedHash: result.snapshot.header.Hash}
 			for _, log := range replay {
-				if err := candidate.applyRetainedLog(log); err != nil {
+				if err := candidate.applyRetainedLog(log.log, log.at); err != nil {
 					return fmt.Errorf("failed to replay retained window: %w", err)
 				}
 			}
@@ -205,6 +209,7 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 			nextAttempt = time.Now().Add(delay)
 			timer.Reset(delay)
 		case log, ok := <-logs:
+			receivedAt := time.Now().UTC()
 			if !ok {
 				return fmt.Errorf("failed to watch retained state: logs=closed")
 			}
@@ -221,11 +226,11 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 				if len(replay) >= retainedReplayLimit {
 					return fmt.Errorf("failed to buffer retained logs: replay=too_long max_length=%d", retainedReplayLimit)
 				}
-				replay = append(replay, log)
+				replay = append(replay, receivedLog{log, receivedAt})
 			}
 			c.mu.Lock()
 			if c.retained != nil {
-				err := c.applyRetainedLog(log)
+				err := c.applyRetainedLog(log, receivedAt)
 				if err != nil {
 					c.mu.Unlock()
 					return err

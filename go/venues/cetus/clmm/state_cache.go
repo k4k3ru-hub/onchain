@@ -66,6 +66,7 @@ func (c *StateCache) ObserveCheckpoint(checkpoint sui.CheckpointSequenceNumber) 
 // No simulation fallback or partial fill is returned on an invalid snapshot.
 //
 // Version:
+//   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Classify state-change retries separately from transport failures.
 //   - 2026-09-08: Reject checkpoint regression relative to successful quotes.
 //   - 2026-09-08: Added.
@@ -104,6 +105,7 @@ func (c *StateCache) QuotePair(ctx context.Context, params QuotePairParams) (Quo
 	}
 
 	obj, err := c.reader.ObjectAtCheckpoint(ctx, c.pool, checkpoint)
+	receivedAt := time.Now().UTC()
 	if err != nil {
 		return QuotePairResult{}, fmt.Errorf("failed to quote cetus cached state: %w", err)
 	}
@@ -144,7 +146,7 @@ func (c *StateCache) QuotePair(ctx context.Context, params QuotePairParams) (Quo
 	bid.Checkpoint = checkpoint
 	ask.Checkpoint = checkpoint
 	c.accepted = head
-	return QuotePairResult{Bid: bid, Ask: ask, Checkpoint: checkpoint, PoolVersion: c.version, PoolDigest: c.digest, StateTimestamp: head.Timestamp}, nil
+	return QuotePairResult{ReceivedAt: receivedAt, Bid: bid, Ask: ask, Checkpoint: checkpoint, PoolVersion: c.version, PoolDigest: c.digest, StateTimestamp: head.Timestamp}, nil
 }
 
 func captureState(ctx context.Context, reader StateReader, obj *sui.Object, checkpoint sui.CheckpointSequenceNumber) (*LocalSnapshot, error) {
@@ -249,6 +251,7 @@ func parseTick(raw json.RawMessage) (Tick, error) {
 // Callers should use a bounded startup or recovery context; no quote is published.
 //
 // Version:
+//   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Publish detached calculation inputs to the snapshot observer.
 //   - 2026-09-09: Seed detached retained inputs during initialization.
 //   - 2026-09-08: Added.
@@ -271,6 +274,7 @@ func (c *StateCache) Warm(ctx context.Context) error {
 		return fmt.Errorf("failed to warm cetus state: %w", err)
 	}
 	obj, err := c.reader.ObjectAtCheckpoint(ctx, c.pool, head.SequenceNumber)
+	receivedAt := time.Now().UTC()
 	if err != nil {
 		return fmt.Errorf("failed to warm cetus state: %w", err)
 	}
@@ -291,7 +295,7 @@ func (c *StateCache) Warm(ctx context.Context) error {
 		return err
 	}
 	c.retainedMu.Lock()
-	c.retained = &retainedSnapshot{snapshot: cloneLocalSnapshot(s), handle: handle, baseline: head, version: obj.Version, digest: obj.Digest}
+	c.retained = &retainedSnapshot{received: receivedAt, snapshot: cloneLocalSnapshot(s), handle: handle, baseline: head, version: obj.Version, digest: obj.Digest}
 	c.publishQuoteSnapshotLocked()
 	c.retainedMu.Unlock()
 	return nil

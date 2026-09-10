@@ -14,6 +14,8 @@ type QuotePairParams struct {
 }
 
 type QuotePairResult struct {
+	// ReceivedAt is the local receipt time of the retained inputs; recalculation preserves it.
+	ReceivedAt time.Time
 	// CapturedAt is the local retained-input capture time, not an on-chain confirmation.
 	CapturedAt     time.Time
 	StateTimestamp time.Time
@@ -35,6 +37,7 @@ type QuotePairResult struct {
 //   - Quote or simulation error.
 //
 // Version:
+//   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-08: Include simulation input pool provenance.
 //   - 2026-09-01: Added.
 func (q *Quoter) QuotePair(ctx context.Context, params QuotePairParams) (QuotePairResult, error) {
@@ -71,7 +74,7 @@ func (q *Quoter) QuotePair(ctx context.Context, params QuotePairParams) (QuotePa
 		return QuotePairResult{}, fmt.Errorf("failed to quote cetus clmm pair: ask=invalid: %w", err)
 	}
 	bid.Checkpoint, ask.Checkpoint = simulation.Checkpoint, simulation.Checkpoint
-	result := QuotePairResult{Bid: bid, Ask: ask, Checkpoint: simulation.Checkpoint}
+	result := QuotePairResult{ReceivedAt: time.Now().UTC(), Bid: bid, Ask: ask, Checkpoint: simulation.Checkpoint}
 	for _, object := range simulation.InputObjects {
 		if object.Address == params.Bid.Pool.Address {
 			result.PoolVersion = object.Version

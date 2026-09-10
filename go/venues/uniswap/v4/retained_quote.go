@@ -72,7 +72,7 @@ func (c *StateCache) QuoteRetainedPair(ctx context.Context, amount *big.Int, bas
 	if err := ctx.Err(); err != nil {
 		return LocalPair{}, fmt.Errorf("failed to quote retained state: %w", err)
 	}
-	return LocalPair{CapturedAt: capturedAt, BidAmountOut: bid, AskAmountIn: ask, BlockNumber: snapshot.header.Number, BlockHash: snapshot.header.Hash, ObservedAt: snapshot.observed}, nil
+	return LocalPair{ReceivedAt: snapshot.received, CapturedAt: capturedAt, BidAmountOut: bid, AskAmountIn: ask, BlockNumber: snapshot.header.Number, BlockHash: snapshot.header.Hash, ObservedAt: snapshot.observed}, nil
 }
 
 func clonePoolSnapshot(source *poolSnapshot) *poolSnapshot {
@@ -99,7 +99,7 @@ func cloneRetainedIntegers(source map[int32]*big.Int) map[int32]*big.Int {
 
 // applyRetainedLog runs under mu. Events before the bootstrap block are already
 // incorporated. Within subsequent blocks, reception must follow log order.
-func (c *StateCache) applyRetainedLog(log types.Log) error {
+func (c *StateCache) applyRetainedLog(log types.Log, receipt ...time.Time) error {
 	fail := func() error {
 		c.retained = nil
 		return fmt.Errorf("failed to apply retained pool log: state requires reinitialization")
@@ -167,6 +167,13 @@ func (c *StateCache) applyRetainedLog(log types.Log) error {
 		return fail()
 	}
 
+	at := time.Now().UTC()
+	if len(receipt) > 0 {
+		at = receipt[0]
+	}
+	if at.After(c.retained.received) {
+		c.retained.received = at
+	}
 	c.retainedBlock, c.retainedHash, c.retainedIndex, c.retainedHasLog = log.BlockNumber, log.BlockHash, log.Index, true
 	return nil
 }

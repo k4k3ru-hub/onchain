@@ -18,6 +18,7 @@ type QuoteSnapshot struct {
 // QuoteExactInputs calculates only from detached account inputs.
 //
 // Version:
+//   - 2026-09-10: Preserve input receipt time across calculations.
 //   - 2026-09-09: Added.
 func (s *QuoteSnapshot) QuoteExactInputs(ctx context.Context, requests []ExactInputRequest) (CachedQuote, error) {
 	if s == nil || ctx == nil {
@@ -51,7 +52,7 @@ func (s *QuoteSnapshot) QuoteExactInputs(ctx context.Context, requests []ExactIn
 	}
 	local.configs = map[solana.Address]AMMConfig{configured.AMMConfig: config}
 
-	result := CachedQuote{CapturedAt: capturedAt, QuoteBatch: QuoteBatch{Slot: frozen.Slot, Quotes: make([]Quote, len(requests))}, ObservedAt: frozen.ObservedAt}
+	result := CachedQuote{ReceivedAt: frozen.ReceivedAt, CapturedAt: capturedAt, QuoteBatch: QuoteBatch{Slot: frozen.Slot, Quotes: make([]Quote, len(requests))}, ObservedAt: frozen.ObservedAt}
 	for i, request := range requests {
 		quote, err := local.quoteExactInput(ctx, s.pool, request.InputMint, request.AmountIn)
 		if err != nil {

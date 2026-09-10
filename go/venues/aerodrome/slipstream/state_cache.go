@@ -23,6 +23,7 @@ type StateRPC interface {
 }
 
 type LocalPair struct {
+	ReceivedAt                time.Time
 	CapturedAt                time.Time
 	BidAmountOut, AskAmountIn *big.Int
 	BlockNumber               uint64
@@ -201,6 +202,7 @@ func (c *StateCache) Run(ctx context.Context, ws WSRPCClient) error {
 // Snapshot reads are bounded to 64 contract calls per pair and 2048 swap steps per direction.
 //
 // Version:
+//   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Classify state-change retries separately from transport failures.
 //   - 2026-09-08: Batch independent core-state reads when the injected reader supports it.
 func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsToken0 bool) (LocalPair, error) {
@@ -297,7 +299,7 @@ func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsT
 	c.snapshot = s
 	c.spacing = s.spacing
 	c.cachedGeneration = gen
-	return LocalPair{BidAmountOut: bid, AskAmountIn: ask, BlockNumber: s.header.Number, BlockHash: s.header.Hash, ObservedAt: s.observed, FeePPM: s.fee}, nil
+	return LocalPair{ReceivedAt: s.observed, BidAmountOut: bid, AskAmountIn: ask, BlockNumber: s.header.Number, BlockHash: s.header.Hash, ObservedAt: s.observed, FeePPM: s.fee}, nil
 }
 
 func (c *StateCache) read(ctx context.Context, s *poolSnapshot, sig string, arg *big.Int, budget *int) ([]byte, error) {

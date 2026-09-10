@@ -7,6 +7,10 @@ import (
 	"testing"
 )
 
+// TestFrozenAccountsSurviveDisconnect verifies immutable inputs and receipt time.
+//
+// Version:
+//   - 2026-09-10: Verify input receipt survives recalculation.
 func TestFrozenAccountsSurviveDisconnect(t *testing.T) {
 	c, _, requests := newCacheFixture(t)
 	ctx := context.Background()
@@ -23,6 +27,9 @@ func TestFrozenAccountsSurviveDisconnect(t *testing.T) {
 	want, err := frozen.QuoteExactInputs(ctx, requests)
 	if err != nil {
 		t.Fatal(err)
+	}
+	if want.ReceivedAt.IsZero() {
+		t.Fatal("missing frozen input receipt")
 	}
 	c.mu.Lock()
 	c.connected--

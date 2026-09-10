@@ -45,3 +45,32 @@ func TestAccountStateFreezesMixedPositionsAndOwnedBytes(t *testing.T) {
 		t.Fatal("older bootstrap or notification rewound state")
 	}
 }
+
+// TestReceiptIgnoresDuplicates verifies that replay cannot refresh an unchanged input.
+//
+// Version:
+//   - 2026-09-10: Added.
+func TestReceiptIgnoresDuplicates(t *testing.T) {
+	var state AccountState
+	var address Address
+	address[0] = 1
+	received := time.Unix(1700000000, 0)
+	update := &AccountUpdate{Slot: 10, Account: &Account{Address: address, Data: []byte{1}}}
+	if err := state.Apply(update, received); err != nil {
+		t.Fatal(err)
+	}
+	if err := state.Apply(update, received.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	frozen := state.Freeze()
+	if !frozen.ReceivedAt.Equal(received) {
+		t.Fatal("duplicate refreshed receipt")
+	}
+	update.Slot = 11
+	if err := state.Apply(update, received.Add(time.Second)); err != nil {
+		t.Fatal(err)
+	}
+	if !state.Freeze().ReceivedAt.Equal(received.Add(time.Second)) || !frozen.ReceivedAt.Equal(received) {
+		t.Fatal("receipt or frozen provenance lost")
+	}
+}

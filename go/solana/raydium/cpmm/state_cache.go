@@ -17,6 +17,7 @@ type AccountChanges interface {
 }
 type SubscribeAccountChangesFunc func(solana.Address) (AccountChanges, error)
 type CachedQuote struct {
+	ReceivedAt time.Time
 	// CapturedAt is the local retained-input capture time, not an on-chain confirmation.
 	CapturedAt time.Time
 	QuoteBatch

@@ -16,6 +16,8 @@ type QuotePairParams struct {
 }
 
 type QuotePairResult struct {
+	// ReceivedAt is the local receipt time of the retained inputs; recalculation preserves it.
+	ReceivedAt time.Time
 	// CapturedAt is the local retained-input capture time, not an on-chain confirmation.
 	CapturedAt     time.Time
 	StateTimestamp time.Time
@@ -37,6 +39,7 @@ type QuotePairResult struct {
 //   - Quote error.
 //
 // Version:
+//   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-08: Include simulation pool input provenance.
 //   - 2026-09-01: Added.
 func (q *Quoter) QuotePair(ctx context.Context, params QuotePairParams) (QuotePairResult, error) {
@@ -81,7 +84,7 @@ func (q *Quoter) QuotePair(ctx context.Context, params QuotePairParams) (QuotePa
 			break
 		}
 	}
-	return QuotePairResult{PoolVersion: version, PoolDigest: digest,
+	return QuotePairResult{ReceivedAt: time.Now().UTC(), PoolVersion: version, PoolDigest: digest,
 		Bid:        QuoteResult{AmountIn: params.Bid.AmountIn, AmountOut: bidAmount, Checkpoint: checkpoint},
 		Ask:        QuoteResult{AmountIn: askAmount, AmountOut: params.Ask.AmountOut, Checkpoint: checkpoint},
 		Checkpoint: checkpoint,

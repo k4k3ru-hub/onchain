@@ -15,6 +15,7 @@ import (
 )
 
 type retainedPoolState struct {
+	received  time.Time
 	pool      *poolSnapshot
 	fee       retainedFeeState
 	block     uint64
@@ -31,6 +32,7 @@ type retainedPoolState struct {
 // CapturedAt describes this receiver-side capture, not an atomic chain snapshot.
 //
 // Version:
+//   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Added.
 func (c *StateCache) QuoteRetainedPair(ctx context.Context, amount *big.Int, baseIsToken0 bool) (LocalPair, error) {
 	if c == nil || ctx == nil {
@@ -63,7 +65,7 @@ func (c *StateCache) QuoteRetainedPair(ctx context.Context, amount *big.Int, bas
 	if err != nil {
 		return LocalPair{}, fmt.Errorf("failed to quote retained slipstream ask: %w", err)
 	}
-	return LocalPair{CapturedAt: captured, BidAmountOut: bid, AskAmountIn: ask, BlockNumber: s.pool.header.Number, BlockHash: s.pool.header.Hash, ObservedAt: s.pool.observed, FeePPM: fee}, nil
+	return LocalPair{ReceivedAt: s.received, CapturedAt: captured, BidAmountOut: bid, AskAmountIn: ask, BlockNumber: s.pool.header.Number, BlockHash: s.pool.header.Hash, ObservedAt: s.pool.observed, FeePPM: fee}, nil
 }
 
 func cloneRetainedPool(source *retainedPoolState) *retainedPoolState {
@@ -91,7 +93,7 @@ func cloneRetainedPool(source *retainedPoolState) *retainedPoolState {
 
 // applyRetainedLog runs under mu. The producer supplies the block timestamp
 // matched by hash. Failure clears every retained input before recovery.
-func (c *StateCache) applyRetainedLog(log types.Log, timestamp uint64) error {
+func (c *StateCache) applyRetainedLog(log types.Log, timestamp uint64, receipt ...time.Time) error {
 	s := c.retained
 	if s == nil || s.pool == nil || log.Removed || log.BlockNumber <= s.pool.header.Number {
 		return c.applyOrderedRetainedLog(log, timestamp)
@@ -132,6 +134,16 @@ func (c *StateCache) applyRetainedLog(log types.Log, timestamp uint64) error {
 			return err
 		}
 		c.replayLogs = append(c.replayLogs, log)
+	}
+	at := time.Now().UTC()
+	if len(receipt) > 0 {
+		at = receipt[0]
+	}
+	if s.received.After(c.retained.received) {
+		c.retained.received = s.received
+	}
+	if at.After(c.retained.received) {
+		c.retained.received = at
 	}
 	c.replayState = c.retained
 	return nil

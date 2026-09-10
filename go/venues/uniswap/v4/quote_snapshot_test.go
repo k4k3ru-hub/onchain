@@ -6,17 +6,27 @@ import (
 	"reflect"
 	"sync"
 	"testing"
+	"time"
 )
 
+// TestFrozenQuoteSurvivesWithdrawal verifies input receipt handling.
+//
+// Version:
+//   - 2026-09-10: Preserve input receipt time.
 func TestFrozenQuoteSurvivesWithdrawal(t *testing.T) {
 	c, _ := newTestCache(t)
 	ctx := context.Background()
 	if _, err := c.QuotePair(ctx, big.NewInt(1000000), true); err != nil {
 		t.Fatal(err)
 	}
+	received := time.Unix(1700000000, 123000).UTC()
+	c.retained.received = received
 	var current *QuoteSnapshot
 	c.SetQuoteSnapshotObserver(func(s *QuoteSnapshot) { current = s })
 	frozen := current
+	if !frozen.ReceivedAt().Equal(received) {
+		t.Fatal("receipt not captured")
+	}
 	if frozen == nil {
 		t.Fatal("snapshot not published")
 	}
@@ -25,6 +35,7 @@ func TestFrozenQuoteSurvivesWithdrawal(t *testing.T) {
 		t.Fatal(err)
 	}
 	c.mu.Lock()
+	c.retained.received = received.Add(time.Hour)
 	c.retained = nil
 	c.publishQuoteSnapshotLocked()
 	c.mu.Unlock()
@@ -37,6 +48,9 @@ func TestFrozenQuoteSurvivesWithdrawal(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			got, err := frozen.QuotePair(ctx, big.NewInt(1000000), true)
+			if !got.ReceivedAt.Equal(received) {
+				t.Error("recalculation refreshed receipt")
+			}
 			got.CapturedAt = want.CapturedAt
 			if err != nil || !reflect.DeepEqual(got, want) {
 				t.Errorf("frozen calculation changed: %v", err)

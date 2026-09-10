@@ -3,6 +3,7 @@ package spot
 import (
 	"context"
 	"fmt"
+	"time"
 )
 
 // QuoteSnapshot owns detached calculation inputs without network dependencies.
@@ -55,4 +56,15 @@ func (c *StateCache) publishQuoteSnapshotLocked() {
 	if c.quoteSnapshotObserver != nil {
 		c.quoteSnapshotObserver(c.captureQuoteSnapshotLocked())
 	}
+}
+
+// ReceivedAt returns the local receipt time of these frozen inputs.
+//
+// Version:
+//   - 2026-09-10: Added.
+func (s *QuoteSnapshot) ReceivedAt() time.Time {
+	if s == nil || s.cache.retained == nil {
+		return time.Time{}
+	}
+	return s.cache.retained.received
 }

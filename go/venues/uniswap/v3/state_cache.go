@@ -22,6 +22,8 @@ type StateRPC interface {
 }
 
 type LocalPair struct {
+	// ReceivedAt is the local receipt time of the retained inputs; recalculation preserves it.
+	ReceivedAt time.Time
 	// CapturedAt is the local retained-input capture time, not an on-chain confirmation.
 	CapturedAt                time.Time
 	BidAmountOut, AskAmountIn *big.Int
@@ -33,6 +35,7 @@ type LocalPair struct {
 type poolSnapshot struct {
 	header           evm.BlockHeader
 	observed         time.Time
+	received         time.Time
 	price, liquidity *big.Int
 	tick, spacing    int32
 	words            map[int32]*big.Int
@@ -154,6 +157,7 @@ func (c *StateCache) run(ctx context.Context, ws WSRPCClient, bootstrap func(con
 			}
 			return fmt.Errorf("failed to watch uniswap v3 state: %w", err)
 		case log, ok := <-logs:
+			receivedAt := time.Now().UTC()
 			if !ok {
 				return fmt.Errorf("failed to watch uniswap v3 state: logs=closed")
 			}
@@ -162,7 +166,7 @@ func (c *StateCache) run(ctx context.Context, ws WSRPCClient, bootstrap func(con
 			}
 			c.mu.Lock()
 			if bootstrap != nil {
-				err := c.applyRetainedLog(log)
+				err := c.applyRetainedLog(log, receivedAt)
 				c.publishQuoteSnapshotLocked()
 				c.mu.Unlock()
 				if err != nil {
@@ -195,6 +199,7 @@ func (c *StateCache) run(ctx context.Context, ws WSRPCClient, bootstrap func(con
 // Snapshot reads are bounded to 64 contract calls per pair and 2048 swap steps per direction.
 //
 // Version:
+//   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Publish detached calculation inputs to the snapshot observer.
 //   - 2026-09-09: Classify state-change retries separately from transport failures.
 //   - 2026-09-07: Recover lagging latest headers using verified observed blocks.
@@ -266,7 +271,7 @@ func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsT
 	c.snapshot = s
 	c.spacing = s.spacing
 	c.cachedGeneration = gen
-	return LocalPair{BidAmountOut: bid, AskAmountIn: ask, BlockNumber: s.header.Number, BlockHash: s.header.Hash, ObservedAt: s.observed}, nil
+	return LocalPair{BidAmountOut: bid, AskAmountIn: ask, BlockNumber: s.header.Number, BlockHash: s.header.Hash, ReceivedAt: s.received, ObservedAt: s.observed}, nil
 }
 
 func (c *StateCache) read(ctx context.Context, s *poolSnapshot, sig string, arg *big.Int, budget *int) ([]byte, error) {
@@ -335,6 +340,7 @@ func (c *StateCache) capture(ctx context.Context, budget *int, floor uint64, flo
 	}
 	if c.spacing > 0 {
 		s.spacing = c.spacing
+		s.received = time.Now().UTC()
 		return s, nil
 	}
 	data, err = c.read(ctx, s, "tickSpacing()", nil, budget)
@@ -346,6 +352,7 @@ func (c *StateCache) capture(ctx context.Context, budget *int, floor uint64, flo
 		return nil, fmt.Errorf("failed to capture uniswap v3 state: tick_spacing=invalid")
 	}
 	s.spacing = int32(n.Int64())
+	s.received = time.Now().UTC()
 	return s, nil
 }
 

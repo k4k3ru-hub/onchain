@@ -5,6 +5,10 @@ import (
 	"testing"
 )
 
+// TestQuoteSnapshotSurvivesLiveWithdrawal verifies immutable inputs and receipt time.
+//
+// Version:
+//   - 2026-09-10: Verify input receipt survives recalculation.
 func TestQuoteSnapshotSurvivesLiveWithdrawal(t *testing.T) {
 	c, reader, p := cacheFixture(t)
 	var current *QuoteSnapshot
@@ -23,6 +27,9 @@ func TestQuoteSnapshotSurvivesLiveWithdrawal(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if expected.ReceivedAt.IsZero() || !expected.ReceivedAt.Equal(frozen.ReceivedAt()) {
+		t.Fatal("missing frozen receipt")
+	}
 	pages := reader.pages
 	c.retainedMu.Lock()
 	c.retained = nil
@@ -33,7 +40,7 @@ func TestQuoteSnapshotSurvivesLiveWithdrawal(t *testing.T) {
 	}
 	reader.obj = nil
 	actual, err := frozen.QuotePair(context.Background(), p)
-	if err != nil || actual.Bid.AmountOut != expected.Bid.AmountOut || reader.pages != pages {
+	if err != nil || !actual.ReceivedAt.Equal(expected.ReceivedAt) || actual.Bid.AmountOut != expected.Bid.AmountOut || reader.pages != pages {
 		t.Fatal("snapshot depends on live cache", err)
 	}
 }

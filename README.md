@@ -155,3 +155,24 @@ aggregates those invocations and uses `EventIndex == 0`.
 QuoterV2, pool-state and Swap HTTP/WebSocket clients with injected RPC dependencies.
 
 [`go/venues/cetus`](go/venues/cetus/README.md) provides the Cetus CLMM Go SDK.
+
+### Retained quote receipt times
+
+EVM Uniswap v3/v4 and Aerodrome Slipstream, and Sui Bluefin, Cetus, Turbos and
+Momentum expose `ReceivedAt` on retained quote results and
+`QuoteSnapshot.ReceivedAt()` on detached inputs. It is the local observation
+of inputs, preserved across repeated calculations and ignored replayed events.
+Solana Raydium CPMM/CLMM and Meteora DLMM also expose `CachedQuote.ReceivedAt`,
+derived from the last accepted account observation; their `ObservedAt` remains
+the oldest contributing account observation.
+`CapturedAt` still describes calculation capture; block/checkpoint timestamps
+retain chain provenance. Consumers measuring input freshness should use
+`ReceivedAt`, not `CapturedAt`. A nil snapshot accessor returns a zero time.
+
+```go
+snapshot := cache.CaptureQuoteSnapshot()
+if snapshot != nil {
+    receivedAt := snapshot.ReceivedAt()
+    _ = receivedAt // Preserve with the BBO derived from this snapshot.
+}
+```

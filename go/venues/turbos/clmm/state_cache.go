@@ -35,6 +35,7 @@ type StateCache struct {
 	state                 *quoteState
 }
 type quoteState struct {
+	received      time.Time
 	retainedOnly  bool
 	pool          Pool
 	version       uint64
@@ -76,6 +77,7 @@ func (c *StateCache) ObserveCheckpoint(cp sui.CheckpointSequenceNumber) {
 // AmountIn includes fees, matching Turbos compute_swap_result. Partial fills are rejected.
 //
 // Version:
+//   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Publish detached calculation inputs to the snapshot observer.
 //   - 2026-09-09: Seed detached retained inputs after verified initialization.
 //   - 2026-09-08: Reject checkpoint regression relative to successful quotes.
@@ -114,6 +116,7 @@ func (c *StateCache) QuotePair(ctx context.Context, p QuotePairParams) (QuotePai
 	}
 
 	obj, err := c.reader.ObjectAtCheckpoint(ctx, c.pool, head.SequenceNumber)
+	receivedAt := time.Now().UTC()
 	if err != nil {
 		return QuotePairResult{}, fmt.Errorf("failed to quote turbos cached state: %w", err)
 	}
@@ -145,12 +148,13 @@ func (c *StateCache) QuotePair(ctx context.Context, p QuotePairParams) (QuotePai
 	ask.Checkpoint = head.SequenceNumber
 	c.accepted = head
 	c.retainedMu.Lock()
+	c.state.received = receivedAt
 	c.retained = cloneRetainedState(c.state)
 	c.retained.retainedOnly = true
 	c.retainedHead = head
 	c.publishQuoteSnapshotLocked()
 	c.retainedMu.Unlock()
-	return QuotePairResult{Bid: bid, Ask: ask, Checkpoint: head.SequenceNumber, PoolVersion: obj.Version, PoolDigest: obj.Digest, StateTimestamp: head.Timestamp}, nil
+	return QuotePairResult{ReceivedAt: c.state.received, Bid: bid, Ask: ask, Checkpoint: head.SequenceNumber, PoolVersion: obj.Version, PoolDigest: obj.Digest, StateTimestamp: head.Timestamp}, nil
 }
 func capturePool(obj *sui.Object, cp sui.CheckpointSequenceNumber) (*quoteState, error) {
 	p, err := ParsePool(obj)

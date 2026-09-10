@@ -11,6 +11,7 @@ import (
 )
 
 type retainedSnapshot struct {
+	received time.Time
 	snapshot *LocalSnapshot
 	handle   sui.Address
 	baseline sui.Checkpoint
@@ -26,6 +27,7 @@ type ObjectStateSubscriber interface {
 // Disconnects discard state. The caller reconnects and initializes again.
 //
 // Version:
+//   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Publish retained input updates and withdraw unavailable state.
 //   - 2026-09-09: Added.
 func (c *StateCache) RunRetained(ctx context.Context, subscriber ObjectStateSubscriber) error {
@@ -65,13 +67,14 @@ func (c *StateCache) RunRetained(ctx context.Context, subscriber ObjectStateSubs
 	}
 	for {
 		n, err := sub.Recv(ctx)
+		receivedAt := time.Now().UTC()
 		if err != nil {
 			return fmt.Errorf("failed to receive retained cetus state: %w", err)
 		}
 		if n.Effects == nil {
 			continue
 		}
-		if err := c.applyRetainedObjects(n); err != nil {
+		if err := c.applyRetainedObjects(n, receivedAt); err != nil {
 			return err
 		}
 	}
@@ -82,6 +85,7 @@ func (c *StateCache) RunRetained(ctx context.Context, subscriber ObjectStateSubs
 // the pool version may be newer. This does not assert an atomic on-chain snapshot.
 //
 // Version:
+//   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Keep local capture time separate from input provenance.
 func (c *StateCache) QuoteRetainedPair(ctx context.Context, p QuotePairParams) (QuotePairResult, error) {
 	if c == nil || ctx == nil {
@@ -115,7 +119,7 @@ func (c *StateCache) QuoteRetainedPair(ctx context.Context, p QuotePairParams) (
 	}
 	bid.Checkpoint = s.baseline.SequenceNumber
 	ask.Checkpoint = s.baseline.SequenceNumber
-	return QuotePairResult{CapturedAt: capturedAt, Bid: bid, Ask: ask, Checkpoint: s.baseline.SequenceNumber, PoolVersion: s.version, PoolDigest: s.digest, StateTimestamp: s.baseline.Timestamp}, nil
+	return QuotePairResult{ReceivedAt: s.received, CapturedAt: capturedAt, Bid: bid, Ask: ask, Checkpoint: s.baseline.SequenceNumber, PoolVersion: s.version, PoolDigest: s.digest, StateTimestamp: s.baseline.Timestamp}, nil
 }
 
 func cloneLocalSnapshot(source *LocalSnapshot) *LocalSnapshot {
@@ -159,7 +163,7 @@ func retainedTickHandle(obj *sui.Object) (sui.Address, error) {
 	return id, nil
 }
 
-func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification) (err error) {
+func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification, receipt ...time.Time) (err error) {
 	c.retainedMu.Lock()
 	defer func() { c.publishQuoteSnapshotLocked(); c.retainedMu.Unlock() }()
 	defer func() {
@@ -264,5 +268,12 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification) (err e
 	s.snapshot.Pool = *p
 	s.version = poolChange.After.Version
 	s.digest = poolChange.After.Digest
+	at := time.Now().UTC()
+	if len(receipt) > 0 {
+		at = receipt[0]
+	}
+	if at.After(s.received) {
+		s.received = at
+	}
 	return nil
 }

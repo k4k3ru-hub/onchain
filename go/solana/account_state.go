@@ -2,6 +2,7 @@ package solana
 
 import (
 	"fmt"
+	"reflect"
 	"sync"
 	"time"
 )
@@ -13,6 +14,8 @@ type RetainedAccount struct {
 }
 
 type FrozenAccountState struct {
+	// ReceivedAt is the latest accepted local input observation.
+	ReceivedAt time.Time
 	Accounts   map[Address]RetainedAccount
 	Slot       Slot
 	ObservedAt time.Time
@@ -48,9 +51,11 @@ func (s *AccountState) Seed(accounts []*Account, slot Slot, observed time.Time) 
 }
 
 // Apply retains a full account notification, preserving its individual slot and time.
-// Older notifications cannot rewind an account; equal slots follow reception order.
+// Older and identical same-slot notifications preserve the original receipt.
+// Different account contents at equal slots follow reception order.
 //
 // Version:
+//   - 2026-09-10: Preserve accepted receipt time separately from oldest provenance.
 //   - 2026-09-09: Added.
 func (s *AccountState) Apply(update *AccountUpdate, observed time.Time) error {
 	if s == nil || update == nil || update.Account == nil {
@@ -67,7 +72,7 @@ func (s *AccountState) Apply(update *AccountUpdate, observed time.Time) error {
 	if s.accounts == nil {
 		s.accounts = make(map[Address]RetainedAccount)
 	}
-	if previous, exists := s.accounts[update.Account.Address]; exists && previous.Slot > update.Slot {
+	if previous, exists := s.accounts[update.Account.Address]; exists && (previous.Slot > update.Slot || (previous.Slot == update.Slot && reflect.DeepEqual(previous.Account, update.Account))) {
 		return nil
 	}
 	s.accounts[update.Account.Address] = copyRetainedAccount(RetainedAccount{update.Account, update.Slot, observed})
@@ -75,9 +80,11 @@ func (s *AccountState) Apply(update *AccountUpdate, observed time.Time) error {
 }
 
 // Freeze copies all retained inputs without waiting for an RPC or matching slots.
-// Slot and ObservedAt are conservative minima; per-account provenance is retained.
+// Slot and ObservedAt are conservative minima; ReceivedAt is the latest receipt.
+// Per-account provenance is retained; ReceivedAt does not assert all inputs are fresh.
 //
 // Version:
+//   - 2026-09-10: Preserve accepted receipt time separately from oldest provenance.
 //   - 2026-09-09: Added.
 func (s *AccountState) Freeze() FrozenAccountState {
 	s.mu.Lock()
@@ -85,6 +92,9 @@ func (s *AccountState) Freeze() FrozenAccountState {
 	result := FrozenAccountState{Accounts: make(map[Address]RetainedAccount, len(s.accounts))}
 	for address, account := range s.accounts {
 		result.Accounts[address] = copyRetainedAccount(account)
+		if account.ObservedAt.After(result.ReceivedAt) {
+			result.ReceivedAt = account.ObservedAt
+		}
 		if result.Slot == 0 || account.Slot < result.Slot {
 			result.Slot = account.Slot
 		}

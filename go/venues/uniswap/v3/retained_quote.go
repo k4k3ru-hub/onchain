@@ -38,6 +38,7 @@ func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, baseAmount
 // streamed core fields may be newer and do not imply an atomic on-chain snapshot.
 //
 // Version:
+//   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Notify the state producer of missing reference-quote coverage without waiting.
 //   - 2026-09-09: Keep local capture time separate from input provenance.
 func (c *StateCache) QuoteRetainedPair(ctx context.Context, amount *big.Int, baseIsToken0 bool) (LocalPair, error) {
@@ -72,7 +73,7 @@ func (c *StateCache) QuoteRetainedPair(ctx context.Context, amount *big.Int, bas
 	if err := ctx.Err(); err != nil {
 		return LocalPair{}, fmt.Errorf("failed to quote retained state: %w", err)
 	}
-	return LocalPair{CapturedAt: capturedAt, BidAmountOut: bid, AskAmountIn: ask, BlockNumber: snapshot.header.Number, BlockHash: snapshot.header.Hash, ObservedAt: snapshot.observed}, nil
+	return LocalPair{ReceivedAt: snapshot.received, CapturedAt: capturedAt, BidAmountOut: bid, AskAmountIn: ask, BlockNumber: snapshot.header.Number, BlockHash: snapshot.header.Hash, ObservedAt: snapshot.observed}, nil
 }
 
 func clonePoolSnapshot(source *poolSnapshot) *poolSnapshot {
@@ -99,7 +100,7 @@ func cloneRetainedIntegers(source map[int32]*big.Int) map[int32]*big.Int {
 
 // applyRetainedLog runs under mu. Events before the bootstrap block are already
 // incorporated. Within subsequent blocks, reception must follow log order.
-func (c *StateCache) applyRetainedLog(log types.Log) error {
+func (c *StateCache) applyRetainedLog(log types.Log, receipt ...time.Time) error {
 	fail := func(reason string) error {
 		c.retained = nil
 		return retainedReinitializationError(log, reason)
@@ -161,6 +162,13 @@ func (c *StateCache) applyRetainedLog(log types.Log) error {
 	default:
 		// Unknown events require producer recovery before applying further deltas.
 		return fail("unsupported event")
+	}
+	at := time.Now().UTC()
+	if len(receipt) > 0 {
+		at = receipt[0]
+	}
+	if at.After(c.retained.received) {
+		c.retained.received = at
 	}
 	c.retainedBlock, c.retainedHash, c.retainedIndex, c.retainedHasLog = log.BlockNumber, log.BlockHash, log.Index, true
 	return nil

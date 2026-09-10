@@ -11,6 +11,7 @@ import (
 // slots may differ; Slot is the oldest component position, not an atomic snapshot.
 //
 // Version:
+//   - 2026-09-10: Preserve input receipt time across calculations.
 //   - 2026-09-09: Keep local capture time separate from input provenance.
 func (s *StateCache) QuoteRetainedExactInputs(ctx context.Context, requests []ExactInputRequest) (CachedQuote, error) {
 	if s == nil || ctx == nil {
@@ -33,7 +34,7 @@ func (s *StateCache) QuoteRetainedExactInputs(ctx context.Context, requests []Ex
 	}
 	local := &Client{accounts: accounts, programID: s.client.programID, pools: s.client.pools}
 
-	result := CachedQuote{CapturedAt: capturedAt, QuoteBatch: QuoteBatch{Slot: frozen.Slot, Quotes: make([]Quote, len(requests))}, ObservedAt: frozen.ObservedAt}
+	result := CachedQuote{ReceivedAt: frozen.ReceivedAt, CapturedAt: capturedAt, QuoteBatch: QuoteBatch{Slot: frozen.Slot, Quotes: make([]Quote, len(requests))}, ObservedAt: frozen.ObservedAt}
 	for i, request := range requests {
 		quote, err := local.quoteExactInput(ctx, s.pool, request.InputMint, request.AmountIn)
 		if err != nil {

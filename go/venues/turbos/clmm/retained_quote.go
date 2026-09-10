@@ -19,6 +19,7 @@ type ObjectStateSubscriber interface {
 // Initialization may acquire state; Trade calculation never invokes it.
 //
 // Version:
+//   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Publish retained input updates and withdraw unavailable state.
 //   - 2026-09-09: Added.
 func (c *StateCache) RunRetained(ctx context.Context, subscribed ObjectStateSubscriber, initialize func(context.Context) error) error {
@@ -57,13 +58,14 @@ func (c *StateCache) RunRetained(ctx context.Context, subscribed ObjectStateSubs
 	}
 	for {
 		n, err := sub.Recv(ctx)
+		receivedAt := time.Now().UTC()
 		if err != nil {
 			return fmt.Errorf("failed to receive retained turbos state: %w", err)
 		}
 		if n.Effects == nil {
 			continue
 		}
-		if err := c.applyRetainedObjects(n); err != nil {
+		if err := c.applyRetainedObjects(n, receivedAt); err != nil {
 			return err
 		}
 	}
@@ -73,6 +75,7 @@ func (c *StateCache) RunRetained(ctx context.Context, subscribed ObjectStateSubs
 // Checkpoint/time describe the initial verified input baseline; pool version may be newer.
 //
 // Version:
+//   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Keep local capture time separate from input provenance.
 func (c *StateCache) QuoteRetainedPair(ctx context.Context, p QuotePairParams) (QuotePairResult, error) {
 	if c == nil {
@@ -109,7 +112,7 @@ func (c *StateCache) QuoteRetainedPair(ctx context.Context, p QuotePairParams) (
 	}
 	bid.Checkpoint = head.SequenceNumber
 	ask.Checkpoint = head.SequenceNumber
-	return QuotePairResult{CapturedAt: capturedAt, Bid: bid, Ask: ask, Checkpoint: head.SequenceNumber, PoolVersion: s.version, PoolDigest: s.digest, StateTimestamp: head.Timestamp}, nil
+	return QuotePairResult{ReceivedAt: s.received, CapturedAt: capturedAt, Bid: bid, Ask: ask, Checkpoint: head.SequenceNumber, PoolVersion: s.version, PoolDigest: s.digest, StateTimestamp: head.Timestamp}, nil
 }
 func cloneRetainedState(source *quoteState) *quoteState {
 	if source == nil {
@@ -128,7 +131,7 @@ func cloneRetainedState(source *quoteState) *quoteState {
 	}
 	return &s
 }
-func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification) (err error) {
+func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification, receipt ...time.Time) (err error) {
 	c.retainedMu.Lock()
 	defer func() { c.publishQuoteSnapshotLocked(); c.retainedMu.Unlock() }()
 	defer func() {
@@ -196,6 +199,7 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification) (err e
 	next.nets = detached.nets
 	next.retainedOnly = true
 	next.captured = old.captured
+	next.received = old.received
 	for _, change := range n.ObjectChanges {
 		parent := change.OutputParent
 		obj := change.After
@@ -274,6 +278,13 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification) (err e
 			}
 			next.nets[key] = net
 		}
+	}
+	at := time.Now().UTC()
+	if len(receipt) > 0 {
+		at = receipt[0]
+	}
+	if at.After(next.received) {
+		next.received = at
 	}
 	c.retained = next
 	return nil

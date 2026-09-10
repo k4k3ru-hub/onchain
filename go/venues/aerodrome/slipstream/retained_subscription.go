@@ -136,7 +136,11 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 	c.mu.Unlock()
 	headers := map[common.Hash]evm.BlockHeader{state.pool.header.Hash: state.pool.header}
 	order := []common.Hash{state.pool.header.Hash}
-	var pending []types.Log
+	type receivedLog struct {
+		types.Log
+		at time.Time
+	}
+	var pending []receivedLog
 	apply := func() error {
 		for len(pending) > 0 {
 			log := pending[0]
@@ -152,13 +156,13 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 				timestamp = header.Timestamp
 			}
 			c.mu.Lock()
-			err := c.applyRetainedLog(log, timestamp)
+			err := c.applyRetainedLog(log.Log, timestamp, log.at)
 			c.publishQuoteSnapshotLocked()
 			c.mu.Unlock()
 			if err != nil {
 				return err
 			}
-			pending[0] = types.Log{}
+			pending[0] = receivedLog{}
 			pending = pending[1:]
 		}
 		return nil
@@ -201,7 +205,7 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 			if len(pending) >= 4096 {
 				return fmt.Errorf("failed to retain pending logs: buffer=too_long")
 			}
-			pending = append(pending, log)
+			pending = append(pending, receivedLog{log, time.Now().UTC()})
 		}
 		if err := apply(); err != nil {
 			return err
@@ -231,5 +235,5 @@ func (c *StateCache) initializeRetainedPool(ctx context.Context, amount *big.Int
 	if err != nil {
 		return nil, err
 	}
-	return &retainedPoolState{pool: snapshot, fee: fee, timestamp: snapshot.header.Timestamp}, nil
+	return &retainedPoolState{received: snapshot.observed, pool: snapshot, fee: fee, timestamp: snapshot.header.Timestamp}, nil
 }
