@@ -36,10 +36,15 @@ func TestRetainedQuoteUsesStreamWithoutCheckpointReads(t *testing.T) {
 	move.JSON = json.RawMessage(strings.Replace(string(move.JSON), `"fee_rate":"500"`, `"fee_rate":"10000"`, 1))
 	after.Move = &move
 	cp := sui.CheckpointSequenceNumber(124)
-	n := &sui.TransactionNotification{Effects: &sui.TransactionEffects{Checkpoint: &cp, Successful: true}, ObjectChanges: []sui.ObjectChange{{Address: c.pool, Before: fixture.obj, After: &after}}}
+	n := &sui.TransactionNotification{Effects: &sui.TransactionEffects{Checkpoint: &cp, TransactionIndex: new(uint64), Successful: true}, ObjectChanges: []sui.ObjectChange{{Address: c.pool, Before: fixture.obj, After: &after}}}
 	if err := c.applyRetainedObjects(n); err != nil {
 		t.Fatal(err)
 	}
+	inputs := c.CaptureQuoteSnapshot().Inputs()
+	if inputs.Position.Kind != "transaction" || inputs.Position.Sequence != cp.Uint64() || inputs.Position.Index == nil || *inputs.Position.Index != 0 || inputs.Baseline.Sequence >= inputs.Position.Sequence {
+		t.Fatal("lost retained transaction position", inputs)
+	}
+
 	second, err := c.QuoteRetainedPair(ctx, params)
 	if err != nil {
 		t.Fatal(err)

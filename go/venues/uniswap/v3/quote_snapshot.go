@@ -22,9 +22,10 @@ func (s *QuoteSnapshot) QuotePair(ctx context.Context, amount *big.Int, baseIsTo
 	return s.cache.QuoteRetainedPair(ctx, amount, baseIsToken0)
 }
 
-// CaptureQuoteSnapshot detaches the current inputs; nil means unavailable.
+// CaptureQuoteSnapshot detaches the current inputs and applied log position; nil means unavailable.
 //
 // Version:
+//   - 2026-09-10: Preserve the applied log cursor with frozen inputs.
 //   - 2026-09-09: Added.
 func (c *StateCache) CaptureQuoteSnapshot() *QuoteSnapshot {
 	if c == nil {
@@ -38,7 +39,7 @@ func (c *StateCache) captureQuoteSnapshotLocked() *QuoteSnapshot {
 	if c.retained == nil {
 		return nil
 	}
-	return &QuoteSnapshot{cache: StateCache{retained: clonePoolSnapshot(c.retained), fee: c.fee}}
+	return &QuoteSnapshot{cache: StateCache{retained: clonePoolSnapshot(c.retained), retainedBlock: c.retainedBlock, retainedHash: c.retainedHash, retainedIndex: c.retainedIndex, retainedHasLog: c.retainedHasLog, fee: c.fee}}
 }
 
 // SetQuoteSnapshotObserver installs the state consumer and immediately publishes current inputs.

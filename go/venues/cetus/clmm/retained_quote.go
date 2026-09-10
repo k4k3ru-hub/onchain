@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/k4k3ru-hub/onchain/go/quotestate"
 	"math/big"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 )
 
 type retainedSnapshot struct {
+	position *quotestate.Position
 	received time.Time
 	snapshot *LocalSnapshot
 	handle   sui.Address
@@ -268,6 +270,12 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification, receip
 	s.snapshot.Pool = *p
 	s.version = poolChange.After.Version
 	s.digest = poolChange.After.Digest
+	position := quotestate.Position{Kind: "transaction", Sequence: n.Effects.Checkpoint.Uint64(), Digest: n.Effects.Digest.String()}
+	if n.Effects.TransactionIndex != nil {
+		index := *n.Effects.TransactionIndex
+		position.Index = &index
+	}
+	s.position = &position
 	at := time.Now().UTC()
 	if len(receipt) > 0 {
 		at = receipt[0]

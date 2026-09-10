@@ -31,7 +31,7 @@ func TestObjectStateComposition(t *testing.T) {
 		t.Fatal("wrong filter")
 	}
 	paths := strings.Join(r.ReadMask.Paths, ",")
-	if !strings.Contains(paths, "objects") || !strings.Contains(paths, "effects.changed_objects") || strings.Contains(paths, "balance_changes") {
+	if !strings.Contains(paths, "transaction_index") || !strings.Contains(paths, "objects") || !strings.Contains(paths, "effects.changed_objects") || strings.Contains(paths, "balance_changes") {
 		t.Fatal(paths)
 	}
 }

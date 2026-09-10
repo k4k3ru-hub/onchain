@@ -92,3 +92,34 @@ func TestDecodeGRPCTransaction(t *testing.T) {
 		t.Fatalf("decodeGRPCTransaction() balance changes = %+v", effects.BalanceChanges)
 	}
 }
+
+// TestTransactionEffectsPreserveOptionalOrder verifies retained input metadata and ordering.
+//
+// Version:
+//   - 2026-09-10: Added.
+func TestTransactionEffectsPreserveOptionalOrder(t *testing.T) {
+	digest := base58.Encode(make([]byte, digestByteLength))
+	checkpoint := uint64(100)
+	success := true
+	for _, index := range []*uint64{nil, new(uint64), func() *uint64 { n := uint64(7); return &n }()} {
+		value := &rpcv2.ExecutedTransaction{Digest: &digest, Checkpoint: &checkpoint, TransactionIndex: index, Effects: &rpcv2.TransactionEffects{Status: &rpcv2.ExecutionStatus{Success: &success}}}
+		got, err := decodeGRPCTransaction(value)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if index == nil {
+			if got.TransactionIndex != nil {
+				t.Fatal("invented index")
+			}
+			continue
+		}
+		want := *index
+		if got.TransactionIndex == nil || *got.TransactionIndex != want {
+			t.Fatal("lost order")
+		}
+		*index = 99
+		if *got.TransactionIndex != want {
+			t.Fatal("index alias")
+		}
+	}
+}

@@ -21,6 +21,7 @@ type ObjectChange struct {
 // This is separate from the lightweight Trade/checkpoint subscription.
 //
 // Version:
+//   - 2026-09-10: Retain optional checkpoint-local transaction position.
 //   - 2026-09-09: Added.
 func (c *GRPCClient) SubscribeObjectState(ctx context.Context, object Address) (*TransactionSubscription, error) {
 	if c == nil || object.IsZero() {
@@ -49,7 +50,7 @@ func (a *grpcAdapter) subscribeObjectState(ctx context.Context, object Address) 
 	ctx, cancel := context.WithCancel(ctx)
 	address := object.String()
 	request := &rpcv2.SubscribeTransactionsRequest{
-		ReadMask: &fieldmaskpb.FieldMask{Paths: []string{"digest", "effects.status", "effects.changed_objects", "checkpoint", "timestamp", "objects"}},
+		ReadMask: &fieldmaskpb.FieldMask{Paths: []string{"digest", "effects.status", "effects.changed_objects", "checkpoint", "transaction_index", "timestamp", "objects"}},
 		Filter:   &rpcv2.TransactionFilter{Terms: []*rpcv2.TransactionTerm{{Literals: []*rpcv2.TransactionLiteral{{Predicate: &rpcv2.TransactionLiteral_AffectedObject{AffectedObject: &rpcv2.AffectedObjectFilter{ObjectId: &address}}}}}}},
 	}
 	stream, err := a.client.SubscribeTransactions(ctx, request)

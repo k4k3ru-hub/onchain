@@ -34,6 +34,7 @@ type grpcTransactionReceiver struct {
 // SubscribeTransactions subscribes to transactions affecting an address.
 //
 // Version:
+//   - 2026-09-10: Retain optional checkpoint-local transaction position.
 //   - 2026-08-23: Added.
 func (c *GRPCClient) SubscribeTransactions(ctx context.Context, address Address) (*TransactionSubscription, error) {
 	if c == nil || c.transactionProvider == nil {
@@ -102,7 +103,7 @@ func (a *grpcAdapter) subscribeTransactions(ctx context.Context, address Address
 		Predicate: &rpcv2.TransactionLiteral_AffectedAddress{AffectedAddress: &rpcv2.AffectedAddressFilter{Address: &addressValue}},
 	}}}}}
 	request := &rpcv2.SubscribeTransactionsRequest{
-		ReadMask: &fieldmaskpb.FieldMask{Paths: []string{"digest", "effects.status", "checkpoint", "timestamp", "balance_changes"}},
+		ReadMask: &fieldmaskpb.FieldMask{Paths: []string{"digest", "effects.status", "checkpoint", "transaction_index", "timestamp", "balance_changes"}},
 		Filter:   filter,
 	}
 	stream, err := a.client.SubscribeTransactions(streamContext, request)
@@ -120,7 +121,7 @@ func (a *grpcAdapter) subscribeObjectTransactions(ctx context.Context, address A
 		Predicate: &rpcv2.TransactionLiteral_AffectedObject{AffectedObject: &rpcv2.AffectedObjectFilter{ObjectId: &addressValue}},
 	}}}}}
 	request := &rpcv2.SubscribeTransactionsRequest{
-		ReadMask: &fieldmaskpb.FieldMask{Paths: []string{"digest", "effects.status", "checkpoint", "timestamp"}},
+		ReadMask: &fieldmaskpb.FieldMask{Paths: []string{"digest", "effects.status", "checkpoint", "transaction_index", "timestamp"}},
 		Filter:   filter,
 	}
 	stream, err := a.client.SubscribeTransactions(streamContext, request)
@@ -181,6 +182,10 @@ func decodeGRPCTransaction(value *rpcv2.ExecutedTransaction) (*TransactionEffect
 	}
 	checkpoint := CheckpointSequenceNumber(value.GetCheckpoint())
 	effects := &TransactionEffects{Digest: digest, Checkpoint: &checkpoint, Successful: value.Effects.Status.GetSuccess()}
+	if value.TransactionIndex != nil {
+		index := *value.TransactionIndex
+		effects.TransactionIndex = &index
+	}
 	if value.Timestamp != nil {
 		timestamp := value.Timestamp.AsTime()
 		effects.Timestamp = &timestamp
@@ -211,6 +216,7 @@ func decodeGRPCTransaction(value *rpcv2.ExecutedTransaction) (*TransactionEffect
 // Watermarks are progress hints; callers must verify state before extending quote validity.
 //
 // Version:
+//   - 2026-09-10: Retain optional checkpoint-local transaction position.
 //   - 2026-09-09: Added.
 func (c *GRPCClient) SubscribeObjectTransactions(ctx context.Context, object Address) (*TransactionSubscription, error) {
 	if c == nil || object.IsZero() {

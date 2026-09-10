@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/k4k3ru-hub/onchain/go/quotestate"
 	"math/big"
 	"strings"
 	"time"
@@ -279,6 +280,12 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification, receip
 			next.nets[key] = net
 		}
 	}
+	position := quotestate.Position{Kind: "transaction", Sequence: n.Effects.Checkpoint.Uint64(), Digest: n.Effects.Digest.String()}
+	if n.Effects.TransactionIndex != nil {
+		index := *n.Effects.TransactionIndex
+		position.Index = &index
+	}
+	next.position = &position
 	at := time.Now().UTC()
 	if len(receipt) > 0 {
 		at = receipt[0]

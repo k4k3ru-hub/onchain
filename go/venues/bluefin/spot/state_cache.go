@@ -35,6 +35,7 @@ type StateCache struct {
 	state                 *quoteState
 }
 type quoteState struct {
+	position      *quotestate.Position
 	received      time.Time
 	retainedOnly  bool
 	pool          Pool

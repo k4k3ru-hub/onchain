@@ -22,13 +22,14 @@ type BalanceChange struct {
 }
 
 type TransactionEffects struct {
-	Digest         TransactionDigest
-	Successful     bool
-	Error          *string
-	Checkpoint     *CheckpointSequenceNumber
-	Timestamp      *time.Time
-	GasCost        GasCostSummary
-	BalanceChanges []BalanceChange
+	TransactionIndex *uint64 // Optional checkpoint-local transaction position.
+	Digest           TransactionDigest
+	Successful       bool
+	Error            *string
+	Checkpoint       *CheckpointSequenceNumber
+	Timestamp        *time.Time
+	GasCost          GasCostSummary
+	BalanceChanges   []BalanceChange
 }
 
 // TransactionEffects returns the execution effects of a Sui transaction block.

@@ -73,7 +73,7 @@ func TestRetainedObjectUpdates(t *testing.T) {
 	cp := sui.CheckpointSequenceNumber(124)
 	tick := &sui.Object{Move: &sui.MoveObject{Type: "0x2::dynamic_field::Field<" + c.retained.keyType + ",u256>", JSON: json.RawMessage(`{"name":{"bits":"10"},"value":{"liquidity_net":{"bits":"340282366920938463463374607431768211451"}}}`)}}
 	word := &sui.Object{Move: &sui.MoveObject{Type: "0x2::dynamic_field::Field<" + c.retained.keyType + ",u256>", JSON: json.RawMessage(`{"name":{"bits":"0"},"value":"1024"}`)}}
-	n := &sui.TransactionNotification{Effects: &sui.TransactionEffects{Checkpoint: &cp, Successful: true}, ObjectChanges: []sui.ObjectChange{
+	n := &sui.TransactionNotification{Effects: &sui.TransactionEffects{Checkpoint: &cp, TransactionIndex: new(uint64), Successful: true}, ObjectChanges: []sui.ObjectChange{
 		{Address: c.pool, Before: &before, After: &after},
 		{OutputParent: c.retained.ticks, After: tick},
 		{OutputParent: c.retained.bitmap, After: word},
@@ -82,6 +82,11 @@ func TestRetainedObjectUpdates(t *testing.T) {
 	if err := c.applyRetainedObjects(n, received); err != nil {
 		t.Fatal(err)
 	}
+	inputs := c.CaptureQuoteSnapshot().Inputs()
+	if inputs.Position.Kind != "transaction" || inputs.Position.Sequence != cp.Uint64() || inputs.Position.Index == nil || *inputs.Position.Index != 0 || inputs.Baseline.Sequence >= inputs.Position.Sequence {
+		t.Fatal("lost retained transaction position", inputs)
+	}
+
 	if c.retained.nets[10].Int64() != -5 || c.retained.words[0].Uint64() != 1024 || c.retained.version != after.Version {
 		t.Fatal("stream updates lost")
 	}
