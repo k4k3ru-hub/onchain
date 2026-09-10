@@ -399,6 +399,10 @@ func (c *StateCache) liquidityNet(ctx context.Context, s *poolSnapshot, tick int
 	if err != nil {
 		return nil, err
 	}
+	return storeTickDetails(s, tick, data)
+}
+
+func storeTickDetails(s *poolSnapshot, tick int32, data []byte) (*big.Int, error) {
 	if len(data) != 256 || new(big.Int).SetBytes(data[224:]).Cmp(big.NewInt(1)) != 0 {
 		return nil, fmt.Errorf("failed to read uniswap v3 tick: result=invalid")
 	}

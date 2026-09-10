@@ -1,4 +1,4 @@
-package v3
+package v4
 
 import (
 	"context"
@@ -13,6 +13,8 @@ import (
 
 type bitmapBatchFake struct {
 	*stateFake
+	poolID    common.Hash
+	target    common.Address
 	batches   int
 	failure   error
 	transport bool
@@ -28,12 +30,20 @@ func (f *bitmapBatchFake) ReadContracts(ctx context.Context, target common.Addre
 	if block != 100 || len(calls) != 3 {
 		f.t.Fatalf("block=%d count=%d", block, len(calls))
 	}
+	if target != f.target {
+		f.t.Fatal("wrong StateView target")
+	}
+	for _, call := range calls {
+		if len(call) != 68 || common.BytesToHash(call[4:36]) != f.poolID {
+			f.t.Fatal("wrong pool ID ABI")
+		}
+	}
 	for i, call := range calls {
 		want := big.NewInt(int64(i - 1))
 		if want.Sign() < 0 {
 			want.Add(want, power2(256))
 		}
-		if new(big.Int).SetBytes(call[4:]).Cmp(want) != 0 {
+		if new(big.Int).SetBytes(call[36:]).Cmp(want) != 0 {
 			f.t.Fatal("wrong word encoding")
 		}
 	}
@@ -69,7 +79,7 @@ func TestRetainedBitmapBatch(t *testing.T) {
 	for _, mode := range []string{"success", "element", "transport", "malformed"} {
 		t.Run(mode, func(t *testing.T) {
 			c, f := newTestCache(t)
-			batch := &bitmapBatchFake{stateFake: f}
+			batch := &bitmapBatchFake{stateFake: f, poolID: c.poolID, target: c.stateView}
 			injected := errors.New("injected batch failure")
 			if mode == "element" || mode == "transport" {
 				batch.failure = injected
@@ -82,7 +92,7 @@ func TestRetainedBitmapBatch(t *testing.T) {
 				t.Fatalf("batches=%d", batch.batches)
 			}
 			if mode == "success" {
-				if err != nil || !reflect.DeepEqual(want.words, got.words) || f.calls != 6 {
+				if err != nil || !reflect.DeepEqual(want.words, got.words) || f.calls != 5 {
 					t.Fatalf("result=%v calls=%d", err, f.calls)
 				}
 			} else {
@@ -92,9 +102,9 @@ func TestRetainedBitmapBatch(t *testing.T) {
 				if batch.failure != nil && !errors.Is(err, injected) {
 					t.Fatalf("lost cause: %v", err)
 				}
-				expected := 6
+				expected := 5
 				if batch.transport {
-					expected = 3
+					expected = 2
 				}
 				if f.calls != expected {
 					t.Fatalf("unexpected fallback calls=%d", f.calls)
@@ -110,7 +120,7 @@ func TestRetainedBitmapBatch(t *testing.T) {
 //   - 2026-09-11: Verify three-word batches.
 func TestBitmapBatchBudget(t *testing.T) {
 	c, f := newTestCache(t)
-	batch := &bitmapBatchFake{stateFake: f}
+	batch := &bitmapBatchFake{stateFake: f, poolID: c.poolID, target: c.stateView}
 	c.rpc = batch
 	s := &poolSnapshot{words: make(map[int32]*big.Int)}
 	budget := 4

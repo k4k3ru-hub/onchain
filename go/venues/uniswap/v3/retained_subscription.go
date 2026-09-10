@@ -14,7 +14,7 @@ import (
 )
 
 const retainedReplayLimit = 4096
-const retainedWordRadius = 2
+const retainedWordRadius = 1
 
 type retainedCaptureResult struct {
 	snapshot *poolSnapshot
@@ -42,6 +42,11 @@ func (c *StateCache) retainedNeedsCapture(amount *big.Int, baseIsToken0 bool) bo
 		if s.words[word] == nil {
 			return true
 		}
+		for bit := 0; bit < 256; bit++ {
+			if s.words[word].Bit(bit) != 0 && s.ticks[(word*256+int32(bit))*s.spacing] == nil {
+				return true
+			}
+		}
 	}
 	// Also detect missing tick details after a liquidity change or price movement.
 	budget := 0
@@ -65,8 +70,11 @@ func (c *StateCache) captureRetainedWindow(ctx context.Context, amount *big.Int,
 	if err := reader.readBitmapWindow(ctx, s, max(center-retainedWordRadius, minWord), min(center+retainedWordRadius, maxWord), &budget); err != nil {
 		return nil, err
 	}
-	// Only fetch tick details required by the reference pair. A sparse pool may
-	// require additional words; all contract reads share the existing 64-call cap.
+	if err := reader.readWindowTicks(ctx, s, max(center-retainedWordRadius, minWord), min(center+retainedWordRadius, maxWord)); err != nil {
+		return nil, err
+	}
+	// Quotes outside the complete window may acquire additional inputs within
+	// the existing 64-read reference-quote budget.
 	if _, err := reader.quote(ctx, s, amount, baseIsToken0, true, &budget); err != nil {
 		return nil, fmt.Errorf("failed to capture retained bid coverage: %w", err)
 	}

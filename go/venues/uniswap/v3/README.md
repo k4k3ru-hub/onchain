@@ -48,8 +48,9 @@ is preserved on reuse; it is not the block timestamp.
 
 Only bitmap words and initialized ticks encountered by the simulation are read.
 This describes `QuotePair`. `RunRetained` additionally preloads the current
-bitmap word and one adjacent word on each side (three words, clipped at protocol
-tick limits). When either adjacent word is unavailable after a streamed update,
+bitmap word and one adjacent word on each side, including every initialized
+tick detail in that window (three words, clipped at protocol tick limits).
+When a required word or initialized tick is unavailable after a streamed update,
 the producer asynchronously captures a new window around the current on-chain
 tick. Missing reference-quote tick details also trigger capture, including when
 consumers use detached quote snapshots. Large jumps fetch the new neighborhood
@@ -90,10 +91,11 @@ resets to one second after a session lasts at least 30 seconds; short sessions
 continue exponential backoff up to 30 seconds. Session duration includes initial
 capture, so this is a reconnect heuristic rather than proof of quote readiness.
 
-Three words are the prefetch window, not a three-RPC total budget: core state,
-reference-quote tick details and header verification are also required. Sparse
-liquidity can require additional words for the reference quote, subject to the
-same 64-contract-call cap. Each refresh replaces its old window rather than
+Three words are the prefetch window, not a three-RPC total budget. Their initialized
+ticks use a separate bounded acquisition budget (at most 768 tick reads),
+chunked into batches of 32. Core state, bitmap reads and any additional inputs
+needed by the reference quote retain the 64-contract-call cap. Header verification
+is also required. The existing 30-second capture deadline still applies. Each refresh replaces its old window rather than
 mixing tick data from different blocks. Quote consumers never fetch missing
 inputs; an uncovered quote fails until producer capture catches up.
 
@@ -134,14 +136,18 @@ RPC calls per quote on busy pools; deployment measurements remain necessary.
 
 ## Retained bitmap batching
 
-Retained-window acquisition reads the current bitmap word and two words on each
-side (center ±2, five words clipped to valid tick bounds). Readers implementing the
+Retained-window acquisition reads the current bitmap word and one word on each
+side (center ±1, three words clipped to valid tick bounds). Readers implementing the
 optional `ReadContracts` method fetch these words in one batch pinned to the
 snapshot block. Readers without that method retain sequential acquisition.
 The 64-read acquisition budget counts each bitmap call, not the batch envelope.
 Transport errors, individual failures and malformed results reject the window;
 failed batches are not retried as individual calls. Final block-hash verification
-still applies. Tick details remain fetched as needed for the reference quote.
+still applies. Every initialized tick in the window is then fetched at the same
+block, in batches of at most 32 (sequentially for readers without batch support).
+Tick results are installed only after every chunk succeeds. Extra reference-quote
+inputs outside that window remain demand-driven. This does not guarantee coverage
+for arbitrary quote sizes or jumps beyond the retained range.
 
 Local retained and frozen quotes never fetch missing inputs. They report
 `coverage=insufficient`, preserving the underlying error identity for recovery.

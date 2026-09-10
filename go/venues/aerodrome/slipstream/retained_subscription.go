@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math/big"
+	"sync"
 	"time"
 
 	"github.com/ethereum/go-ethereum"
@@ -25,10 +26,11 @@ type RunRetainedParams struct {
 }
 
 // RunRetained subscribes before initialization and maintains local quote inputs.
-// RPC reads occur only during initialization. State notifications never publish
+// RPC reads occur during initialization and background window capture. State notifications never publish
 // quotes. On failure all retained inputs are discarded; the caller may reconnect.
 //
 // Version:
+//   - 2026-09-11: Refresh complete tick windows in the background.
 //   - 2026-09-10: Delegate to RunRetainedWithParams using the subscriber's default start block.
 //   - 2026-09-09: Publish retained input updates and withdraw unavailable state.
 //   - 2026-09-09: Added.
@@ -46,6 +48,7 @@ func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, amount *bi
 //   - Subscription or state initialization error.
 //
 // Version:
+//   - 2026-09-11: Prefetch and refresh complete center ±1 tick windows.
 //   - 2026-09-10: Added.
 func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, params RunRetainedParams) error {
 	amount, baseIsToken0 := params.Amount, params.BaseIsToken0
@@ -141,6 +144,19 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 		at time.Time
 	}
 	var pending []receivedLog
+	type windowResult struct {
+		state *retainedPoolState
+		err   error
+	}
+	results := make(chan windowResult, 1)
+	var captures sync.WaitGroup
+	defer func() { cancel(); captures.Wait() }()
+	busy := false
+	var replay []retainedWindowLog
+	retryAt := time.Now()
+	backoff := time.Second
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
 	apply := func() error {
 		for len(pending) > 0 {
 			log := pending[0]
@@ -162,6 +178,12 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 			if err != nil {
 				return err
 			}
+			if busy {
+				if len(replay) >= 4096 {
+					return fmt.Errorf("failed to retain window replay: buffer=too_long")
+				}
+				replay = append(replay, retainedWindowLog{log.Log, timestamp, log.at})
+			}
 			pending[0] = receivedLog{}
 			pending = pending[1:]
 		}
@@ -171,6 +193,53 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 		select {
 		case <-ctx.Done():
 			return fmt.Errorf("failed to run retained slipstream state: %w", ctx.Err())
+		case <-ticker.C:
+			c.mu.Lock()
+			needed := c.retainedNeedsCapture(amount, baseIsToken0)
+			floor, floorHash := uint64(0), common.Hash{}
+			if c.retained != nil {
+				floor, floorHash = c.retained.pool.header.Number, c.retained.pool.header.Hash
+				if c.retained.hasLog {
+					floor, floorHash = c.retained.block, c.retained.hash
+				}
+			}
+			c.mu.Unlock()
+			if needed && !busy && !time.Now().Before(retryAt) {
+				busy = true
+				replay = nil
+				captures.Add(1)
+				go func() {
+					defer captures.Done()
+					readCtx, stop := context.WithTimeout(ctx, 30*time.Second)
+					defer stop()
+					next, err := c.initializeRetainedPool(readCtx, amount, baseIsToken0)
+					if err == nil && (next.pool.header.Number < floor || next.pool.header.Number == floor && next.pool.header.Hash != floorHash) {
+						err = fmt.Errorf("failed to capture retained window: baseline=behind_or_conflicting")
+					}
+					select {
+					case results <- windowResult{next, err}:
+					case <-ctx.Done():
+					}
+				}()
+			}
+		case result := <-results:
+			busy = false
+			err := result.err
+			if err == nil {
+				c.mu.Lock()
+				err = c.installRetainedWindow(result.state, replay)
+				if err == nil {
+					state = c.retained
+				}
+				c.mu.Unlock()
+			}
+			replay = nil
+			if err == nil {
+				backoff = time.Second
+			} else {
+				backoff = min(2*backoff, 30*time.Second)
+			}
+			retryAt = time.Now().Add(backoff)
 		case err, ok := <-sub.Err():
 			if !ok || err == nil {
 				return fmt.Errorf("failed to receive retained logs: subscription closed")
@@ -223,6 +292,15 @@ func (c *StateCache) initializeRetainedPool(ctx context.Context, amount *big.Int
 	budget := 64
 	snapshot, err := c.capture(ctx, &budget, 0, common.Hash{})
 	if err != nil {
+		return nil, err
+	}
+	center := bitmapWord(snapshot.tick, snapshot.spacing)
+	lower := max(center-retainedWordRadius, bitmapWord(-887272, snapshot.spacing))
+	upper := min(center+retainedWordRadius, bitmapWord(887272, snapshot.spacing))
+	if err := c.readBitmapWindow(ctx, snapshot, lower, upper, &budget); err != nil {
+		return nil, err
+	}
+	if err := c.readWindowTicks(ctx, snapshot, lower, upper); err != nil {
 		return nil, err
 	}
 	if _, err := c.quote(ctx, snapshot, amount, baseIsToken0, true, &budget); err != nil {

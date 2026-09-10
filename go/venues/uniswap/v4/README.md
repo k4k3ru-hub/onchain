@@ -44,7 +44,8 @@ RPC than Quoter calls; savings require runtime measurement.
 Use `RunRetained(ctx, wsRPC, baseUnits, baseIsCurrency0)` with
 `QuoteRetainedPair` (or detached `QuoteSnapshot` consumers) for local quotes
 without per-quote RPC. The producer preloads the current bitmap word and one
-word on each side, clipped at the protocol tick limits. Losing either spare
+word on each side (center ±1, three words), including every initialized tick
+detail in that range, clipped at the protocol tick limits. Losing a required
 word, or missing reference-quote tick details, triggers an asynchronous capture
 around the new current tick. Large moves do not scan intervening words.
 
@@ -61,8 +62,13 @@ limited to 4,096 pool logs; overflow, removed logs, and incompatible deltas stil
 terminate the session for recovery. Uncovered quotes fail until capture catches
 up. Retained inputs are not periodically refreshed by TTL.
 
-Three words describe prefetch coverage, not the total RPC budget. Core state,
-needed tick details and header checks require additional calls. Sparse liquidity
+Three words describe prefetch coverage, not the total RPC budget. Bitmap reads
+use one batch; initialized tick details use batches of at most 32, capped at 768
+tick reads for the window. Readers without batch support use sequential reads.
+All reads include the pool ID and use StateView at the same verified block.
+A failed batch rejects the candidate without falling back to individual calls.
+Core state, bitmap and extra reference-quote reads retain their 64-call budget;
+header checks are additional. Sparse liquidity
 can require more words for the reference pair within the existing cap of 64
 contract reads. Each capture replaces the old window rather than merging data
 from different baseline blocks. Hook and dynamic-LP-fee pools remain unsupported.

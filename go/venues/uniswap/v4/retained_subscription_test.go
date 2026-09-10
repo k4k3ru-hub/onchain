@@ -51,7 +51,7 @@ func TestRetainedMissingCoverageRequestsCapture(t *testing.T) {
 // TestRetainedThreeWordWindow verifies bitmap bounds and edge detection.
 //
 // Version:
-//   - 2026-09-10: Added.
+//   - 2026-09-11: Verify center ±1 acquisition and recentering.
 func TestRetainedThreeWordWindow(t *testing.T) {
 	c, rpc := newTestCache(t)
 	s, err := c.captureRetainedWindow(context.Background(), big.NewInt(1000000), true, 0, common.Hash{})
@@ -98,7 +98,7 @@ func TestRetainedWindowRejectsReorg(t *testing.T) {
 // TestRetainedWindowJumpFetchesNewNeighborhood verifies large moves do not scan intermediate words.
 //
 // Version:
-//   - 2026-09-10: Added.
+//   - 2026-09-11: Verify center ±1 acquisition and recentering.
 func TestRetainedWindowJumpFetchesNewNeighborhood(t *testing.T) {
 	c, fake := newTestCache(t)
 	c.rpc = &windowRPC{fake: fake, height: 100, tick: 120000}

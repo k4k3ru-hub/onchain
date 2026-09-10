@@ -302,9 +302,11 @@ func (c *StateCache) QuotePair(ctx context.Context, baseAmount *big.Int, baseIsT
 	return LocalPair{ReceivedAt: s.observed, BidAmountOut: bid, AskAmountIn: ask, BlockNumber: s.header.Number, BlockHash: s.header.Hash, ObservedAt: s.observed, FeePPM: s.fee}, nil
 }
 
+var errStateReadBudget = errors.New("rpc_budget=exhausted")
+
 func (c *StateCache) read(ctx context.Context, s *poolSnapshot, sig string, arg *big.Int, budget *int) ([]byte, error) {
 	if *budget <= 0 {
-		return nil, fmt.Errorf("failed to read slipstream state: rpc_budget=exhausted")
+		return nil, fmt.Errorf("failed to read slipstream state: %w", errStateReadBudget)
 	}
 	*budget--
 	data := append([]byte(nil), crypto.Keccak256([]byte(sig))[:4]...)
@@ -434,6 +436,10 @@ func (c *StateCache) liquidityNet(ctx context.Context, s *poolSnapshot, tick int
 	if err != nil {
 		return nil, err
 	}
+	return storeTickDetails(s, tick, data)
+}
+
+func storeTickDetails(s *poolSnapshot, tick int32, data []byte) (*big.Int, error) {
 	if len(data) != 320 || new(big.Int).SetBytes(data[288:]).Cmp(big.NewInt(1)) != 0 {
 		return nil, fmt.Errorf("failed to read slipstream tick: result=invalid")
 	}
@@ -536,7 +542,7 @@ func (c *StateCache) readCoreState(ctx context.Context, s *poolSnapshot, budget 
 	names := []string{"slot0()", "liquidity()", "fee()"}
 	if batch, ok := c.rpc.(batchStateReader); ok {
 		if *budget < 3 {
-			return values, fmt.Errorf("failed to read slipstream state: rpc_budget=exhausted")
+			return values, fmt.Errorf("failed to read slipstream state: %w", errStateReadBudget)
 		}
 		*budget -= 3
 		data := make([][]byte, 3)

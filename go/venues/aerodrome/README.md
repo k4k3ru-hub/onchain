@@ -161,3 +161,22 @@ The logical read budget still consumes three calls. Header selection, lazy bitma
 and tick reads, expiry and final canonical hash verification are unchanged.
 Batching reduces typical warm-spacing refresh exchanges from six to four, not the
 six logical RPC methods. Provider quota/billing savings are not implied.
+
+## Complete retained tick windows
+
+`RunRetained` / `RunRetainedWithParams` preload the current bitmap word plus
+one word on either side (center ±1), clipped to protocol limits, and every
+initialized tick in those words. Bitmap reads are batched; tick details use
+batches of at most 32 at the same block. Readers without `ReadContracts` use
+sequential reads. A window contains at most 768 initialized ticks; that bounded
+tick-read budget is separate from the existing 64 core/bitmap/reference-quote
+read budget. No partial candidate is published after a failed batch.
+
+The producer checks missing words, initialized tick details and reference quote
+coverage locally once per second. It performs at most one background capture
+at a time, with a 30-second deadline and retry backoff up to 30 seconds. Existing
+inputs remain available during capture. A refresh captures pool and fee/oracle
+state together and verifies the canonical block hash; it also costs fee/oracle
+reads. Logs applied during capture are buffered (up to 4,096) and replayed before
+installing the new snapshot. Failed candidates leave the current state intact.
+Live log application and retained quote consumers do not make RPC requests.

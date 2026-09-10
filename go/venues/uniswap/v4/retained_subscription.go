@@ -14,6 +14,7 @@ import (
 )
 
 const retainedReplayLimit = 4096
+const retainedWordRadius = 1
 
 type retainedCaptureResult struct {
 	snapshot *poolSnapshot
@@ -36,9 +37,14 @@ func (c *StateCache) retainedNeedsCapture(amount *big.Int, baseIsToken0 bool) bo
 	s := clonePoolSnapshot(c.retained)
 	center := bitmapWord(s.tick, s.spacing)
 	minWord, maxWord := bitmapWord(-887272, s.spacing), bitmapWord(887272, s.spacing)
-	for word := max(center-1, minWord); word <= min(center+1, maxWord); word++ {
+	for word := max(center-retainedWordRadius, minWord); word <= min(center+retainedWordRadius, maxWord); word++ {
 		if s.words[word] == nil {
 			return true
+		}
+		for bit := 0; bit < 256; bit++ {
+			if s.words[word].Bit(bit) != 0 && s.ticks[(word*256+int32(bit))*s.spacing] == nil {
+				return true
+			}
 		}
 	}
 	// Also detect missing tick details after a liquidity change or price movement.
@@ -60,18 +66,14 @@ func (c *StateCache) captureRetainedWindow(ctx context.Context, amount *big.Int,
 	}
 	center := bitmapWord(s.tick, s.spacing)
 	minWord, maxWord := bitmapWord(-887272, s.spacing), bitmapWord(887272, s.spacing)
-	for word := max(center-1, minWord); word <= min(center+1, maxWord); word++ {
-		data, err := reader.read(ctx, s, "getTickBitmap(bytes32,int16)", big.NewInt(int64(word)), &budget)
-		if err != nil {
-			return nil, fmt.Errorf("failed to capture retained bitmap: %w: word=%d", err, word)
-		}
-		if len(data) != 32 {
-			return nil, fmt.Errorf("failed to capture retained bitmap: result=invalid word=%d", word)
-		}
-		s.words[word] = new(big.Int).SetBytes(data)
+	lower, upper := max(center-retainedWordRadius, minWord), min(center+retainedWordRadius, maxWord)
+	if err := reader.readBitmapWindow(ctx, s, lower, upper, &budget); err != nil {
+		return nil, err
 	}
-	// Only fetch tick details required by the reference pair. A sparse pool may
-	// require additional words; all contract reads share the existing 64-call cap.
+	if err := reader.readWindowTicks(ctx, s, lower, upper); err != nil {
+		return nil, err
+	}
+	// Reference quotes may fetch extra inputs outside the complete window.
 	if _, err := reader.quote(ctx, s, amount, baseIsToken0, true, &budget); err != nil {
 		return nil, fmt.Errorf("failed to capture retained bid coverage: %w", err)
 	}
