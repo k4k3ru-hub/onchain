@@ -134,8 +134,8 @@ RPC calls per quote on busy pools; deployment measurements remain necessary.
 
 ## Retained bitmap batching
 
-Retained-window acquisition reads the current bitmap word and its immediate
-neighbors (center ±1, clipped to valid tick bounds). Readers implementing the
+Retained-window acquisition reads the current bitmap word and two words on each
+side (center ±2, five words clipped to valid tick bounds). Readers implementing the
 optional `ReadContracts` method fetch these words in one batch pinned to the
 snapshot block. Readers without that method retain sequential acquisition.
 The 64-read acquisition budget counts each bitmap call, not the batch envelope.

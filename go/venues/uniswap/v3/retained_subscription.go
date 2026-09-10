@@ -14,6 +14,7 @@ import (
 )
 
 const retainedReplayLimit = 4096
+const retainedWordRadius = 2
 
 type retainedCaptureResult struct {
 	snapshot *poolSnapshot
@@ -37,7 +38,7 @@ func (c *StateCache) retainedNeedsCapture(amount *big.Int, baseIsToken0 bool) bo
 	s := clonePoolSnapshot(c.retained)
 	center := bitmapWord(s.tick, s.spacing)
 	minWord, maxWord := bitmapWord(-887272, s.spacing), bitmapWord(887272, s.spacing)
-	for word := max(center-1, minWord); word <= min(center+1, maxWord); word++ {
+	for word := max(center-retainedWordRadius, minWord); word <= min(center+retainedWordRadius, maxWord); word++ {
 		if s.words[word] == nil {
 			return true
 		}
@@ -61,7 +62,7 @@ func (c *StateCache) captureRetainedWindow(ctx context.Context, amount *big.Int,
 	}
 	center := bitmapWord(s.tick, s.spacing)
 	minWord, maxWord := bitmapWord(-887272, s.spacing), bitmapWord(887272, s.spacing)
-	if err := reader.readBitmapWindow(ctx, s, max(center-1, minWord), min(center+1, maxWord), &budget); err != nil {
+	if err := reader.readBitmapWindow(ctx, s, max(center-retainedWordRadius, minWord), min(center+retainedWordRadius, maxWord), &budget); err != nil {
 		return nil, err
 	}
 	// Only fetch tick details required by the reference pair. A sparse pool may

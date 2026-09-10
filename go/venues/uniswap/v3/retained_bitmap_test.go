@@ -22,14 +22,14 @@ type bitmapBatchFake struct {
 // ReadContracts supplies pinned bitmap batches for regression tests.
 //
 // Version:
-//   - 2026-09-11: Added.
+//   - 2026-09-11: Verify five-word batches.
 func (f *bitmapBatchFake) ReadContracts(ctx context.Context, target common.Address, calls [][]byte, block uint64) ([][]byte, []error, error) {
 	f.batches++
-	if block != 100 || len(calls) != 3 {
+	if block != 100 || len(calls) != 5 {
 		f.t.Fatalf("block=%d count=%d", block, len(calls))
 	}
 	for i, call := range calls {
-		want := big.NewInt(int64(i - 1))
+		want := big.NewInt(int64(i - 2))
 		if want.Sign() < 0 {
 			want.Add(want, power2(256))
 		}
@@ -58,7 +58,7 @@ func (f *bitmapBatchFake) ReadContracts(ctx context.Context, target common.Addre
 // TestRetainedBitmapBatch verifies parity, pinned encoding and atomic failure.
 //
 // Version:
-//   - 2026-09-11: Added.
+//   - 2026-09-11: Verify five-word batches.
 func TestRetainedBitmapBatch(t *testing.T) {
 	ctx := context.Background()
 	plain, _ := newTestCache(t)
@@ -82,7 +82,7 @@ func TestRetainedBitmapBatch(t *testing.T) {
 				t.Fatalf("batches=%d", batch.batches)
 			}
 			if mode == "success" {
-				if err != nil || !reflect.DeepEqual(want.words, got.words) || f.calls != 6 {
+				if err != nil || !reflect.DeepEqual(want.words, got.words) || f.calls != 8 {
 					t.Fatalf("result=%v calls=%d", err, f.calls)
 				}
 			} else {
@@ -92,7 +92,7 @@ func TestRetainedBitmapBatch(t *testing.T) {
 				if batch.failure != nil && !errors.Is(err, injected) {
 					t.Fatalf("lost cause: %v", err)
 				}
-				expected := 6
+				expected := 8
 				if batch.transport {
 					expected = 3
 				}
@@ -107,14 +107,14 @@ func TestRetainedBitmapBatch(t *testing.T) {
 // TestBitmapBatchBudget verifies logical reads still consume the acquisition cap.
 //
 // Version:
-//   - 2026-09-11: Added.
+//   - 2026-09-11: Verify five-word batches.
 func TestBitmapBatchBudget(t *testing.T) {
 	c, f := newTestCache(t)
 	batch := &bitmapBatchFake{stateFake: f}
 	c.rpc = batch
 	s := &poolSnapshot{words: make(map[int32]*big.Int)}
-	budget := 2
-	err := c.readBitmapWindow(context.Background(), s, -1, 1, &budget)
+	budget := 4
+	err := c.readBitmapWindow(context.Background(), s, -2, 2, &budget)
 	if !errors.Is(err, errStateReadBudget) || batch.batches != 0 || len(s.words) != 0 {
 		t.Fatalf("err=%v batches=%d", err, batch.batches)
 	}

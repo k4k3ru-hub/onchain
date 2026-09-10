@@ -14,21 +14,21 @@ import (
 	"github.com/k4k3ru-hub/onchain/go/evm"
 )
 
-// TestRetainedThreeWordWindow verifies bitmap bounds and edge detection.
+// TestRetainedFiveWordWindow verifies bitmap bounds and edge detection.
 //
 // Version:
-//   - 2026-09-10: Added.
-func TestRetainedThreeWordWindow(t *testing.T) {
+//   - 2026-09-11: Verify center ±2 acquisition and recentering.
+func TestRetainedFiveWordWindow(t *testing.T) {
 	c, rpc := newTestCache(t)
 	s, err := c.captureRetainedWindow(context.Background(), big.NewInt(1000000), true, 0, common.Hash{})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(s.words) != 3 || s.words[-1] == nil || s.words[0] == nil || s.words[1] == nil {
+	if len(s.words) != 5 || s.words[-2] == nil || s.words[-1] == nil || s.words[0] == nil || s.words[1] == nil || s.words[2] == nil {
 		t.Fatalf("unexpected bitmap window: %v", s.words)
 	}
-	if rpc.calls != 6 { // slot0, liquidity, spacing, and three bitmap reads.
-		t.Fatalf("contract calls = %d, want 6", rpc.calls)
+	if rpc.calls != 8 { // slot0, liquidity, spacing, and five bitmap reads.
+		t.Fatalf("contract calls = %d, want 8", rpc.calls)
 	}
 	c.retained = s
 	for _, tick := range []int32{-1, 0, 15359} {
@@ -64,7 +64,7 @@ func TestRetainedWindowRejectsReorg(t *testing.T) {
 // TestRetainedWindowJumpFetchesNewNeighborhood verifies large moves do not scan intermediate words.
 //
 // Version:
-//   - 2026-09-10: Added.
+//   - 2026-09-11: Verify five words around the destination.
 func TestRetainedWindowJumpFetchesNewNeighborhood(t *testing.T) {
 	c, fake := newTestCache(t)
 	c.rpc = &windowRPC{fake: fake, height: 100, tick: 120000}
@@ -72,7 +72,7 @@ func TestRetainedWindowJumpFetchesNewNeighborhood(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(s.words) != 3 || s.words[6] == nil || s.words[7] == nil || s.words[8] == nil || fake.calls != 6 {
+	if len(s.words) != 5 || s.words[5] == nil || s.words[6] == nil || s.words[7] == nil || s.words[8] == nil || s.words[9] == nil || fake.calls != 8 {
 		t.Fatalf("jump scanned unwanted words: words=%v calls=%d", s.words, fake.calls)
 	}
 }
