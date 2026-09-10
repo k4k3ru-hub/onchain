@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math/big"
 	"sort"
+
+	"github.com/k4k3ru-hub/onchain/go/internal/suiwindow"
 )
 
 type Tick struct {
@@ -11,8 +13,9 @@ type Tick struct {
 	SqrtPrice, LiquidityNet *big.Int
 }
 type LocalSnapshot struct {
-	Pool  Pool
-	Ticks []Tick
+	Pool   Pool
+	Ticks  []Tick
+	window *tickWindow
 }
 
 // Quote computes a complete quote including an explicit fee amount from a caller-owned coherent snapshot.
@@ -20,6 +23,7 @@ type LocalSnapshot struct {
 // The snapshot must contain all ticks traversed by the quote. Inputs are never mutated.
 //
 // Version:
+//   - 2026-09-11: Stop bounded quotes at verified coverage edges, including empty intervals.
 //   - 2026-09-08: Added.
 func (s LocalSnapshot) Quote(amount uint64, a2b, exactInput bool) (QuoteResult, error) {
 	fail := func(reason string) (QuoteResult, error) {
@@ -30,6 +34,23 @@ func (s LocalSnapshot) Quote(amount uint64, a2b, exactInput bool) (QuoteResult, 
 		return fail("state=invalid")
 	}
 	ticks := append([]Tick(nil), s.Ticks...)
+	if w := s.window; w != nil {
+		if p.CurrentTickIndex < w.lower || p.CurrentTickIndex >= w.upper || p.CurrentSqrtPrice.Cmp(sqrtAtTick(w.lower)) < 0 || p.CurrentSqrtPrice.Cmp(sqrtAtTick(w.upper)) > 0 {
+			return QuoteResult{}, fmt.Errorf("failed to quote cetus local state: %w", suiwindow.ErrCoverage)
+		}
+		for _, boundary := range []int32{w.lower, w.upper} {
+			found := false
+			for _, t := range ticks {
+				if t.Index == boundary {
+					found = true
+					break
+				}
+			}
+			if !found {
+				ticks = append(ticks, Tick{Index: boundary, SqrtPrice: sqrtAtTick(boundary), LiquidityNet: new(big.Int)})
+			}
+		}
+	}
 	sort.Slice(ticks, func(i, j int) bool { return ticks[i].Index < ticks[j].Index })
 	for i, t := range ticks {
 		if t.Index < -443636 || t.Index > 443636 || t.SqrtPrice == nil || t.SqrtPrice.Sign() <= 0 || t.LiquidityNet == nil || t.LiquidityNet.BitLen() > 128 {
@@ -92,6 +113,9 @@ func (s LocalSnapshot) Quote(amount uint64, a2b, exactInput bool) (QuoteResult, 
 		}
 	}
 	if remaining.Sign() != 0 {
+		if s.window != nil {
+			return QuoteResult{}, fmt.Errorf("failed to quote cetus local state: %w", suiwindow.ErrCoverage)
+		}
 		return fail("liquidity=insufficient")
 	}
 	if !totalIn.IsUint64() || !totalOut.IsUint64() || !totalFee.IsUint64() || totalOut.Sign() == 0 {

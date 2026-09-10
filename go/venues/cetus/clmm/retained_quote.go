@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/k4k3ru-hub/onchain/go/quotestate"
 	"math/big"
 	"time"
 
+	"github.com/k4k3ru-hub/onchain/go/internal/suiwindow"
+	"github.com/k4k3ru-hub/onchain/go/quotestate"
 	"github.com/k4k3ru-hub/onchain/go/sui"
 )
 
@@ -25,10 +26,11 @@ type ObjectStateSubscriber interface {
 	SubscribeObjectState(context.Context, sui.Address) (*sui.TransactionSubscription, error)
 }
 
-// RunRetained subscribes before initialization and retains full pool/tick updates.
+// RunRetained subscribes before initialization and retains pool and bounded tick updates.
 // Disconnects discard state. The caller reconnects and initializes again.
 //
 // Version:
+//   - 2026-09-11: Refill moved tick windows asynchronously with live transaction replay.
 //   - 2026-09-11: Require recovery to include the rejected transaction checkpoint.
 //   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Publish retained input updates and withdraw unavailable state.
@@ -68,19 +70,13 @@ func (c *StateCache) RunRetained(ctx context.Context, subscriber ObjectStateSubs
 	if err != nil {
 		return err
 	}
-	for {
-		n, err := sub.Recv(ctx)
-		receivedAt := time.Now().UTC()
-		if err != nil {
-			return fmt.Errorf("failed to receive retained cetus state: %w", err)
-		}
-		if n.Effects == nil {
-			continue
-		}
-		if err := c.applyRetainedObjects(n, receivedAt); err != nil {
-			return err
-		}
+	err = suiwindow.Run(ctx, sub.Recv, func(update suiwindow.Update) error {
+		return c.applyRetainedObjects(update.Notification, update.ReceivedAt)
+	}, c.retainedCoverageMissing, c.captureRetainedWindow, c.installRetainedWindow)
+	if err != nil {
+		return fmt.Errorf("failed to run retained cetus state: %w", err)
 	}
+	return nil
 }
 
 // QuoteRetainedPair freezes current inputs and calculates without network reads or Trade-position checks.
@@ -127,6 +123,10 @@ func (c *StateCache) QuoteRetainedPair(ctx context.Context, p QuotePairParams) (
 
 func cloneLocalSnapshot(source *LocalSnapshot) *LocalSnapshot {
 	s := *source
+	if source.window != nil {
+		w := *source.window
+		s.window = &w
+	}
 	clone := func(n *big.Int) *big.Int {
 		if n == nil {
 			return nil
@@ -228,6 +228,15 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification, receip
 	if handle != s.handle || p.CoinTypeA != s.snapshot.Pool.CoinTypeA || p.CoinTypeB != s.snapshot.Pool.CoinTypeB {
 		return fmt.Errorf("failed to apply retained cetus pool: configuration=changed")
 	}
+	if w := s.snapshot.window; w != nil {
+		spacing, err := retainedTickSpacing(poolChange.After)
+		if err != nil {
+			return err
+		}
+		if spacing != w.spacing {
+			return fmt.Errorf("failed to apply retained cetus pool: tick_spacing=changed")
+		}
+	}
 	for _, change := range n.ObjectChanges {
 		if change.InputParent != s.handle && change.OutputParent != s.handle {
 			continue
@@ -249,6 +258,14 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification, receip
 		tick, err := parseTick(field.Value)
 		if err != nil {
 			return fmt.Errorf("failed to apply retained cetus tick: %w", err)
+		}
+		if w := s.snapshot.window; w != nil {
+			if tick.Index < w.first || tick.Index > w.last {
+				continue
+			}
+			if tick.Index%w.spacing != 0 {
+				return fmt.Errorf("failed to apply retained cetus tick: spacing=mismatch")
+			}
 		}
 		found := -1
 		for i := range s.snapshot.Ticks {

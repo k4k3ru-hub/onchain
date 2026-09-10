@@ -50,6 +50,28 @@ func (s *AccountState) Seed(accounts []*Account, slot Slot, observed time.Time) 
 	}
 }
 
+// SeedWindow replaces the retained address set while preserving equal-slot or newer live payloads.
+// Previously frozen snapshots remain detached. The caller owns subscription reconfiguration.
+//
+// Version:
+//   - 2026-09-11: Added for bounded array-window recovery.
+func (s *AccountState) SeedWindow(accounts []*Account, slot Slot, observed time.Time) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	next := make(map[Address]RetainedAccount, len(accounts))
+	for _, account := range accounts {
+		if account == nil {
+			continue
+		}
+		if previous, ok := s.accounts[account.Address]; ok && previous.Slot >= slot {
+			next[account.Address] = previous
+		} else {
+			next[account.Address] = copyRetainedAccount(RetainedAccount{account, slot, observed})
+		}
+	}
+	s.accounts = next
+}
+
 // Apply retains a full account notification, preserving its individual slot and time.
 // Older and identical same-slot notifications preserve the original receipt.
 // Different account contents at equal slots follow reception order.

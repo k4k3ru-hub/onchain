@@ -1,8 +1,9 @@
 package clmm
 
 import (
-	"github.com/k4k3ru-hub/onchain/go/quotestate"
 	"strconv"
+
+	"github.com/k4k3ru-hub/onchain/go/quotestate"
 )
 
 // Inputs returns detached retained-pool metadata without fetching data.
@@ -10,6 +11,7 @@ import (
 // Retained fields may originate from multiple transactions; coverage is not an atomicity guarantee.
 //
 // Version:
+//   - 2026-09-11: Report the verified tick interval, including uninitialized positions.
 //   - 2026-09-10: Added.
 func (s *QuoteSnapshot) Inputs() *quotestate.Inputs {
 	if s == nil || s.cache.retained == nil {
@@ -32,6 +34,13 @@ func (s *QuoteSnapshot) Inputs() *quotestate.Inputs {
 		indices = append(indices, int64(tick.Index))
 	}
 	coverage := quotestate.Segments(indices)
+	if w := p.snapshot.window; w != nil {
+		upper := int64(w.upper)
+		if upper < 443636 {
+			upper--
+		}
+		coverage = []quotestate.Segment{{Lower: int64(w.lower), Upper: upper}}
+	}
 	reason := ""
 	if pool.Paused {
 		reason = "pool_paused"

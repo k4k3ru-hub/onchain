@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/k4k3ru-hub/onchain/go/internal/suiwindow"
 	"github.com/k4k3ru-hub/onchain/go/quotestate"
 	"math/big"
 	"strings"
@@ -20,6 +21,7 @@ type ObjectStateSubscriber interface {
 // Initialization may acquire state; Trade calculation never invokes it.
 //
 // Version:
+//   - 2026-09-11: Refill ranges asynchronously while applying live state and replay before installation.
 //   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Publish retained input updates and withdraw unavailable state.
 //   - 2026-09-09: Added.
@@ -57,19 +59,15 @@ func (c *StateCache) RunRetained(ctx context.Context, subscribed ObjectStateSubs
 	if err != nil {
 		return fmt.Errorf("failed to initialize retained momentum state: %w", err)
 	}
-	for {
-		n, err := sub.Recv(ctx)
-		receivedAt := time.Now().UTC()
-		if err != nil {
-			return fmt.Errorf("failed to receive retained momentum state: %w", err)
-		}
-		if n.Effects == nil {
-			continue
-		}
-		if err := c.applyRetainedObjects(n, receivedAt); err != nil {
+	return suiwindow.Run(ctx, sub.Recv, func(update suiwindow.Update) error {
+		if err := c.applyRetainedObjects(update.Notification, update.ReceivedAt); err != nil {
+			if cp := update.Notification.Effects.Checkpoint; cp != nil {
+				c.ObserveCheckpoint(*cp)
+			}
 			return err
 		}
-	}
+		return nil
+	}, func() bool { return c.retainedCoverageMissing(ctx) }, c.captureRetainedWindow, c.installRetainedWindow)
 }
 
 // QuoteRetainedPair calculates from one detached set of retained inputs with no position wait or RPC.

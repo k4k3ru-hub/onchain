@@ -2,13 +2,16 @@
 
 ## Retained stream quotes
 
-The state producer checks coverage for the reference pair last initialized by
-`QuotePair`. If streamed state needs an uncached bitmap/tick field, `RunRetained`
-waits one second and invokes its initializer with a 30-second timeout on the same
-subscription. Failed refreshes return to the caller's reconnect supervisor.
-Recovery must include the triggering checkpoint. This acquisition runs in the
-state producer; live Swap consumers and detached quote snapshots do not read RPC.
-Other quote quantities can still exceed the retained range.
+The producer acquires the current bitmap word and one word on either side,
+including **every initialized tick detail** in those words. Bitmap keys are read
+in one checkpoint-pinned query; tick keys are batched in groups of 32. The
+reference quote may acquire additional inputs at that same checkpoint.
+`RunRetained` checks the nearby window and reference coverage locally every second.
+Missing coverage starts a detached capture with a 30-second timeout while live
+objects continue to apply. It replays updates before installation and rejects
+regression; failure keeps live state and retries with 1–30 second backoff.
+Live Swap consumers and `QuoteRetainedPair` never fetch missing inputs. Quantities
+outside retained coverage still return `coverage=insufficient`.
 
 `StateCache.RunRetained` initializes state and then applies streamed full pool and
 field payloads. `QuoteRetainedPair` freezes the currently retained components and
@@ -52,7 +55,7 @@ sides independently without mutating the input state.
 ## State consistency and supported deployment
 
 Pool, TickManager bitmap words and tick values share an explicit GraphQL checkpoint.
-Words/ticks are fetched lazily. Each quote checks the fresh indexed head and the pool
+The nearby window is fully prefetched. Each checkpoint-validated quote checks the fresh indexed head and the pool
 version/digest; unchanged versions reuse already fetched keys. New keys are read at
 the original capture checkpoint, never mixed across versions. Retention is bounded
 by maxAge; observed pool checkpoints are checked before and after calculations.

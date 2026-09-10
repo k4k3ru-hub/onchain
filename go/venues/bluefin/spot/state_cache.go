@@ -53,9 +53,10 @@ type quoteState struct {
 	nets          map[int32]*big.Int
 }
 
-// NewStateCache composes a checkpoint-pinned Bluefin pool cache with lazy bitmap and tick reads.
+// NewStateCache composes a checkpoint-pinned Bluefin pool cache with a complete nearby bitmap/tick window.
 //
 // Version:
+//   - 2026-09-11: Seed complete nearby tick windows during capture.
 //   - 2026-09-08: Added.
 func NewStateCache(reader StateReader, pool sui.Address, maxAge time.Duration) (*StateCache, error) {
 	if reader == nil || pool.IsZero() || maxAge <= 0 {
@@ -81,6 +82,7 @@ func (c *StateCache) ObserveCheckpoint(cp sui.CheckpointSequenceNumber) {
 // AmountIn includes fees. FeeAmount excludes the separately reported protocol share. Partial fills are rejected.
 //
 // Version:
+//   - 2026-09-11: Batch every initialized tick in the surrounding three words.
 //   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Publish detached calculation inputs to the snapshot observer.
 //   - 2026-09-11: Retain the reference quantity for producer-side coverage recovery.
@@ -132,6 +134,9 @@ func (c *StateCache) QuotePair(ctx context.Context, p QuotePairParams) (QuotePai
 		state, err := capturePool(obj, head.SequenceNumber)
 		if err != nil {
 			return QuotePairResult{}, fmt.Errorf("failed to quote bluefin cached state: %w", err)
+		}
+		if err := c.captureWindow(ctx, state); err != nil {
+			return QuotePairResult{}, err
 		}
 		c.state = state
 	}
@@ -409,7 +414,7 @@ func (c *StateCache) quote(ctx context.Context, s *quoteState, amount uint64, do
 		}
 	}
 	if remaining.Sign() != 0 {
-		return QuoteResult{}, fmt.Errorf("failed to calculate bluefin quote: coverage=insufficient")
+		return QuoteResult{}, fmt.Errorf("failed to calculate bluefin quote: %w", errRetainedCoverage)
 	}
 	if !input.IsUint64() || !output.IsUint64() || !fees.IsUint64() || output.Sign() == 0 {
 		return QuoteResult{}, fmt.Errorf("failed to calculate bluefin quote: amount=out_of_range")

@@ -2,6 +2,17 @@
 
 ## Retained stream quotes
 
+The producer acquires the current bitmap word and one word on either side,
+including **every initialized tick detail** in those words. Bitmap keys are read
+in one checkpoint-pinned query; tick keys are batched in groups of 32. The
+reference quote may acquire additional inputs at that same checkpoint.
+`RunRetained` checks the nearby window and reference coverage locally every second.
+Missing coverage starts a detached capture with a 30-second timeout while live
+objects continue to apply. It replays updates before installation and rejects
+regression; failure keeps live state and retries with 1–30 second backoff.
+Live Swap consumers and `QuoteRetainedPair` never fetch missing inputs. Quantities
+outside retained coverage still return `coverage=insufficient`.
+
 `StateCache.RunRetained` initializes state and then applies streamed full pool and
 field payloads. `QuoteRetainedPair` freezes the currently retained components and
 calculates locally: no Trade/checkpoint alignment, waits, retries or RPC reads.
@@ -48,7 +59,7 @@ Missing bitmap entries mean empty words; missing initialized ticks fail the quot
 Word boundaries are retained because each step contributes rounding.
 
 Every pair checks indexed head age and pool version/digest. Unchanged versions
-reuse lazy word/tick reads at their original capture checkpoint, with bounded
+reuse captured word/tick reads at their original capture checkpoint, with bounded
 retention. Live checkpoints impose a minimum checkpoint and are checked again
 before returning. This is checkpoint polling plus Swap observation, not a full
 pool-object subscription. New keys are never read from a different state.

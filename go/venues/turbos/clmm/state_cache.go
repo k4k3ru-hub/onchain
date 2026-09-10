@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"github.com/k4k3ru-hub/onchain/go/internal/suiwindow"
 	"github.com/k4k3ru-hub/onchain/go/quotestate"
 	sui "github.com/k4k3ru-hub/onchain/go/sui"
 	"math/big"
@@ -23,6 +24,7 @@ type StateCache struct {
 	quoteSnapshotObserver func(*QuoteSnapshot)
 	retainedMu            sync.Mutex
 	retained              *quoteState
+	retainedReference     *QuotePairParams
 	retainedHead          sui.Checkpoint
 	retainedRunning       bool
 	checkedKey            string
@@ -50,9 +52,10 @@ type quoteState struct {
 	nets          map[int32]*big.Int
 }
 
-// NewStateCache composes a checkpoint-pinned Turbos pool cache with lazy bitmap and tick reads.
+// NewStateCache composes a checkpoint-pinned Turbos pool cache with a complete nearby bitmap/tick window.
 //
 // Version:
+//   - 2026-09-11: Seed complete nearby tick windows during capture.
 //   - 2026-09-08: Added.
 func NewStateCache(reader StateReader, pool sui.Address, maxAge time.Duration) (*StateCache, error) {
 	if reader == nil || pool.IsZero() || maxAge <= 0 {
@@ -78,6 +81,7 @@ func (c *StateCache) ObserveCheckpoint(cp sui.CheckpointSequenceNumber) {
 // AmountIn includes fees, matching Turbos compute_swap_result. Partial fills are rejected.
 //
 // Version:
+//   - 2026-09-11: Batch every initialized tick in the surrounding three words.
 //   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Publish detached calculation inputs to the snapshot observer.
 //   - 2026-09-09: Seed detached retained inputs after verified initialization.
@@ -129,6 +133,9 @@ func (c *StateCache) QuotePair(ctx context.Context, p QuotePairParams) (QuotePai
 		if err != nil {
 			return QuotePairResult{}, fmt.Errorf("failed to quote turbos cached state: %w", err)
 		}
+		if err := c.captureWindow(ctx, state); err != nil {
+			return QuotePairResult{}, err
+		}
 		c.state = state
 	}
 	bid, err := c.quote(ctx, c.state, p.Bid.AmountIn, p.Bid.A2B, true, p.Bid.SqrtPriceLimit)
@@ -153,6 +160,8 @@ func (c *StateCache) QuotePair(ctx context.Context, p QuotePairParams) (QuotePai
 	c.retained = cloneRetainedState(c.state)
 	c.retained.retainedOnly = true
 	c.retainedHead = head
+	reference := cloneReference(p)
+	c.retainedReference = &reference
 	c.publishQuoteSnapshotLocked()
 	c.retainedMu.Unlock()
 	return QuotePairResult{ReceivedAt: c.state.received, Bid: bid, Ask: ask, Checkpoint: head.SequenceNumber, PoolVersion: obj.Version, PoolDigest: obj.Digest, StateTimestamp: head.Timestamp}, nil
@@ -190,7 +199,7 @@ func capturePool(obj *sui.Object, cp sui.CheckpointSequenceNumber) (*quoteState,
 }
 func (c *StateCache) field(ctx context.Context, s *quoteState, parent sui.Address, index int32) (json.RawMessage, error) {
 	if s.retainedOnly {
-		return nil, fmt.Errorf("failed to read retained turbos field: coverage=insufficient")
+		return nil, fmt.Errorf("failed to read retained turbos field: %w", suiwindow.ErrCoverage)
 	}
 	var b [4]byte
 	binary.LittleEndian.PutUint32(b[:], uint32(index))
@@ -367,7 +376,7 @@ func (c *StateCache) quote(ctx context.Context, s *quoteState, amount *big.Int, 
 		}
 	}
 	if remaining.Sign() != 0 {
-		return QuoteResult{}, fmt.Errorf("failed to calculate turbos quote: coverage=insufficient")
+		return QuoteResult{}, fmt.Errorf("failed to calculate turbos quote: %w", suiwindow.ErrCoverage)
 	}
 	if !input.IsUint64() || !output.IsUint64() || !fees.IsUint64() || output.Sign() == 0 {
 		return QuoteResult{}, fmt.Errorf("failed to calculate turbos quote: amount=out_of_range")

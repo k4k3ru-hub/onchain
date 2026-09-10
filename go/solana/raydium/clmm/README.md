@@ -31,3 +31,21 @@ snapshot expansion and updates the subscription set.
 to quiet periods. Active pools still refresh after changes; silent notification
 loss is bounded by `maxAge`, not proven absent. This is state freshness handling,
 not complete swap-history recovery.
+
+### Retained range refill
+
+Successful initialization retains the reference requests. `Run` uses a separate
+producer to inspect the latest retained pool and nearby array identities once per
+second, without RPC. It refills a changed/incomplete initial array range before
+the reference quote needs to cross into it. Missing reference arrays also trigger
+refill. The existing `InitialArrayCount` and `MaxArrayCount` govern acquisition;
+all tick/bin details in selected array accounts are fetched in account batches.
+
+A refill has a 30-second timeout and retries with 1–30 second backoff. Subscription
+updates continue during IO. Failed captures preserve retained state; successful
+captures merge by slot, preserving equal-slot/newer live payloads and receipt
+times, then replace the subscribed address set. Departed arrays are pruned.
+`QuoteRetainedExactInputs` and detached `QuoteSnapshot` calculations remain local
+and do not initiate refill or wait for it. These retained inputs do not assert
+cross-account atomicity. The separate coherent `QuoteExactInputs` API still owns
+its explicitly requested RPC behavior.

@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/k4k3ru-hub/onchain/go/quotestate"
-	sui "github.com/k4k3ru-hub/onchain/go/sui"
 	"math/big"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/k4k3ru-hub/onchain/go/quotestate"
+	sui "github.com/k4k3ru-hub/onchain/go/sui"
 )
 
 type StateReader interface {
@@ -66,6 +67,7 @@ func (c *StateCache) ObserveCheckpoint(checkpoint sui.CheckpointSequenceNumber) 
 // No simulation fallback or partial fill is returned on an invalid snapshot.
 //
 // Version:
+//   - 2026-09-11: Limit fallback acquisition to the current tick window.
 //   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Classify state-change retries separately from transport failures.
 //   - 2026-09-08: Reject checkpoint regression relative to successful quotes.
@@ -154,62 +156,59 @@ func captureState(ctx context.Context, reader StateReader, obj *sui.Object, chec
 	if err != nil {
 		return nil, fmt.Errorf("failed to capture cetus state: %w", err)
 	}
-	var metadata struct {
-		Manager struct {
-			Ticks struct {
-				ID   string          `json:"id"`
-				Size json.RawMessage `json:"size"`
-			} `json:"ticks"`
-		} `json:"tick_manager"`
+	r, ok := reader.(neighborReader)
+	if !ok {
+		return nil, fmt.Errorf("failed to capture cetus state: keyed_reader=unsupported")
 	}
-	if err := json.Unmarshal(obj.Move.JSON, &metadata); err != nil {
-		return nil, fmt.Errorf("failed to capture cetus state: %w", err)
-	}
-	handle, err := sui.ParseAddress(metadata.Manager.Ticks.ID)
+	handle, err := retainedTickHandle(obj)
 	if err != nil {
-		return nil, fmt.Errorf("failed to capture cetus state: %w", err)
+		return nil, err
 	}
-	size, err := jsonUint64(metadata.Manager.Ticks.Size)
+	spacing, err := retainedTickSpacing(obj)
 	if err != nil {
-		return nil, fmt.Errorf("failed to capture cetus state: %w", err)
+		return nil, err
 	}
-	if size > 10000 {
-		return nil, fmt.Errorf("failed to capture cetus state: tick_count=out_of_range")
+	window, err := newTickWindow(pool.CurrentTickIndex, spacing)
+	if err != nil {
+		return nil, err
 	}
-	snapshot := &LocalSnapshot{Pool: *pool}
-	cursor := ""
-	seen := map[string]bool{}
-	indices := map[int32]bool{}
-	for {
-		page, err := reader.DynamicValuesAtCheckpoint(ctx, handle, checkpoint, 50, cursor)
+	snapshot := &LocalSnapshot{Pool: *pool, window: window}
+	keys := make([]uint64, 0, 768)
+	for index := window.first; index <= window.last; index += spacing {
+		keys = append(keys, uint64(int64(index)+443636))
+	}
+	for start := 0; start < len(keys); start += 50 {
+		if err := ctx.Err(); err != nil {
+			return nil, fmt.Errorf("failed to capture cetus ticks: %w", err)
+		}
+		batch := keys[start:min(start+50, len(keys))]
+		values, err := r.DynamicUint64ValuesAtCheckpoint(ctx, handle, checkpoint, batch)
 		if err != nil {
 			return nil, fmt.Errorf("failed to capture cetus ticks: %w", err)
 		}
-		for _, value := range page.Values {
-			t, err := parseTick(value)
+		if len(values) != len(batch) {
+			return nil, fmt.Errorf("failed to capture cetus ticks: count=mismatch")
+		}
+		for i, value := range values {
+			// A missing key proves this aligned position is uninitialized.
+			if len(value) == 0 {
+				continue
+			}
+			tick, err := parseTick(value)
 			if err != nil {
 				return nil, fmt.Errorf("failed to capture cetus ticks: %w", err)
 			}
-			if indices[t.Index] {
-				return nil, fmt.Errorf("failed to capture cetus ticks: index=duplicate")
+			if tick.SqrtPrice.Sign() <= 0 || tick.SqrtPrice.BitLen() > 128 {
+				return nil, fmt.Errorf("failed to capture cetus ticks: sqrt_price=out_of_range")
 			}
-			indices[t.Index] = true
-			snapshot.Ticks = append(snapshot.Ticks, t)
+			if int64(tick.Index)+443636 != int64(batch[i]) {
+				return nil, fmt.Errorf("failed to capture cetus ticks: index=mismatch")
+			}
+			snapshot.Ticks = append(snapshot.Ticks, tick)
 		}
-		if uint64(len(snapshot.Ticks)) > size {
-			return nil, fmt.Errorf("failed to capture cetus ticks: count=mismatch")
-		}
-		if !page.HasNextPage {
-			break
-		}
-		if page.NextCursor == "" || seen[page.NextCursor] || len(page.Values) == 0 {
-			return nil, fmt.Errorf("failed to capture cetus ticks: cursor=invalid")
-		}
-		seen[page.NextCursor] = true
-		cursor = page.NextCursor
 	}
-	if uint64(len(snapshot.Ticks)) != size {
-		return nil, fmt.Errorf("failed to capture cetus ticks: count=mismatch")
+	if err := ctx.Err(); err != nil {
+		return nil, fmt.Errorf("failed to capture cetus ticks: %w", err)
 	}
 	return snapshot, nil
 }
@@ -247,10 +246,11 @@ func parseTick(raw json.RawMessage) (Tick, error) {
 	return Tick{Index: index, SqrtPrice: price, LiquidityNet: net}, nil
 }
 
-// Warm fetches the full checkpoint-pinned tick set outside the latency-sensitive quote path.
+// Warm fetches a bounded checkpoint-pinned tick window outside the latency-sensitive quote path.
 // Callers should use a bounded startup or recovery context; no quote is published.
 //
 // Version:
+//   - 2026-09-11: Acquire only central and adjacent 256-position intervals in keyed batches.
 //   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Publish detached calculation inputs to the snapshot observer.
 //   - 2026-09-09: Seed detached retained inputs during initialization.
@@ -284,6 +284,12 @@ func (c *StateCache) Warm(ctx context.Context) error {
 	s, err := captureState(ctx, c.reader, obj, head.SequenceNumber)
 	if err != nil {
 		return fmt.Errorf("failed to warm cetus state: %w", err)
+	}
+	if err := ctx.Err(); err != nil {
+		return fmt.Errorf("failed to warm cetus state: %w", err)
+	}
+	if head.SequenceNumber.Uint64() < c.floor.Load() || head.Timestamp.IsZero() || time.Since(head.Timestamp) > c.maxAge || time.Since(started) > c.maxAge {
+		return fmt.Errorf("failed to warm cetus state: %w: checkpoint=invalidated", quotestate.ErrStateChanged)
 	}
 	c.snapshot = s
 	c.anchors = append([]Tick(nil), s.Ticks...)

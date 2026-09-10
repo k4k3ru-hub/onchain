@@ -28,6 +28,7 @@ type CachedQuote struct {
 // StateCache supports coherent RPC quotes and independent receiver-side retained quotes.
 // Retained account streams do not assert cross-account atomicity.
 type StateCache struct {
+	referenceRequests     []ExactInputRequest
 	quoteSnapshotObserver func(*QuoteSnapshot)
 	client                *Client
 	pool                  solana.Address
@@ -73,6 +74,7 @@ func NewStateCache(client *Client, pool solana.Address, maxAge time.Duration) (*
 // A failure invalidates the coherent cache and is returned so the owner can reconnect.
 //
 // Version:
+//   - 2026-09-11: Refill array windows asynchronously from retained pool positions.
 //   - 2026-09-09: Preserve bootstrap inputs across subscription replacement; clear on session exit.
 //   - 2026-09-09: Withdraw calculation snapshots when an account subscription disconnects.
 //   - 2026-09-09: Retain full account updates for local snapshot quotes.
@@ -88,6 +90,10 @@ func (s *StateCache) Run(ctx context.Context, subscribe SubscribeAccountChangesF
 	}
 	s.running = true
 	s.mu.Unlock()
+	windowCtx, stopWindow := context.WithCancel(ctx)
+	windowDone := make(chan struct{})
+	go func() { defer close(windowDone); s.runRetainedWindow(windowCtx) }()
+
 	defer func() {
 		s.mu.Lock()
 		defer s.mu.Unlock()
@@ -95,6 +101,7 @@ func (s *StateCache) Run(ctx context.Context, subscribe SubscribeAccountChangesF
 		s.retained.Reset()
 		s.publishQuoteSnapshotLocked()
 	}()
+	defer func() { stopWindow(); <-windowDone }()
 	for ctx.Err() == nil {
 		s.mu.Lock()
 		addresses := append([]solana.Address(nil), s.addresses...)
@@ -171,10 +178,15 @@ func (s *StateCache) watch(ctx context.Context, address solana.Address, subscrib
 			if update == nil || update.Account == nil || update.Account.Address != address {
 				return fmt.Errorf("failed to receive retained account state: account=invalid")
 			}
+			s.mu.Lock()
+			if !slices.Contains(s.addresses, address) {
+				s.mu.Unlock()
+				continue
+			}
 			if err := s.retained.Apply(update, s.now()); err != nil {
+				s.mu.Unlock()
 				return fmt.Errorf("failed to retain account state: %w", err)
 			}
-			s.mu.Lock()
 			s.invalidate(update.Slot)
 			s.mu.Unlock()
 		}
@@ -207,6 +219,7 @@ func (s *StateCache) invalidate(slot solana.Slot) {
 // A notification arriving during refresh rejects that refresh for this call.
 //
 // Version:
+//   - 2026-09-11: Retain reference requests for producer-owned range recovery.
 //   - 2026-09-09: Publish initialized account inputs to the snapshot observer.
 //   - 2026-09-09: Classify state-change retries separately from transport failures.
 //   - 2026-09-07: Added.
@@ -284,7 +297,8 @@ func (s *StateCache) QuoteExactInputs(ctx context.Context, requests []ExactInput
 	for _, account := range snapshot {
 		seedAccounts = append(seedAccounts, account)
 	}
-	s.retained.Seed(seedAccounts, result.Slot, observed)
+	s.referenceRequests = append([]ExactInputRequest(nil), requests...)
+	s.retained.SeedWindow(seedAccounts, result.Slot, observed)
 	s.publishQuoteSnapshotLocked()
 	if refreshedPool != nil {
 		s.client.quotePools.Store(s.pool, refreshedPool)

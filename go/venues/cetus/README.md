@@ -71,12 +71,33 @@ Both returned sides use one state; `StateTimestamp`, `PoolVersion` and `PoolDige
 preserve provenance. A simulation pair exposes its actual input pool version and
 digest when supplied by execution effects; its checkpoint is only observed head.
 
-Pool and tick reads are pinned to `atCheckpoint`. Complete pages initialize the
-cache; later reads can use verified adjacent ticks if both amounts remain inside
-that interval. Changing/deleted neighbors and interval crossings fall back to
-full capture. Consumers must budget for initial/full fetch latency. No partial
-fills or automatic simulation fallback are returned. Local QuoteResult.AmountIn
-excludes FeeAmount, matching the Cetus Move fetcher. Add the fee for gross input.
+Pool and tick reads are pinned to `atCheckpoint`. `Warm` reads only the central
+compressed-tick interval and its two neighbors: each interval has 256 aligned
+positions using the pool's `tick_spacing`. This is equivalent in span to EVM ±1
+word, but Cetus stores u64 skip-list nodes rather than a bitmap. Keys are derived
+from tick index + 443636, matching the [official SDK keyed lookup](https://github.com/CetusProtocol/cetus-clmm-sui-sdk/blob/main/src/modules/poolModule.ts).
+
+At most 768 candidate keys are read in 16 sequential GraphQL batches of 50,
+independent of the pool's total initialized tick count. Pool/checkpoint reads are
+additional. Empty keys establish known-empty positions; every existing node in
+range contributes its full tick data. Readers must provide
+`DynamicUint64ValuesAtCheckpoint`; unsupported readers fail instead of falling
+back to global pagination. `sui.RPCClient` supplies this capability.
+
+`RunRetained` checks interval movement locally each second and refills in the
+background with a 30-second timeout and 1–30 second failure backoff. Live pool and
+in-range tick updates continue during capture. Installation replays buffered
+transactions and rejects version/checkpoint regression; failure preserves live
+inputs. Outside-range tick changes, including deletions, are ignored. Reconnect
+uses the same bounded `Warm` capture. `QuoteRetainedPair` never issues RPC.
+
+Verified empty intervals are usable for local quotes. A quote that would leave
+coverage fails with `coverage=insufficient`; fixed coverage cannot guarantee all
+quantities. No partial fill or automatic simulation fallback is returned. The
+separate checkpoint-validated `QuotePair` may still use verified adjacent ticks;
+its fallback is now the bounded window, never the full collection.
+Local QuoteResult.AmountIn excludes FeeAmount, matching the Cetus Move fetcher.
+Add the fee for gross input.
 
 The checked-in vectors use the official TypeScript SDK 5.3.3 and a public pool
 snapshot. They cover both directions, both amount modes and multiple tick crossings.

@@ -3,8 +3,8 @@ package spot
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
+	"github.com/k4k3ru-hub/onchain/go/internal/suiwindow"
 	"github.com/k4k3ru-hub/onchain/go/quotestate"
 	"math/big"
 	"time"
@@ -20,6 +20,7 @@ type ObjectStateSubscriber interface {
 // Initialization may acquire state; Trade calculation never invokes it.
 //
 // Version:
+//   - 2026-09-11: Refill ranges asynchronously while applying live state and replay before installation.
 //   - 2026-09-11: Reacquire missing reference coverage in the state producer.
 //   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Publish retained input updates and withdraw unavailable state.
@@ -58,41 +59,15 @@ func (c *StateCache) RunRetained(ctx context.Context, subscribed ObjectStateSubs
 	if err != nil {
 		return fmt.Errorf("failed to initialize retained bluefin state: %w", err)
 	}
-	for {
-		n, err := sub.Recv(ctx)
-		receivedAt := time.Now().UTC()
-		if err != nil {
-			return fmt.Errorf("failed to receive retained bluefin state: %w", err)
-		}
-		if n.Effects == nil {
-			continue
-		}
-		if err := c.applyRetainedObjects(n, receivedAt); err != nil {
-			if n.Effects.Checkpoint != nil {
-				c.ObserveCheckpoint(*n.Effects.Checkpoint)
+	return suiwindow.Run(ctx, sub.Recv, func(update suiwindow.Update) error {
+		if err := c.applyRetainedObjects(update.Notification, update.ReceivedAt); err != nil {
+			if cp := update.Notification.Effects.Checkpoint; cp != nil {
+				c.ObserveCheckpoint(*cp)
 			}
 			return err
 		}
-		if c.retainedCoverageMissing(ctx) {
-			if n.Effects.Checkpoint != nil {
-				c.ObserveCheckpoint(*n.Effects.Checkpoint)
-			}
-			// The state producer owns IO; live Swap and detached quote consumers do not.
-			timer := time.NewTimer(time.Second)
-			select {
-			case <-ctx.Done():
-				timer.Stop()
-				return ctx.Err()
-			case <-timer.C:
-			}
-			refreshCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
-			err := initialize(refreshCtx)
-			cancel()
-			if err != nil {
-				return fmt.Errorf("failed to refresh retained bluefin coverage: %w", err)
-			}
-		}
-	}
+		return nil
+	}, func() bool { return c.retainedCoverageMissing(ctx) }, c.captureRetainedWindow, c.installRetainedWindow)
 }
 
 // QuoteRetainedPair calculates from one detached set of retained inputs with no position wait or RPC.
@@ -299,16 +274,4 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification, receip
 	return nil
 }
 
-var errRetainedCoverage = errors.New("coverage=insufficient")
-
-// retainedCoverageMissing checks only the configured reference pair, without IO.
-func (c *StateCache) retainedCoverageMissing(ctx context.Context) bool {
-	c.retainedMu.Lock()
-	reference := c.retainedReference
-	c.retainedMu.Unlock()
-	if reference == nil {
-		return false
-	}
-	_, err := c.QuoteRetainedPair(ctx, *reference)
-	return errors.Is(err, errRetainedCoverage)
-}
+var errRetainedCoverage = suiwindow.ErrCoverage

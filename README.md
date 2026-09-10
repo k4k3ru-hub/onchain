@@ -176,3 +176,45 @@ if snapshot != nil {
     _ = receivedAt // Preserve with the BBO derived from this snapshot.
 }
 ```
+
+### Retained AMM range acquisition
+
+Initial acquisition reads complete calculation details for the selected native
+range. Live retained quote methods never issue RPC, even when coverage is missing.
+Range refill belongs to the state producer, not Swap or quote consumers.
+
+| Venue | Acquisition unit | Retained producer behavior |
+| --- | --- | --- |
+| Uniswap v3/v4, Aerodrome Slipstream | Current bitmap word ±1; every initialized tick | Batch capture and live-update replay |
+| Bluefin, Momentum, Turbos | Current bitmap word ±1; every initialized tick | Checkpoint-pinned bitmap batch, tick batches of 32, asynchronous capture and transaction replay |
+| Cetus | Current compressed-tick interval ±1 (256 positions per interval) | Checkpoint-pinned keyed batches of 50; all initialized ticks in range; asynchronous recenter and transaction replay |
+| Raydium CLMM | Complete tick-array accounts | Existing `InitialArrayCount` / `MaxArrayCount`; asynchronous refill as nearby array identities change |
+| Meteora DLMM | Complete bin-array accounts | Existing `InitialArrayCount` / `MaxArrayCount`; asynchronous refill as nearby array identities change |
+| Raydium CPMM | Pool/config/reserve accounts | No tick range; retained full-account updates |
+
+Bluefin/Momentum/Turbos three-word capture needs one bitmap query and up to 24 tick queries (32 keys
+per query, at most 768 initialized positions). This excludes pool/checkpoint,
+protocol configuration and any extra inputs needed for the reference quantity.
+Empty bitmap words require no tick-detail query. Network batching does not imply
+that a provider bills the batch as one logical operation.
+
+Sui range captures continue receiving/applying live updates. Candidate state is
+installed only after replay and pool-version/checkpoint checks; failed capture,
+replay or regression preserves the previous live state. Replay is bounded to
+4096 transaction notifications. Solana merges captured full accounts by slot,
+retains equal-slot/newer live observations, prunes departed addresses and
+reconfigures array subscriptions. Neither model asserts cross-component atomicity.
+Both producers inspect coverage locally once per second, use a 30-second capture
+timeout, and back off failed captures from one to 30 seconds, resetting on success.
+
+Cetus uses u64 skip-list keys, not bitmap words. Capture enumerates only the
+aligned tick positions in the selected three-interval window, at most 768 keys
+in 16 sequential GraphQL batches of 50 (plus pool/checkpoint reads). Missing keys
+prove empty positions at that checkpoint. No global dynamic-field enumeration or
+full-scan fallback is used, including initial capture and reconnect. This bounds
+work per pool; it does not remove aggregate load as more pools start, nor promise
+fewer queries than a full scan of a very sparse pool. Provider billing may count
+each key separately. Current-tick interval changes trigger asynchronous recentering;
+quotes beyond verified bounds return `coverage=insufficient` without RPC or a
+partial fill. Outside-window streamed tick changes are ignored. Solana's existing
+account-based price provenance is unchanged by this range-management work.

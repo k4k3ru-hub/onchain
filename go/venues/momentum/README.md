@@ -13,6 +13,17 @@ See [yield acquisition status](../YIELD.md) for source and verification limits.
 
 ## Retained stream quotes
 
+The producer acquires the current bitmap word and one word on either side,
+including **every initialized tick detail** in those words. Bitmap keys are read
+in one checkpoint-pinned query; tick keys are batched in groups of 32. The
+reference quote may acquire additional inputs at that same checkpoint.
+`RunRetained` checks the nearby window and reference coverage locally every second.
+Missing coverage starts a detached capture with a 30-second timeout while live
+objects continue to apply. It replays updates before installation and rejects
+regression; failure keeps live state and retries with 1–30 second backoff.
+Live Swap consumers and `QuoteRetainedPair` never fetch missing inputs. Quantities
+outside retained coverage still return `coverage=insufficient`.
+
 `StateCache.RunRetained` initializes state and then applies streamed full pool and
 field payloads. `QuoteRetainedPair` freezes the currently retained components and
 calculates locally: no Trade/checkpoint alignment, waits, retries or RPC reads.
@@ -56,7 +67,7 @@ available for comparison and atomic execution.
 
 ## State and quotes
 
-- Capture the pool and lazily requested bitmap words/tick values at one explicit
+- Capture the pool, nearby bitmap window and all initialized tick values at one explicit
   checkpoint. Keys use the pool package's `i32::I32` and signed little-endian BCS.
 - Respect empty bitmap-word boundaries, signed tick compression, initialized tick
   liquidity changes and the explicit sqrt-price limit. Do not skip word boundaries:

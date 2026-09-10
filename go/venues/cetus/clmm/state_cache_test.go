@@ -4,15 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	sui "github.com/k4k3ru-hub/onchain/go/sui"
 	"testing"
 	"time"
+
+	sui "github.com/k4k3ru-hub/onchain/go/sui"
 )
 
 type stateReaderFake struct {
 	cp      sui.CheckpointSequenceNumber
 	obj     *sui.Object
 	pages   int
+	batches int
 	partial bool
 	onRead  func()
 }
@@ -59,7 +61,7 @@ func cacheFixture(t *testing.T) (*StateCache, *stateReaderFake, QuotePairParams)
 	if err != nil {
 		t.Fatal(err)
 	}
-	f := &stateReaderFake{cp: 123, obj: &sui.Object{Address: a, Version: 10, Move: &sui.MoveObject{Type: "0x1::pool::Pool<0x2::a::A,0x2::b::B>", JSON: json.RawMessage(`{"coin_a":"1","coin_b":"1","current_sqrt_price":"18446744073709551616","current_tick_index":{"bits":0},"liquidity":"1000000","fee_rate":"500","tick_manager":{"ticks":{"id":"0x8","size":"2"}}}`)}}}
+	f := &stateReaderFake{cp: 123, obj: &sui.Object{Address: a, Version: 10, Move: &sui.MoveObject{Type: "0x1::pool::Pool<0x2::a::A,0x2::b::B>", JSON: json.RawMessage(`{"tick_spacing":"100","coin_a":"1","coin_b":"1","current_sqrt_price":"18446744073709551616","current_tick_index":{"bits":0},"liquidity":"1000000","fee_rate":"500","tick_manager":{"ticks":{"id":"0x8","size":"2"}}}`)}}}
 	c, err := NewStateCache(f, a, time.Minute)
 	if err != nil {
 		t.Fatal(err)
@@ -67,32 +69,32 @@ func cacheFixture(t *testing.T) (*StateCache, *stateReaderFake, QuotePairParams)
 	return c, f, QuotePairParams{Bid: QuoteExactInputParams{Pool: Pool{Address: a}, AmountIn: 1000, A2B: true}, Ask: QuoteExactOutputParams{Pool: Pool{Address: a}, AmountOut: 998, A2B: false}}
 }
 
-// TestStateCacheReuse verifies pinned pagination, version-based refresh and concurrent invalidation.
+// TestStateCacheReuse verifies pinned batches, version-based refresh and concurrent invalidation.
 //
 // Version:
-//   - 2026-09-08: Added.
+//   - 2026-09-11: Verify bounded keyed acquisition.
 func TestStateCacheReuse(t *testing.T) {
 	c, f, p := cacheFixture(t)
 	r, err := c.QuotePair(context.Background(), p)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if r.Checkpoint != 123 || r.Bid.AmountOut != 998 || f.pages != 2 {
-		t.Fatalf("%+v pages=%d", r, f.pages)
+	if r.Checkpoint != 123 || r.Bid.AmountOut != 998 || f.batches != 16 {
+		t.Fatalf("%+v pages=%d", r, f.batches)
 	}
 	f.cp = 124
 	r, err = c.QuotePair(context.Background(), p)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if f.pages != 2 || r.Checkpoint != 124 {
+	if f.batches != 16 || r.Checkpoint != 124 {
 		t.Fatal("failed reuse at confirmed newer checkpoint")
 	}
 	f.obj.Version++
 	if _, err = c.QuotePair(context.Background(), p); err != nil {
 		t.Fatal(err)
 	}
-	if f.pages != 4 {
+	if f.batches != 33 {
 		t.Fatal("did not refresh changed pool")
 	}
 	f.obj.Version++
@@ -123,8 +125,11 @@ type neighborFake struct {
 // DynamicUint64ValuesAtCheckpoint provides the configured test behavior.
 //
 // Version:
-//   - 2026-09-08: Added.
+//   - 2026-09-11: Delegate window batches to the keyed fixture.
 func (f *neighborFake) DynamicUint64ValuesAtCheckpoint(_ context.Context, _ sui.Address, cp sui.CheckpointSequenceNumber, keys []uint64) ([]json.RawMessage, error) {
+	if len(keys) != 2 {
+		return f.stateReaderFake.DynamicUint64ValuesAtCheckpoint(context.Background(), sui.Address{}, cp, keys)
+	}
 	f.reads++
 	if cp != f.cp || len(keys) != 2 || keys[0] != 443536 || keys[1] != 443736 {
 		return nil, fmt.Errorf("wrong neighbor request")
@@ -139,7 +144,7 @@ func (f *neighborFake) DynamicUint64ValuesAtCheckpoint(_ context.Context, _ sui.
 // TestStateNeighbors verifies fast refresh and fallback after an intervening tick appears.
 //
 // Version:
-//   - 2026-09-08: Added.
+//   - 2026-09-11: Verify bounded fallback after changed neighbors.
 func TestStateNeighbors(t *testing.T) {
 	c, f, p := cacheFixture(t)
 	n := &neighborFake{stateReaderFake: f}
@@ -151,16 +156,16 @@ func TestStateNeighbors(t *testing.T) {
 	if _, err := c.QuotePair(context.Background(), p); err != nil {
 		t.Fatal(err)
 	}
-	if f.pages != 2 || n.reads != 1 {
-		t.Fatal("neighbor refresh did not avoid full pagination")
+	if f.batches != 16 || n.reads != 1 {
+		t.Fatal("neighbor refresh did not avoid bounded window refresh")
 	}
 	n.broken = true
 	f.obj.Version++
 	if _, err := c.QuotePair(context.Background(), p); err != nil {
 		t.Fatal(err)
 	}
-	if f.pages != 4 {
-		t.Fatal("missing full refresh after link change")
+	if f.batches != 32 {
+		t.Fatal("missing bounded refresh after link change")
 	}
 }
 
@@ -187,4 +192,31 @@ func TestQuoteCheckpointProgressIsMonotonic(t *testing.T) {
 	if err != nil || next.Checkpoint != first.Checkpoint+1 {
 		t.Fatalf("next=%+v err=%v", next, err)
 	}
+}
+
+// DynamicUint64ValuesAtCheckpoint serves sparse aligned tick keys at the requested checkpoint.
+//
+// Version:
+//   - 2026-09-11: Added.
+func (f *stateReaderFake) DynamicUint64ValuesAtCheckpoint(_ context.Context, _ sui.Address, cp sui.CheckpointSequenceNumber, keys []uint64) ([]json.RawMessage, error) {
+	if cp != f.cp || len(keys) > 50 {
+		return nil, fmt.Errorf("invalid keyed request")
+	}
+	f.batches++
+	if f.onRead != nil {
+		f.onRead()
+	}
+	if f.partial {
+		return nil, fmt.Errorf("failed to read test tick batch: response=incomplete")
+	}
+	result := make([]json.RawMessage, len(keys))
+	for i, key := range keys {
+		switch key {
+		case 443536:
+			result[i] = json.RawMessage(`{"value":{"index":{"bits":4294967196},"sqrt_price":"9223372036854775808","liquidity_net":{"bits":"1000000"}}}`)
+		case 443736:
+			result[i] = json.RawMessage(`{"value":{"index":{"bits":100},"sqrt_price":"36893488147419103232","liquidity_net":{"bits":"340282366920938463463374607431767211456"}}}`)
+		}
+	}
+	return result, nil
 }

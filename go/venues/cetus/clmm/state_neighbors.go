@@ -103,7 +103,7 @@ func captureNeighbors(ctx context.Context, reader StateReader, obj *sui.Object, 
 	}
 	s := &LocalSnapshot{Pool: *pool, Ticks: ticks}
 	// Only accept amounts completed inside the verified adjacent interval. If either
-	// side reaches beyond it, obtain the complete snapshot instead.
+	// side reaches beyond it, obtain the bounded tick window instead.
 	bid, err := s.Quote(params.Bid.AmountIn, params.Bid.A2B, true)
 	if err != nil {
 		return nil, nil

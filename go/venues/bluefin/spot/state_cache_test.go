@@ -47,6 +47,7 @@ func (f *stateReaderFake) ObjectAtCheckpoint(_ context.Context, _ sui.Address, c
 // DynamicValuesByKeysAtCheckpoint supplies bitmap words and signed liquidity at the pinned checkpoint.
 //
 // Version:
+//   - 2026-09-11: Support multi-key window capture.
 //   - 2026-09-08: Added.
 func (f *stateReaderFake) DynamicValuesByKeysAtCheckpoint(_ context.Context, parent sui.Address, cp sui.CheckpointSequenceNumber, keys []sui.DynamicFieldKey) ([]json.RawMessage, error) {
 	f.reads++
@@ -59,25 +60,26 @@ func (f *stateReaderFake) DynamicValuesByKeysAtCheckpoint(_ context.Context, par
 	if f.afterRead != nil {
 		f.afterRead()
 	}
-	if len(keys) != 1 || keys[0].Type != integerKeyType || len(keys[0].BCS) != 4 {
-		f.t.Fatal("invalid signed key")
-	}
-	index := int32(binary.LittleEndian.Uint32(keys[0].BCS))
-	n := new(big.Int)
-	if parent.String() == testAddress("0xb").String() {
-		// Initialized ticks at -100 and +100, with spacing one.
-		if index == -1 {
-			n.SetBit(n, 156, 1)
+	values := make([]json.RawMessage, len(keys))
+	for i, key := range keys {
+		if key.Type != integerKeyType || len(key.BCS) != 4 {
+			f.t.Fatal("invalid signed key")
 		}
-		if index == 0 {
-			n.SetBit(n, 100, 1)
+		index := int32(binary.LittleEndian.Uint32(key.BCS))
+		if parent == testAddress("0xb") {
+			n := new(big.Int)
+			if index == -1 {
+				n.SetBit(n, 156, 1)
+			}
+			if index == 0 {
+				n.SetBit(n, 100, 1)
+			}
+			values[i] = json.RawMessage(fmt.Sprintf("%q", n.String()))
+		} else if !f.missingTick {
+			values[i] = json.RawMessage(`{"liquidity_net":{"bits":"0"}}`)
 		}
-		return []json.RawMessage{json.RawMessage(fmt.Sprintf("%q", n.String()))}, nil
 	}
-	if f.missingTick {
-		return []json.RawMessage{nil}, nil
-	}
-	return []json.RawMessage{json.RawMessage(`{"liquidity_net":{"bits":"0"}}`)}, nil
+	return values, nil
 }
 func testAddress(s string) sui.Address {
 	a, err := sui.ParseAddress(s)

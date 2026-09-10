@@ -79,7 +79,7 @@ func TestRetainedQuoteUsesStreamWithoutCheckpointReads(t *testing.T) {
 // TestRetainedTickObjectsUpdatesAndDeletes verifies full dynamic-field payloads.
 //
 // Version:
-//   - 2026-09-09: Added.
+//   - 2026-09-11: Known deletions preserve verified empty interval coverage.
 func TestRetainedTickObjectsUpdatesAndDeletes(t *testing.T) {
 	c, reader, params := cacheFixture(t)
 	if err := c.Warm(context.Background()); err != nil {
@@ -110,8 +110,8 @@ func TestRetainedTickObjectsUpdatesAndDeletes(t *testing.T) {
 	if len(c.retained.snapshot.Ticks) != 1 {
 		t.Fatal("tick deletion lost")
 	}
-	if _, err := c.QuoteRetainedPair(context.Background(), params); err == nil {
-		t.Fatal("missing directional tick coverage accepted")
+	if _, err := c.QuoteRetainedPair(context.Background(), params); err != nil {
+		t.Fatal("known empty interval rejected", err)
 	}
 }
 
