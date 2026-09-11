@@ -418,9 +418,17 @@ func ParseSwapEvent(event onchainSui.Event) (Swap, error) {
 //   - Parse error.
 //
 // Version:
+//   - 2026-09-11: Decode BCS-only transaction events locally.
 //   - 2026-09-10: Preserve checkpoint-local transaction ordering.
 //   - 2026-08-30: Added.
 func ParseLiveSwapEvent(event onchainSui.LiveEvent) (Swap, error) {
+	if len(event.JSON) == 0 {
+		data, err := decodeSwapBCS(event.BCS)
+		if err != nil {
+			return Swap{}, fmt.Errorf("failed to parse live swap event: %w", err)
+		}
+		event.JSON = data
+	}
 	swap, err := parseSwapJSON(event.Type, event.JSON)
 	if err != nil {
 		return Swap{}, err
