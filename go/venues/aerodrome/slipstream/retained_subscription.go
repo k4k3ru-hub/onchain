@@ -27,7 +27,7 @@ type RunRetainedParams struct {
 
 // RunRetained subscribes before initialization and maintains local quote inputs.
 // RPC reads occur during initialization and background window capture. State notifications never publish
-// quotes. On failure all retained inputs are discarded; the caller may reconnect.
+// quotes. Transport reconnection retains existing inputs and their original freshness.
 //
 // Version:
 //   - 2026-09-11: Refresh complete tick windows in the background.
@@ -48,6 +48,7 @@ func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, amount *bi
 //   - Subscription or state initialization error.
 //
 // Version:
+//   - 2026-09-12: Retain inputs across transport reconnects and accept replacement Swaps.
 //   - 2026-09-11: Prefetch and refresh complete center ±1 tick windows.
 //   - 2026-09-10: Added.
 func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, params RunRetainedParams) error {
@@ -64,10 +65,10 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 		c.mu.Unlock()
 		return fmt.Errorf("failed to run retained slipstream state: subscription=active")
 	}
-	c.running, c.retained = true, nil
+	c.running = true
 	c.publishQuoteSnapshotLocked()
 	c.mu.Unlock()
-	defer func() { c.mu.Lock(); c.running, c.retained = false, nil; c.publishQuoteSnapshotLocked(); c.mu.Unlock() }()
+	defer func() { c.mu.Lock(); c.running = false; c.publishQuoteSnapshotLocked(); c.mu.Unlock() }()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	initCtx, stopInit := context.WithTimeout(ctx, 30*time.Second)
@@ -125,9 +126,14 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 			}
 		}
 	}()
-	state, err := c.initializeRetainedPool(initCtx, amount, baseIsToken0)
-	if err != nil {
-		return err
+	c.mu.Lock()
+	state := c.retained
+	c.mu.Unlock()
+	if state == nil || state.fee.module != module {
+		state, err = c.initializeRetainedPool(initCtx, amount, baseIsToken0)
+		if err != nil {
+			return err
+		}
 	}
 	if state.fee.module != module {
 		return fmt.Errorf("failed to initialize retained pool: fee_module=mismatch")
@@ -172,7 +178,7 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 				timestamp = header.Timestamp
 			}
 			c.mu.Lock()
-			err := c.applyRetainedLog(log.Log, timestamp, log.at)
+			err := c.applyLiveRetainedLog(log.Log, timestamp, log.at)
 			c.publishQuoteSnapshotLocked()
 			c.mu.Unlock()
 			if err != nil {
@@ -268,7 +274,10 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 			if !ok {
 				return fmt.Errorf("failed to receive retained logs: channel closed")
 			}
-			if log.Removed || log.BlockHash == (common.Hash{}) {
+			if log.Removed {
+				continue
+			}
+			if log.BlockHash == (common.Hash{}) {
 				return fmt.Errorf("failed to receive retained logs: event=invalid")
 			}
 			if len(pending) >= 4096 {
@@ -295,6 +304,7 @@ func (c *StateCache) initializeRetainedPool(ctx context.Context, amount *big.Int
 		return nil, err
 	}
 	center := bitmapWord(snapshot.tick, snapshot.spacing)
+	snapshot.windowCenter, snapshot.windowCaptured = center, true
 	lower := max(center-retainedWordRadius, bitmapWord(-887272, snapshot.spacing))
 	upper := min(center+retainedWordRadius, bitmapWord(887272, snapshot.spacing))
 	if err := c.readBitmapWindow(ctx, snapshot, lower, upper, &budget); err != nil {

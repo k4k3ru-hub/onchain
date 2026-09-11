@@ -17,6 +17,11 @@ func (idleReconnectStream) Recv(ctx context.Context) (solana.Slot, error) {
 
 // Close releases the test subscription.
 func (idleReconnectStream) Close() {}
+
+// TestBootstrapSurvivesSubscriptionReconfiguration verifies retained input behavior.
+//
+// Version:
+//   - 2026-09-12: Updated for receipt-order policy.
 func TestBootstrapSurvivesSubscriptionReconfiguration(t *testing.T) {
 	c, _ := cacheFixture(t)
 	requests := []ExactInputRequest{{InputMint: testAddress(4), AmountIn: 1000000}}
@@ -61,8 +66,8 @@ func TestBootstrapSurvivesSubscriptionReconfiguration(t *testing.T) {
 		if len(frozen.Accounts) == 0 {
 			t.Fatal("subscription replacement erased bootstrapped accounts")
 		}
-		if len(c.retained.Freeze().Accounts) != 0 {
-			t.Fatal("ended session retained accounts")
+		if len(c.retained.Freeze().Accounts) == 0 {
+			t.Fatal("ended session discarded retained accounts")
 		}
 	}
 }

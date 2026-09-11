@@ -257,3 +257,37 @@ func applyRetainedPoolEvent(s *retainedPoolState, log types.Log, timestamp uint3
 	}
 	return nil
 }
+
+// applyLiveRetainedLog retains bitmap and tick details when a replacement Swap
+// moves backwards in ledger order. Oracle history is not rewritten using an old
+// timestamp; subsequent forward events resume its normal updates.
+func (c *StateCache) applyLiveRetainedLog(log types.Log, timestamp uint64, received time.Time) error {
+	if log.Removed {
+		return nil
+	}
+	s := c.retained
+	if s == nil || s.pool == nil || len(log.Topics) == 0 || log.BlockHash == (common.Hash{}) {
+		return c.applyRetainedLog(log, timestamp, received)
+	}
+	replacement := timestamp < s.timestamp || log.BlockNumber <= s.pool.header.Number || s.hasLog && (log.BlockNumber < s.block || log.BlockNumber == s.block && (log.BlockHash != s.hash || log.Index < s.index))
+	if !replacement || log.Address != c.pool || log.Topics[0] != swapEventSignatureHash() {
+		return c.applyRetainedLog(log, timestamp, received)
+	}
+	swap, err := DecodeSwapLog(log)
+	if err != nil {
+		return fmt.Errorf("failed to apply live retained swap: %w", err)
+	}
+	if swap.SqrtPriceX96.Cmp(sqrtAtTick(-887272)) < 0 || swap.SqrtPriceX96.Cmp(sqrtAtTick(887272)) >= 0 {
+		return fmt.Errorf("failed to apply live retained swap: price=out_of_range")
+	}
+	s.pool.price, s.pool.liquidity, s.pool.tick = swap.SqrtPriceX96, swap.Liquidity, swap.Tick
+	s.block, s.hash, s.index, s.hasLog = log.BlockNumber, log.BlockHash, log.Index, true
+	s.lastLog = log
+	s.lastLog.Topics = slices.Clone(log.Topics)
+	s.lastLog.Data = bytes.Clone(log.Data)
+	if received.After(s.received) {
+		s.received = received
+	}
+	c.replayBase, c.replayState, c.replayLogs = nil, nil, nil
+	return nil
+}

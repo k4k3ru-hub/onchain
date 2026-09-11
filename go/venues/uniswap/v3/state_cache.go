@@ -33,6 +33,8 @@ type LocalPair struct {
 }
 
 type poolSnapshot struct {
+	windowCenter     int32
+	windowCaptured   bool
 	header           evm.BlockHeader
 	observed         time.Time
 	received         time.Time
@@ -44,6 +46,7 @@ type poolSnapshot struct {
 }
 
 type StateCache struct {
+	liveOrder             retainedLogOrder
 	quoteSnapshotObserver func(*QuoteSnapshot)
 	verificationEpoch     uint64
 	retained              *poolSnapshot

@@ -80,6 +80,19 @@ func (s *AccountState) SeedWindow(accounts []*Account, slot Slot, observed time.
 //   - 2026-09-10: Preserve accepted receipt time separately from oldest provenance.
 //   - 2026-09-09: Added.
 func (s *AccountState) Apply(update *AccountUpdate, observed time.Time) error {
+	return s.apply(update, observed, false)
+}
+
+// ApplyReceived retains AMM account payloads in receipt order, including lower slots.
+// Exact duplicate notifications preserve their original receipt time.
+//
+// Version:
+//   - 2026-09-12: Added.
+func (s *AccountState) ApplyReceived(update *AccountUpdate, observed time.Time) error {
+	return s.apply(update, observed, true)
+}
+
+func (s *AccountState) apply(update *AccountUpdate, observed time.Time, receiptOrder bool) error {
 	if s == nil || update == nil || update.Account == nil {
 		return fmt.Errorf("failed to apply account state: dependency=null")
 	}
@@ -94,7 +107,7 @@ func (s *AccountState) Apply(update *AccountUpdate, observed time.Time) error {
 	if s.accounts == nil {
 		s.accounts = make(map[Address]RetainedAccount)
 	}
-	if previous, exists := s.accounts[update.Account.Address]; exists && (previous.Slot > update.Slot || (previous.Slot == update.Slot && reflect.DeepEqual(previous.Account, update.Account))) {
+	if previous, exists := s.accounts[update.Account.Address]; exists && ((!receiptOrder && previous.Slot > update.Slot) || (receiptOrder && observed.Before(previous.ObservedAt)) || (previous.Slot == update.Slot && reflect.DeepEqual(previous.Account, update.Account))) {
 		return nil
 	}
 	s.accounts[update.Account.Address] = copyRetainedAccount(RetainedAccount{update.Account, update.Slot, observed})

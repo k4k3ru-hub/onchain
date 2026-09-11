@@ -10,6 +10,7 @@ import (
 // TestFrozenAccountsSurviveDisconnect verifies immutable inputs and receipt time.
 //
 // Version:
+//   - 2026-09-12: Verify receipt-order updates and retained inputs.
 //   - 2026-09-10: Verify input receipt survives recalculation.
 func TestFrozenAccountsSurviveDisconnect(t *testing.T) {
 	c, _ := cacheFixture(t)
@@ -36,8 +37,8 @@ func TestFrozenAccountsSurviveDisconnect(t *testing.T) {
 	c.connected--
 	c.invalidate(0)
 	c.mu.Unlock()
-	if current != nil {
-		t.Fatal("partial disconnect did not withdraw state")
+	if current == nil {
+		t.Fatal("partial disconnect discarded state")
 	}
 	var wg sync.WaitGroup
 	for range 8 {

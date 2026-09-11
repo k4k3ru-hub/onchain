@@ -33,6 +33,8 @@ type LocalPair struct {
 }
 
 type poolSnapshot struct {
+	windowCenter     int32
+	windowCaptured   bool
 	header           evm.BlockHeader
 	observed         time.Time
 	price, liquidity *big.Int

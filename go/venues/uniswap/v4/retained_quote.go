@@ -100,9 +100,31 @@ func cloneRetainedIntegers(source map[int32]*big.Int) map[int32]*big.Int {
 // applyRetainedLog runs under mu. Events before the bootstrap block are already
 // incorporated. Within subsequent blocks, reception must follow log order.
 func (c *StateCache) applyRetainedLog(log types.Log, receipt ...time.Time) error {
+	return c.applyRetainedLogMode(log, false, receipt...)
+}
+
+// applyLiveRetainedLog accepts terminal Swap fields in receipt order. Capture
+// replay retains its separate baseline checks for incremental liquidity events.
+func (c *StateCache) applyLiveRetainedLog(log types.Log, receipt ...time.Time) error {
+	if log.Removed {
+		return nil
+	}
+	previous := c.retained
+	c.retained = clonePoolSnapshot(previous)
+	if err := c.applyRetainedLogMode(log, true, receipt...); err != nil {
+		c.retained = previous
+		return err
+	}
+	return nil
+}
+
+func (c *StateCache) applyRetainedLogMode(log types.Log, live bool, receipt ...time.Time) error {
 	fail := func(reason string) error {
 		c.retained = nil
 		return retainedReinitializationError(log, reason)
+	}
+	if live && log.Removed {
+		return nil
 	}
 	if log.Removed || log.BlockHash == (common.Hash{}) {
 		return fail("invalid log position")
@@ -110,18 +132,20 @@ func (c *StateCache) applyRetainedLog(log types.Log, receipt ...time.Time) error
 	if c.retained == nil {
 		return fail("missing snapshot")
 	}
-	baseline := c.retained.header
-	if log.BlockNumber < baseline.Number {
-		return nil
-	}
-	if log.BlockNumber == baseline.Number {
-		if log.BlockHash != baseline.Hash {
-			return fail("baseline block hash mismatch")
+	if !live {
+		baseline := c.retained.header
+		if log.BlockNumber < baseline.Number {
+			return nil
 		}
-		return nil
-	}
-	if c.retainedHasLog && (log.BlockNumber < c.retainedBlock || log.BlockNumber == c.retainedBlock && (log.BlockHash != c.retainedHash || log.Index <= c.retainedIndex)) {
-		return fail("out of order or conflicting log")
+		if log.BlockNumber == baseline.Number {
+			if log.BlockHash != baseline.Hash {
+				return fail("baseline block hash mismatch")
+			}
+			return nil
+		}
+		if c.retainedHasLog && (log.BlockNumber < c.retainedBlock || log.BlockNumber == c.retainedBlock && (log.BlockHash != c.retainedHash || log.Index <= c.retainedIndex)) {
+			return fail("out of order or conflicting log")
+		}
 	}
 	if len(log.Topics) == 0 {
 		return fail("missing event topics")
@@ -273,6 +297,8 @@ func (c *StateCache) requestRetainedRecovery(source *poolSnapshot, amount *big.I
 // OnSwapLog is called only for accepted live Swap logs, including during capture.
 // Replaying logs into a new snapshot never invokes OnSwapLog again.
 type RetainedEvents struct {
+	// OnRemovedLog receives cancellation records without applying them to pool state.
+	OnRemovedLog func(context.Context, types.Log, time.Time) error
 	OnSubscribed func()
 	OnSwapLog    func(context.Context, types.Log, time.Time) error
 	OnRecovery   func(error)
@@ -282,6 +308,7 @@ type RetainedEvents struct {
 // Recovery keeps the subscription open and rejects obsolete capture results.
 //
 // Version:
+//   - 2026-09-12: Accept live Swap terminal state in receipt order and prefetch at window edges.
 //   - 2026-09-11: Emit recordable live swaps before retained-state validation.
 //   - 2026-09-11: Added.
 func (c *StateCache) RunRetainedWithEvents(ctx context.Context, ws WSRPCClient, baseAmount *big.Int, baseIsToken0 bool, events RetainedEvents) error {

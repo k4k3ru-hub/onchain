@@ -27,6 +27,9 @@ func (c *StateCache) retainedNeedsCapture(amount *big.Int, baseIsToken0 bool) bo
 	}
 	s := cloneRetainedPool(c.retained).pool
 	center := bitmapWord(s.tick, s.spacing)
+	if s.windowCaptured && center != s.windowCenter {
+		return true
+	}
 	for word := max(center-retainedWordRadius, bitmapWord(-887272, s.spacing)); word <= min(center+retainedWordRadius, bitmapWord(887272, s.spacing)); word++ {
 		bitmap := s.words[word]
 		if bitmap == nil {

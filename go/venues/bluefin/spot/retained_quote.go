@@ -20,6 +20,7 @@ type ObjectStateSubscriber interface {
 // Initialization may acquire state; Trade calculation never invokes it.
 //
 // Version:
+//   - 2026-09-12: Retain inputs across transport reconnects without refreshing their receipt time.
 //   - 2026-09-11: Refill ranges asynchronously while applying live state and replay before installation.
 //   - 2026-09-11: Reacquire missing reference coverage in the state producer.
 //   - 2026-09-10: Preserve input receipt time.
@@ -35,13 +36,12 @@ func (c *StateCache) RunRetained(ctx context.Context, subscribed ObjectStateSubs
 		return fmt.Errorf("failed to retain bluefin state: subscription=active")
 	}
 	c.retainedRunning = true
-	c.retained = nil
+	needsInit := c.retained == nil
 	c.publishQuoteSnapshotLocked()
 	c.retainedMu.Unlock()
 	defer func() {
 		c.retainedMu.Lock()
 		c.retainedRunning = false
-		c.retained = nil
 		c.publishQuoteSnapshotLocked()
 		c.retainedMu.Unlock()
 	}()
@@ -53,11 +53,13 @@ func (c *StateCache) RunRetained(ctx context.Context, subscribed ObjectStateSubs
 		return fmt.Errorf("failed to subscribe retained bluefin state: subscription=null")
 	}
 	defer sub.Close()
-	initCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
-	err = initialize(initCtx)
-	cancel()
-	if err != nil {
-		return fmt.Errorf("failed to initialize retained bluefin state: %w", err)
+	if needsInit {
+		initCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+		err = initialize(initCtx)
+		cancel()
+		if err != nil {
+			return fmt.Errorf("failed to initialize retained bluefin state: %w", err)
+		}
 	}
 	return suiwindow.Run(ctx, sub.Recv, func(update suiwindow.Update) error {
 		if err := c.applyRetainedObjects(update.Notification, update.ReceivedAt); err != nil {

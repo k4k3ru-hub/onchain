@@ -74,3 +74,26 @@ func TestReceiptIgnoresDuplicates(t *testing.T) {
 		t.Fatal("receipt or frozen provenance lost")
 	}
 }
+
+// TestAccountStateReceiveOrder accepts replacement payloads without replacing tick arrays.
+//
+// Version:
+//   - 2026-09-12: Added.
+func TestAccountStateReceiveOrder(t *testing.T) {
+	var state AccountState
+	var pool, tick Address
+	pool[0], tick[0] = 1, 2
+	now := time.Unix(100, 0)
+	state.Seed([]*Account{{Address: pool, Data: []byte{1}}, {Address: tick, Data: []byte{2}}}, 10, now)
+	update := &AccountUpdate{Slot: 9, Account: &Account{Address: pool, Data: []byte{3}}}
+	if err := state.ApplyReceived(update, now.Add(time.Second)); err != nil {
+		t.Fatal(err)
+	}
+	if err := state.ApplyReceived(update, now.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	frozen := state.Freeze()
+	if frozen.Accounts[pool].Slot != 9 || frozen.Accounts[pool].Account.Data[0] != 3 || frozen.Accounts[tick].Account.Data[0] != 2 || !frozen.ReceivedAt.Equal(now.Add(time.Second)) {
+		t.Fatal("replacement or duplicate policy violated")
+	}
+}

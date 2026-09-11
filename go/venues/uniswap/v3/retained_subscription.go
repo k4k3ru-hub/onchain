@@ -37,6 +37,9 @@ func (c *StateCache) retainedNeedsCapture(amount *big.Int, baseIsToken0 bool) bo
 	}
 	s := clonePoolSnapshot(c.retained)
 	center := bitmapWord(s.tick, s.spacing)
+	if s.windowCaptured && center != s.windowCenter {
+		return true
+	}
 	minWord, maxWord := bitmapWord(-887272, s.spacing), bitmapWord(887272, s.spacing)
 	for word := max(center-retainedWordRadius, minWord); word <= min(center+retainedWordRadius, maxWord); word++ {
 		if s.words[word] == nil {
@@ -66,6 +69,7 @@ func (c *StateCache) captureRetainedWindow(ctx context.Context, amount *big.Int,
 		return nil, fmt.Errorf("failed to capture retained window: %w", err)
 	}
 	center := bitmapWord(s.tick, s.spacing)
+	s.windowCenter, s.windowCaptured = center, true
 	minWord, maxWord := bitmapWord(-887272, s.spacing), bitmapWord(887272, s.spacing)
 	if err := reader.readBitmapWindow(ctx, s, max(center-retainedWordRadius, minWord), min(center+retainedWordRadius, maxWord), &budget); err != nil {
 		return nil, err
@@ -103,7 +107,9 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 	c.running = true
 	c.generation++
 	c.floorHash = common.Hash{}
-	c.retained = nil
+	if events == nil {
+		c.retained = nil
+	}
 	c.retainedBaseAmount = amount
 	recovery := make(chan struct{}, 1)
 	c.retainedRecovery = recovery
@@ -113,7 +119,9 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 		c.mu.Lock()
 		c.running, c.active = false, false
 		c.generation++
-		c.retained = nil
+		if events == nil {
+			c.retained = nil
+		}
 		c.publishQuoteSnapshotLocked()
 		c.mu.Unlock()
 	}()
@@ -141,13 +149,16 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 		at  time.Time
 	}
 	var replay []receivedLog
-	busy, pending := false, true
+	c.mu.Lock()
+	needsCapture := c.retainedNeedsCapture(amount, baseIsToken0)
+	c.mu.Unlock()
+	busy, pending := false, needsCapture
 	delay := time.Second
 	var nextAttempt time.Time
 	var epoch uint64
 	var observedBlock, recoveryFloor uint64
 	var captureCancel context.CancelFunc
-	var order retainedLogOrder
+	order := &c.liveOrder
 	invalidate := func(err error) {
 		epoch++
 		recoveryFloor = observedBlock
@@ -233,7 +244,11 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 			candidate := &StateCache{retained: result.snapshot, retainedBlock: result.snapshot.header.Number, retainedHash: result.snapshot.header.Hash}
 			var replayErr error
 			for _, log := range replay {
-				if err := candidate.applyRetainedLog(log.log, log.at); err != nil {
+				apply := candidate.applyRetainedLog
+				if len(log.log.Topics) > 0 && log.log.Topics[0] == swapEventSignatureHash() {
+					apply = candidate.applyLiveRetainedLog
+				}
+				if err := apply(log.log, log.at); err != nil {
 					replayErr = fmt.Errorf("failed to replay retained window: %w", err)
 					break
 				}
@@ -295,6 +310,14 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 					return retainedReinitializationError(log, "missing block hash")
 				}
 			}
+			if log.Removed {
+				if events != nil && events.OnRemovedLog != nil {
+					if err := events.OnRemovedLog(ctx, log, receivedAt); err != nil {
+						return fmt.Errorf("failed to consume removed pool log: %w", err)
+					}
+				}
+				continue
+			}
 			c.mu.Lock()
 			missingState := c.retained == nil
 			c.mu.Unlock()
@@ -304,20 +327,36 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 					if events == nil {
 						return err
 					}
-					invalidate(err)
+					epoch++
+					if captureCancel != nil {
+						captureCancel()
+					}
+					replay = nil
+					c.mu.Lock()
+					pending = c.retainedNeedsCapture(amount, baseIsToken0)
+					c.mu.Unlock()
+					if events.OnRecovery != nil {
+						events.OnRecovery(err)
+					}
 					timer.Reset(delay)
 				}
 				replay = append(replay, receivedLog{log, receivedAt})
 			}
 			c.mu.Lock()
 			if c.retained != nil {
-				err := c.applyRetainedLog(log, receivedAt)
+				err := c.applyLiveRetainedLog(log, receivedAt)
 				if err != nil {
 					c.mu.Unlock()
 					if events == nil {
 						return err
 					}
-					invalidate(err)
+					// Preserve usable inputs while repairing a missing or inconsistent
+					// liquidity delta in the background.
+					pending = true
+					nextAttempt = time.Now().Add(delay)
+					if events.OnRecovery != nil {
+						events.OnRecovery(err)
+					}
 					timer.Reset(delay)
 					continue
 				}

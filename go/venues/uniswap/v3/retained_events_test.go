@@ -15,6 +15,7 @@ import (
 // TestRetainedEventOrder distinguishes replay, conflict, regression and reorg.
 //
 // Version:
+//   - 2026-09-12: Verify receipt-order updates and retained inputs.
 //   - 2026-09-10: Added.
 func TestRetainedEventOrder(t *testing.T) {
 	cases := []struct {
@@ -24,9 +25,9 @@ func TestRetainedEventOrder(t *testing.T) {
 		{"duplicate", "", func(*types.Log) {}},
 		{"content", "log content conflict", func(l *types.Log) { l.Data = []byte{1} }},
 		{"transaction", "log content conflict", func(l *types.Log) { l.TxHash = common.HexToHash("abc") }},
-		{"order", "out of order log", func(l *types.Log) { l.Index-- }},
-		{"hash", "stream block hash mismatch", func(l *types.Log) { l.BlockHash = common.HexToHash("def") }},
-		{"removed", "removed log", func(l *types.Log) { l.Removed = true }},
+		{"order", "", func(l *types.Log) { l.Index-- }},
+		{"hash", "", func(l *types.Log) { l.BlockHash = common.HexToHash("def") }},
+		{"removed", "", func(l *types.Log) { l.Removed = true }},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -39,7 +40,7 @@ func TestRetainedEventOrder(t *testing.T) {
 			tt.change(&log)
 			duplicate, err := order.accept(log)
 			if tt.reason == "" {
-				if !duplicate || err != nil {
+				if duplicate != (tt.name == "duplicate") || err != nil {
 					t.Fatal(duplicate, err)
 				}
 				return
@@ -62,14 +63,15 @@ func TestRetainedEventOrder(t *testing.T) {
 		t.Fatal("unbounded history")
 	}
 	log.Index = 0
-	if duplicate, err := order.accept(log); duplicate || err == nil {
+	if duplicate, err := order.accept(log); duplicate || err != nil {
 		t.Fatal("evicted log guessed to be duplicate")
 	}
 }
 
-// TestRetainedEventsSurviveRecovery delivers live swaps once while rebuilding inputs.
+// TestRetainedEventsSurviveRecovery delivers live swaps and cancellations during capture.
 //
 // Version:
+//   - 2026-09-12: Verify receipt-order updates and retained inputs.
 //   - 2026-09-10: Added.
 func TestRetainedEventsSurviveRecovery(t *testing.T) {
 	c, fake := newTestCache(t)
@@ -81,6 +83,7 @@ func TestRetainedEventsSurviveRecovery(t *testing.T) {
 	ws := &stateWS{ready: make(chan struct{})}
 	swaps := make(chan Swap, 16)
 	recoveries := make(chan error, 16)
+	cancellations := make(chan types.Log, 2)
 	updates := make(chan *QuoteSnapshot, 128)
 	c.SetQuoteSnapshotObserver(func(s *QuoteSnapshot) { updates <- s })
 	subscribed := 0
@@ -95,7 +98,8 @@ func TestRetainedEventsSurviveRecovery(t *testing.T) {
 				swaps <- s
 				return nil
 			},
-			OnRecovery: func(err error) { recoveries <- err },
+			OnRecovery:   func(err error) { recoveries <- err },
+			OnRemovedLog: func(_ context.Context, log types.Log, _ time.Time) error { cancellations <- log; return nil },
 		})
 	}()
 	defer func() {
@@ -129,8 +133,24 @@ func TestRetainedEventsSurviveRecovery(t *testing.T) {
 	removed.Removed = true
 	ws.logs <- removed
 	select {
+	case got := <-cancellations:
+		if !got.Removed {
+			t.Fatal("lost cancellation flag")
+		}
+	case <-ctx.Done():
+		t.Fatal("cancellation callback was blocked")
+	}
+	select {
 	case err := <-recoveries:
-		if !strings.Contains(err.Error(), "removed log") {
+		t.Fatal("cancellation invalidated state", err)
+	default:
+	}
+	removed.Removed = false
+	removed.BlockHash = common.Hash{}
+	ws.logs <- removed
+	select {
+	case err := <-recoveries:
+		if !strings.Contains(err.Error(), "missing block hash") {
 			t.Fatal(err)
 		}
 	case <-ctx.Done():

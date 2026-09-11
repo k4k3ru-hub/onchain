@@ -30,6 +30,7 @@ type ObjectStateSubscriber interface {
 // Disconnects discard state. The caller reconnects and initializes again.
 //
 // Version:
+//   - 2026-09-12: Retain inputs across transport reconnects without refreshing their receipt time.
 //   - 2026-09-11: Refill moved tick windows asynchronously with live transaction replay.
 //   - 2026-09-11: Require recovery to include the rejected transaction checkpoint.
 //   - 2026-09-10: Preserve input receipt time.
@@ -45,13 +46,12 @@ func (c *StateCache) RunRetained(ctx context.Context, subscriber ObjectStateSubs
 		return fmt.Errorf("failed to run retained cetus state: subscription=active")
 	}
 	c.retainedRunning = true
-	c.retained = nil
+	needsInit := c.retained == nil
 	c.publishQuoteSnapshotLocked()
 	c.retainedMu.Unlock()
 	defer func() {
 		c.retainedMu.Lock()
 		c.retainedRunning = false
-		c.retained = nil
 		c.publishQuoteSnapshotLocked()
 		c.retainedMu.Unlock()
 	}()
@@ -64,11 +64,13 @@ func (c *StateCache) RunRetained(ctx context.Context, subscriber ObjectStateSubs
 	}
 	defer sub.Close()
 
-	warmCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
-	err = c.Warm(warmCtx)
-	cancel()
-	if err != nil {
-		return err
+	if needsInit {
+		warmCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+		err = c.Warm(warmCtx)
+		cancel()
+		if err != nil {
+			return err
+		}
 	}
 	err = suiwindow.Run(ctx, sub.Recv, func(update suiwindow.Update) error {
 		return c.applyRetainedObjects(update.Notification, update.ReceivedAt)

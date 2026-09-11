@@ -56,9 +56,10 @@ func (s *QuoteSnapshot) QuoteExactInputs(ctx context.Context, requests []ExactIn
 }
 
 // SetQuoteSnapshotObserver installs a serialized consumer of retained account updates.
-// The callback must not call back into this cache. Nil withdraws disconnected state.
+// The callback must not call back into this cache. Retained inputs survive transport disconnects.
 //
 // Version:
+//   - 2026-09-12: Preserve retained inputs and receipt time across disconnects.
 //   - 2026-09-09: Added.
 func (s *StateCache) SetQuoteSnapshotObserver(observer func(*QuoteSnapshot)) {
 	s.mu.Lock()
@@ -68,10 +69,6 @@ func (s *StateCache) SetQuoteSnapshotObserver(observer func(*QuoteSnapshot)) {
 }
 func (s *StateCache) publishQuoteSnapshotLocked() {
 	if s.quoteSnapshotObserver == nil {
-		return
-	}
-	if s.connected != len(s.addresses) {
-		s.quoteSnapshotObserver(nil)
 		return
 	}
 	frozen := s.retained.Freeze()

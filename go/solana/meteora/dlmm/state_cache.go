@@ -74,6 +74,7 @@ func NewStateCache(client *Client, pool solana.Address, maxAge time.Duration) (*
 // A failure invalidates the coherent cache and is returned so the owner can reconnect.
 //
 // Version:
+//   - 2026-09-12: Retain account inputs across reconnects and apply live payloads in receipt order.
 //   - 2026-09-11: Refill array windows asynchronously from retained pool positions.
 //   - 2026-09-09: Preserve bootstrap inputs across subscription replacement; clear on session exit.
 //   - 2026-09-09: Withdraw calculation snapshots when an account subscription disconnects.
@@ -98,7 +99,6 @@ func (s *StateCache) Run(ctx context.Context, subscribe SubscribeAccountChangesF
 		s.mu.Lock()
 		defer s.mu.Unlock()
 		s.running = false
-		s.retained.Reset()
 		s.publishQuoteSnapshotLocked()
 	}()
 	defer func() { stopWindow(); <-windowDone }()
@@ -183,7 +183,7 @@ func (s *StateCache) watch(ctx context.Context, address solana.Address, subscrib
 				s.mu.Unlock()
 				continue
 			}
-			if err := s.retained.Apply(update, s.now()); err != nil {
+			if err := s.retained.ApplyReceived(update, s.now()); err != nil {
 				s.mu.Unlock()
 				return fmt.Errorf("failed to retain account state: %w", err)
 			}
