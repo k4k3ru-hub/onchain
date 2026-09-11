@@ -12,9 +12,12 @@ import (
 )
 
 type TransactionNotification struct {
-	Effects       *TransactionEffects
-	Watermark     EventWatermark
-	ObjectChanges []ObjectChange
+	Effects            *TransactionEffects
+	Watermark          EventWatermark
+	ObjectChanges      []ObjectChange
+	Events             []LiveEvent
+	EventsError        error
+	ObjectChangesError error
 }
 
 type TransactionSubscription struct {
@@ -24,6 +27,7 @@ type TransactionSubscription struct {
 
 type grpcTransactionReceiver struct {
 	includeObjects bool
+	includeEvents  bool
 	stream         interface {
 		Recv() (*rpcv2.SubscribeTransactionsResponse, error)
 	}
@@ -132,6 +136,10 @@ func (a *grpcAdapter) subscribeObjectTransactions(ctx context.Context, address A
 	return &grpcTransactionReceiver{stream: stream, cancel: cancel}, nil
 }
 
+// Recv decodes a transaction and preserves independent pool event/object failures.
+//
+// Version:
+//   - 2026-09-11: Decode combined pool notifications without coupling component errors.
 func (r *grpcTransactionReceiver) Recv() (*TransactionNotification, error) {
 	response, err := r.stream.Recv()
 	if err != nil {
@@ -151,10 +159,16 @@ func (r *grpcTransactionReceiver) Recv() (*TransactionNotification, error) {
 			return nil, err
 		}
 		notification.Effects = effects
+		if r.includeEvents && effects.Successful {
+			notification.Events, notification.EventsError = decodeTransactionEvents(response.Transaction)
+		}
 		if r.includeObjects {
 			changes, err := decodeObjectChanges(response.Transaction)
 			if err != nil {
-				return nil, err
+				if !r.includeEvents {
+					return nil, err
+				}
+				notification.ObjectChangesError = err
 			}
 			notification.ObjectChanges = changes
 		}

@@ -47,11 +47,18 @@ func (c *GRPCClient) SubscribeObjectState(ctx context.Context, object Address) (
 }
 
 func (a *grpcAdapter) subscribeObjectState(ctx context.Context, object Address) (liveTransactionReceiver, error) {
+	return a.subscribePoolTransactions(ctx, object, false)
+}
+
+func (a *grpcAdapter) subscribePoolTransactions(ctx context.Context, object Address, events bool) (liveTransactionReceiver, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	address := object.String()
 	request := &rpcv2.SubscribeTransactionsRequest{
 		ReadMask: &fieldmaskpb.FieldMask{Paths: []string{"digest", "effects.status", "effects.changed_objects", "checkpoint", "transaction_index", "timestamp", "objects"}},
 		Filter:   &rpcv2.TransactionFilter{Terms: []*rpcv2.TransactionTerm{{Literals: []*rpcv2.TransactionLiteral{{Predicate: &rpcv2.TransactionLiteral_AffectedObject{AffectedObject: &rpcv2.AffectedObjectFilter{ObjectId: &address}}}}}}},
+	}
+	if events {
+		request.ReadMask.Paths = append(request.ReadMask.Paths, "events")
 	}
 	stream, err := a.client.SubscribeTransactions(ctx, request)
 	if err != nil {
@@ -62,7 +69,7 @@ func (a *grpcAdapter) subscribeObjectState(ctx context.Context, object Address) 
 		cancel()
 		return nil, fmt.Errorf("failed to subscribe sui object state: stream=null")
 	}
-	return &grpcTransactionReceiver{stream: stream, cancel: cancel, includeObjects: true}, nil
+	return &grpcTransactionReceiver{stream: stream, cancel: cancel, includeObjects: true, includeEvents: events}, nil
 }
 
 func decodeObjectChanges(tx *rpcv2.ExecutedTransaction) ([]ObjectChange, error) {
