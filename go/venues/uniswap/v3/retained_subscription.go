@@ -271,6 +271,17 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 				if duplicate {
 					continue
 				}
+				if !log.Removed && log.BlockHash != (common.Hash{}) && events.OnSwap != nil && len(log.Topics) > 0 && log.Topics[0] == swapEventSignatureHash() {
+					swap, err := DecodeSwapLog(log)
+					if err != nil {
+						invalidate(fmt.Errorf("failed to decode retained live swap: %w", err))
+						timer.Reset(delay)
+						continue
+					}
+					if err := events.OnSwap(ctx, swap, receivedAt); err != nil {
+						return fmt.Errorf("failed to consume retained live swap: %w", err)
+					}
+				}
 				if err != nil {
 					invalidate(err)
 					timer.Reset(delay)
@@ -314,17 +325,7 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 				c.publishQuoteSnapshotLocked()
 			}
 			c.mu.Unlock()
-			if events != nil && events.OnSwap != nil && len(log.Topics) > 0 && log.Topics[0] == swapEventSignatureHash() {
-				swap, err := DecodeSwapLog(log)
-				if err != nil {
-					invalidate(fmt.Errorf("failed to decode retained live swap: %w", err))
-					timer.Reset(delay)
-					continue
-				}
-				if err := events.OnSwap(ctx, swap, receivedAt); err != nil {
-					return fmt.Errorf("failed to consume retained live swap: %w", err)
-				}
-			}
+
 		}
 	}
 }

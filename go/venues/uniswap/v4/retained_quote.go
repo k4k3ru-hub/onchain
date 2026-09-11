@@ -29,7 +29,7 @@ func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, baseAmount
 	if baseAmount == nil || baseAmount.Sign() <= 0 || baseAmount.BitLen() > 128 {
 		return fmt.Errorf("failed to run retained state: amount=out_of_range")
 	}
-	return c.runRetainedSubscription(ctx, ws, new(big.Int).Set(baseAmount), baseIsToken0)
+	return c.runRetainedSubscription(ctx, ws, new(big.Int).Set(baseAmount), baseIsToken0, nil)
 }
 
 // QuoteRetainedPair calculates from a detached copy of currently retained inputs.
@@ -100,15 +100,15 @@ func cloneRetainedIntegers(source map[int32]*big.Int) map[int32]*big.Int {
 // applyRetainedLog runs under mu. Events before the bootstrap block are already
 // incorporated. Within subsequent blocks, reception must follow log order.
 func (c *StateCache) applyRetainedLog(log types.Log, receipt ...time.Time) error {
-	fail := func() error {
+	fail := func(reason string) error {
 		c.retained = nil
-		return fmt.Errorf("failed to apply retained pool log: state requires reinitialization")
+		return retainedReinitializationError(log, reason)
 	}
 	if log.Removed || log.BlockHash == (common.Hash{}) {
-		return fail()
+		return fail("invalid log position")
 	}
 	if c.retained == nil {
-		return fail()
+		return fail("missing snapshot")
 	}
 	baseline := c.retained.header
 	if log.BlockNumber < baseline.Number {
@@ -116,28 +116,28 @@ func (c *StateCache) applyRetainedLog(log types.Log, receipt ...time.Time) error
 	}
 	if log.BlockNumber == baseline.Number {
 		if log.BlockHash != baseline.Hash {
-			return fail()
+			return fail("baseline block hash mismatch")
 		}
 		return nil
 	}
 	if c.retainedHasLog && (log.BlockNumber < c.retainedBlock || log.BlockNumber == c.retainedBlock && (log.BlockHash != c.retainedHash || log.Index <= c.retainedIndex)) {
-		return fail()
+		return fail("out of order or conflicting log")
 	}
 	if len(log.Topics) == 0 {
-		return fail()
+		return fail("missing event topics")
 	}
 	switch log.Topics[0] {
 	case crypto.Keccak256Hash([]byte("Swap(bytes32,address,int128,int128,uint160,uint128,int24,uint24)")):
 		if len(log.Topics) != 3 || len(log.Data) != 192 {
-			return fail()
+			return fail("invalid swap encoding")
 		}
 		price, liquidity := new(big.Int).SetBytes(log.Data[64:96]), new(big.Int).SetBytes(log.Data[96:128])
 		tick, fee := signedWord(log.Data[128:160]), new(big.Int).SetBytes(log.Data[160:192])
 		if price.Cmp(sqrtAtTick(-887272)) < 0 || price.Cmp(sqrtAtTick(887272)) >= 0 || liquidity.BitLen() > 128 || !tick.IsInt64() || tick.Int64() < -887272 || tick.Int64() > 887272 || !fee.IsUint64() {
-			return fail()
+			return fail("invalid swap fields")
 		}
 		if fee.Uint64() != uint64(c.retained.fees[0]) && fee.Uint64() != uint64(c.retained.fees[1]) {
-			return fail()
+			return fail("swap fee mismatch")
 		}
 		c.retained.price, c.retained.liquidity, c.retained.tick = price, liquidity, int32(tick.Int64())
 	case crypto.Keccak256Hash([]byte("ModifyLiquidity(bytes32,address,int24,int24,int256,bytes32)")):
@@ -147,24 +147,24 @@ func (c *StateCache) applyRetainedLog(log types.Log, receipt ...time.Time) error
 		}
 	case crypto.Keccak256Hash([]byte("ProtocolFeeUpdated(bytes32,uint24)")):
 		if len(log.Topics) != 2 || len(log.Data) != 32 {
-			return fail()
+			return fail("invalid protocol fee encoding")
 		}
 		packed := new(big.Int).SetBytes(log.Data)
 		if packed.BitLen() > 24 {
-			return fail()
+			return fail("invalid protocol fee width")
 		}
 		for i, p := range []uint32{uint32(packed.Uint64()) & 0xfff, uint32(packed.Uint64()) >> 12} {
 			if p > 1000 {
-				return fail()
+				return fail("invalid protocol fee")
 			}
 			c.retained.fees[i] = p + c.fee - uint32(uint64(p)*uint64(c.fee)/1000000)
 		}
 	case crypto.Keccak256Hash([]byte("Donate(bytes32,address,uint256,uint256)")):
 		if len(log.Topics) != 3 || len(log.Data) != 64 {
-			return fail()
+			return fail("invalid donate encoding")
 		}
 	default:
-		return fail()
+		return fail("unsupported event")
 	}
 
 	at := time.Now().UTC()
@@ -267,4 +267,33 @@ func (c *StateCache) requestRetainedRecovery(source *poolSnapshot, amount *big.I
 	case c.retainedRecovery <- struct{}{}:
 	default:
 	}
+}
+
+// RetainedEvents receives serialized live notifications outside the state lock.
+// OnSwapLog is called only for accepted live Swap logs, including during capture.
+// Replaying logs into a new snapshot never invokes OnSwapLog again.
+type RetainedEvents struct {
+	OnSubscribed func()
+	OnSwapLog    func(context.Context, types.Log, time.Time) error
+	OnRecovery   func(error)
+}
+
+// RunRetainedWithEvents maintains pool state and emits live Swap logs from one subscription.
+// Recovery keeps the subscription open and rejects obsolete capture results.
+//
+// Version:
+//   - 2026-09-11: Emit recordable live swaps before retained-state validation.
+//   - 2026-09-11: Added.
+func (c *StateCache) RunRetainedWithEvents(ctx context.Context, ws WSRPCClient, baseAmount *big.Int, baseIsToken0 bool, events RetainedEvents) error {
+	if c == nil || ctx == nil || ws == nil {
+		return fmt.Errorf("failed to run retained events: dependency=null")
+	}
+	if baseAmount == nil || baseAmount.Sign() <= 0 || baseAmount.BitLen() > 128 {
+		return fmt.Errorf("failed to run retained events: amount=out_of_range")
+	}
+	return c.runRetainedSubscription(ctx, ws, new(big.Int).Set(baseAmount), baseIsToken0, &events)
+}
+
+func retainedReinitializationError(log types.Log, reason string) error {
+	return fmt.Errorf("failed to apply retained pool log: state requires reinitialization: reason=%q pool=%q block_number=%d block_hash=%q log_index=%d", reason, log.Address.Hex(), log.BlockNumber, log.BlockHash.Hex(), log.Index)
 }

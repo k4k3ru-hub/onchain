@@ -83,3 +83,16 @@ Protocol references:
 - [SwapMath](https://github.com/Uniswap/v4-core/blob/main/src/libraries/SwapMath.sol)
 - [SqrtPriceMath](https://github.com/Uniswap/v4-core/blob/main/src/libraries/SqrtPriceMath.sol)
 - [TickMath](https://github.com/Uniswap/v4-core/blob/main/src/libraries/TickMath.sol)
+
+### Retained live events
+
+`StateCache.RunRetainedWithEvents` maintains the retained window and emits
+accepted live Swap logs through `RetainedEvents.OnSwapLog` using one pool
+subscription. The callback runs before state application, outside the cache lock, so state
+recovery cannot suppress live trade persistence.
+It must return promptly. Callbacks also receive live swaps while bootstrap or
+recovery is pending; callers must not assume that a local quote is available.
+Snapshot replay does not emit swaps again. Exact duplicates are ignored within
+the bounded log history. State recovery retains the subscription and reports
+errors through `OnRecovery`; transport or callback errors end the session.
+`RunRetained` remains available for state-only consumers.

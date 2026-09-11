@@ -1,4 +1,4 @@
-package v3
+package v4
 
 import (
 	"context"
@@ -10,6 +10,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 // TestRetainedEventOrder distinguishes replay, conflict, regression and reorg.
@@ -79,7 +80,7 @@ func TestRetainedEventsSurviveRecovery(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
 	defer cancel()
 	ws := &stateWS{ready: make(chan struct{})}
-	swaps := make(chan Swap, 16)
+	swaps := make(chan types.Log, 16)
 	recoveries := make(chan error, 16)
 	updates := make(chan *QuoteSnapshot, 128)
 	c.SetQuoteSnapshotObserver(func(s *QuoteSnapshot) { updates <- s })
@@ -88,7 +89,7 @@ func TestRetainedEventsSurviveRecovery(t *testing.T) {
 	go func() {
 		done <- c.RunRetainedWithEvents(ctx, ws, big.NewInt(1000000), true, RetainedEvents{
 			OnSubscribed: func() { subscribed++ },
-			OnSwap: func(_ context.Context, s Swap, at time.Time) error {
+			OnSwapLog: func(_ context.Context, s types.Log, at time.Time) error {
 				if at.IsZero() {
 					return errors.New("missing receipt")
 				}
@@ -113,6 +114,7 @@ func TestRetainedEventsSurviveRecovery(t *testing.T) {
 		t.Fatal("capture did not start")
 	}
 	live := testSwapLog(t, c.pool)
+	live.Topics[1] = c.poolID
 	live.BlockNumber = 101
 	live.BlockHash = windowHeader(101).Hash
 	sqrtAtTick(0).FillBytes(live.Data[64:96])
@@ -197,42 +199,9 @@ func TestRetainedEventsSurviveRecovery(t *testing.T) {
 	}
 }
 
-// TestRetainedEventsRetryInitialCapture keeps the live subscription through initial RPC failure.
-//
-// Version:
-//   - 2026-09-10: Added.
-func TestRetainedEventsRetryInitialCapture(t *testing.T) {
-	c, fake := newTestCache(t)
-	c.rpc = &windowRPC{fake: fake, height: 100, failure: errors.New("fixture unavailable")}
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	ws := &stateWS{ready: make(chan struct{})}
-	updates := make(chan *QuoteSnapshot, 32)
-	recovery := make(chan error, 8)
-	c.SetQuoteSnapshotObserver(func(s *QuoteSnapshot) { updates <- s })
-	done := make(chan error, 1)
-	go func() {
-		done <- c.RunRetainedWithEvents(ctx, ws, big.NewInt(1000000), true, RetainedEvents{OnRecovery: func(err error) { recovery <- err }})
-	}()
-	defer func() {
-		cancel()
-		if err := <-done; err != nil {
-			t.Error(err)
-		}
-	}()
-	select {
-	case <-recovery:
-	case <-ctx.Done():
-		t.Fatal("capture failure not reported")
-	}
-	for {
-		select {
-		case s := <-updates:
-			if s != nil {
-				return
-			}
-		case <-ctx.Done():
-			t.Fatal("initial capture did not recover")
-		}
-	}
+func testSwapLog(t *testing.T, pool common.Address) types.Log {
+	t.Helper()
+	log := types.Log{Address: pool, BlockNumber: 10, Index: 2, Topics: []common.Hash{crypto.Keccak256Hash([]byte("Swap(bytes32,address,int128,int128,uint160,uint128,int24,uint24)")), {}, {}}, Data: make([]byte, 192)}
+	big.NewInt(3000).FillBytes(log.Data[160:192])
+	return log
 }

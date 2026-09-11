@@ -301,6 +301,7 @@ type RetainedEvents struct {
 // Callbacks run serially outside the state lock; replay never re-emits live Swaps.
 //
 // Version:
+//   - 2026-09-11: Emit recordable live swaps before retained-state validation.
 //   - 2026-09-10: Added.
 func (c *StateCache) RunRetainedWithEvents(ctx context.Context, ws WSRPCClient, baseAmount *big.Int, baseIsToken0 bool, events RetainedEvents) error {
 	if c == nil || ctx == nil || ws == nil {
