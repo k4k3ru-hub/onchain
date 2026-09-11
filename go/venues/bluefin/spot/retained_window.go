@@ -2,7 +2,6 @@ package spot
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/k4k3ru-hub/onchain/go/internal/suiwindow"
 	"github.com/k4k3ru-hub/onchain/go/sui"
@@ -32,30 +31,21 @@ func cloneReference(p QuotePairParams) QuotePairParams {
 func (c *StateCache) retainedCoverageMissing(ctx context.Context) bool {
 	c.retainedMu.Lock()
 	s := c.retained
-	reference := c.retainedReference
 	if s == nil {
 		c.retainedMu.Unlock()
 		return false
 	}
 	missing := suiwindow.Missing(s.tickIndex, int32(s.spacing), s.words, s.nets)
 	c.retainedMu.Unlock()
-	if missing {
-		return true
-	}
-	if reference == nil {
-		return false
-	}
-	_, err := c.QuoteRetainedPair(ctx, *reference)
-	return errors.Is(err, suiwindow.ErrCoverage)
+	return missing
 }
 
 func (c *StateCache) captureRetainedWindow(ctx context.Context) (*StateCache, error) {
 	c.retainedMu.Lock()
-	if c.retained == nil || c.retainedReference == nil {
+	if c.retained == nil {
 		c.retainedMu.Unlock()
 		return nil, fmt.Errorf("failed to capture bluefin retained window: state=null")
 	}
-	reference := cloneReference(*c.retainedReference)
 	floor := c.retainedHead.SequenceNumber
 	if c.retained.position != nil && c.retained.position.Sequence > floor.Uint64() {
 		floor = sui.CheckpointSequenceNumber(c.retained.position.Sequence)
@@ -66,7 +56,7 @@ func (c *StateCache) captureRetainedWindow(ctx context.Context) (*StateCache, er
 		return nil, err
 	}
 	candidate.ObserveCheckpoint(floor)
-	if _, err := candidate.QuotePair(ctx, reference); err != nil {
+	if err := candidate.Warm(ctx); err != nil {
 		return nil, err
 	}
 	return candidate, nil

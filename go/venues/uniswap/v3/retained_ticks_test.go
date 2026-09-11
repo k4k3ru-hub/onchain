@@ -144,7 +144,7 @@ func TestWindowTicksSequentialFallback(t *testing.T) {
 func TestCapturedWindowQuotesAfterMovement(t *testing.T) {
 	c, f := newTestCache(t)
 	f.crossed = true
-	s, err := c.captureRetainedWindow(context.Background(), big.NewInt(1000000), true, 0, common.Hash{})
+	s, err := c.captureRetainedWindow(context.Background(), new(big.Int).Lsh(big.NewInt(1), 200), true, 0, common.Hash{})
 	if err != nil {
 		t.Fatal(err)
 	}

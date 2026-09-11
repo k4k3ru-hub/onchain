@@ -12,11 +12,12 @@ import (
 // TestWindowPreloadsUnvisitedTicks verifies a later crossing quotes without fetching tick details.
 //
 // Version:
+//   - 2026-09-12: Verify window warming independently of quote requests.
 //   - 2026-09-11: Added.
 func TestWindowPreloadsUnvisitedTicks(t *testing.T) {
 	c, reader, params := stateFixture(t)
 	ctx := context.Background()
-	if _, err := c.QuotePair(ctx, params); err != nil {
+	if err := c.Warm(ctx); err != nil {
 		t.Fatal(err)
 	}
 	if len(c.retained.words) != 3 || len(c.retained.nets) != 2 {
@@ -44,11 +45,12 @@ func TestWindowPreloadsUnvisitedTicks(t *testing.T) {
 // TestWindowInstallationReplaysAndRejectsFailure verifies refresh never rolls back or withdraws live state.
 //
 // Version:
+//   - 2026-09-12: Verify window warming independently of quote requests.
 //   - 2026-09-11: Added.
 func TestWindowInstallationReplaysAndRejectsFailure(t *testing.T) {
-	c, reader, params := stateFixture(t)
+	c, reader, _ := stateFixture(t)
 	ctx := context.Background()
-	if _, err := c.QuotePair(ctx, params); err != nil {
+	if err := c.Warm(ctx); err != nil {
 		t.Fatal(err)
 	}
 	candidate, err := c.captureRetainedWindow(ctx)

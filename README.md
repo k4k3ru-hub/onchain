@@ -218,3 +218,23 @@ each key separately. Current-tick interval changes trigger asynchronous recenter
 quotes beyond verified bounds return `coverage=insufficient` without RPC or a
 partial fill. Outside-window streamed tick changes are ignored. Solana's existing
 account-based price provenance is unchanged by this range-management work.
+
+## State-only AMM initialization
+
+For Bluefin Spot, Turbos CLMM, Momentum CLMM, Raydium CLMM/CPMM and Meteora
+DLMM, `StateCache.Warm(ctx)` acquires retained inputs without executing a trial
+quote. Cetus CLMM already provides this state-only API. Sui retained workers can
+use `cache.Warm` as their initialization callback; Solana callers warm the cache
+before starting `Run` and supervise reconnects independently.
+
+Uniswap v3/v4 and Aerodrome retained workers acquire the current bitmap word and
+one neighboring word on each side, including every initialized tick in that
+window. Solana uses its configured native array budget; Sui uses bounded native
+tick windows. Producer range maintenance checks position and input completeness,
+not whether a reference amount can be quoted. Requests beyond retained coverage
+remain an on-demand quote error and do not expand the producer window.
+
+Local strategy calculations continue through `QuoteRetainedPair`,
+`QuoteRetainedExactInputs`, or detached quote snapshots. Aerodrome still retains
+dynamic-fee inputs required by those calculations. No dummy trade is needed to
+initialize these caches.

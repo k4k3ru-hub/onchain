@@ -2,7 +2,6 @@ package v4
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"math/big"
 	"sync"
@@ -52,13 +51,7 @@ func (c *StateCache) retainedNeedsCapture(amount *big.Int, baseIsToken0 bool) bo
 			}
 		}
 	}
-	// Also detect missing tick details after a liquidity change or price movement.
-	budget := 0
-	if _, err := c.quote(context.Background(), s, amount, baseIsToken0, true, &budget); err != nil {
-		return errors.Is(err, errStateReadBudget)
-	}
-	_, err := c.quote(context.Background(), s, amount, !baseIsToken0, false, &budget)
-	return errors.Is(err, errStateReadBudget)
+	return false
 }
 
 func (c *StateCache) captureRetainedWindow(ctx context.Context, amount *big.Int, baseIsToken0 bool, floor uint64, hash common.Hash) (*poolSnapshot, error) {
@@ -78,13 +71,6 @@ func (c *StateCache) captureRetainedWindow(ctx context.Context, amount *big.Int,
 	}
 	if err := reader.readWindowTicks(ctx, s, lower, upper); err != nil {
 		return nil, err
-	}
-	// Reference quotes may fetch extra inputs outside the complete window.
-	if _, err := reader.quote(ctx, s, amount, baseIsToken0, true, &budget); err != nil {
-		return nil, fmt.Errorf("failed to capture retained bid coverage: %w", err)
-	}
-	if _, err := reader.quote(ctx, s, amount, !baseIsToken0, false, &budget); err != nil {
-		return nil, fmt.Errorf("failed to capture retained ask coverage: %w", err)
 	}
 	header, err := reader.rpc.HeaderByNumber(ctx, s.header.Number)
 	if err != nil {

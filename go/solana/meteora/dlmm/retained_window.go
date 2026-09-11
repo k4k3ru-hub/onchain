@@ -2,13 +2,12 @@ package dlmm
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	solana "github.com/k4k3ru-hub/onchain/go/solana"
 	"time"
 )
 
-// retainedWindowMissing inspects account identities and local reference quotes only.
+// retainedWindowMissing checks the bounded array identities around the current position.
 func (s *StateCache) retainedWindowMissing(ctx context.Context, requests []ExactInputRequest) bool {
 	frozen := s.retained.Freeze()
 	if len(frozen.Accounts) == 0 {
@@ -27,7 +26,7 @@ func (s *StateCache) retainedWindowMissing(ctx context.Context, requests []Exact
 	if err != nil {
 		return false
 	}
-	_, candidates, err := local.quoteArrayCandidates(pool, requests)
+	_, candidates, err := local.quoteArrayCandidates(pool, windowDirections(pool))
 	if err != nil {
 		return false
 	}
@@ -36,9 +35,7 @@ func (s *StateCache) retainedWindowMissing(ctx context.Context, requests []Exact
 			return true
 		}
 	}
-	_, err = s.QuoteRetainedExactInputs(ctx, requests)
-	var missing *solana.QuoteArrayRequiredError
-	return errors.As(err, &missing)
+	return false
 }
 
 func (s *StateCache) runRetainedWindow(ctx context.Context) {
@@ -55,14 +52,11 @@ func (s *StateCache) runRetainedWindow(ctx context.Context) {
 		if time.Now().Before(next) {
 			continue
 		}
-		s.mu.Lock()
-		requests := append([]ExactInputRequest(nil), s.referenceRequests...)
-		s.mu.Unlock()
-		if len(requests) == 0 || !s.retainedWindowMissing(ctx, requests) {
+		if !s.retainedWindowMissing(ctx, nil) {
 			continue
 		}
 		refreshCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
-		err := s.captureRetainedWindow(refreshCtx, requests)
+		err := s.captureRetainedWindow(refreshCtx, nil)
 		cancel()
 		if err != nil {
 			next = time.Now().Add(backoff)
@@ -94,7 +88,7 @@ func (s *StateCache) captureRetainedWindow(ctx context.Context, requests []Exact
 	}
 	capture := &cacheSnapshotProvider{source: s.client.snapshots, minimum: minimum}
 	local.snapshots = capture
-	batch, err := local.QuoteExactInputsWithSlot(ctx, s.pool, requests)
+	batch, err := local.captureArrayWindow(ctx, s.pool, windowDirections(s.client.pools[s.pool]))
 	if err != nil {
 		return fmt.Errorf("failed to capture retained array window: %w", err)
 	}

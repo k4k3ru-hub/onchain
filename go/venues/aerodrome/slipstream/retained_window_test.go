@@ -72,13 +72,14 @@ func TestRetainedWindowRecentersWithoutRPC(t *testing.T) {
 // TestInitializeRetainedPoolCapturesCompleteWindow verifies initialization includes distant ticks.
 //
 // Version:
+//   - 2026-09-12: Verify large reference amounts do not trigger trial quotes.
 //   - 2026-09-11: Added.
 func TestInitializeRetainedPoolCapturesCompleteWindow(t *testing.T) {
 	c, plain := newTestCache(t)
 	plain.crossed = true
 	f := &feeCaptureFake{oracleCaptureFake: &oracleCaptureFake{stateFake: plain}, module: common.HexToAddress("0x10"), factory: c.factory, pool: c.pool}
 	c.rpc = &windowCaptureFake{f}
-	s, err := c.initializeRetainedPool(context.Background(), big.NewInt(1000000), true)
+	s, err := c.initializeRetainedPool(context.Background(), new(big.Int).Lsh(big.NewInt(1), 200), true)
 	if err != nil {
 		t.Fatal(err)
 	}

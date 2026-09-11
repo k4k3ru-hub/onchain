@@ -1,8 +1,6 @@
 package slipstream
 
 import (
-	"context"
-	"errors"
 	"fmt"
 	"math/big"
 	"time"
@@ -41,12 +39,7 @@ func (c *StateCache) retainedNeedsCapture(amount *big.Int, baseIsToken0 bool) bo
 			}
 		}
 	}
-	budget := 0
-	if _, err := c.quote(context.Background(), s, amount, baseIsToken0, true, &budget); err != nil {
-		return errors.Is(err, errStateReadBudget)
-	}
-	_, err := c.quote(context.Background(), s, amount, !baseIsToken0, false, &budget)
-	return errors.Is(err, errStateReadBudget)
+	return false
 }
 
 type retainedWindowLog struct {

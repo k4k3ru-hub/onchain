@@ -313,12 +313,6 @@ func (c *StateCache) initializeRetainedPool(ctx context.Context, amount *big.Int
 	if err := c.readWindowTicks(ctx, snapshot, lower, upper); err != nil {
 		return nil, err
 	}
-	if _, err := c.quote(ctx, snapshot, amount, baseIsToken0, true, &budget); err != nil {
-		return nil, err
-	}
-	if _, err := c.quote(ctx, snapshot, amount, !baseIsToken0, false, &budget); err != nil {
-		return nil, err
-	}
 	fee, err := c.captureRetainedFeeState(ctx, snapshot)
 	if err != nil {
 		return nil, err
