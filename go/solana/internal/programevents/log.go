@@ -21,6 +21,7 @@ type frame struct {
 //
 // Version:
 //   - 2026-09-12: Added.
+//   - 2026-09-12: Describe truncated execution logs explicitly.
 func Read(log *solana.Log, program solana.Address) ([]Event, error) {
 	if log == nil {
 		return nil, fmt.Errorf("failed to decode program events: log=null")
@@ -32,7 +33,7 @@ func Read(log *solana.Log, program solana.Address) ([]Event, error) {
 	var result []Event
 	for i, line := range log.Messages {
 		if strings.Contains(line, "Log truncated") {
-			return nil, fmt.Errorf("failed to decode program events: logs=too_short")
+			return nil, fmt.Errorf("failed to decode program events: execution logs truncated")
 		}
 		fields := strings.Fields(line)
 		if len(fields) >= 4 && fields[0] == "Program" && fields[2] == "invoke" {
