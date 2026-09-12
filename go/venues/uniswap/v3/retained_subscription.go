@@ -53,31 +53,65 @@ func (c *StateCache) retainedNeedsCapture(amount *big.Int, baseIsToken0 bool) bo
 	return false
 }
 
+// retainedWindowCapture is private to one uninterrupted subscription epoch.
+// Keep its baseline and completed batches across attempt deadlines and backoff.
+type retainedWindowCapture struct {
+	snapshot    *poolSnapshot
+	bitmapReady bool
+	ticks       retainedTickProgress
+}
+
 func (c *StateCache) captureRetainedWindow(ctx context.Context, amount *big.Int, baseIsToken0 bool, floor uint64, hash common.Hash) (*poolSnapshot, error) {
+	return c.resumeRetainedWindow(ctx, floor, hash, &retainedWindowCapture{})
+}
+
+func (c *StateCache) resumeRetainedWindow(ctx context.Context, floor uint64, hash common.Hash, progress *retainedWindowCapture) (*poolSnapshot, error) {
 	// A separate reader avoids mutating the legacy QuotePair cache or spacing.
 	reader := &StateCache{rpc: c.rpc, pool: c.pool, fee: c.fee}
 	budget := 64
-	s, err := reader.capture(ctx, &budget, floor, hash)
-	if err != nil {
-		return nil, fmt.Errorf("failed to capture retained window: %w", err)
+	if progress.snapshot == nil {
+		progress.ticks.started = time.Now()
+		s, err := reader.capture(ctx, &budget, floor, hash)
+		if err != nil {
+			return nil, fmt.Errorf("failed to capture retained window: %w", err)
+		}
+		progress.snapshot = s
+	} else if err := reader.verifyRetainedCapture(ctx, progress); err != nil {
+		return nil, err
 	}
+	s := progress.snapshot
 	center := bitmapWord(s.tick, s.spacing)
 	s.windowCenter, s.windowCaptured = center, true
-	minWord, maxWord := bitmapWord(-887272, s.spacing), bitmapWord(887272, s.spacing)
-	if err := reader.readBitmapWindow(ctx, s, max(center-retainedWordRadius, minWord), min(center+retainedWordRadius, maxWord), &budget); err != nil {
+	lower := max(center-retainedWordRadius, bitmapWord(-887272, s.spacing))
+	upper := min(center+retainedWordRadius, bitmapWord(887272, s.spacing))
+	if !progress.bitmapReady {
+		if err := reader.readBitmapWindow(ctx, s, lower, upper, &budget); err != nil {
+			return nil, err
+		}
+		progress.bitmapReady = true
+	}
+	if err := reader.resumeWindowTicks(ctx, s, lower, upper, &progress.ticks); err != nil {
 		return nil, err
 	}
-	if err := reader.readWindowTicks(ctx, s, max(center-retainedWordRadius, minWord), min(center+retainedWordRadius, maxWord)); err != nil {
+	if err := reader.verifyRetainedCapture(ctx, progress); err != nil {
 		return nil, err
-	}
-	header, err := reader.rpc.HeaderByNumber(ctx, s.header.Number)
-	if err != nil {
-		return nil, fmt.Errorf("failed to verify retained window: %w", err)
-	}
-	if header.Number != s.header.Number || header.Hash != s.header.Hash {
-		return nil, fmt.Errorf("failed to verify retained window: block_hash=mismatch")
 	}
 	return s, nil
+}
+
+func (c *StateCache) verifyRetainedCapture(ctx context.Context, progress *retainedWindowCapture) error {
+	s := progress.snapshot
+	header, err := c.rpc.HeaderByNumber(ctx, s.header.Number)
+	if err != nil {
+		return fmt.Errorf("failed to verify retained window: %w: block_number=%d", err, s.header.Number)
+	}
+	if header.Number != s.header.Number || header.Hash != s.header.Hash {
+		// The same number no longer identifies the data we staged. Restart all
+		// fields together; never combine ticks from different block hashes.
+		*progress = retainedWindowCapture{}
+		return fmt.Errorf("failed to verify retained window: block_hash=mismatch block_number=%d", s.header.Number)
+	}
+	return nil
 }
 
 func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient, amount *big.Int, baseIsToken0 bool, events *RetainedEvents) error {
@@ -143,10 +177,12 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 	var epoch uint64
 	var observedBlock, recoveryFloor uint64
 	var captureCancel context.CancelFunc
+	var capture *retainedWindowCapture
 	order := &c.liveOrder
 	invalidate := func(err error) {
 		epoch++
 		recoveryFloor = observedBlock
+		capture = nil
 		if captureCancel != nil {
 			captureCancel()
 		}
@@ -170,20 +206,24 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 			c.mu.Lock()
 			floor := recoveryFloor
 			var hash common.Hash
-			if c.retained != nil {
-				floor, hash = c.retainedBlock, c.retainedHash
-				replay = nil
+			if capture == nil {
+				capture = &retainedWindowCapture{}
+				if c.retained != nil {
+					floor, hash = c.retainedBlock, c.retainedHash
+					replay = nil
+				}
 			}
 			c.mu.Unlock()
 			busy, pending = true, false
 			readCtx, stop := context.WithTimeout(ctx, 30*time.Second)
 			captureCancel = stop
 			captureEpoch := epoch
+			attempt := capture
 			workers.Add(1)
 			go func() {
 				defer workers.Done()
 				defer stop()
-				s, err := c.captureRetainedWindow(readCtx, amount, baseIsToken0, floor, hash)
+				s, err := c.resumeRetainedWindow(readCtx, floor, hash, attempt)
 				select {
 				case results <- retainedCaptureResult{snapshot: s, err: err, epoch: captureEpoch}:
 				case <-ctx.Done():
@@ -209,6 +249,9 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 				continue
 			}
 			if result.err != nil {
+				if capture != nil && capture.snapshot == nil {
+					capture = nil
+				}
 				// Keep usable streamed inputs during a failed refresh. Initial
 				// capture errors remain visible to the application's retry loop.
 				c.mu.Lock()
@@ -226,6 +269,7 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 				delay = min(delay*2, 30*time.Second)
 				continue
 			}
+			capture = nil
 			candidate := &StateCache{retained: result.snapshot, retainedBlock: result.snapshot.header.Number, retainedHash: result.snapshot.header.Hash}
 			var replayErr error
 			for _, log := range replay {
@@ -306,13 +350,14 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 			c.mu.Lock()
 			missingState := c.retained == nil
 			c.mu.Unlock()
-			if busy || (events != nil && missingState) {
+			if busy || capture != nil || (events != nil && missingState) {
 				if len(replay) >= retainedReplayLimit {
 					err := fmt.Errorf("failed to buffer retained logs: replay=too_long max_length=%d", retainedReplayLimit)
 					if events == nil {
 						return err
 					}
 					epoch++
+					capture = nil
 					if captureCancel != nil {
 						captureCancel()
 					}

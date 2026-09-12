@@ -62,7 +62,7 @@ that block are replayed before publication. The replay buffer is bounded to
 4,096 pool logs; overflow, removed logs, and incompatible deltas still require
 session recovery. Refreshes run one at a time, at least one second apart;
 failed refreshes retain usable inputs and retry with delays up to 30 seconds.
-Capture has a 30-second timeout. Initial capture errors return to the caller.
+Each capture attempt has a 30-second timeout. Initial capture errors return to the caller.
 
 `RunRetainedWithEvents` additionally forwards accepted live Swaps through
 `RetainedEvents.OnSwap`, with the original dequeue receipt time. It uses the same
@@ -82,6 +82,31 @@ mismatches have separate reasons. An evicted old log is treated conservatively
 as an ordering violation, not guessed to be a duplicate. `OnRecovery` reports
 failures so applications can schedule historical reconciliation; subscription
 transport failures still return to the caller for reconnection.
+
+### Resumable tick capture
+
+Each retained capture attempt has a 30-second deadline. In
+`RunRetainedWithEvents`, a failed attempt keeps its private, block-pinned core
+state, bitmap, and fully validated tick batches. After the existing backoff
+(1–30 seconds), a fresh attempt resumes at the failed batch, including when the
+previous attempt timed out. Successful batches are not requested again; a failed
+batch is retried as a batch, without individual-call fallback. The same behavior
+applies to background refreshes for `RunRetained`; its initial errors still return
+to the caller.
+
+Before resuming and before publishing, the capture verifies its original block
+hash. A changed hash discards the entire private capture and starts a new
+baseline. Session termination, epoch invalidation, or replay overflow also
+discards progress. Logs received during retry backoff remain in the bounded
+replay buffer, so updates are applied before the complete candidate is published.
+Partially acquired ticks are never installed into the live quote cache. Live
+Swap callbacks continue during acquisition and retries.
+
+`OnRecovery` errors include `pool_id`, `block_number`, `tick_count`,
+`completed_tick_count`, `batch_index` (1-based), `batch_count`, `batch_size`,
+`elapsed_seconds` (since this capture started, including backoff), and
+`batch_elapsed_seconds` (the current batch attempt). The library preserves the
+underlying error and leaves warning output to the application.
 
 Session invalidation errors include a reason, pool, block number/hash and log
 index, distinguishing removed logs, missing hashes, baseline/stream hash

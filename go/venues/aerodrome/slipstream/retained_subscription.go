@@ -48,6 +48,7 @@ func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, amount *bi
 //   - Subscription or state initialization error.
 //
 // Version:
+//   - 2026-09-12: Resume failed background tick batches at their original block.
 //   - 2026-09-12: Retain inputs across transport reconnects and accept replacement Swaps.
 //   - 2026-09-11: Prefetch and refresh complete center ±1 tick windows.
 //   - 2026-09-10: Added.
@@ -158,6 +159,7 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 	var captures sync.WaitGroup
 	defer func() { cancel(); captures.Wait() }()
 	busy := false
+	var capture *retainedWindowCapture
 	var replay []retainedWindowLog
 	retryAt := time.Now()
 	backoff := time.Second
@@ -184,7 +186,7 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 			if err != nil {
 				return err
 			}
-			if busy {
+			if busy || capture != nil {
 				if len(replay) >= 4096 {
 					return fmt.Errorf("failed to retain window replay: buffer=too_long")
 				}
@@ -210,17 +212,23 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 				}
 			}
 			c.mu.Unlock()
-			if needed && !busy && !time.Now().Before(retryAt) {
+			if (needed || capture != nil) && !busy && !time.Now().Before(retryAt) {
+				fresh := capture == nil
+				if fresh {
+					capture = &retainedWindowCapture{floor: floor, floorHash: floorHash}
+					replay = nil
+				}
+				attempt := capture
 				busy = true
-				replay = nil
 				captures.Add(1)
 				go func() {
 					defer captures.Done()
 					readCtx, stop := context.WithTimeout(ctx, 30*time.Second)
 					defer stop()
-					next, err := c.initializeRetainedPool(readCtx, amount, baseIsToken0)
-					if err == nil && (next.pool.header.Number < floor || next.pool.header.Number == floor && next.pool.header.Hash != floorHash) {
+					next, err := c.resumeRetainedPool(readCtx, attempt)
+					if err == nil && (next.pool.header.Number < attempt.floor || next.pool.header.Number == attempt.floor && next.pool.header.Hash != attempt.floorHash) {
 						err = fmt.Errorf("failed to capture retained window: baseline=behind_or_conflicting")
+						*attempt = retainedWindowCapture{}
 					}
 					select {
 					case results <- windowResult{next, err}:
@@ -232,6 +240,7 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 			busy = false
 			err := result.err
 			if err == nil {
+				capture = nil
 				c.mu.Lock()
 				err = c.installRetainedWindow(result.state, replay)
 				if err == nil {
@@ -239,7 +248,12 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 				}
 				c.mu.Unlock()
 			}
-			replay = nil
+			if capture != nil && capture.snapshot == nil {
+				capture = nil
+			}
+			if capture == nil {
+				replay = nil
+			}
 			if err == nil {
 				backoff = time.Second
 			} else {
@@ -291,7 +305,20 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 	}
 }
 
+// retainedWindowCapture belongs to one uninterrupted state subscription.
+type retainedWindowCapture struct {
+	floor       uint64
+	floorHash   common.Hash
+	snapshot    *poolSnapshot
+	bitmapReady bool
+	ticks       retainedTickProgress
+}
+
 func (c *StateCache) initializeRetainedPool(ctx context.Context, amount *big.Int, baseIsToken0 bool) (*retainedPoolState, error) {
+	return c.resumeRetainedPool(ctx, &retainedWindowCapture{})
+}
+
+func (c *StateCache) resumeRetainedPool(ctx context.Context, progress *retainedWindowCapture) (*retainedPoolState, error) {
 	select {
 	case <-ctx.Done():
 		return nil, fmt.Errorf("failed to initialize retained pool: %w", ctx.Err())
@@ -299,20 +326,39 @@ func (c *StateCache) initializeRetainedPool(ctx context.Context, amount *big.Int
 	}
 	defer func() { c.gate <- struct{}{} }()
 	budget := 64
-	snapshot, err := c.capture(ctx, &budget, 0, common.Hash{})
-	if err != nil {
-		return nil, err
+	if progress.snapshot == nil {
+		progress.ticks.started = time.Now()
+		snapshot, err := c.capture(ctx, &budget, 0, common.Hash{})
+		if err != nil {
+			return nil, err
+		}
+		progress.snapshot = snapshot
+	} else {
+		header, err := c.rpc.HeaderByNumber(ctx, progress.snapshot.header.Number)
+		if err != nil {
+			return nil, fmt.Errorf("failed to verify retained window: %w: block_number=%d", err, progress.snapshot.header.Number)
+		}
+		if header.Number != progress.snapshot.header.Number || header.Hash != progress.snapshot.header.Hash {
+			block := progress.snapshot.header.Number
+			*progress = retainedWindowCapture{}
+			return nil, fmt.Errorf("failed to verify retained window: block_hash=mismatch block_number=%d", block)
+		}
 	}
+	snapshot := progress.snapshot
 	center := bitmapWord(snapshot.tick, snapshot.spacing)
 	snapshot.windowCenter, snapshot.windowCaptured = center, true
 	lower := max(center-retainedWordRadius, bitmapWord(-887272, snapshot.spacing))
 	upper := min(center+retainedWordRadius, bitmapWord(887272, snapshot.spacing))
-	if err := c.readBitmapWindow(ctx, snapshot, lower, upper, &budget); err != nil {
+	if !progress.bitmapReady {
+		if err := c.readBitmapWindow(ctx, snapshot, lower, upper, &budget); err != nil {
+			return nil, err
+		}
+		progress.bitmapReady = true
+	}
+	if err := c.resumeWindowTicks(ctx, snapshot, lower, upper, &progress.ticks); err != nil {
 		return nil, err
 	}
-	if err := c.readWindowTicks(ctx, snapshot, lower, upper); err != nil {
-		return nil, err
-	}
+	// Fee/oracle acquisition and its final hash verification use this same baseline.
 	fee, err := c.captureRetainedFeeState(ctx, snapshot)
 	if err != nil {
 		return nil, err

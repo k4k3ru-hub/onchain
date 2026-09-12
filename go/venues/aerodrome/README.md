@@ -180,3 +180,18 @@ state together and verifies the canonical block hash; it also costs fee/oracle
 reads. Logs applied during capture are buffered (up to 4,096) and replayed before
 installing the new snapshot. Failed candidates leave the current state intact.
 Live log application and retained quote consumers do not make RPC requests.
+
+Background capture retries keep their private pool/bitmap state and successful
+tick batches at the original block. Each retry gets a fresh 30-second context
+and starts at the failed batch, with the existing backoff up to 30 seconds.
+The block hash is verified before resuming; fee/oracle capture verifies it again
+before publication. Live logs received during retry backoff remain in the bounded
+replay buffer. A changed block hash, session termination, or replay overflow
+prevents reuse of partial state. Initial capture errors still return to the caller
+and end the state subscription; partial captures do not cross subscription gaps.
+
+Tick acquisition errors include the pool, block, total/completed tick counts,
+1-based batch index, batch count/size, capture elapsed seconds (including backoff),
+and current batch elapsed seconds. Existing application warnings display this
+context. The SDK does not add logging or change the state-only subscription's
+error reporting interface.

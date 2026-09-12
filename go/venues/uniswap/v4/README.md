@@ -57,7 +57,7 @@ This preserves directional protocol fees as well as liquidity changes.
 
 Refreshes are serialized with at least one second between captures. Failed
 refreshes retain usable inputs and back off up to 30 seconds; initial failures
-return to the caller. A capture times out after 30 seconds. The replay buffer is
+return to the caller. Each capture attempt times out after 30 seconds. The replay buffer is
 limited to 4,096 pool logs; overflow, removed logs, and incompatible deltas still
 terminate the session for recovery. Uncovered quotes fail until capture catches
 up. Retained inputs are not periodically refreshed by TTL.
@@ -66,7 +66,8 @@ Three words describe prefetch coverage, not the total RPC budget. Bitmap reads
 use one batch; initialized tick details use batches of at most 32, capped at 768
 tick reads for the window. Readers without batch support use sequential reads.
 All reads include the pool ID and use StateView at the same verified block.
-A failed batch rejects the candidate without falling back to individual calls.
+A failed batch leaves the candidate private and resumes as described below,
+without falling back to individual calls.
 Core state, bitmap and extra reference-quote reads retain their 64-call budget;
 header checks are additional. Sparse liquidity
 can require more words for the reference pair within the existing cap of 64
@@ -83,6 +84,31 @@ Protocol references:
 - [SwapMath](https://github.com/Uniswap/v4-core/blob/main/src/libraries/SwapMath.sol)
 - [SqrtPriceMath](https://github.com/Uniswap/v4-core/blob/main/src/libraries/SqrtPriceMath.sol)
 - [TickMath](https://github.com/Uniswap/v4-core/blob/main/src/libraries/TickMath.sol)
+
+### Resumable tick capture
+
+Each retained capture attempt has a 30-second deadline. In
+`RunRetainedWithEvents`, a failed attempt keeps its private, block-pinned core
+state, bitmap, and fully validated tick batches. After the existing backoff
+(1–30 seconds), a fresh attempt resumes at the failed batch, including when the
+previous attempt timed out. Successful batches are not requested again; a failed
+batch is retried as a batch, without individual-call fallback. The same behavior
+applies to background refreshes for `RunRetained`; its initial errors still return
+to the caller.
+
+Before resuming and before publishing, the capture verifies its original block
+hash. A changed hash discards the entire private capture and starts a new
+baseline. Session termination, epoch invalidation, or replay overflow also
+discards progress. Logs received during retry backoff remain in the bounded
+replay buffer, so updates are applied before the complete candidate is published.
+Partially acquired ticks are never installed into the live quote cache. Live
+Swap callbacks continue during acquisition and retries.
+
+`OnRecovery` errors include `pool_id`, `block_number`, `tick_count`,
+`completed_tick_count`, `batch_index` (1-based), `batch_count`, `batch_size`,
+`elapsed_seconds` (since this capture started, including backoff), and
+`batch_elapsed_seconds` (the current batch attempt). The library preserves the
+underlying error and leaves warning output to the application.
 
 ### Retained live events
 
