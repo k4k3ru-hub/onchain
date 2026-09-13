@@ -1,5 +1,9 @@
 # CPMM state cache
 
+For live Swap ingestion, `SwapSubscriber.DecodeSwapLog` also retains completed
+events before log truncation. Callers must handle the accompanying inspectable
+error as described in [live log decoding](../../LOG_DECODING.md).
+
 `NewStateCache(client, pool, maxAge)` adds notification-driven reuse to the
 existing CPMM local exact-input calculation. It uses the account snapshot
 provider injected into `NewClient`; no global transport or background worker

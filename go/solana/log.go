@@ -2,8 +2,13 @@ package solana
 
 import (
 	"context"
+	"errors"
 	"fmt"
 )
+
+// ErrExecutionLogsTruncated identifies an incomplete execution log. Decoders may
+// return validated, committed results preceding the marker alongside this error.
+var ErrExecutionLogsTruncated = errors.New("failed to decode program events: execution logs truncated")
 
 type Log struct {
 	Signature Signature

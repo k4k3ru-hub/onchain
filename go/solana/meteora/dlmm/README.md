@@ -1,5 +1,9 @@
 # Meteora DLMM state cache
 
+For live Swap ingestion, `HasSwapInstruction` also retains committed instruction
+matches before log truncation. Handle its accompanying inspectable error before
+using the existing transaction resolver; see [live log decoding](../../LOG_DECODING.md).
+
 `NewStateCache(client, pool, maxAge)` composes a market-data snapshot cache using
 an existing discovered DLMM client. `QuoteExactInputs` returns a `CachedQuote`
 with the snapshot slot and `ObservedAt`; it evaluates both directions using the

@@ -1,5 +1,9 @@
 # CLMM state cache
 
+For live Swap ingestion, `SwapSubscriber.DecodeSwapLog` also retains completed
+events before log truncation. Callers must handle the accompanying inspectable
+error as described in [live log decoding](../../LOG_DECODING.md).
+
 `NewStateCache(client, pool, maxAge)` caches coherent account state for a
 configured pool. It reuses the existing static-fee exact-input calculation and
 bounded adaptive tick-array discovery. Dynamic-fee and other unsupported states
