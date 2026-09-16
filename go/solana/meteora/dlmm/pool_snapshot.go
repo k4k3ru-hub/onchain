@@ -12,14 +12,21 @@ import (
 // Price provenance uses only accounts contributing to price, never unrelated account refreshes.
 //
 // Version:
+//   - 2026-09-17: Distinguish missing accounts and owner mismatches with snapshot diagnostics.
 //   - 2026-09-12: Added.
 func (s *QuoteSnapshot) PoolSnapshot() (*solana.PoolStateSnapshot, error) {
 	if s == nil {
 		return nil, fmt.Errorf("failed to read pool snapshot: snapshot=null")
 	}
-	retained := s.accounts.Accounts[s.pool]
-	if retained.Account == nil || retained.Account.Owner != s.programID {
-		return nil, fmt.Errorf("failed to read pool snapshot: pool_account=invalid")
+	retained, exists := s.accounts.Accounts[s.pool]
+	if !exists {
+		return nil, fmt.Errorf("failed to read pool snapshot: pool account missing: pool_account=null snapshot_slot=%d account_count=%d expected_owner=%q", s.accounts.Slot, len(s.accounts.Accounts), s.programID.String())
+	}
+	if retained.Account == nil {
+		return nil, fmt.Errorf("failed to read pool snapshot: retained pool account missing: pool_account=null slot=%d expected_owner=%q", retained.Slot, s.programID.String())
+	}
+	if retained.Account.Owner != s.programID {
+		return nil, fmt.Errorf("failed to read pool snapshot: pool account owner mismatch: slot=%d data_length=%d expected_owner=%q actual_owner=%q", retained.Slot, len(retained.Account.Data), s.programID.String(), retained.Account.Owner.String())
 	}
 	pool, err := decodePool(s.pool, retained.Account.Data)
 	if err != nil {
