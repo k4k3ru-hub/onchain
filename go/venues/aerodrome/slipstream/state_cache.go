@@ -54,6 +54,7 @@ type quoteNotifications struct {
 }
 
 type StateCache struct {
+	initialPrice          *InitialPriceSnapshot // protected by mu; never used as complete quote inputs
 	quoteSnapshotObserver func(*QuoteSnapshot)
 	replayBase            *retainedPoolState
 	replayState           *retainedPoolState

@@ -48,6 +48,7 @@ type poolSnapshot struct {
 }
 
 type StateCache struct {
+	initialPrice          *InitialPriceSnapshot // protected by mu; never used as complete quote inputs
 	liveOrder             retainedLogOrder
 	quoteSnapshotObserver func(*QuoteSnapshot)
 	verificationEpoch     uint64
