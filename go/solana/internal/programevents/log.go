@@ -15,17 +15,19 @@ type Event struct {
 	Index       uint32
 }
 type frame struct {
-	program string
-	events  []Event
+	program   string
+	events    []Event
+	completed []Event
 }
 
 // Read extracts committed data events from the specified program, preserving log positions.
 //
 // Returns:
-//   - Events whose enclosing invocations all succeeded before any truncation marker.
+//   - Events whose enclosing invocations succeeded; a successful transaction may confirm the outermost invocation after truncation.
 //   - ErrExecutionLogsTruncated alongside the completed prefix, or a fatal error with no events.
 //
 // Version:
+//   - 2026-09-17: Retain completed children of a successful outermost invocation after truncation.
 //   - 2026-09-13: Preserve committed events before truncation and validate invocation depths.
 //   - 2026-09-12: Added.
 //   - 2026-09-12: Describe truncated execution logs explicitly.
@@ -41,7 +43,12 @@ func Read(log *solana.Log, program solana.Address) ([]Event, error) {
 	for i, line := range log.Messages {
 		if line == "Log truncated" {
 			// Later short messages can survive truncation with missing invocation
-			// boundaries between them. Only the completed prefix is trustworthy.
+			// boundaries between them. Transaction success confirms the outermost
+			// invocation, but cannot confirm incomplete nested calls whose errors
+			// might have been caught. Retain only already completed children.
+			if len(stack) > 0 {
+				result = append(result, stack[0].completed...)
+			}
 			return result, fmt.Errorf("%w: log_index=%d", solana.ErrExecutionLogsTruncated, i)
 		}
 		if strings.HasPrefix(line, "Program log: ") {
@@ -79,6 +86,9 @@ func Read(log *solana.Log, program solana.Address) ([]Event, error) {
 					result = append(result, f.events...)
 				} else {
 					stack[len(stack)-1].events = append(stack[len(stack)-1].events, f.events...)
+					if len(stack) == 1 {
+						stack[0].completed = append(stack[0].completed, f.events...)
+					}
 				}
 			}
 			continue

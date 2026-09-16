@@ -35,6 +35,7 @@ func TestCommittedProgramEvents(t *testing.T) {
 // TestReadTruncatedExecutionLogs checks the boundary between committed events and incomplete invocations.
 //
 // Version:
+//   - 2026-09-17: Cover successful outer frames and unconfirmed nested ancestors.
 //   - 2026-09-13: Added.
 func TestReadTruncatedExecutionLogs(t *testing.T) {
 	p := solana.Address{1}.String()
@@ -53,7 +54,10 @@ func TestReadTruncatedExecutionLogs(t *testing.T) {
 	}{
 		{name: "completed_before_unfinished_call", messages: []string{invoke, data, success, parentInvoke, "Log truncated"}, indexes: []uint32{1}, truncated: true},
 		{name: "completed_child_and_parent", messages: []string{parentInvoke, childInvoke, data, success, parentSuccess, "Log truncated"}, indexes: []uint32{2}, truncated: true},
-		{name: "unfinished_parent", messages: []string{parentInvoke, childInvoke, data, success, "Log truncated"}, truncated: true},
+		{name: "unfinished_parent", messages: []string{parentInvoke, childInvoke, data, success, "Log truncated"}, indexes: []uint32{2}, truncated: true},
+		{name: "completed_child_then_sibling", messages: []string{parentInvoke, childInvoke, data, success, childInvoke, data, "Log truncated"}, indexes: []uint32{2}, truncated: true},
+		{name: "unfinished_nested_parent", messages: []string{parentInvoke, "Program " + parent + " invoke [2]", "Program " + p + " invoke [3]", data, success, "Log truncated"}, truncated: true},
+		{name: "failed_transaction_with_completed_child", messages: []string{parentInvoke, childInvoke, data, success, "Log truncated"}, failed: true},
 		{name: "failed_parent", messages: []string{parentInvoke, childInvoke, data, success, "Program " + parent + " failed: error", "Log truncated"}, truncated: true},
 		{name: "failed_transaction", messages: []string{invoke, data, success, "Log truncated"}, failed: true},
 		{name: "multiple_completed_events", messages: []string{invoke, data, success, invoke, data, success, invoke, data, "Log truncated"}, indexes: []uint32{1, 4}, truncated: true},

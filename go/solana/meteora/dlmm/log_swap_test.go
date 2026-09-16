@@ -29,6 +29,7 @@ func TestHasSwapInstruction(t *testing.T) {
 // TestHasSwapInstructionTruncatedPrefix checks that only completed Swap invocations admit transaction resolution.
 //
 // Version:
+//   - 2026-09-17: Admit completed children of successful outer invocations.
 //   - 2026-09-13: Added.
 func TestHasSwapInstructionTruncatedPrefix(t *testing.T) {
 	p := MainnetProgramAddress().String()
@@ -40,7 +41,7 @@ func TestHasSwapInstructionTruncatedPrefix(t *testing.T) {
 	}{
 		{"completed", []string{"Program " + p + " invoke [1]", "Program log: Instruction: Swap2", "Program " + p + " success", "Log truncated"}, true},
 		{"completed_parent", []string{"Program " + parent + " invoke [1]", "Program " + p + " invoke [2]", "Program log: Instruction: Swap2", "Program " + p + " success", "Program " + parent + " success", "Log truncated"}, true},
-		{"unfinished_parent", []string{"Program " + parent + " invoke [1]", "Program " + p + " invoke [2]", "Program log: Instruction: Swap2", "Program " + p + " success", "Log truncated"}, false},
+		{"unfinished_parent", []string{"Program " + parent + " invoke [1]", "Program " + p + " invoke [2]", "Program log: Instruction: Swap2", "Program " + p + " success", "Log truncated"}, true},
 		{"failed_parent", []string{"Program " + parent + " invoke [1]", "Program " + p + " invoke [2]", "Program log: Instruction: Swap2", "Program " + p + " success", "Program " + parent + " failed: error", "Log truncated"}, false},
 		{"unfinished", []string{"Program " + p + " invoke [1]", "Program log: Instruction: Swap2", "Log truncated", "Program " + p + " success"}, false},
 		{"unrelated_instruction", []string{"Program " + p + " invoke [1]", "Program log: Instruction: AddLiquidity", "Program " + p + " success", "Log truncated"}, false},

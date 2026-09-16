@@ -1,6 +1,6 @@
 # Live execution log decoding
 
-Updated: 2026-09-13.
+Updated: 2026-09-17.
 
 Raydium CLMM/CPMM `SwapSubscriber.DecodeSwapLog` and Meteora DLMM
 `HasSwapInstruction` share invocation tracking. Failed transactions and events
@@ -11,7 +11,11 @@ be consistent.
 At the first exact `Log truncated` runtime marker, parsing stops. Results from
 already completed invocations are returned together with an error matching
 `errors.Is(err, solana.ErrExecutionLogsTruncated)`. Events buffered in unfinished
-invocations and every message after the marker are excluded. An ordinary
+nested invocations and every message after the marker are excluded. Completed
+children buffered directly in the outermost invocation are retained when
+`Log.Failed` is false: transaction success confirms that outer invocation.
+The outer invocation's own unfinished events remain excluded. An unfinished
+nested ancestor cannot be confirmed this way because its failure could be caught. An ordinary
 `Program log: ...` message containing those words is not a truncation marker.
 
 Callers must distinguish this sentinel from fatal errors. A truncation result
@@ -28,7 +32,8 @@ matching event remains fatal even when another completed event precedes it.
 
 For Meteora, the boolean result can be true alongside the truncation error only
 when a configured-program Swap instruction and all its enclosing invocations
-completed before the marker. This is a filter for the existing transaction
+completed before the marker (the outermost invocation may instead be confirmed
+by transaction success as above). This is a filter for the existing transaction
 resolver, not a quantity decoder. Address mentions and unfinished Swap
 instructions do not authorize transaction resolution. The existing resolver's
 transaction-level reserve balance normalization is unchanged.
