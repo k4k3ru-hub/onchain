@@ -35,3 +35,19 @@ transaction-level reserve balance normalization is unchanged.
 
 Missing execution log data is not reconstructed. No historical retrieval or
 fallback transaction RPC is introduced by partial decoding.
+
+
+## Transaction retrieval (2026-09-17)
+
+The RPC adapter requests getTransaction with encoding=json and
+maxSupportedTransactionVersion=1, consuming static account keys, metadata,
+logs and token balances without the legacy SDK binary message decoder.
+For v0, loaded writable keys precede loaded readonly keys after static keys.
+Legacy and v1 use static keys (v1 has no lookup tables). The v1 transactionConfig
+is not needed by the library's Transaction projection. Unsupported returned
+versions are rejected. getBlock signature-only requests also allow v1.
+Reference: https://solana.com/docs/rpc/json-structures
+
+IsPermanentTransactionError recognizes unsupported versions and invalid
+request/method/parameter RPC errors through wrapping. Availability failures
+remain retryable. No new dependencies are required.

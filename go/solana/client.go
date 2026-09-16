@@ -172,7 +172,7 @@ func (a *sdkRPCAdapter) getAddressSignatures(ctx context.Context, query Signatur
 }
 
 func (a *sdkRPCAdapter) getBlock(ctx context.Context, slot Slot, commitment Commitment) (*Block, error) {
-	version := uint64(0)
+	version := uint64(1)
 	result, err := a.client.GetBlockWithOpts(ctx, slot.Uint64(), &solanaRPC.GetBlockOpts{Commitment: solanaRPC.CommitmentType(commitment), TransactionDetails: solanaRPC.TransactionDetailsSignatures, Rewards: pointer(false), MaxSupportedTransactionVersion: &version})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get solana rpc block: %w", a.sanitizeError(err))
@@ -236,21 +236,23 @@ func (a *sdkRPCAdapter) getAccountSnapshot(ctx context.Context, addresses []Addr
 }
 
 func (a *sdkRPCAdapter) getTransaction(ctx context.Context, signature Signature, commitment Commitment) (*Transaction, error) {
-	var sdkSignature solanaSDK.Signature
-	copy(sdkSignature[:], signature[:])
-	version := uint64(0)
-	result, err := a.client.GetTransaction(ctx, sdkSignature, &solanaRPC.GetTransactionOpts{Encoding: solanaSDK.EncodingBase64, Commitment: solanaRPC.CommitmentType(commitment), MaxSupportedTransactionVersion: &version})
+	var result *jsonTransactionResult
+	err := a.client.RPCCallForInto(ctx, &result, "getTransaction", []interface{}{signature.String(), map[string]interface{}{
+		"encoding": "json", "commitment": string(commitment), "maxSupportedTransactionVersion": 1,
+	}})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get solana rpc transaction: %w", a.sanitizeError(err))
 	}
+
 	if result == nil || result.Transaction == nil {
 		return nil, fmt.Errorf("failed to get solana rpc transaction: result=null")
 	}
-	sdkTransaction, err := result.Transaction.GetTransaction()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get solana rpc transaction: failed to decode transaction: %w", err)
+	if err := result.validate(signature); err != nil {
+		return nil, err
 	}
+	sdkTransaction := &solanaSDK.Transaction{Message: solanaSDK.Message{AccountKeys: result.Transaction.Message.AccountKeys}}
 	transaction := &Transaction{Signature: signature, Slot: Slot(result.Slot), AccountKeys: convertAccountKeys(sdkTransaction, result.Meta)}
+
 	if result.BlockTime != nil {
 		value := time.Unix(int64(*result.BlockTime), 0).UTC()
 		transaction.Timestamp = &value
