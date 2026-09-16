@@ -1,0 +1,121 @@
+{
+  "code": 0,
+  "msg": "success",
+  "data": {
+    "total": 44019,
+    "lp_list": [
+      {
+        "symbol": "USDC-SUI",
+        "name": "USDC-Sui",
+        "decimals": 6,
+        "fee": "0.25",
+        "tick_spacing": "60",
+        "address": "0xb8d7d9e66a60c239e7a60110efcf8de6c705580ed924d0dde141f4a0e2c90105",
+        "coin_a_address": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+        "coin_b_address": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+        "is_display_rewarder": true,
+        "is_closed": false,
+        "rewarder_display1": true,
+        "rewarder_display2": true,
+        "rewarder_display3": true,
+        "rewarder_display4": true,
+        "rewarder_display5": true,
+        "coin_a": {
+          "name": "USDC",
+          "symbol": "USDC",
+          "decimals": 6,
+          "address": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+          "balance": "580642.935676",
+          "labels": [],
+          "coingecko_id": "",
+          "logo_url": "https://circle.com/usdc-icon",
+          "project_url": "",
+          "is_trusted": true
+        },
+        "coin_b": {
+          "name": "Sui",
+          "symbol": "SUI",
+          "decimals": 9,
+          "address": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+          "balance": "4484461.224011147",
+          "labels": [],
+          "coingecko_id": "",
+          "logo_url": "",
+          "project_url": "",
+          "is_trusted": true
+        },
+        "price": "1.3684576682241583",
+        "rewarder_usd": [
+          "0.0231481481481481",
+          "0.0254166666666667",
+          "0",
+          "0",
+          "0"
+        ],
+        "rewarder_apr": [
+          "0.41760996615576%",
+          "15.13922777392434%",
+          "0%",
+          "0%",
+          "0%"
+        ],
+        "is_forward": true,
+        "price_range_config": null,
+        "object": {
+          "coin_a": 580642,
+          "coin_b": 4484461,
+          "tick_spacing": 60,
+          "fee_rate": 2500,
+          "liquidity": "12901562446573627",
+          "current_sqrt_price": "689220018253222248448",
+          "rewarder_manager": {
+            "fields": {
+              "rewarders": [
+                {
+                  "fields": {
+                    "reward_coin": {
+                      "Fields": {
+                        "Name": "06864a6f921804860930db6ddbe2e16acdf8504495ea7481637a1c8b9a8fe54b::cetus::CETUS"
+                      }
+                    },
+                    "emissions_per_second": "427007964669202583703703704",
+                    "growth_global": "364530752646806601213"
+                  }
+                },
+                {
+                  "fields": {
+                    "reward_coin": {
+                      "Fields": {
+                        "Name": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI"
+                      }
+                    },
+                    "emissions_per_second": "468854745206784436906666667",
+                    "growth_global": "37902735332016221875"
+                  }
+                }
+              ],
+              "points_released": "1123643939217699598248181760000000",
+              "points_growth_global": "3978646804237424287",
+              "last_updated_time": 1789310813
+            }
+          },
+          "is_pause": false,
+          "index": 3137
+        },
+        "is_vaults": true,
+        "stable_farming": null,
+        "vaults": [
+          "0x41a4ab1e82f90f5965bbcd828b8ffa13bab7560bd2e352ab067e343db552f527"
+        ],
+        "show_vaults": true,
+        "pure_tvl_in_usd": "3795290.60235323119989193",
+        "vol_in_usd_24h": "1020007.1352567883",
+        "fee_24_h": "2550.0178381413166",
+        "total_apr": "0.3962404734165865",
+        "apr": {
+          "fee_apr_24h": "0.2406720960157855"
+        }
+      }
+    ]
+  }
+}

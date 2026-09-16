@@ -1,5 +1,98 @@
 # Cetus CLMM
 
+## LP APR for a specific pool
+
+`api.NewClient(api.Config{})` composes an independent HTTP API group. Use
+`client.Pools.Get(ctx, poolID)` with a `sui.Address` to read exactly one pool's
+indexed yield statistics. The returned `*api.PoolStats` owns the v3 schema;
+`Pools.List` and its v2 `Pool` return shape remain unchanged.
+See the [compiled usage examples](api/example_test.go).
+
+Get performs one read-only `POST /v3/sui/clmm/stats_pools` with
+`{"pools":["<normalized pool ID>"],"display_all_pools":true}`. It validates the
+provider code, total, result count and returned pool identity. An explicit empty
+result returns `api.ErrPoolNotFound` (inspect with `errors.Is`); malformed,
+ambiguous or unrelated results return errors. There is no list scan, retry or
+fallback to another endpoint or pool.
+
+- `PoolStats.TotalAPR` retains the provider's total decimal ratio.
+- `Stats[]` retains `dateType` (`24H`, `7D`, `30D`), volume, fee and fee APR.
+  MarketHub should select `24H` explicitly; missing 24h data stays unavailable.
+- `MiningRewarders[]` explicitly associates each reward APR with `coinType`,
+  decimals, display flag and `emissionsPerSecond`. In observed v3 responses,
+  reward APR is a decimal ratio, unlike v2's percent-suffixed reward strings.
+- `Raw` preserves the full pool JSON, including unknown farming metadata.
+  `Vault` and `Extensions` also retain their original JSON. Missing numeric
+  values remain nil; no calculation or conversion is performed.
+
+On 2026-09-14, the official [Cetus application](https://app.cetus.zone/pools)
+used `pools: [ID]` in its CLMM detail view. Its `useGetPoolList-BwXrpgs2.js`
+and `path-BLIht4Yk.js` modules identified the v3 POST endpoint. Read-only probes
+returned one matching result for each of two existing IDs, and `total: 0,
+list: []` for `0x1`. The complete first probe is preserved in
+`api/testdata/stats_pools_v3.json`. Tests use injected transports, not live APIs.
+The v2 `pool_address` and `pools` query probes returned unfiltered lists; they
+must not be treated as working selectors.
+
+The v3 sample's total equals its 24h fee APR plus mining reward APR, but this is
+not a guarantee of campaign eligibility, denominator, fee treatment or all
+future totals. The v3 response establishes token attribution for its own mining
+rewards; it does not establish a mapping for v2's anonymous reward slots.
+
+## Indexed LP yield statistics
+
+`venues/cetus/api` is a separate HTTP client for Cetus's mainnet
+`GET /v2/sui/stats_pools`. `api.NewClient(api.Config{})` composes `Pools`;
+`Config.HTTPClient` and `Config.BaseURL` allow transport injection. Construction
+does not perform I/O. Each `Pools.List(ctx, api.ListParams{Limit: 20, Offset: 0})`
+reads one page and returns the provider's `total` and `lp_list` as `PoolPage`.
+Zero limit uses the provider default; offset is zero-based. Negative values are
+rejected. The SDK does not automatically paginate, retry, cache or poll.
+See the [compiled usage example](api/example_test.go).
+
+`limit=1&offset=0` and `limit=1&offset=1` returned distinct pools in public
+read-only probes on 2026-09-14. Ordering, server limits and concurrent-page
+consistency are not guaranteed. This API exposes the provider's default pool
+selection; it does not claim that every pool is included.
+
+| Field | Preserved meaning |
+| --- | --- |
+| `Pool.TotalAPR` | Provider total as a decimal ratio: `0.39624…` means `39.624…%` |
+| `Pool.APR.FeeAPR24h` | Provider 24h-based fee APR as a decimal ratio |
+| `Pool.RewarderAPR` | Unmodified percent-suffixed strings, including all reward slots |
+| `Pool.Fee24h`, `VolumeInUSD24h`, `PureTVLInUSD` | Decimal text without float64 conversion |
+| `Object.RewarderManager`, `StableFarming` | Raw JSON preserving source metadata whose mapping/schema is not fully verified |
+
+Numeric pointers distinguish absent/null from explicit zero. Reward slots can
+also be null. Missing APR is never calculated from another field. Total APR is
+returned as supplied even if it differs from the components; reward slots are
+not paired with the embedded reward manager by index. Closed/paused flags,
+coin identities, vault references and reward display flags remain available.
+The embedded object is not a full `clmm.ParsePoolRewards` input.
+
+The agreed MarketHub reference is a 24h-based fee APR. MarketHub will normalize
+units and preserve the reward calculation basis separately; the reported total
+does not establish that all its components use a 24h observation window.
+The SDK does not determine eligibility, gross/net protocol-fee treatment,
+position returns or a cross-venue denominator. It never substitutes 7d/30d APR.
+
+Failures include non-2xx HTTP responses (`*api.HTTPError`, retaining `RetryAfter`),
+nonzero provider codes (`*api.APIError`), malformed/missing envelopes, invalid pool
+addresses and malformed numeric metrics. Cancellation and transport/decoder
+errors remain inspectable through `errors.Is`/`errors.As`; error messages omit
+HTTP bodies and upstream application messages. Responses are limited to 16 MiB.
+The default HTTP client timeout is 15 seconds; callers can supply a bounded context.
+
+Tests use injected transports. `api/testdata/stats_pools.json` retains the first
+pool and envelope from the public 2026-09-13 capture, including the original
+reported total; it is a reduced fixture, not a complete page or current snapshot.
+Tests cover composition, query encoding, source precision, null/zero distinctions,
+reward metadata, errors, cancellation and response limits.
+
+Sources: [official mainnet configuration](https://github.com/CetusProtocol/cetus-sdk-v2/blob/main/packages/clmm/src/config/mainnet.ts),
+[official statistics consumer](https://github.com/CetusProtocol/cetus-sdk-v2/blob/main/packages/clmm/src/modules/poolModule.ts),
+and [APR research](../YIELD_SUI_RESEARCH_20260913.md).
+
 ## Independent reward inputs
 
 `client.PoolRewards(ctx, poolAddress)` reads the pool reward manager through the

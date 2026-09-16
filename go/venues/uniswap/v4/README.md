@@ -122,3 +122,17 @@ Snapshot replay does not emit swaps again. Exact duplicates are ignored within
 the bounded log history. State recovery retains the subscription and reports
 errors through `OnRecovery`; transport or callback errors end the session.
 `RunRetained` remains available for state-only consumers.
+
+## Deployment lookup
+
+Use `github.com/k4k3ru-hub/onchain/go/venues/uniswap/v4/deployment` for
+`ByChainID(chainID)` (PoolManager, StateView and optional Quoter) and
+`QuoterByChainID(chainID)` (requires a configured Quoter). Unsupported chains
+return errors. A supported deployment without a configured Quoter returns a zero
+Quoter address; discovery can still use its PoolManager.
+
+The deployment table was moved from `uniswap/go/v4/deployment` on 2026-09-16
+without changing supported chain IDs or addresses. This migration does not claim
+a fresh verification of deployed contracts. MarketHub discovery and configured
+V4 pool catalogs use this package. The old Uniswap package remains available to
+existing consumers; no module aliases or new dependencies are introduced.

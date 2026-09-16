@@ -2,6 +2,19 @@
 
 Research and initial SDK adapters, 2026-09-09.
 
+Sui follow-up: [2026-09-13 acquisition and APR semantics research](YIELD_SUI_RESEARCH_20260913.md)
+records successful public API reads for all four Sui venues, mixed Cetus units,
+period-specific Bluefin totals, and remaining denominator/reward limitations.
+The Sui status and HTTP 403 observations below describe the original September 9
+baseline, not the current reachability or research status. No additional SDK
+adapters were implemented by the September 13 research.
+
+September 14 implementation: [`cetus/api.Pools.List`](cetus/README.md#indexed-lp-yield-statistics)
+now reads one `stats_pools` page with source APR units, missing values and reward
+metadata preserved. It includes injected-transport tests and a reduced captured
+fixture. MarketHub's agreed 24h reference and unit normalization remain application
+responsibilities; the SDK neither recalculates APR nor substitutes longer windows.
+
 SDK operations perform one read and return source data. They do not schedule
 polling, retry, publish snapshots, run quotes, calculate position APR, or normalize
 different providers' annualization assumptions. The application owns those tasks.
@@ -70,3 +83,12 @@ an Aggregator-owned `AMMPoolYieldSnapshot`. Pool identity, source, observation t
 source time, window, units, denominator, reward token and availability must survive
 normalization. MarketHub scheduling, the shared yield snapshot, and
 `MarketHub.Yield.Get/Subscribe` are not implemented by this SDK change.
+
+## Cetus pool-ID acquisition (2026-09-14)
+
+`cetus/api.Pools.Get(ctx, poolID)` now reads v3 statistics by explicit pool ID.
+It returns `PoolStats` with source-labelled 24H/7D/30D fee APRs and mining rewards
+that include coin identities. v3 reward APR ratios are distinct from v2 reward
+percent strings. `Pools.List` retains its v2 contract. See the
+[Cetus guide](cetus/README.md#lp-apr-for-a-specific-pool) for source evidence,
+missing-result handling and normalization limits.
