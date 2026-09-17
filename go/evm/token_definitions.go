@@ -10,7 +10,10 @@ type tokenDefinitionKey struct {
 // Definitions cover configured MarketHub tokens whose metadata was observed
 // during initialization on 2026-09-16. They are trusted reference data, not
 // evidence of historical contract state or token safety.
+// Base Sepolia cbBTC was additionally verified by RPC on 2026-09-17; its address
+// is documented at https://docs.horizen.io/horizen-chain/tokens-and-gas/cbtc/.
 var tokenDefinitions = map[tokenDefinitionKey]TokenMetadata{
+	{ChainIDBaseSepolia, common.HexToAddress("0xcbb7c0006f23900c38eb856149f799620fcb8a4a")}:      {Symbol: "cbBTC", Address: "0xcbb7c0006f23900c38eb856149f799620fcb8a4a", Decimals: 8},
 	{ChainIDEthereumMainnet, common.HexToAddress("0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599")}:  {Symbol: "WBTC", Address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599", Decimals: 8},
 	{ChainIDEthereumMainnet, common.HexToAddress("0xdAC17F958D2ee523a2206206994597C13D831ec7")}:  {Symbol: "USDT", Address: "0xdAC17F958D2ee523a2206206994597C13D831ec7", Decimals: 6},
 	{ChainIDBaseMainnet, common.HexToAddress("0x4200000000000000000000000000000000000006")}:      {Symbol: "WETH", Address: "0x4200000000000000000000000000000000000006", Decimals: 18},

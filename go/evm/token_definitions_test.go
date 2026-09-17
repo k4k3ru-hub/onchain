@@ -34,3 +34,18 @@ func TestTokenDefinitionsAreScopedAndDetached(t *testing.T) {
 		}
 	}
 }
+
+// TestBaseSepoliaCbBTCDefinition verifies the token identity independently of pool data.
+//
+// Version:
+//   - 2026-09-17: Added.
+func TestBaseSepoliaCbBTCDefinition(t *testing.T) {
+	address := common.HexToAddress("0xcbb7c0006f23900c38eb856149f799620fcb8a4a")
+	token, ok := LookupTokenMetadata(ChainIDBaseSepolia, address)
+	if !ok || token.Symbol != "cbBTC" || token.Decimals != 8 || common.HexToAddress(token.Address) != address {
+		t.Fatalf("unexpected cbBTC definition: %+v", token)
+	}
+	if _, ok := LookupTokenMetadata(ChainIDBaseMainnet, address); ok {
+		t.Fatal("testnet definition leaked into mainnet")
+	}
+}
