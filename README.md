@@ -238,3 +238,11 @@ Local strategy calculations continue through `QuoteRetainedPair`,
 `QuoteRetainedExactInputs`, or detached quote snapshots. Aerodrome still retains
 dynamic-fee inputs required by those calculations. No dummy trade is needed to
 initialize these caches.
+
+## Confirmation policies
+
+`core.ResolveConfirmationPolicy(chain, network)` resolves a service observation
+threshold using existing deposit defaults. Robinhood mainnet uses 12 confirmations.
+The EVM helper counts the containing block as one and avoids unsigned overflow.
+Non-EVM adapters must apply native confirmation semantics. These thresholds are
+not a consensus-finality guarantee; deposit APIs remain unchanged.
