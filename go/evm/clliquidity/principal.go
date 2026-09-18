@@ -29,8 +29,10 @@ type Amounts struct{ Token0, Token1 *big.Int }
 // exact per-position withdrawal amounts. Inputs are never mutated.
 //
 // Version:
-//   - 2026-09-19: Added.
-func Calculate(s State) (Amounts, error) {
+//   - 2026-09-19: Share state validation with incremental updates.
+func Calculate(s State) (Amounts, error) { return calculate(s, true) }
+
+func calculate(s State, valueAmounts bool) (Amounts, error) {
 	fail := func(reason string) (Amounts, error) {
 		return Amounts{}, fmt.Errorf("failed to calculate lp principal: %s", reason)
 	}
@@ -72,7 +74,7 @@ func Calculate(s State) (Amounts, error) {
 		if t.Index <= s.Tick {
 			active.Set(l)
 		}
-		if i+1 == len(s.Ticks) {
+		if !valueAmounts || i+1 == len(s.Ticks) {
 			continue
 		}
 		a, b := sqrtAtTick(t.Index), sqrtAtTick(s.Ticks[i+1].Index)
