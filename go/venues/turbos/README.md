@@ -1,5 +1,40 @@
 # Turbos CLMM
 
+## Indexed pool statistics
+
+The independent `github.com/k4k3ru-hub/onchain/go/venues/turbos/api` package reads
+public pool statistics without quotes, transaction submission, retries or polling.
+
+```go
+client, err := api.NewClient(api.Config{HTTPClient: httpClient})
+if err != nil {
+    return err
+}
+pool, err := client.Pools.Get(ctx, poolAddress)
+```
+
+Import the owning `api` package; `poolAddress` is a parsed `sui.Address`.
+The default host is `https://api.turbos.finance`; Get uses
+`/pools/v2?poolId=...` and requires the returned identity to match.
+Construction composes Pools without IO and accepts an injected HTTP client/base URL.
+Default timeout is 15 seconds, response limit 16 MiB. HTTP errors expose status and
+Retry-After without response bodies. Missing numeric pointers mean unavailable,
+not zero; JSON number/string precision is retained as `json.Number`.
+
+APR fields are source percentages. Fee uses millionths. The adapter does not
+normalize units, compute missing metrics, allocate aggregate rewards or interpret
+reward emissions. `RewardInfos == nil` differs from an explicit empty slice.
+Use `updated_at` for provider statistics time, not the reward state update time.
+MarketHub owns freshness, scheduling and normalized availability.
+
+Verification: injected-transport tests cover composition, identity, exact numbers,
+missing values, malformed/oversized responses, HTTP errors and cancellation.
+Public API smoke test (opt-in):
+`ONCHAIN_TURBOS_API_LIVE=1 go test ./venues/turbos/api -run TestLiveConfiguredPools -count=1 -v`
+from `onchain/go`. It reads the configured SUI/USDC and DEEP/SUI IDs without credentials.
+
+Source: [official APR documentation](https://turbos.gitbook.io/turbos/developer-docs/via-sdk/clmm/apr-calculation).
+
 ## Retained stream quotes
 
 The producer acquires the current bitmap word and one word on either side,
