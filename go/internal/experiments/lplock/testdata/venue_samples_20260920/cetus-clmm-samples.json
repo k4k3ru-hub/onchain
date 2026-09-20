@@ -1,0 +1,2183 @@
+{
+  "venue": "cetus-clmm",
+  "selection_count": 10,
+  "samples": [
+    {
+      "pool": "0xa29a4ab6c6029085ba818f121154099a4ea2d94674c6ff71167c562495fd453c",
+      "creation_event": {
+        "timestamp": "2026-09-19T20:34:37.222Z",
+        "contents": {
+          "json": {
+            "pool_id": "0xa29a4ab6c6029085ba818f121154099a4ea2d94674c6ff71167c562495fd453c",
+            "coin_type_a": "4ddca40b10ff92ccaa1b1797b14dc63ad15e0c87cb7b5669af9bdc49e11e8dab::suipump::SUIPUMP",
+            "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "tick_spacing": 220
+          }
+        },
+        "transaction": {
+          "digest": "4ugvWV5kedFvrnksYQKfJkrekGYqgS17ixJNSWJQb23m",
+          "effects": {
+            "checkpoint": {
+              "sequenceNumber": 324583266
+            }
+          }
+        }
+      },
+      "checkpoint": 324867755,
+      "locked_liquidity_percentage": null,
+      "positions": [],
+      "reasons": [
+        "withdrawal_semantics_and_pool_principal_not_verified"
+      ],
+      "pool_object": {
+        "address": "0xa29a4ab6c6029085ba818f121154099a4ea2d94674c6ff71167c562495fd453c",
+        "version": 1006868669,
+        "owner": {
+          "__typename": "Shared"
+        },
+        "asMoveObject": {
+          "contents": {
+            "type": {
+              "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::Pool<0x4ddca40b10ff92ccaa1b1797b14dc63ad15e0c87cb7b5669af9bdc49e11e8dab::suipump::SUIPUMP,0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI>"
+            },
+            "json": {
+              "id": "0xa29a4ab6c6029085ba818f121154099a4ea2d94674c6ff71167c562495fd453c",
+              "coin_a": "30758277",
+              "coin_b": "9447238",
+              "tick_spacing": 220,
+              "fee_rate": "20000",
+              "liquidity": "0",
+              "current_sqrt_price": "5402302126200163171",
+              "current_tick_index": {
+                "bits": 4294942733
+              },
+              "fee_growth_global_a": "226955973936023315",
+              "fee_growth_global_b": "69708270208258099",
+              "fee_protocol_coin_a": "30758272",
+              "fee_protocol_coin_b": "9447234",
+              "tick_manager": {
+                "tick_spacing": 220,
+                "ticks": {
+                  "id": "0x947c25d2d01335aff486db9fb543dc0e5e0aaac19d2fd93d035cf0ce7c013893",
+                  "head": [
+                    {
+                      "is_none": true,
+                      "v": "0"
+                    }
+                  ],
+                  "tail": {
+                    "is_none": true,
+                    "v": "0"
+                  },
+                  "level": "1",
+                  "max_level": "16",
+                  "list_p": "2",
+                  "size": "0",
+                  "random": {
+                    "seed": "13835337719350979753"
+                  }
+                }
+              },
+              "rewarder_manager": {
+                "rewarders": [],
+                "points_released": "8264141345021879123968000000",
+                "points_growth_global": "826414134502187910",
+                "last_updated_time": "1789850525"
+              },
+              "position_manager": {
+                "tick_spacing": 220,
+                "position_index": "1",
+                "positions": {
+                  "id": "0x0984db315908d9a4d2d29b734e350e8f6c4c28dc9ca9c7bfacae805d24d2448b",
+                  "head": null,
+                  "tail": null,
+                  "size": "0"
+                }
+              },
+              "is_pause": false,
+              "index": "44308",
+              "url": "https://bq7bkvdje7gvgmv66hrxdy7wx5h5ggtrrnmt66rdkkehb64rvz3q.arweave.net/DD4VVGknzVMyvvHjceP2v0_TGnGLWT96I1KIcPuRrnc"
+            }
+          }
+        }
+      },
+      "position_fields": {
+        "nodes": [],
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": null
+        }
+      },
+      "http_attempts": 2
+    },
+    {
+      "pool": "0xcc9a57d5e74b3d2e57e3d63403b7818804eb4560cde17b33fb2534d182d5c413",
+      "creation_event": {
+        "timestamp": "2026-09-19T20:57:37.237Z",
+        "contents": {
+          "json": {
+            "pool_id": "0xcc9a57d5e74b3d2e57e3d63403b7818804eb4560cde17b33fb2534d182d5c413",
+            "coin_type_a": "deeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP",
+            "coin_type_b": "c5b61b1e1f7f88511c9c0c6f475f823c66cc4e2d39a49beb6777059710be8404::toilet::TOILET",
+            "tick_spacing": 220
+          }
+        },
+        "transaction": {
+          "digest": "9fxtBXKFwZAu4ytDBiyPFgCeg5HJDYgun3Qc6vf1vkH2",
+          "effects": {
+            "checkpoint": {
+              "sequenceNumber": 324589366
+            }
+          }
+        }
+      },
+      "checkpoint": 324867755,
+      "locked_liquidity_percentage": null,
+      "positions": [
+        {
+          "address": "0x3791b5bede039960c83f976c1a6818e931bc92073ab695bb8e3d8188cc095af2",
+          "version": 1007722658,
+          "owner": {
+            "__typename": "AddressOwner",
+            "address": {
+              "address": "0xd44eaaf246e44b72375fd8c65cc00d84cbbbdc0bfb882d81de9b93d369057a1a"
+            }
+          },
+          "asMoveObject": {
+            "contents": {
+              "type": {
+                "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::position::Position"
+              },
+              "json": {
+                "id": "0x3791b5bede039960c83f976c1a6818e931bc92073ab695bb8e3d8188cc095af2",
+                "pool": "0xcc9a57d5e74b3d2e57e3d63403b7818804eb4560cde17b33fb2534d182d5c413",
+                "index": "1",
+                "coin_type_a": "deeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP",
+                "coin_type_b": "c5b61b1e1f7f88511c9c0c6f475f823c66cc4e2d39a49beb6777059710be8404::toilet::TOILET",
+                "name": "Cetus LP | Pool44309-1",
+                "description": "Cetus Liquidity Position",
+                "url": "https://bq7bkvdje7gvgmv66hrxdy7wx5h5ggtrrnmt66rdkkehb64rvz3q.arweave.net/DD4VVGknzVMyvvHjceP2v0_TGnGLWT96I1KIcPuRrnc",
+                "tick_lower_index": {
+                  "bits": 4294523776
+                },
+                "tick_upper_index": {
+                  "bits": 443520
+                },
+                "liquidity": "1374896123814"
+              }
+            }
+          }
+        }
+      ],
+      "reasons": [
+        "withdrawal_semantics_and_pool_principal_not_verified"
+      ],
+      "pool_object": {
+        "address": "0xcc9a57d5e74b3d2e57e3d63403b7818804eb4560cde17b33fb2534d182d5c413",
+        "version": 1007860020,
+        "owner": {
+          "__typename": "Shared"
+        },
+        "asMoveObject": {
+          "contents": {
+            "type": {
+              "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::Pool<0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP,0xc5b61b1e1f7f88511c9c0c6f475f823c66cc4e2d39a49beb6777059710be8404::toilet::TOILET>"
+            },
+            "json": {
+              "id": "0xcc9a57d5e74b3d2e57e3d63403b7818804eb4560cde17b33fb2534d182d5c413",
+              "coin_a": "32667129473",
+              "coin_b": "57940151487150",
+              "tick_spacing": 220,
+              "fee_rate": "20000",
+              "liquidity": "1374896123814",
+              "current_sqrt_price": "777010908107587339197",
+              "current_tick_index": {
+                "bits": 74815
+              },
+              "fee_growth_global_a": "521867314644656",
+              "fee_growth_global_b": "666332142417338157",
+              "fee_protocol_coin_a": "26202021",
+              "fee_protocol_coin_b": "12412115941",
+              "tick_manager": {
+                "tick_spacing": 220,
+                "ticks": {
+                  "id": "0x5053077f786391e999df85afbc5fa568578b1b62b9d1f245220d3904573fd060",
+                  "head": [
+                    {
+                      "is_none": false,
+                      "v": "116"
+                    },
+                    {
+                      "is_none": false,
+                      "v": "887156"
+                    },
+                    {
+                      "is_none": true,
+                      "v": "0"
+                    }
+                  ],
+                  "tail": {
+                    "is_none": false,
+                    "v": "887156"
+                  },
+                  "level": "3",
+                  "max_level": "16",
+                  "list_p": "2",
+                  "size": "2",
+                  "random": {
+                    "seed": "7537687324381177948"
+                  }
+                }
+              },
+              "rewarder_manager": {
+                "rewarders": [],
+                "points_released": "786347806374090766286848000000",
+                "points_growth_global": "1010015782417312748",
+                "last_updated_time": "1789894085"
+              },
+              "position_manager": {
+                "tick_spacing": 220,
+                "position_index": "2",
+                "positions": {
+                  "id": "0xef0dbc16868bfa869bcc375a2e312a16a5f7b60253128cc32cda26e94aa18e0f",
+                  "head": "0x3791b5bede039960c83f976c1a6818e931bc92073ab695bb8e3d8188cc095af2",
+                  "tail": "0x3791b5bede039960c83f976c1a6818e931bc92073ab695bb8e3d8188cc095af2",
+                  "size": "1"
+                }
+              },
+              "is_pause": false,
+              "index": "44309",
+              "url": "https://bq7bkvdje7gvgmv66hrxdy7wx5h5ggtrrnmt66rdkkehb64rvz3q.arweave.net/DD4VVGknzVMyvvHjceP2v0_TGnGLWT96I1KIcPuRrnc"
+            }
+          }
+        }
+      },
+      "position_fields": {
+        "nodes": [
+          {
+            "name": {
+              "json": "0x3791b5bede039960c83f976c1a6818e931bc92073ab695bb8e3d8188cc095af2"
+            },
+            "value": {
+              "json": {
+                "prev": null,
+                "next": null,
+                "value": {
+                  "position_id": "0x3791b5bede039960c83f976c1a6818e931bc92073ab695bb8e3d8188cc095af2",
+                  "liquidity": "1374896123814",
+                  "tick_lower_index": {
+                    "bits": 4294523776
+                  },
+                  "tick_upper_index": {
+                    "bits": 443520
+                  },
+                  "fee_growth_inside_a": "521867314644656",
+                  "fee_growth_inside_b": "470755741002085323",
+                  "fee_owned_a": "0",
+                  "fee_owned_b": "0",
+                  "points_owned": "34339464800",
+                  "points_growth_inside": "916929833474226736",
+                  "rewards": []
+                }
+              }
+            }
+          }
+        ],
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "qxZdEwAAAACwAwHvDbwWhov6hpvMN1ouMSoWpfe2AlMSjMMs2ibpSqGODwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAA1keW5hbWljX2ZpZWxkAAAAAAAAAAVGaWVsZAAAAAAAAAACAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAZvYmplY3QAAAAAAAAAAklEAAAAAAAAAAAAAAAHviGgYSkwjgSVQx0SKGEniXr/B6it45cElaRATZf56qoAAAAAAAAADGxpbmtlZF90YWJsZQAAAAAAAAAETm9kZQAAAAAAAAACAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAZvYmplY3QAAAAAAAAAAklEAAAAAAAAAAAAAAAHHqvtcsU/6zgFEgoIHcFZY8IE3I0JFUJZKrr3o1aJsvsAAAAAAAAACHBvc2l0aW9uAAAAAAAAAAxQb3NpdGlvbkluZm8AAAAAAAAAAAAvMpTMZa20VmYUe0KYu6DLJ+X57CsycG7xINMgt9PMXg=="
+        }
+      },
+      "http_attempts": 3
+    },
+    {
+      "pool": "0xb30c202dd0f1e43b8be0cba3d372ac333e3e3c1f99adece6a111dc6a0e2a8f22",
+      "creation_event": {
+        "timestamp": "2026-09-20T02:24:51.383Z",
+        "contents": {
+          "json": {
+            "pool_id": "0xb30c202dd0f1e43b8be0cba3d372ac333e3e3c1f99adece6a111dc6a0e2a8f22",
+            "coin_type_a": "e2296f78922606d5ef4aa292742bafe84e9270c22aef0870b5cb36127dc80a74::suifish::SUIFISH",
+            "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "tick_spacing": 2
+          }
+        },
+        "transaction": {
+          "digest": "7NKViQ9fe1nA1jNEyDH9yBhimCJoXZCoUaGzUyPyGYb8",
+          "effects": {
+            "checkpoint": {
+              "sequenceNumber": 324679256
+            }
+          }
+        }
+      },
+      "checkpoint": 324867755,
+      "locked_liquidity_percentage": null,
+      "positions": [
+        {
+          "address": "0xe244c31dd7f02232c2c7ce8c80613e4399a74783fcd2d812b59a722faee20402",
+          "version": 1007316022,
+          "owner": {
+            "__typename": "ObjectOwner",
+            "address": {
+              "address": "0xddb3d6187a1c9394ae134c7e0a2eec7bf0f777048a5304d388657024ff4b381e"
+            }
+          },
+          "asMoveObject": {
+            "contents": {
+              "type": {
+                "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::position::Position"
+              },
+              "json": {
+                "id": "0xe244c31dd7f02232c2c7ce8c80613e4399a74783fcd2d812b59a722faee20402",
+                "pool": "0xb30c202dd0f1e43b8be0cba3d372ac333e3e3c1f99adece6a111dc6a0e2a8f22",
+                "index": "2",
+                "coin_type_a": "e2296f78922606d5ef4aa292742bafe84e9270c22aef0870b5cb36127dc80a74::suifish::SUIFISH",
+                "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+                "name": "Cetus LP | Pool44310-2",
+                "description": "Cetus Liquidity Position",
+                "url": "https://cetus.zone",
+                "tick_lower_index": {
+                  "bits": 4294822204
+                },
+                "tick_upper_index": {
+                  "bits": 4294853644
+                },
+                "liquidity": "892494"
+              }
+            }
+          },
+          "parent": {
+            "address": "0xddb3d6187a1c9394ae134c7e0a2eec7bf0f777048a5304d388657024ff4b381e",
+            "version": 1007316022,
+            "owner": {
+              "__typename": "ObjectOwner",
+              "address": {
+                "address": "0x79740e32790b6d3b8ebae436a4dc166e55d92b9d70929496f47eab2d6dfbd63c"
+              }
+            },
+            "asMoveObject": {
+              "contents": {
+                "type": {
+                  "repr": "0x0000000000000000000000000000000000000000000000000000000000000002::dynamic_field::Field<0x0000000000000000000000000000000000000000000000000000000000000002::dynamic_object_field::Wrapper<0x0000000000000000000000000000000000000000000000000000000000000002::object::ID>,0x0000000000000000000000000000000000000000000000000000000000000002::object::ID>"
+                },
+                "json": {
+                  "id": "0xddb3d6187a1c9394ae134c7e0a2eec7bf0f777048a5304d388657024ff4b381e",
+                  "name": {
+                    "name": "0xb30c202dd0f1e43b8be0cba3d372ac333e3e3c1f99adece6a111dc6a0e2a8f22"
+                  },
+                  "value": "0xe244c31dd7f02232c2c7ce8c80613e4399a74783fcd2d812b59a722faee20402"
+                }
+              }
+            },
+            "parent": null
+          }
+        }
+      ],
+      "reasons": [
+        "parent_object_not_returned",
+        "withdrawal_semantics_and_pool_principal_not_verified"
+      ],
+      "pool_object": {
+        "address": "0xb30c202dd0f1e43b8be0cba3d372ac333e3e3c1f99adece6a111dc6a0e2a8f22",
+        "version": 1007319749,
+        "owner": {
+          "__typename": "Shared"
+        },
+        "asMoveObject": {
+          "contents": {
+            "type": {
+              "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::Pool<0xe2296f78922606d5ef4aa292742bafe84e9270c22aef0870b5cb36127dc80a74::suifish::SUIFISH,0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI>"
+            },
+            "json": {
+              "id": "0xb30c202dd0f1e43b8be0cba3d372ac333e3e3c1f99adece6a111dc6a0e2a8f22",
+              "coin_a": "2223015092002",
+              "coin_b": "20003008",
+              "tick_spacing": 2,
+              "fee_rate": "100",
+              "liquidity": "892494",
+              "current_sqrt_price": "29347840469116407",
+              "current_tick_index": {
+                "bits": 4294838421
+              },
+              "fee_growth_global_a": "231941660159993220",
+              "fee_growth_global_b": "2087240577149",
+              "fee_protocol_coin_a": "2222716159152",
+              "fee_protocol_coin_b": "20002212",
+              "tick_manager": {
+                "tick_spacing": 2,
+                "ticks": {
+                  "id": "0x8c9797f5dbe5cef8b148a8559ecaa0d7de69841abcf04c654715efa128ec3225",
+                  "head": [
+                    {
+                      "is_none": false,
+                      "v": "298544"
+                    },
+                    {
+                      "is_none": false,
+                      "v": "329984"
+                    }
+                  ],
+                  "tail": {
+                    "is_none": false,
+                    "v": "329984"
+                  },
+                  "level": "2",
+                  "max_level": "16",
+                  "list_p": "2",
+                  "size": "2",
+                  "random": {
+                    "seed": "2926001785301543944"
+                  }
+                }
+              },
+              "rewarder_manager": {
+                "rewarders": [],
+                "points_released": "3800029279184167632896000000",
+                "points_growth_global": "5374053475294",
+                "last_updated_time": "1789871297"
+              },
+              "position_manager": {
+                "tick_spacing": 2,
+                "position_index": "2",
+                "positions": {
+                  "id": "0x54c16beaa84099594b3e2329001a165d04dfb4d45b887e64b8380898d9b0fcd5",
+                  "head": "0xe244c31dd7f02232c2c7ce8c80613e4399a74783fcd2d812b59a722faee20402",
+                  "tail": "0xe244c31dd7f02232c2c7ce8c80613e4399a74783fcd2d812b59a722faee20402",
+                  "size": "1"
+                }
+              },
+              "is_pause": false,
+              "index": "44310",
+              "url": "https://cetus.zone"
+            }
+          }
+        }
+      },
+      "position_fields": {
+        "nodes": [
+          {
+            "name": {
+              "json": "0xe244c31dd7f02232c2c7ce8c80613e4399a74783fcd2d812b59a722faee20402"
+            },
+            "value": {
+              "json": {
+                "prev": null,
+                "next": null,
+                "value": {
+                  "position_id": "0xe244c31dd7f02232c2c7ce8c80613e4399a74783fcd2d812b59a722faee20402",
+                  "liquidity": "892494",
+                  "tick_lower_index": {
+                    "bits": 4294822204
+                  },
+                  "tick_upper_index": {
+                    "bits": 4294853644
+                  },
+                  "fee_growth_inside_a": "0",
+                  "fee_growth_inside_b": "0",
+                  "fee_owned_a": "0",
+                  "fee_owned_b": "0",
+                  "points_owned": "0",
+                  "points_growth_inside": "0",
+                  "rewards": []
+                }
+              }
+            }
+          }
+        ],
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "qxZdEwAAAACwAwFUwWvqqECZWUs+IykAGhZdBN+01FuIfmS4OAiY2bD81QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAA1keW5hbWljX2ZpZWxkAAAAAAAAAAVGaWVsZAAAAAAAAAACAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAZvYmplY3QAAAAAAAAAAklEAAAAAAAAAAAAAAAHviGgYSkwjgSVQx0SKGEniXr/B6it45cElaRATZf56qoAAAAAAAAADGxpbmtlZF90YWJsZQAAAAAAAAAETm9kZQAAAAAAAAACAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAZvYmplY3QAAAAAAAAAAklEAAAAAAAAAAAAAAAHHqvtcsU/6zgFEgoIHcFZY8IE3I0JFUJZKrr3o1aJsvsAAAAAAAAACHBvc2l0aW9uAAAAAAAAAAxQb3NpdGlvbkluZm8AAAAAAAAAAAAGoQIfOuosprwatjZjiL9vJvVgSvVSSZyGXtq4jSpL5A=="
+        }
+      },
+      "http_attempts": 5
+    },
+    {
+      "pool": "0x0d1ad4a350d896cf4927b9e83d825ef71862bde7499c3f41bba00738dcae7ec5",
+      "creation_event": {
+        "timestamp": "2026-09-20T02:41:27.238Z",
+        "contents": {
+          "json": {
+            "pool_id": "0x0d1ad4a350d896cf4927b9e83d825ef71862bde7499c3f41bba00738dcae7ec5",
+            "coin_type_a": "0b6b13e8cbe19bdc5396349bd156c99a1588b670282931c4b2d3d47ce1d22814::uranus::URANUS",
+            "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "tick_spacing": 2
+          }
+        },
+        "transaction": {
+          "digest": "2SFk3sdcd9GeGnWdx5yEEoN33ucv8hqdrTn6qNrqYcpF",
+          "effects": {
+            "checkpoint": {
+              "sequenceNumber": 324683742
+            }
+          }
+        }
+      },
+      "checkpoint": 324867755,
+      "locked_liquidity_percentage": null,
+      "positions": [
+        {
+          "address": "0x0b259f049e8ca07982798edc0ab15a012f86d122abc6344db9c95c0143788b31",
+          "version": 1007418264,
+          "owner": {
+            "__typename": "AddressOwner",
+            "address": {
+              "address": "0x07a8fdf152b51149952e70e267250c64b9a6b343ed17f40db2b0aeb724c84914"
+            }
+          },
+          "asMoveObject": {
+            "contents": {
+              "type": {
+                "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::position::Position"
+              },
+              "json": {
+                "id": "0x0b259f049e8ca07982798edc0ab15a012f86d122abc6344db9c95c0143788b31",
+                "pool": "0x0d1ad4a350d896cf4927b9e83d825ef71862bde7499c3f41bba00738dcae7ec5",
+                "index": "3",
+                "coin_type_a": "0b6b13e8cbe19bdc5396349bd156c99a1588b670282931c4b2d3d47ce1d22814::uranus::URANUS",
+                "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+                "name": "Cetus LP | Pool44311-3",
+                "description": "Cetus Liquidity Position",
+                "url": "https://cetus.zone",
+                "tick_lower_index": {
+                  "bits": 4294857112
+                },
+                "tick_upper_index": {
+                  "bits": 4294888552
+                },
+                "liquidity": "5111932"
+              }
+            }
+          }
+        },
+        {
+          "address": "0xcfdd3d6596487a40cfb24af47a0da7c497cbf9aa840cc236fad1579ba48392b5",
+          "version": 1007340028,
+          "owner": {
+            "__typename": "ObjectOwner",
+            "address": {
+              "address": "0xb112d867e4a91e44bb8450ee7d586057b52eb13933d8e08704b109e99ec6816b"
+            }
+          },
+          "asMoveObject": {
+            "contents": {
+              "type": {
+                "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::position::Position"
+              },
+              "json": {
+                "id": "0xcfdd3d6596487a40cfb24af47a0da7c497cbf9aa840cc236fad1579ba48392b5",
+                "pool": "0x0d1ad4a350d896cf4927b9e83d825ef71862bde7499c3f41bba00738dcae7ec5",
+                "index": "2",
+                "coin_type_a": "0b6b13e8cbe19bdc5396349bd156c99a1588b670282931c4b2d3d47ce1d22814::uranus::URANUS",
+                "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+                "name": "Cetus LP | Pool44311-2",
+                "description": "Cetus Liquidity Position",
+                "url": "https://cetus.zone",
+                "tick_lower_index": {
+                  "bits": 4294844176
+                },
+                "tick_upper_index": {
+                  "bits": 4294875616
+                },
+                "liquidity": "2677302"
+              }
+            }
+          },
+          "parent": {
+            "address": "0xb112d867e4a91e44bb8450ee7d586057b52eb13933d8e08704b109e99ec6816b",
+            "version": 1007340028,
+            "owner": {
+              "__typename": "ObjectOwner",
+              "address": {
+                "address": "0x79740e32790b6d3b8ebae436a4dc166e55d92b9d70929496f47eab2d6dfbd63c"
+              }
+            },
+            "asMoveObject": {
+              "contents": {
+                "type": {
+                  "repr": "0x0000000000000000000000000000000000000000000000000000000000000002::dynamic_field::Field<0x0000000000000000000000000000000000000000000000000000000000000002::dynamic_object_field::Wrapper<0x0000000000000000000000000000000000000000000000000000000000000002::object::ID>,0x0000000000000000000000000000000000000000000000000000000000000002::object::ID>"
+                },
+                "json": {
+                  "id": "0xb112d867e4a91e44bb8450ee7d586057b52eb13933d8e08704b109e99ec6816b",
+                  "name": {
+                    "name": "0x0d1ad4a350d896cf4927b9e83d825ef71862bde7499c3f41bba00738dcae7ec5"
+                  },
+                  "value": "0xcfdd3d6596487a40cfb24af47a0da7c497cbf9aa840cc236fad1579ba48392b5"
+                }
+              }
+            },
+            "parent": null
+          }
+        },
+        {
+          "address": "0x20ef2e931585d90f89205f13ac927dd3e7458226b21570d7a930b20bd7d5ac81",
+          "version": 1007339534,
+          "owner": {
+            "__typename": "AddressOwner",
+            "address": {
+              "address": "0x07a8fdf152b51149952e70e267250c64b9a6b343ed17f40db2b0aeb724c84914"
+            }
+          },
+          "asMoveObject": {
+            "contents": {
+              "type": {
+                "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::position::Position"
+              },
+              "json": {
+                "id": "0x20ef2e931585d90f89205f13ac927dd3e7458226b21570d7a930b20bd7d5ac81",
+                "pool": "0x0d1ad4a350d896cf4927b9e83d825ef71862bde7499c3f41bba00738dcae7ec5",
+                "index": "1",
+                "coin_type_a": "0b6b13e8cbe19bdc5396349bd156c99a1588b670282931c4b2d3d47ce1d22814::uranus::URANUS",
+                "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+                "name": "Cetus LP | Pool44311-1",
+                "description": "Cetus Liquidity Position",
+                "url": "https://cetus.zone",
+                "tick_lower_index": {
+                  "bits": 4294523660
+                },
+                "tick_upper_index": {
+                  "bits": 443636
+                },
+                "liquidity": "2121320131428655"
+              }
+            }
+          }
+        }
+      ],
+      "reasons": [
+        "parent_object_not_returned",
+        "withdrawal_semantics_and_pool_principal_not_verified"
+      ],
+      "pool_object": {
+        "address": "0x0d1ad4a350d896cf4927b9e83d825ef71862bde7499c3f41bba00738dcae7ec5",
+        "version": 1008208237,
+        "owner": {
+          "__typename": "Shared"
+        },
+        "asMoveObject": {
+          "contents": {
+            "type": {
+              "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::Pool<0x0b6b13e8cbe19bdc5396349bd156c99a1588b670282931c4b2d3d47ce1d22814::uranus::URANUS,0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI>"
+            },
+            "json": {
+              "id": "0x0d1ad4a350d896cf4927b9e83d825ef71862bde7499c3f41bba00738dcae7ec5",
+              "coin_a": "332032263242460774",
+              "coin_b": "13557800611758",
+              "tick_spacing": 2,
+              "fee_rate": "100",
+              "liquidity": "2121320139217889",
+              "current_sqrt_price": "117876788093175087",
+              "current_tick_index": {
+                "bits": 4294866230
+              },
+              "fee_growth_global_a": "439502935906349155",
+              "fee_growth_global_b": "16172241518487",
+              "fee_protocol_coin_a": "12635379248043",
+              "fee_protocol_coin_b": "464940671",
+              "tick_manager": {
+                "tick_spacing": 2,
+                "ticks": {
+                  "id": "0x77d0a0fbf6077b0015bef239e5eea31459db476a2ea1f2847560ccc8aeda2f4f",
+                  "head": [
+                    {
+                      "is_none": false,
+                      "v": "0"
+                    },
+                    {
+                      "is_none": false,
+                      "v": "320516"
+                    }
+                  ],
+                  "tail": {
+                    "is_none": false,
+                    "v": "887272"
+                  },
+                  "level": "2",
+                  "max_level": "16",
+                  "list_p": "2",
+                  "size": "6",
+                  "random": {
+                    "seed": "5963128886993011897"
+                  }
+                }
+              },
+              "rewarder_manager": {
+                "rewarders": [],
+                "points_released": "765170944177472201031680000000",
+                "points_growth_global": "360705077056606",
+                "last_updated_time": "1789913567"
+              },
+              "position_manager": {
+                "tick_spacing": 2,
+                "position_index": "3",
+                "positions": {
+                  "id": "0xf5cc05bd0d78d2417bec51a103a0388bc8a8cdd0011d17b343e7d02b814dd385",
+                  "head": "0x20ef2e931585d90f89205f13ac927dd3e7458226b21570d7a930b20bd7d5ac81",
+                  "tail": "0x0b259f049e8ca07982798edc0ab15a012f86d122abc6344db9c95c0143788b31",
+                  "size": "3"
+                }
+              },
+              "is_pause": false,
+              "index": "44311",
+              "url": "https://cetus.zone"
+            }
+          }
+        }
+      },
+      "position_fields": {
+        "nodes": [
+          {
+            "name": {
+              "json": "0x0b259f049e8ca07982798edc0ab15a012f86d122abc6344db9c95c0143788b31"
+            },
+            "value": {
+              "json": {
+                "prev": "0xcfdd3d6596487a40cfb24af47a0da7c497cbf9aa840cc236fad1579ba48392b5",
+                "next": null,
+                "value": {
+                  "position_id": "0x0b259f049e8ca07982798edc0ab15a012f86d122abc6344db9c95c0143788b31",
+                  "liquidity": "5111932",
+                  "tick_lower_index": {
+                    "bits": 4294857112
+                  },
+                  "tick_upper_index": {
+                    "bits": 4294888552
+                  },
+                  "fee_growth_inside_a": "0",
+                  "fee_growth_inside_b": "0",
+                  "fee_owned_a": "0",
+                  "fee_owned_b": "0",
+                  "points_owned": "0",
+                  "points_growth_inside": "0",
+                  "rewards": []
+                }
+              }
+            }
+          },
+          {
+            "name": {
+              "json": "0xcfdd3d6596487a40cfb24af47a0da7c497cbf9aa840cc236fad1579ba48392b5"
+            },
+            "value": {
+              "json": {
+                "prev": "0x20ef2e931585d90f89205f13ac927dd3e7458226b21570d7a930b20bd7d5ac81",
+                "next": "0x0b259f049e8ca07982798edc0ab15a012f86d122abc6344db9c95c0143788b31",
+                "value": {
+                  "position_id": "0xcfdd3d6596487a40cfb24af47a0da7c497cbf9aa840cc236fad1579ba48392b5",
+                  "liquidity": "2677302",
+                  "tick_lower_index": {
+                    "bits": 4294844176
+                  },
+                  "tick_upper_index": {
+                    "bits": 4294875616
+                  },
+                  "fee_growth_inside_a": "0",
+                  "fee_growth_inside_b": "0",
+                  "fee_owned_a": "0",
+                  "fee_owned_b": "0",
+                  "points_owned": "0",
+                  "points_growth_inside": "0",
+                  "rewards": []
+                }
+              }
+            }
+          },
+          {
+            "name": {
+              "json": "0x20ef2e931585d90f89205f13ac927dd3e7458226b21570d7a930b20bd7d5ac81"
+            },
+            "value": {
+              "json": {
+                "prev": null,
+                "next": "0xcfdd3d6596487a40cfb24af47a0da7c497cbf9aa840cc236fad1579ba48392b5",
+                "value": {
+                  "position_id": "0x20ef2e931585d90f89205f13ac927dd3e7458226b21570d7a930b20bd7d5ac81",
+                  "liquidity": "2121320131428655",
+                  "tick_lower_index": {
+                    "bits": 4294523660
+                  },
+                  "tick_upper_index": {
+                    "bits": 443636
+                  },
+                  "fee_growth_inside_a": "0",
+                  "fee_growth_inside_b": "0",
+                  "fee_owned_a": "0",
+                  "fee_owned_b": "0",
+                  "points_owned": "0",
+                  "points_growth_inside": "0",
+                  "rewards": []
+                }
+              }
+            }
+          }
+        ],
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "qxZdEwAAAACwAwH1zAW9DXjSQXvsUaEDoDiLyKjN0AEdF7ND59ArgU3ThQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAA1keW5hbWljX2ZpZWxkAAAAAAAAAAVGaWVsZAAAAAAAAAACAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAZvYmplY3QAAAAAAAAAAklEAAAAAAAAAAAAAAAHviGgYSkwjgSVQx0SKGEniXr/B6it45cElaRATZf56qoAAAAAAAAADGxpbmtlZF90YWJsZQAAAAAAAAAETm9kZQAAAAAAAAACAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAZvYmplY3QAAAAAAAAAAklEAAAAAAAAAAAAAAAHHqvtcsU/6zgFEgoIHcFZY8IE3I0JFUJZKrr3o1aJsvsAAAAAAAAACHBvc2l0aW9uAAAAAAAAAAxQb3NpdGlvbkluZm8AAAAAAAAAAAD2G1eChdoWfPHa/z1h0qAQFAtpL52fkP5rvtNH4ipWtQ=="
+        }
+      },
+      "http_attempts": 7
+    },
+    {
+      "pool": "0x053412ea24c38bd51e428bfdd5686b1611d91c30df76880c508dfafdbdce1787",
+      "creation_event": {
+        "timestamp": "2026-09-20T03:35:58.081Z",
+        "contents": {
+          "json": {
+            "pool_id": "0x053412ea24c38bd51e428bfdd5686b1611d91c30df76880c508dfafdbdce1787",
+            "coin_type_a": "8b43eeeddee32344324ea8f2607837eea27e50b0f6bad7d9946f458edaf5c659::ZUK::ZUK",
+            "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "tick_spacing": 260
+          }
+        },
+        "transaction": {
+          "digest": "9NtS4bKfDTJ9gCVRNj7vW9hRTHhgCsM4dZJC3pa7jUXn",
+          "effects": {
+            "checkpoint": {
+              "sequenceNumber": 324698308
+            }
+          }
+        }
+      },
+      "checkpoint": 324867755,
+      "locked_liquidity_percentage": null,
+      "positions": [
+        {
+          "address": "0xe2213496473bd6128c494de1596cda5cd5fc9dbaad9e0aa2f1706b600bb1525f",
+          "version": 1008136149,
+          "owner": {
+            "__typename": "AddressOwner",
+            "address": {
+              "address": "0x52d049826f4acebe8681c355dc3c3210919ce448cd81c62fe7282d02b3188ea7"
+            }
+          },
+          "asMoveObject": {
+            "contents": {
+              "type": {
+                "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::position::Position"
+              },
+              "json": {
+                "id": "0xe2213496473bd6128c494de1596cda5cd5fc9dbaad9e0aa2f1706b600bb1525f",
+                "pool": "0x053412ea24c38bd51e428bfdd5686b1611d91c30df76880c508dfafdbdce1787",
+                "index": "2",
+                "coin_type_a": "8b43eeeddee32344324ea8f2607837eea27e50b0f6bad7d9946f458edaf5c659::ZUK::ZUK",
+                "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+                "name": "Cetus LP | Pool44312-2",
+                "description": "Cetus Liquidity Position",
+                "url": "https://bq7bkvdje7gvgmv66hrxdy7wx5h5ggtrrnmt66rdkkehb64rvz3q.arweave.net/DD4VVGknzVMyvvHjceP2v0_TGnGLWT96I1KIcPuRrnc",
+                "tick_lower_index": {
+                  "bits": 4294863036
+                },
+                "tick_upper_index": {
+                  "bits": 92040
+                },
+                "liquidity": "5441577849139465"
+              }
+            }
+          }
+        }
+      ],
+      "reasons": [
+        "withdrawal_semantics_and_pool_principal_not_verified"
+      ],
+      "pool_object": {
+        "address": "0x053412ea24c38bd51e428bfdd5686b1611d91c30df76880c508dfafdbdce1787",
+        "version": 1008203947,
+        "owner": {
+          "__typename": "Shared"
+        },
+        "asMoveObject": {
+          "contents": {
+            "type": {
+              "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::Pool<0x8b43eeeddee32344324ea8f2607837eea27e50b0f6bad7d9946f458edaf5c659::ZUK::ZUK,0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI>"
+            },
+            "json": {
+              "id": "0x053412ea24c38bd51e428bfdd5686b1611d91c30df76880c508dfafdbdce1787",
+              "coin_a": "998994227300096863",
+              "coin_b": "220548677",
+              "tick_spacing": 260,
+              "fee_rate": "40000",
+              "liquidity": "5441577849139465",
+              "current_sqrt_price": "100475095744926881",
+              "current_tick_index": {
+                "bits": 4294863036
+              },
+              "fee_growth_global_a": "17481574842482431",
+              "fee_growth_global_b": "539139613327",
+              "fee_protocol_coin_a": "1289216000000",
+              "fee_protocol_coin_b": "39760000",
+              "tick_manager": {
+                "tick_spacing": 260,
+                "ticks": {
+                  "id": "0x58e969382977e059381217130a5f914186ed3624724d9e801a86852803f91cdb",
+                  "head": [
+                    {
+                      "is_none": false,
+                      "v": "339376"
+                    }
+                  ],
+                  "tail": {
+                    "is_none": false,
+                    "v": "535676"
+                  },
+                  "level": "1",
+                  "max_level": "16",
+                  "list_p": "2",
+                  "size": "2",
+                  "random": {
+                    "seed": "14455216935539203079"
+                  }
+                }
+              },
+              "rewarder_manager": {
+                "rewarders": [],
+                "points_released": "698301496910275076423680000000",
+                "points_growth_global": "402630807280302899",
+                "last_updated_time": "1789913236"
+              },
+              "position_manager": {
+                "tick_spacing": 260,
+                "position_index": "2",
+                "positions": {
+                  "id": "0x29afbeacd9914d4013f2f99926a5ef18b4dcf410d066d316ccc33561f9c0c1eb",
+                  "head": "0xe2213496473bd6128c494de1596cda5cd5fc9dbaad9e0aa2f1706b600bb1525f",
+                  "tail": "0xe2213496473bd6128c494de1596cda5cd5fc9dbaad9e0aa2f1706b600bb1525f",
+                  "size": "1"
+                }
+              },
+              "is_pause": false,
+              "index": "44312",
+              "url": "https://bq7bkvdje7gvgmv66hrxdy7wx5h5ggtrrnmt66rdkkehb64rvz3q.arweave.net/DD4VVGknzVMyvvHjceP2v0_TGnGLWT96I1KIcPuRrnc"
+            }
+          }
+        }
+      },
+      "position_fields": {
+        "nodes": [
+          {
+            "name": {
+              "json": "0xe2213496473bd6128c494de1596cda5cd5fc9dbaad9e0aa2f1706b600bb1525f"
+            },
+            "value": {
+              "json": {
+                "prev": null,
+                "next": null,
+                "value": {
+                  "position_id": "0xe2213496473bd6128c494de1596cda5cd5fc9dbaad9e0aa2f1706b600bb1525f",
+                  "liquidity": "5441577849139465",
+                  "tick_lower_index": {
+                    "bits": 4294863036
+                  },
+                  "tick_upper_index": {
+                    "bits": 92040
+                  },
+                  "fee_growth_inside_a": "17373096047044072",
+                  "fee_growth_inside_b": "539139613327",
+                  "fee_owned_a": "0",
+                  "fee_owned_b": "0",
+                  "points_owned": "0",
+                  "points_growth_inside": "0",
+                  "rewards": []
+                }
+              }
+            }
+          }
+        ],
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "qxZdEwAAAACwAwEpr76s2ZFNQBPy+Zkmpe8YtNz0ENBm0xbMwzVh+cDB6wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAA1keW5hbWljX2ZpZWxkAAAAAAAAAAVGaWVsZAAAAAAAAAACAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAZvYmplY3QAAAAAAAAAAklEAAAAAAAAAAAAAAAHviGgYSkwjgSVQx0SKGEniXr/B6it45cElaRATZf56qoAAAAAAAAADGxpbmtlZF90YWJsZQAAAAAAAAAETm9kZQAAAAAAAAACAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAZvYmplY3QAAAAAAAAAAklEAAAAAAAAAAAAAAAHHqvtcsU/6zgFEgoIHcFZY8IE3I0JFUJZKrr3o1aJsvsAAAAAAAAACHBvc2l0aW9uAAAAAAAAAAxQb3NpdGlvbkluZm8AAAAAAAAAAABZN5grvPb1fn7Lbcjxbfw9R9/zMLs9d1nKGh8DLOszvw=="
+        }
+      },
+      "http_attempts": 3
+    },
+    {
+      "pool": "0x9ed4e71f56a74677860c7e015ac8126d18053106e156cb8bfcdf94dec77c413e",
+      "creation_event": {
+        "timestamp": "2026-09-20T03:43:59.774Z",
+        "contents": {
+          "json": {
+            "pool_id": "0x9ed4e71f56a74677860c7e015ac8126d18053106e156cb8bfcdf94dec77c413e",
+            "coin_type_a": "e8ea2e34e2ce2b05283f011e14408d85071c0fc184cd561a4fa2a5bc9f48e3a6::suinu::SUINU",
+            "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "tick_spacing": 260
+          }
+        },
+        "transaction": {
+          "digest": "Cx17RVsJojRcnsupL8SDBS5DVh9YVukmtajToSSa4YDE",
+          "effects": {
+            "checkpoint": {
+              "sequenceNumber": 324700472
+            }
+          }
+        }
+      },
+      "checkpoint": 324867755,
+      "locked_liquidity_percentage": null,
+      "positions": [
+        {
+          "address": "0xa5ce96dbda5dd3729682da46af649e61b5d01b65feab83f00e0215ddd00b5e9f",
+          "version": 1008136149,
+          "owner": {
+            "__typename": "AddressOwner",
+            "address": {
+              "address": "0x52d049826f4acebe8681c355dc3c3210919ce448cd81c62fe7282d02b3188ea7"
+            }
+          },
+          "asMoveObject": {
+            "contents": {
+              "type": {
+                "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::position::Position"
+              },
+              "json": {
+                "id": "0xa5ce96dbda5dd3729682da46af649e61b5d01b65feab83f00e0215ddd00b5e9f",
+                "pool": "0x9ed4e71f56a74677860c7e015ac8126d18053106e156cb8bfcdf94dec77c413e",
+                "index": "2",
+                "coin_type_a": "e8ea2e34e2ce2b05283f011e14408d85071c0fc184cd561a4fa2a5bc9f48e3a6::suinu::SUINU",
+                "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+                "name": "Cetus LP | Pool44313-2",
+                "description": "Cetus Liquidity Position",
+                "url": "https://bq7bkvdje7gvgmv66hrxdy7wx5h5ggtrrnmt66rdkkehb64rvz3q.arweave.net/DD4VVGknzVMyvvHjceP2v0_TGnGLWT96I1KIcPuRrnc",
+                "tick_lower_index": {
+                  "bits": 4294859136
+                },
+                "tick_upper_index": {
+                  "bits": 93080
+                },
+                "liquidity": "4477508944571622"
+              }
+            }
+          }
+        }
+      ],
+      "reasons": [
+        "withdrawal_semantics_and_pool_principal_not_verified"
+      ],
+      "pool_object": {
+        "address": "0x9ed4e71f56a74677860c7e015ac8126d18053106e156cb8bfcdf94dec77c413e",
+        "version": 1008136149,
+        "owner": {
+          "__typename": "Shared"
+        },
+        "asMoveObject": {
+          "contents": {
+            "type": {
+              "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::Pool<0xe8ea2e34e2ce2b05283f011e14408d85071c0fc184cd561a4fa2a5bc9f48e3a6::suinu::SUINU,0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI>"
+            },
+            "json": {
+              "id": "0x9ed4e71f56a74677860c7e015ac8126d18053106e156cb8bfcdf94dec77c413e",
+              "coin_a": "998998044138259909",
+              "coin_b": "19360002",
+              "tick_spacing": 260,
+              "fee_rate": "40000",
+              "liquidity": "4477508944571622",
+              "current_sqrt_price": "82674771884427697",
+              "current_tick_index": {
+                "bits": 4294859136
+              },
+              "fee_growth_global_a": "0",
+              "fee_growth_global_b": "2636715270",
+              "fee_protocol_coin_a": "0",
+              "fee_protocol_coin_b": "160000",
+              "tick_manager": {
+                "tick_spacing": 260,
+                "ticks": {
+                  "id": "0xd6797a8b664818be1a58949b708c35f715f3c2c578812c63202895e4b340bb4c",
+                  "head": [
+                    {
+                      "is_none": false,
+                      "v": "335476"
+                    },
+                    {
+                      "is_none": false,
+                      "v": "335476"
+                    }
+                  ],
+                  "tail": {
+                    "is_none": false,
+                    "v": "536716"
+                  },
+                  "level": "2",
+                  "max_level": "16",
+                  "list_p": "2",
+                  "size": "2",
+                  "random": {
+                    "seed": "5808305662749546071"
+                  }
+                }
+              },
+              "rewarder_manager": {
+                "rewarders": [],
+                "points_released": "940783947759187132416000000",
+                "points_growth_global": "297502006120230167",
+                "last_updated_time": "1789875941"
+              },
+              "position_manager": {
+                "tick_spacing": 260,
+                "position_index": "2",
+                "positions": {
+                  "id": "0xd5d9790bb149f73c8a5f92ffc98bbeb4e7a3b54bf46d687957e1d9580789f43a",
+                  "head": "0xa5ce96dbda5dd3729682da46af649e61b5d01b65feab83f00e0215ddd00b5e9f",
+                  "tail": "0xa5ce96dbda5dd3729682da46af649e61b5d01b65feab83f00e0215ddd00b5e9f",
+                  "size": "1"
+                }
+              },
+              "is_pause": false,
+              "index": "44313",
+              "url": "https://bq7bkvdje7gvgmv66hrxdy7wx5h5ggtrrnmt66rdkkehb64rvz3q.arweave.net/DD4VVGknzVMyvvHjceP2v0_TGnGLWT96I1KIcPuRrnc"
+            }
+          }
+        }
+      },
+      "position_fields": {
+        "nodes": [
+          {
+            "name": {
+              "json": "0xa5ce96dbda5dd3729682da46af649e61b5d01b65feab83f00e0215ddd00b5e9f"
+            },
+            "value": {
+              "json": {
+                "prev": null,
+                "next": null,
+                "value": {
+                  "position_id": "0xa5ce96dbda5dd3729682da46af649e61b5d01b65feab83f00e0215ddd00b5e9f",
+                  "liquidity": "4477508944571622",
+                  "tick_lower_index": {
+                    "bits": 4294859136
+                  },
+                  "tick_upper_index": {
+                    "bits": 93080
+                  },
+                  "fee_growth_inside_a": "0",
+                  "fee_growth_inside_b": "2636715270",
+                  "fee_owned_a": "0",
+                  "fee_owned_b": "0",
+                  "points_owned": "0",
+                  "points_growth_inside": "0",
+                  "rewards": []
+                }
+              }
+            }
+          }
+        ],
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "qxZdEwAAAACwAwHV2XkLsUn3PIpfkv/Ji76056O1S/RtaHlX4dlYB4n0OgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAA1keW5hbWljX2ZpZWxkAAAAAAAAAAVGaWVsZAAAAAAAAAACAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAZvYmplY3QAAAAAAAAAAklEAAAAAAAAAAAAAAAHviGgYSkwjgSVQx0SKGEniXr/B6it45cElaRATZf56qoAAAAAAAAADGxpbmtlZF90YWJsZQAAAAAAAAAETm9kZQAAAAAAAAACAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAZvYmplY3QAAAAAAAAAAklEAAAAAAAAAAAAAAAHHqvtcsU/6zgFEgoIHcFZY8IE3I0JFUJZKrr3o1aJsvsAAAAAAAAACHBvc2l0aW9uAAAAAAAAAAxQb3NpdGlvbkluZm8AAAAAAAAAAACjQQH/ENvk1CpAo00SSS2q6wJe1lzoMsbRnzsQh+cgCg=="
+        }
+      },
+      "http_attempts": 3
+    },
+    {
+      "pool": "0x2afc33dbcd69f4833e5ccde3881b9f3d764e55c51fd65d3871068d6dc2ae94c9",
+      "creation_event": {
+        "timestamp": "2026-09-20T03:49:02.192Z",
+        "contents": {
+          "json": {
+            "pool_id": "0x2afc33dbcd69f4833e5ccde3881b9f3d764e55c51fd65d3871068d6dc2ae94c9",
+            "coin_type_a": "89ab0e3b699d11eb47c8a1efe43290dde23fa083aacafa6ade9486fb112fd966::soh::SOH",
+            "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "tick_spacing": 260
+          }
+        },
+        "transaction": {
+          "digest": "8jv7i9wuC6F6MB1eXM4xLzusVw2nbqBX7ZUyvp5uUB2p",
+          "effects": {
+            "checkpoint": {
+              "sequenceNumber": 324701838
+            }
+          }
+        }
+      },
+      "checkpoint": 324867755,
+      "locked_liquidity_percentage": null,
+      "positions": [
+        {
+          "address": "0x68b637b50827df90197e0f7dba785a35fa0f7bf5bdda9b7d43645e5da616b762",
+          "version": 1008136149,
+          "owner": {
+            "__typename": "AddressOwner",
+            "address": {
+              "address": "0x52d049826f4acebe8681c355dc3c3210919ce448cd81c62fe7282d02b3188ea7"
+            }
+          },
+          "asMoveObject": {
+            "contents": {
+              "type": {
+                "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::position::Position"
+              },
+              "json": {
+                "id": "0x68b637b50827df90197e0f7dba785a35fa0f7bf5bdda9b7d43645e5da616b762",
+                "pool": "0x2afc33dbcd69f4833e5ccde3881b9f3d764e55c51fd65d3871068d6dc2ae94c9",
+                "index": "2",
+                "coin_type_a": "89ab0e3b699d11eb47c8a1efe43290dde23fa083aacafa6ade9486fb112fd966::soh::SOH",
+                "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+                "name": "Cetus LP | Pool44314-2",
+                "description": "Cetus Liquidity Position",
+                "url": "https://bq7bkvdje7gvgmv66hrxdy7wx5h5ggtrrnmt66rdkkehb64rvz3q.arweave.net/DD4VVGknzVMyvvHjceP2v0_TGnGLWT96I1KIcPuRrnc",
+                "tick_lower_index": {
+                  "bits": 4294859136
+                },
+                "tick_upper_index": {
+                  "bits": 116220
+                },
+                "liquidity": "4477377896326048"
+              }
+            }
+          }
+        }
+      ],
+      "reasons": [
+        "withdrawal_semantics_and_pool_principal_not_verified"
+      ],
+      "pool_object": {
+        "address": "0x2afc33dbcd69f4833e5ccde3881b9f3d764e55c51fd65d3871068d6dc2ae94c9",
+        "version": 1008136149,
+        "owner": {
+          "__typename": "Shared"
+        },
+        "asMoveObject": {
+          "contents": {
+            "type": {
+              "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::Pool<0x89ab0e3b699d11eb47c8a1efe43290dde23fa083aacafa6ade9486fb112fd966::soh::SOH,0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI>"
+            },
+            "json": {
+              "id": "0x2afc33dbcd69f4833e5ccde3881b9f3d764e55c51fd65d3871068d6dc2ae94c9",
+              "coin_a": "998998044138259928",
+              "coin_b": "19360002",
+              "tick_spacing": 260,
+              "fee_rate": "40000",
+              "liquidity": "4477377896326048",
+              "current_sqrt_price": "82674771886742916",
+              "current_tick_index": {
+                "bits": 4294859136
+              },
+              "fee_growth_global_a": "0",
+              "fee_growth_global_b": "2636792444",
+              "fee_protocol_coin_a": "0",
+              "fee_protocol_coin_b": "160000",
+              "tick_manager": {
+                "tick_spacing": 260,
+                "ticks": {
+                  "id": "0x7db0b9a274a9cb1529e0f0b162bc90b67383e6f24498219fab75d1be57de83c9",
+                  "head": [
+                    {
+                      "is_none": false,
+                      "v": "335476"
+                    },
+                    {
+                      "is_none": false,
+                      "v": "335476"
+                    },
+                    {
+                      "is_none": false,
+                      "v": "559856"
+                    }
+                  ],
+                  "tail": {
+                    "is_none": false,
+                    "v": "559856"
+                  },
+                  "level": "3",
+                  "max_level": "16",
+                  "list_p": "2",
+                  "size": "2",
+                  "random": {
+                    "seed": "15031677706984253604"
+                  }
+                }
+              },
+              "rewarder_manager": {
+                "rewarders": [],
+                "points_released": "1992248359960631574528000000",
+                "points_growth_global": "630004248254605059",
+                "last_updated_time": "1789876281"
+              },
+              "position_manager": {
+                "tick_spacing": 260,
+                "position_index": "2",
+                "positions": {
+                  "id": "0x81f64afe61912764a05554c36876306098e6eb82efdbe8787f64f909625fddc3",
+                  "head": "0x68b637b50827df90197e0f7dba785a35fa0f7bf5bdda9b7d43645e5da616b762",
+                  "tail": "0x68b637b50827df90197e0f7dba785a35fa0f7bf5bdda9b7d43645e5da616b762",
+                  "size": "1"
+                }
+              },
+              "is_pause": false,
+              "index": "44314",
+              "url": "https://bq7bkvdje7gvgmv66hrxdy7wx5h5ggtrrnmt66rdkkehb64rvz3q.arweave.net/DD4VVGknzVMyvvHjceP2v0_TGnGLWT96I1KIcPuRrnc"
+            }
+          }
+        }
+      },
+      "position_fields": {
+        "nodes": [
+          {
+            "name": {
+              "json": "0x68b637b50827df90197e0f7dba785a35fa0f7bf5bdda9b7d43645e5da616b762"
+            },
+            "value": {
+              "json": {
+                "prev": null,
+                "next": null,
+                "value": {
+                  "position_id": "0x68b637b50827df90197e0f7dba785a35fa0f7bf5bdda9b7d43645e5da616b762",
+                  "liquidity": "4477377896326048",
+                  "tick_lower_index": {
+                    "bits": 4294859136
+                  },
+                  "tick_upper_index": {
+                    "bits": 116220
+                  },
+                  "fee_growth_inside_a": "0",
+                  "fee_growth_inside_b": "2636792444",
+                  "fee_owned_a": "0",
+                  "fee_owned_b": "0",
+                  "points_owned": "0",
+                  "points_growth_inside": "0",
+                  "rewards": []
+                }
+              }
+            }
+          }
+        ],
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "qxZdEwAAAACwAwGB9kr+YZEnZKBVVMNodjBgmObrgu/b6Hh/ZPkJYl/dwwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAA1keW5hbWljX2ZpZWxkAAAAAAAAAAVGaWVsZAAAAAAAAAACAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAZvYmplY3QAAAAAAAAAAklEAAAAAAAAAAAAAAAHviGgYSkwjgSVQx0SKGEniXr/B6it45cElaRATZf56qoAAAAAAAAADGxpbmtlZF90YWJsZQAAAAAAAAAETm9kZQAAAAAAAAACAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAZvYmplY3QAAAAAAAAAAklEAAAAAAAAAAAAAAAHHqvtcsU/6zgFEgoIHcFZY8IE3I0JFUJZKrr3o1aJsvsAAAAAAAAACHBvc2l0aW9uAAAAAAAAAAxQb3NpdGlvbkluZm8AAAAAAAAAAABient+5FuSQZc8xuwrkxpdeKZOvemfIOnwKESHiQ/y2A=="
+        }
+      },
+      "http_attempts": 3
+    },
+    {
+      "pool": "0x0c3426fd593b4234d2776fe1b71a641836106322267903abbb546a8b3962940b",
+      "creation_event": {
+        "timestamp": "2026-09-20T03:58:54.451Z",
+        "contents": {
+          "json": {
+            "pool_id": "0x0c3426fd593b4234d2776fe1b71a641836106322267903abbb546a8b3962940b",
+            "coin_type_a": "079521e547135b98f10ad523dbe2acaef17cdaac36bdf35f479b82d77c4417d2::suitard::SUITARD",
+            "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "tick_spacing": 260
+          }
+        },
+        "transaction": {
+          "digest": "GgGGPSUcQxMhhc4eWogP7hTecTgTWn1XLK41X3wVPcyq",
+          "effects": {
+            "checkpoint": {
+              "sequenceNumber": 324704499
+            }
+          }
+        }
+      },
+      "checkpoint": 324867755,
+      "locked_liquidity_percentage": null,
+      "positions": [
+        {
+          "address": "0xd409162d4d9e7cbff863c7316c31c114fd55ea7afcb72c0757e92878195f9dbd",
+          "version": 1008136149,
+          "owner": {
+            "__typename": "AddressOwner",
+            "address": {
+              "address": "0x52d049826f4acebe8681c355dc3c3210919ce448cd81c62fe7282d02b3188ea7"
+            }
+          },
+          "asMoveObject": {
+            "contents": {
+              "type": {
+                "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::position::Position"
+              },
+              "json": {
+                "id": "0xd409162d4d9e7cbff863c7316c31c114fd55ea7afcb72c0757e92878195f9dbd",
+                "pool": "0x0c3426fd593b4234d2776fe1b71a641836106322267903abbb546a8b3962940b",
+                "index": "2",
+                "coin_type_a": "079521e547135b98f10ad523dbe2acaef17cdaac36bdf35f479b82d77c4417d2::suitard::SUITARD",
+                "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+                "name": "Cetus LP | Pool44315-2",
+                "description": "Cetus Liquidity Position",
+                "url": "https://bq7bkvdje7gvgmv66hrxdy7wx5h5ggtrrnmt66rdkkehb64rvz3q.arweave.net/DD4VVGknzVMyvvHjceP2v0_TGnGLWT96I1KIcPuRrnc",
+                "tick_lower_index": {
+                  "bits": 4294859136
+                },
+                "tick_upper_index": {
+                  "bits": 93080
+                },
+                "liquidity": "4477508944571622"
+              }
+            }
+          }
+        }
+      ],
+      "reasons": [
+        "withdrawal_semantics_and_pool_principal_not_verified"
+      ],
+      "pool_object": {
+        "address": "0x0c3426fd593b4234d2776fe1b71a641836106322267903abbb546a8b3962940b",
+        "version": 1008136149,
+        "owner": {
+          "__typename": "Shared"
+        },
+        "asMoveObject": {
+          "contents": {
+            "type": {
+              "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::Pool<0x079521e547135b98f10ad523dbe2acaef17cdaac36bdf35f479b82d77c4417d2::suitard::SUITARD,0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI>"
+            },
+            "json": {
+              "id": "0x0c3426fd593b4234d2776fe1b71a641836106322267903abbb546a8b3962940b",
+              "coin_a": "998998044138259909",
+              "coin_b": "19360002",
+              "tick_spacing": 260,
+              "fee_rate": "40000",
+              "liquidity": "4477508944571622",
+              "current_sqrt_price": "82674771884427697",
+              "current_tick_index": {
+                "bits": 4294859136
+              },
+              "fee_growth_global_a": "0",
+              "fee_growth_global_b": "2636715270",
+              "fee_protocol_coin_a": "0",
+              "fee_protocol_coin_b": "160000",
+              "tick_manager": {
+                "tick_spacing": 260,
+                "ticks": {
+                  "id": "0xee6b93b386a30b4bc7158b202259154ba5d9010084c5f1303df41347d0f600b2",
+                  "head": [
+                    {
+                      "is_none": false,
+                      "v": "335476"
+                    },
+                    {
+                      "is_none": false,
+                      "v": "335476"
+                    },
+                    {
+                      "is_none": false,
+                      "v": "536716"
+                    }
+                  ],
+                  "tail": {
+                    "is_none": false,
+                    "v": "536716"
+                  },
+                  "level": "3",
+                  "max_level": "16",
+                  "list_p": "2",
+                  "size": "2",
+                  "random": {
+                    "seed": "2926001923072051756"
+                  }
+                }
+              },
+              "rewarder_manager": {
+                "rewarders": [],
+                "points_released": "11344747605331374243840000000",
+                "points_growth_global": "3587524191449834371",
+                "last_updated_time": "1789877376"
+              },
+              "position_manager": {
+                "tick_spacing": 260,
+                "position_index": "2",
+                "positions": {
+                  "id": "0xc680eec6ac25708fa10fd193b2759cc29a3f44b84050c53cdbb810ad7aa77b7e",
+                  "head": "0xd409162d4d9e7cbff863c7316c31c114fd55ea7afcb72c0757e92878195f9dbd",
+                  "tail": "0xd409162d4d9e7cbff863c7316c31c114fd55ea7afcb72c0757e92878195f9dbd",
+                  "size": "1"
+                }
+              },
+              "is_pause": false,
+              "index": "44315",
+              "url": "https://bq7bkvdje7gvgmv66hrxdy7wx5h5ggtrrnmt66rdkkehb64rvz3q.arweave.net/DD4VVGknzVMyvvHjceP2v0_TGnGLWT96I1KIcPuRrnc"
+            }
+          }
+        }
+      },
+      "position_fields": {
+        "nodes": [
+          {
+            "name": {
+              "json": "0xd409162d4d9e7cbff863c7316c31c114fd55ea7afcb72c0757e92878195f9dbd"
+            },
+            "value": {
+              "json": {
+                "prev": null,
+                "next": null,
+                "value": {
+                  "position_id": "0xd409162d4d9e7cbff863c7316c31c114fd55ea7afcb72c0757e92878195f9dbd",
+                  "liquidity": "4477508944571622",
+                  "tick_lower_index": {
+                    "bits": 4294859136
+                  },
+                  "tick_upper_index": {
+                    "bits": 93080
+                  },
+                  "fee_growth_inside_a": "0",
+                  "fee_growth_inside_b": "2636715270",
+                  "fee_owned_a": "0",
+                  "fee_owned_b": "0",
+                  "points_owned": "0",
+                  "points_growth_inside": "0",
+                  "rewards": []
+                }
+              }
+            }
+          }
+        ],
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "qxZdEwAAAACwAwHGgO7GrCVwj6EP0ZOydZzCmj9EuEBQxTzbuBCteqd7fgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAA1keW5hbWljX2ZpZWxkAAAAAAAAAAVGaWVsZAAAAAAAAAACAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAZvYmplY3QAAAAAAAAAAklEAAAAAAAAAAAAAAAHviGgYSkwjgSVQx0SKGEniXr/B6it45cElaRATZf56qoAAAAAAAAADGxpbmtlZF90YWJsZQAAAAAAAAAETm9kZQAAAAAAAAACAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAZvYmplY3QAAAAAAAAAAklEAAAAAAAAAAAAAAAHHqvtcsU/6zgFEgoIHcFZY8IE3I0JFUJZKrr3o1aJsvsAAAAAAAAACHBvc2l0aW9uAAAAAAAAAAxQb3NpdGlvbkluZm8AAAAAAAAAAACMbq+I8Psw43RbXmfiZCftrG7+GuBkEkfOifl0ZMKGow=="
+        }
+      },
+      "http_attempts": 3
+    },
+    {
+      "pool": "0x6fc09f72fca1088528c6caa8f96a8b380a9bb12a4dafe811ed914722241cc4f1",
+      "creation_event": {
+        "timestamp": "2026-09-20T08:06:33.723Z",
+        "contents": {
+          "json": {
+            "pool_id": "0x6fc09f72fca1088528c6caa8f96a8b380a9bb12a4dafe811ed914722241cc4f1",
+            "coin_type_a": "4849f32fb390e550091473188a4d09e79203bbd5f8d5b5982accf8a3d238868c::suipump::SUIPUMP",
+            "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "tick_spacing": 200
+          }
+        },
+        "transaction": {
+          "digest": "2jX6pBeGKSrkr4oVu4BRQ2PG7cspWDGmpS6ygK7B667W",
+          "effects": {
+            "checkpoint": {
+              "sequenceNumber": 324770340
+            }
+          }
+        }
+      },
+      "checkpoint": 324867755,
+      "locked_liquidity_percentage": null,
+      "positions": [
+        {
+          "address": "0xf63980e34ddf895aafe948d03ffcea147403590408b532fc2324ee2ade391118",
+          "reason": "position_object_not_returned"
+        },
+        {
+          "address": "0x24a85812ac7448d202b16d2307d4e4416ddf3d845da50d1602bc9b6c5cef14d0",
+          "version": 1007809537,
+          "owner": {
+            "__typename": "ObjectOwner",
+            "address": {
+              "address": "0x6daf5d0b1a49ded03e053c9399e457ce884a47810888b898fb3d2f44f40b6f50"
+            }
+          },
+          "asMoveObject": {
+            "contents": {
+              "type": {
+                "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::position::Position"
+              },
+              "json": {
+                "id": "0x24a85812ac7448d202b16d2307d4e4416ddf3d845da50d1602bc9b6c5cef14d0",
+                "pool": "0x6fc09f72fca1088528c6caa8f96a8b380a9bb12a4dafe811ed914722241cc4f1",
+                "index": "3",
+                "coin_type_a": "4849f32fb390e550091473188a4d09e79203bbd5f8d5b5982accf8a3d238868c::suipump::SUIPUMP",
+                "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+                "name": "Cetus LP | Pool44316-3",
+                "description": "Cetus Liquidity Position",
+                "url": "https://bq7bkvdje7gvgmv66hrxdy7wx5h5ggtrrnmt66rdkkehb64rvz3q.arweave.net/DD4VVGknzVMyvvHjceP2v0_TGnGLWT96I1KIcPuRrnc",
+                "tick_lower_index": {
+                  "bits": 4294936296
+                },
+                "tick_upper_index": {
+                  "bits": 400
+                },
+                "liquidity": "268031"
+              }
+            }
+          },
+          "parent": {
+            "address": "0x6daf5d0b1a49ded03e053c9399e457ce884a47810888b898fb3d2f44f40b6f50",
+            "version": 1007809537,
+            "owner": {
+              "__typename": "ObjectOwner",
+              "address": {
+                "address": "0x79740e32790b6d3b8ebae436a4dc166e55d92b9d70929496f47eab2d6dfbd63c"
+              }
+            },
+            "asMoveObject": {
+              "contents": {
+                "type": {
+                  "repr": "0x0000000000000000000000000000000000000000000000000000000000000002::dynamic_field::Field<0x0000000000000000000000000000000000000000000000000000000000000002::dynamic_object_field::Wrapper<0x0000000000000000000000000000000000000000000000000000000000000002::object::ID>,0x0000000000000000000000000000000000000000000000000000000000000002::object::ID>"
+                },
+                "json": {
+                  "id": "0x6daf5d0b1a49ded03e053c9399e457ce884a47810888b898fb3d2f44f40b6f50",
+                  "name": {
+                    "name": "0x6fc09f72fca1088528c6caa8f96a8b380a9bb12a4dafe811ed914722241cc4f1"
+                  },
+                  "value": "0x24a85812ac7448d202b16d2307d4e4416ddf3d845da50d1602bc9b6c5cef14d0"
+                }
+              }
+            },
+            "parent": null
+          }
+        },
+        {
+          "address": "0x950038ea4fa27732b04bde56a3e7e0cbe7a81b954ef531bd80f10973ff7151ae",
+          "reason": "position_object_not_returned"
+        }
+      ],
+      "reasons": [
+        "parent_object_not_returned",
+        "position_object_not_returned",
+        "withdrawal_semantics_and_pool_principal_not_verified"
+      ],
+      "pool_object": {
+        "address": "0x6fc09f72fca1088528c6caa8f96a8b380a9bb12a4dafe811ed914722241cc4f1",
+        "version": 1008204218,
+        "owner": {
+          "__typename": "Shared"
+        },
+        "asMoveObject": {
+          "contents": {
+            "type": {
+              "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::Pool<0x4849f32fb390e550091473188a4d09e79203bbd5f8d5b5982accf8a3d238868c::suipump::SUIPUMP,0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI>"
+            },
+            "json": {
+              "id": "0x6fc09f72fca1088528c6caa8f96a8b380a9bb12a4dafe811ed914722241cc4f1",
+              "coin_a": "247788517097579",
+              "coin_b": "7214394509064",
+              "tick_spacing": 200,
+              "fee_rate": "10000",
+              "liquidity": "42197392728104",
+              "current_sqrt_price": "3148356885334038696",
+              "current_tick_index": {
+                "bits": 4294931934
+              },
+              "fee_growth_global_a": "1189657596982114491",
+              "fee_growth_global_b": "27306452541590877",
+              "fee_protocol_coin_a": "203021273862",
+              "fee_protocol_coin_b": "6054777308",
+              "tick_manager": {
+                "tick_spacing": 200,
+                "ticks": {
+                  "id": "0xd3dc5d7806881848063d31ad5d5ff334348562c5efc1cb9f5d4954bf78d11126",
+                  "head": [
+                    {
+                      "is_none": false,
+                      "v": "36"
+                    },
+                    {
+                      "is_none": false,
+                      "v": "412636"
+                    },
+                    {
+                      "is_none": false,
+                      "v": "444036"
+                    }
+                  ],
+                  "tail": {
+                    "is_none": false,
+                    "v": "887236"
+                  },
+                  "level": "3",
+                  "max_level": "16",
+                  "list_p": "2",
+                  "size": "4",
+                  "random": {
+                    "seed": "12736617137893077731"
+                  }
+                }
+              },
+              "rewarder_manager": {
+                "rewarders": [],
+                "points_released": "399556476636548888002560000000",
+                "points_growth_global": "9473118199209218",
+                "last_updated_time": "1789913253"
+              },
+              "position_manager": {
+                "tick_spacing": 200,
+                "position_index": "4",
+                "positions": {
+                  "id": "0x8c552841cfd13632643a8e02a816ad11b53211a42930a2fda052abf95fe10b90",
+                  "head": "0xf63980e34ddf895aafe948d03ffcea147403590408b532fc2324ee2ade391118",
+                  "tail": "0x24a85812ac7448d202b16d2307d4e4416ddf3d845da50d1602bc9b6c5cef14d0",
+                  "size": "3"
+                }
+              },
+              "is_pause": false,
+              "index": "44316",
+              "url": "https://bq7bkvdje7gvgmv66hrxdy7wx5h5ggtrrnmt66rdkkehb64rvz3q.arweave.net/DD4VVGknzVMyvvHjceP2v0_TGnGLWT96I1KIcPuRrnc"
+            }
+          }
+        }
+      },
+      "position_fields": {
+        "nodes": [
+          {
+            "name": {
+              "json": "0xf63980e34ddf895aafe948d03ffcea147403590408b532fc2324ee2ade391118"
+            },
+            "value": {
+              "json": {
+                "prev": null,
+                "next": "0x950038ea4fa27732b04bde56a3e7e0cbe7a81b954ef531bd80f10973ff7151ae",
+                "value": {
+                  "position_id": "0xf63980e34ddf895aafe948d03ffcea147403590408b532fc2324ee2ade391118",
+                  "liquidity": "21099262714594",
+                  "tick_lower_index": {
+                    "bits": 4294523696
+                  },
+                  "tick_upper_index": {
+                    "bits": 443600
+                  },
+                  "fee_growth_inside_a": "1047655122773852937",
+                  "fee_growth_inside_b": "24929011036817044",
+                  "fee_owned_a": "0",
+                  "fee_owned_b": "0",
+                  "points_owned": "0",
+                  "points_growth_inside": "0",
+                  "rewards": []
+                }
+              }
+            }
+          },
+          {
+            "name": {
+              "json": "0x24a85812ac7448d202b16d2307d4e4416ddf3d845da50d1602bc9b6c5cef14d0"
+            },
+            "value": {
+              "json": {
+                "prev": "0x950038ea4fa27732b04bde56a3e7e0cbe7a81b954ef531bd80f10973ff7151ae",
+                "next": null,
+                "value": {
+                  "position_id": "0x24a85812ac7448d202b16d2307d4e4416ddf3d845da50d1602bc9b6c5cef14d0",
+                  "liquidity": "268031",
+                  "tick_lower_index": {
+                    "bits": 4294936296
+                  },
+                  "tick_upper_index": {
+                    "bits": 400
+                  },
+                  "fee_growth_inside_a": "0",
+                  "fee_growth_inside_b": "0",
+                  "fee_owned_a": "0",
+                  "fee_owned_b": "0",
+                  "points_owned": "0",
+                  "points_growth_inside": "0",
+                  "rewards": []
+                }
+              }
+            }
+          },
+          {
+            "name": {
+              "json": "0x950038ea4fa27732b04bde56a3e7e0cbe7a81b954ef531bd80f10973ff7151ae"
+            },
+            "value": {
+              "json": {
+                "prev": "0xf63980e34ddf895aafe948d03ffcea147403590408b532fc2324ee2ade391118",
+                "next": "0x24a85812ac7448d202b16d2307d4e4416ddf3d845da50d1602bc9b6c5cef14d0",
+                "value": {
+                  "position_id": "0x950038ea4fa27732b04bde56a3e7e0cbe7a81b954ef531bd80f10973ff7151ae",
+                  "liquidity": "21098130013510",
+                  "tick_lower_index": {
+                    "bits": 4294523696
+                  },
+                  "tick_upper_index": {
+                    "bits": 443600
+                  },
+                  "fee_growth_inside_a": "1030909475453607969",
+                  "fee_growth_inside_b": "24093646142606500",
+                  "fee_owned_a": "0",
+                  "fee_owned_b": "0",
+                  "points_owned": "0",
+                  "points_growth_inside": "8742838232422",
+                  "rewards": []
+                }
+              }
+            }
+          }
+        ],
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "qxZdEwAAAACwAwGMVShBz9E2MmQ6jgKoFq0RtTIRpCkwov2gUqv5X+ELkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAA1keW5hbWljX2ZpZWxkAAAAAAAAAAVGaWVsZAAAAAAAAAACAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAZvYmplY3QAAAAAAAAAAklEAAAAAAAAAAAAAAAHviGgYSkwjgSVQx0SKGEniXr/B6it45cElaRATZf56qoAAAAAAAAADGxpbmtlZF90YWJsZQAAAAAAAAAETm9kZQAAAAAAAAACAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAZvYmplY3QAAAAAAAAAAklEAAAAAAAAAAAAAAAHHqvtcsU/6zgFEgoIHcFZY8IE3I0JFUJZKrr3o1aJsvsAAAAAAAAACHBvc2l0aW9uAAAAAAAAAAxQb3NpdGlvbkluZm8AAAAAAAAAAAD/uHuJbuUIbkERFTw+ZzfvcRxru/47gHF7Mkd2AJFlKg=="
+        }
+      },
+      "http_attempts": 7
+    },
+    {
+      "pool": "0xb36f68c90b84da8fdba66dcb30008112408f2a3c83756a1f051d8483219b3892",
+      "creation_event": {
+        "timestamp": "2026-09-20T10:58:55.307Z",
+        "contents": {
+          "json": {
+            "pool_id": "0xb36f68c90b84da8fdba66dcb30008112408f2a3c83756a1f051d8483219b3892",
+            "coin_type_a": "d1fd6a0cd69113d2a38327af5134f16ee4c53beb52b1a6854c1ae61bb3ddab75::blast::BLAST",
+            "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "tick_spacing": 260
+          }
+        },
+        "transaction": {
+          "digest": "55a4iTjjhP7nrYZDcUijfUuveU2fodhiBPt3vyfexF54",
+          "effects": {
+            "checkpoint": {
+              "sequenceNumber": 324816111
+            }
+          }
+        }
+      },
+      "checkpoint": 324867755,
+      "locked_liquidity_percentage": null,
+      "positions": [
+        {
+          "address": "0x80a0fbe94c439e958e3da3eaf6e7583282923a2c2bff4216d092eeec16c8751a",
+          "version": 1008039661,
+          "owner": {
+            "__typename": "AddressOwner",
+            "address": {
+              "address": "0xee052f32bdc9a36823dfab0cc94d8ae13eb6d72fef50d4b389c3627570fcce34"
+            }
+          },
+          "asMoveObject": {
+            "contents": {
+              "type": {
+                "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::position::Position"
+              },
+              "json": {
+                "id": "0x80a0fbe94c439e958e3da3eaf6e7583282923a2c2bff4216d092eeec16c8751a",
+                "pool": "0xb36f68c90b84da8fdba66dcb30008112408f2a3c83756a1f051d8483219b3892",
+                "index": "1",
+                "coin_type_a": "d1fd6a0cd69113d2a38327af5134f16ee4c53beb52b1a6854c1ae61bb3ddab75::blast::BLAST",
+                "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+                "name": "Cetus LP | Pool44317-1",
+                "description": "Cetus Liquidity Position",
+                "url": "https://bq7bkvdje7gvgmv66hrxdy7wx5h5ggtrrnmt66rdkkehb64rvz3q.arweave.net/DD4VVGknzVMyvvHjceP2v0_TGnGLWT96I1KIcPuRrnc",
+                "tick_lower_index": {
+                  "bits": 4294523736
+                },
+                "tick_upper_index": {
+                  "bits": 443560
+                },
+                "liquidity": "3162277893889"
+              }
+            }
+          }
+        }
+      ],
+      "reasons": [
+        "withdrawal_semantics_and_pool_principal_not_verified"
+      ],
+      "pool_object": {
+        "address": "0xb36f68c90b84da8fdba66dcb30008112408f2a3c83756a1f051d8483219b3892",
+        "version": 1008171312,
+        "owner": {
+          "__typename": "Shared"
+        },
+        "asMoveObject": {
+          "contents": {
+            "type": {
+              "repr": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::Pool<0xd1fd6a0cd69113d2a38327af5134f16ee4c53beb52b1a6854c1ae61bb3ddab75::blast::BLAST,0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI>"
+            },
+            "json": {
+              "id": "0xb36f68c90b84da8fdba66dcb30008112408f2a3c83756a1f051d8483219b3892",
+              "coin_a": "2264370856814696",
+              "coin_b": "4517127925",
+              "tick_spacing": 260,
+              "fee_rate": "40000",
+              "liquidity": "3162277893889",
+              "current_sqrt_price": "26350092929345799",
+              "current_tick_index": {
+                "bits": 4294836266
+              },
+              "fee_growth_global_a": "236017453536251882229",
+              "fee_growth_global_b": "0",
+              "fee_protocol_coin_a": "10114966263252",
+              "fee_protocol_coin_b": "0",
+              "tick_manager": {
+                "tick_spacing": 260,
+                "ticks": {
+                  "id": "0x58350eae2464a63abc8ec2e03bb3af8946c0d68f10dabc0052dc6bb8145f3fe1",
+                  "head": [
+                    {
+                      "is_none": false,
+                      "v": "76"
+                    },
+                    {
+                      "is_none": false,
+                      "v": "887196"
+                    }
+                  ],
+                  "tail": {
+                    "is_none": false,
+                    "v": "887196"
+                  },
+                  "level": "2",
+                  "max_level": "16",
+                  "list_p": "2",
+                  "size": "2",
+                  "random": {
+                    "seed": "11529494718240101264"
+                  }
+                }
+              },
+              "rewarder_manager": {
+                "rewarders": [],
+                "points_released": "162239114128275506462720000000",
+                "points_growth_global": "51304508829473005",
+                "last_updated_time": "1789910730"
+              },
+              "position_manager": {
+                "tick_spacing": 260,
+                "position_index": "1",
+                "positions": {
+                  "id": "0x566334e7a5da6c406a143d5bf833ef8f892325955862580b431eac6ca371f306",
+                  "head": "0x80a0fbe94c439e958e3da3eaf6e7583282923a2c2bff4216d092eeec16c8751a",
+                  "tail": "0x80a0fbe94c439e958e3da3eaf6e7583282923a2c2bff4216d092eeec16c8751a",
+                  "size": "1"
+                }
+              },
+              "is_pause": false,
+              "index": "44317",
+              "url": "https://bq7bkvdje7gvgmv66hrxdy7wx5h5ggtrrnmt66rdkkehb64rvz3q.arweave.net/DD4VVGknzVMyvvHjceP2v0_TGnGLWT96I1KIcPuRrnc"
+            }
+          }
+        }
+      },
+      "position_fields": {
+        "nodes": [
+          {
+            "name": {
+              "json": "0x80a0fbe94c439e958e3da3eaf6e7583282923a2c2bff4216d092eeec16c8751a"
+            },
+            "value": {
+              "json": {
+                "prev": null,
+                "next": null,
+                "value": {
+                  "position_id": "0x80a0fbe94c439e958e3da3eaf6e7583282923a2c2bff4216d092eeec16c8751a",
+                  "liquidity": "3162277893889",
+                  "tick_lower_index": {
+                    "bits": 4294523736
+                  },
+                  "tick_upper_index": {
+                    "bits": 443560
+                  },
+                  "fee_growth_inside_a": "0",
+                  "fee_growth_inside_b": "0",
+                  "fee_owned_a": "0",
+                  "fee_owned_b": "0",
+                  "points_owned": "0",
+                  "points_growth_inside": "0",
+                  "rewards": []
+                }
+              }
+            }
+          }
+        ],
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "qxZdEwAAAACwAwFWYzTnpdpsQGoUPVv4M++PiSMllVhiWAtDHqxso3HzBgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAA1keW5hbWljX2ZpZWxkAAAAAAAAAAVGaWVsZAAAAAAAAAACAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAZvYmplY3QAAAAAAAAAAklEAAAAAAAAAAAAAAAHviGgYSkwjgSVQx0SKGEniXr/B6it45cElaRATZf56qoAAAAAAAAADGxpbmtlZF90YWJsZQAAAAAAAAAETm9kZQAAAAAAAAACAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAZvYmplY3QAAAAAAAAAAklEAAAAAAAAAAAAAAAHHqvtcsU/6zgFEgoIHcFZY8IE3I0JFUJZKrr3o1aJsvsAAAAAAAAACHBvc2l0aW9uAAAAAAAAAAxQb3NpdGlvbkluZm8AAAAAAAAAAAD46AfvCywXyEdGpSTpkrU5ddEFqhYtF9jntquhvsWScQ=="
+        }
+      },
+      "http_attempts": 3
+    }
+  ],
+  "selection_failures": [],
+  "sampling_policy": "most recent verified pool creation events; frozen before custody inspection",
+  "read_only": true,
+  "checkpoint": {
+    "sequenceNumber": 324867755,
+    "timestamp": "2026-09-20T14:12:59.548Z"
+  },
+  "requests": [
+    {
+      "method": "graphql",
+      "bytes": 1637,
+      "seconds": 0.255
+    },
+    {
+      "method": "graphql",
+      "bytes": 101,
+      "seconds": 0.733
+    },
+    {
+      "method": "graphql",
+      "bytes": 1853,
+      "seconds": 0.751
+    },
+    {
+      "method": "graphql",
+      "bytes": 1220,
+      "seconds": 0.84
+    },
+    {
+      "method": "graphql",
+      "bytes": 1046,
+      "seconds": 0.736
+    },
+    {
+      "method": "graphql",
+      "bytes": 1707,
+      "seconds": 0.739
+    },
+    {
+      "method": "graphql",
+      "bytes": 1159,
+      "seconds": 0.739
+    },
+    {
+      "method": "graphql",
+      "bytes": 944,
+      "seconds": 0.81
+    },
+    {
+      "method": "graphql",
+      "bytes": 889,
+      "seconds": 0.748
+    },
+    {
+      "method": "graphql",
+      "bytes": 24,
+      "seconds": 0.727
+    },
+    {
+      "method": "graphql",
+      "bytes": 1729,
+      "seconds": 0.736
+    },
+    {
+      "method": "graphql",
+      "bytes": 2361,
+      "seconds": 0.355
+    },
+    {
+      "method": "graphql",
+      "bytes": 944,
+      "seconds": 0.723
+    },
+    {
+      "method": "graphql",
+      "bytes": 943,
+      "seconds": 0.304
+    },
+    {
+      "method": "graphql",
+      "bytes": 889,
+      "seconds": 0.747
+    },
+    {
+      "method": "graphql",
+      "bytes": 24,
+      "seconds": 0.716
+    },
+    {
+      "method": "graphql",
+      "bytes": 949,
+      "seconds": 0.721
+    },
+    {
+      "method": "graphql",
+      "bytes": 1797,
+      "seconds": 0.752
+    },
+    {
+      "method": "graphql",
+      "bytes": 1191,
+      "seconds": 0.247
+    },
+    {
+      "method": "graphql",
+      "bytes": 1040,
+      "seconds": 0.805
+    },
+    {
+      "method": "graphql",
+      "bytes": 1794,
+      "seconds": 0.737
+    },
+    {
+      "method": "graphql",
+      "bytes": 1173,
+      "seconds": 0.739
+    },
+    {
+      "method": "graphql",
+      "bytes": 1044,
+      "seconds": 0.249
+    },
+    {
+      "method": "graphql",
+      "bytes": 1823,
+      "seconds": 0.304
+    },
+    {
+      "method": "graphql",
+      "bytes": 1174,
+      "seconds": 0.734
+    },
+    {
+      "method": "graphql",
+      "bytes": 1041,
+      "seconds": 0.741
+    },
+    {
+      "method": "graphql",
+      "bytes": 1832,
+      "seconds": 0.755
+    },
+    {
+      "method": "graphql",
+      "bytes": 1173,
+      "seconds": 0.801
+    },
+    {
+      "method": "graphql",
+      "bytes": 1048,
+      "seconds": 0.233
+    },
+    {
+      "method": "graphql",
+      "bytes": 1869,
+      "seconds": 0.826
+    },
+    {
+      "method": "graphql",
+      "bytes": 2434,
+      "seconds": 0.743
+    },
+    {
+      "method": "graphql",
+      "bytes": 24,
+      "seconds": 0.229
+    },
+    {
+      "method": "graphql",
+      "bytes": 1035,
+      "seconds": 0.231
+    },
+    {
+      "method": "graphql",
+      "bytes": 889,
+      "seconds": 0.804
+    },
+    {
+      "method": "graphql",
+      "bytes": 24,
+      "seconds": 0.233
+    },
+    {
+      "method": "graphql",
+      "bytes": 24,
+      "seconds": 0.224
+    },
+    {
+      "method": "graphql",
+      "bytes": 1809,
+      "seconds": 0.312
+    },
+    {
+      "method": "graphql",
+      "bytes": 1162,
+      "seconds": 0.789
+    },
+    {
+      "method": "graphql",
+      "bytes": 1042,
+      "seconds": 0.812
+    }
+  ],
+  "wall_seconds": 29.716,
+  "sampling_complete": true
+}

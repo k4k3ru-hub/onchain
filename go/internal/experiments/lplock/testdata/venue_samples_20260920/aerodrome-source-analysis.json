@@ -1,0 +1,79 @@
+{
+  "records": [],
+  "asset_operations": [
+    {
+      "entry_name_observed": "stake",
+      "entry_selector": "3a4b66f1",
+      "operation": "approval",
+      "target": {
+        "kind": "parameter",
+        "declaration": 2450
+      },
+      "arguments": [
+        {
+          "kind": "state",
+          "variable": 1450
+        },
+        {
+          "kind": "state",
+          "variable": 1453
+        }
+      ],
+      "requires_found": [],
+      "source_location": "2243:54:13"
+    },
+    {
+      "entry_name_observed": "increaseLiquidity",
+      "entry_selector": "e78a432f",
+      "operation": "approval",
+      "target": {
+        "kind": "parameter",
+        "declaration": 2450
+      },
+      "arguments": [
+        {
+          "kind": "state",
+          "variable": 1450
+        },
+        {
+          "kind": "state",
+          "variable": 1453
+        }
+      ],
+      "requires_found": [],
+      "source_location": "3876:53:13"
+    },
+    {
+      "entry_name_observed": "_transferLP",
+      "entry_selector": null,
+      "operation": "nft_transfer",
+      "target": {
+        "kind": "parameter",
+        "declaration": 2450
+      },
+      "arguments": [
+        {
+          "kind": "parameter",
+          "declaration": 4294967268
+        },
+        {
+          "kind": "parameter",
+          "declaration": 2756
+        },
+        {
+          "kind": "state",
+          "variable": 1453
+        }
+      ],
+      "requires_found": [],
+      "source_location": "4357:79:13"
+    }
+  ],
+  "mutable_gates": [],
+  "locked_liquidity_percentage": null,
+  "unresolved": [
+    "all_path_control_flow_and_interprocedural_asset_effects_not_proven"
+  ],
+  "public_entry_count": 15,
+  "source_input_sha256": "818618407fcb39a4b50f02631d9ca3c1037cb04d563f84a9f2b4240994c09fc9"
+}

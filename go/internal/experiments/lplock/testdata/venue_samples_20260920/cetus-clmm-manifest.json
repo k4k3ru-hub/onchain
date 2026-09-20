@@ -1,0 +1,199 @@
+{
+  "venue": "cetus-clmm",
+  "events": [
+    {
+      "timestamp": "2026-09-19T20:34:37.222Z",
+      "contents": {
+        "json": {
+          "pool_id": "0xa29a4ab6c6029085ba818f121154099a4ea2d94674c6ff71167c562495fd453c",
+          "coin_type_a": "4ddca40b10ff92ccaa1b1797b14dc63ad15e0c87cb7b5669af9bdc49e11e8dab::suipump::SUIPUMP",
+          "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+          "tick_spacing": 220
+        }
+      },
+      "transaction": {
+        "digest": "4ugvWV5kedFvrnksYQKfJkrekGYqgS17ixJNSWJQb23m",
+        "effects": {
+          "checkpoint": {
+            "sequenceNumber": 324583266
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-09-19T20:57:37.237Z",
+      "contents": {
+        "json": {
+          "pool_id": "0xcc9a57d5e74b3d2e57e3d63403b7818804eb4560cde17b33fb2534d182d5c413",
+          "coin_type_a": "deeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP",
+          "coin_type_b": "c5b61b1e1f7f88511c9c0c6f475f823c66cc4e2d39a49beb6777059710be8404::toilet::TOILET",
+          "tick_spacing": 220
+        }
+      },
+      "transaction": {
+        "digest": "9fxtBXKFwZAu4ytDBiyPFgCeg5HJDYgun3Qc6vf1vkH2",
+        "effects": {
+          "checkpoint": {
+            "sequenceNumber": 324589366
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-09-20T02:24:51.383Z",
+      "contents": {
+        "json": {
+          "pool_id": "0xb30c202dd0f1e43b8be0cba3d372ac333e3e3c1f99adece6a111dc6a0e2a8f22",
+          "coin_type_a": "e2296f78922606d5ef4aa292742bafe84e9270c22aef0870b5cb36127dc80a74::suifish::SUIFISH",
+          "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+          "tick_spacing": 2
+        }
+      },
+      "transaction": {
+        "digest": "7NKViQ9fe1nA1jNEyDH9yBhimCJoXZCoUaGzUyPyGYb8",
+        "effects": {
+          "checkpoint": {
+            "sequenceNumber": 324679256
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-09-20T02:41:27.238Z",
+      "contents": {
+        "json": {
+          "pool_id": "0x0d1ad4a350d896cf4927b9e83d825ef71862bde7499c3f41bba00738dcae7ec5",
+          "coin_type_a": "0b6b13e8cbe19bdc5396349bd156c99a1588b670282931c4b2d3d47ce1d22814::uranus::URANUS",
+          "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+          "tick_spacing": 2
+        }
+      },
+      "transaction": {
+        "digest": "2SFk3sdcd9GeGnWdx5yEEoN33ucv8hqdrTn6qNrqYcpF",
+        "effects": {
+          "checkpoint": {
+            "sequenceNumber": 324683742
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-09-20T03:35:58.081Z",
+      "contents": {
+        "json": {
+          "pool_id": "0x053412ea24c38bd51e428bfdd5686b1611d91c30df76880c508dfafdbdce1787",
+          "coin_type_a": "8b43eeeddee32344324ea8f2607837eea27e50b0f6bad7d9946f458edaf5c659::ZUK::ZUK",
+          "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+          "tick_spacing": 260
+        }
+      },
+      "transaction": {
+        "digest": "9NtS4bKfDTJ9gCVRNj7vW9hRTHhgCsM4dZJC3pa7jUXn",
+        "effects": {
+          "checkpoint": {
+            "sequenceNumber": 324698308
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-09-20T03:43:59.774Z",
+      "contents": {
+        "json": {
+          "pool_id": "0x9ed4e71f56a74677860c7e015ac8126d18053106e156cb8bfcdf94dec77c413e",
+          "coin_type_a": "e8ea2e34e2ce2b05283f011e14408d85071c0fc184cd561a4fa2a5bc9f48e3a6::suinu::SUINU",
+          "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+          "tick_spacing": 260
+        }
+      },
+      "transaction": {
+        "digest": "Cx17RVsJojRcnsupL8SDBS5DVh9YVukmtajToSSa4YDE",
+        "effects": {
+          "checkpoint": {
+            "sequenceNumber": 324700472
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-09-20T03:49:02.192Z",
+      "contents": {
+        "json": {
+          "pool_id": "0x2afc33dbcd69f4833e5ccde3881b9f3d764e55c51fd65d3871068d6dc2ae94c9",
+          "coin_type_a": "89ab0e3b699d11eb47c8a1efe43290dde23fa083aacafa6ade9486fb112fd966::soh::SOH",
+          "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+          "tick_spacing": 260
+        }
+      },
+      "transaction": {
+        "digest": "8jv7i9wuC6F6MB1eXM4xLzusVw2nbqBX7ZUyvp5uUB2p",
+        "effects": {
+          "checkpoint": {
+            "sequenceNumber": 324701838
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-09-20T03:58:54.451Z",
+      "contents": {
+        "json": {
+          "pool_id": "0x0c3426fd593b4234d2776fe1b71a641836106322267903abbb546a8b3962940b",
+          "coin_type_a": "079521e547135b98f10ad523dbe2acaef17cdaac36bdf35f479b82d77c4417d2::suitard::SUITARD",
+          "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+          "tick_spacing": 260
+        }
+      },
+      "transaction": {
+        "digest": "GgGGPSUcQxMhhc4eWogP7hTecTgTWn1XLK41X3wVPcyq",
+        "effects": {
+          "checkpoint": {
+            "sequenceNumber": 324704499
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-09-20T08:06:33.723Z",
+      "contents": {
+        "json": {
+          "pool_id": "0x6fc09f72fca1088528c6caa8f96a8b380a9bb12a4dafe811ed914722241cc4f1",
+          "coin_type_a": "4849f32fb390e550091473188a4d09e79203bbd5f8d5b5982accf8a3d238868c::suipump::SUIPUMP",
+          "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+          "tick_spacing": 200
+        }
+      },
+      "transaction": {
+        "digest": "2jX6pBeGKSrkr4oVu4BRQ2PG7cspWDGmpS6ygK7B667W",
+        "effects": {
+          "checkpoint": {
+            "sequenceNumber": 324770340
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2026-09-20T10:58:55.307Z",
+      "contents": {
+        "json": {
+          "pool_id": "0xb36f68c90b84da8fdba66dcb30008112408f2a3c83756a1f051d8483219b3892",
+          "coin_type_a": "d1fd6a0cd69113d2a38327af5134f16ee4c53beb52b1a6854c1ae61bb3ddab75::blast::BLAST",
+          "coin_type_b": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+          "tick_spacing": 260
+        }
+      },
+      "transaction": {
+        "digest": "55a4iTjjhP7nrYZDcUijfUuveU2fodhiBPt3vyfexF54",
+        "effects": {
+          "checkpoint": {
+            "sequenceNumber": 324816111
+          }
+        }
+      }
+    }
+  ],
+  "checkpoint": {
+    "sequenceNumber": 324867755,
+    "timestamp": "2026-09-20T14:12:59.548Z"
+  }
+}

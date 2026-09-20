@@ -1,0 +1,436 @@
+{
+  "venue": "aerodrome",
+  "block_number": 51561574,
+  "custodians": [
+    {
+      "address": "0x29f4dc9fd61a76f848bb607d2862fef11ba85b7a",
+      "getters": [
+        {
+          "signature": "BASE_CHAIN_ID()",
+          "type": "uint256",
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000002105",
+          "value": "8453"
+        },
+        {
+          "signature": "MAX_BPS()",
+          "type": "uint256",
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000002710",
+          "value": "10000"
+        },
+        {
+          "signature": "beneficiary()",
+          "type": "address",
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "value": "0x0000000000000000000000000000000000000000"
+        },
+        {
+          "signature": "beneficiaryShare()",
+          "type": "uint16",
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "value": "0"
+        },
+        {
+          "signature": "bribeableShare()",
+          "type": "uint16",
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000002710",
+          "value": "10000"
+        },
+        {
+          "signature": "factory()",
+          "type": "address",
+          "raw": "0x000000000000000000000000932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+          "value": "0x932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c"
+        },
+        {
+          "signature": "gauge()",
+          "type": "address",
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "value": "0x0000000000000000000000000000000000000000"
+        },
+        {
+          "signature": "lockedUntil()",
+          "type": "uint32",
+          "raw": "0x00000000000000000000000000000000000000000000000000000000ffffffff",
+          "value": "4294967295"
+        },
+        {
+          "signature": "lp()",
+          "type": "uint256",
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000645bb5",
+          "value": "6577077"
+        },
+        {
+          "signature": "nfpManager()",
+          "type": "address",
+          "raw": "0x000000000000000000000000e1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53",
+          "value": "0xe1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53"
+        },
+        {
+          "signature": "owner()",
+          "type": "address",
+          "raw": "0x000000000000000000000000fe3c928ff2081df0a6473e12f06f22fb4b21a26f",
+          "value": "0xfe3c928ff2081df0a6473e12f06f22fb4b21a26f"
+        },
+        {
+          "signature": "pool()",
+          "type": "address",
+          "raw": "0x000000000000000000000000b0bc332f85ab53f3a74a0e5cd713e373528ebb2e",
+          "value": "0xb0bc332f85ab53f3a74a0e5cd713e373528ebb2e"
+        },
+        {
+          "signature": "poolType()",
+          "type": "uint8",
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "value": "1"
+        },
+        {
+          "signature": "rewardToken()",
+          "type": "address",
+          "raw": "0x000000000000000000000000940181a94a35a4569e4529a3cdfb74e38fd98631",
+          "value": "0x940181a94a35a4569e4529a3cdfb74e38fd98631"
+        },
+        {
+          "signature": "root()",
+          "type": "bool",
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "value": "0"
+        },
+        {
+          "signature": "staked()",
+          "type": "bool",
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "value": "0"
+        },
+        {
+          "signature": "token0()",
+          "type": "address",
+          "raw": "0x00000000000000000000000011b5b583f79c4a3329b178e95dde31f21af1f226",
+          "value": "0x11b5b583f79c4a3329b178e95dde31f21af1f226"
+        },
+        {
+          "signature": "token1()",
+          "type": "address",
+          "raw": "0x000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+          "value": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+        },
+        {
+          "signature": "voter()",
+          "type": "address",
+          "raw": "0x00000000000000000000000016613524e02ad97edfef371bc883f2f5d6c480a5",
+          "value": "0x16613524e02ad97edfef371bc883f2f5d6c480a5"
+        }
+      ]
+    },
+    {
+      "address": "0x2b7e3decd50dbfe052d5a21ca8640ec202392485",
+      "getters": [
+        {
+          "signature": "BASE_CHAIN_ID()",
+          "type": "uint256",
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000002105",
+          "value": "8453"
+        },
+        {
+          "signature": "MAX_BPS()",
+          "type": "uint256",
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000002710",
+          "value": "10000"
+        },
+        {
+          "signature": "beneficiary()",
+          "type": "address",
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "value": "0x0000000000000000000000000000000000000000"
+        },
+        {
+          "signature": "beneficiaryShare()",
+          "type": "uint16",
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "value": "0"
+        },
+        {
+          "signature": "bribeableShare()",
+          "type": "uint16",
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000002710",
+          "value": "10000"
+        },
+        {
+          "signature": "factory()",
+          "type": "address",
+          "raw": "0x000000000000000000000000932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+          "value": "0x932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c"
+        },
+        {
+          "signature": "gauge()",
+          "type": "address",
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "value": "0x0000000000000000000000000000000000000000"
+        },
+        {
+          "signature": "lockedUntil()",
+          "type": "uint32",
+          "raw": "0x00000000000000000000000000000000000000000000000000000000ffffffff",
+          "value": "4294967295"
+        },
+        {
+          "signature": "lp()",
+          "type": "uint256",
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000645b9d",
+          "value": "6577053"
+        },
+        {
+          "signature": "nfpManager()",
+          "type": "address",
+          "raw": "0x000000000000000000000000e1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53",
+          "value": "0xe1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53"
+        },
+        {
+          "signature": "owner()",
+          "type": "address",
+          "raw": "0x000000000000000000000000fe3c928ff2081df0a6473e12f06f22fb4b21a26f",
+          "value": "0xfe3c928ff2081df0a6473e12f06f22fb4b21a26f"
+        },
+        {
+          "signature": "pool()",
+          "type": "address",
+          "raw": "0x00000000000000000000000039f197dc4c4adea97a4fd478e2015930ac2efbf1",
+          "value": "0x39f197dc4c4adea97a4fd478e2015930ac2efbf1"
+        },
+        {
+          "signature": "poolType()",
+          "type": "uint8",
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "value": "1"
+        },
+        {
+          "signature": "rewardToken()",
+          "type": "address",
+          "raw": "0x000000000000000000000000940181a94a35a4569e4529a3cdfb74e38fd98631",
+          "value": "0x940181a94a35a4569e4529a3cdfb74e38fd98631"
+        },
+        {
+          "signature": "root()",
+          "type": "bool",
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "value": "0"
+        },
+        {
+          "signature": "staked()",
+          "type": "bool",
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "value": "0"
+        },
+        {
+          "signature": "token0()",
+          "type": "address",
+          "raw": "0x00000000000000000000000011b5b583f79c4a3329b178e95dde31f21af1f226",
+          "value": "0x11b5b583f79c4a3329b178e95dde31f21af1f226"
+        },
+        {
+          "signature": "token1()",
+          "type": "address",
+          "raw": "0x0000000000000000000000004200000000000000000000000000000000000006",
+          "value": "0x4200000000000000000000000000000000000006"
+        },
+        {
+          "signature": "voter()",
+          "type": "address",
+          "raw": "0x00000000000000000000000016613524e02ad97edfef371bc883f2f5d6c480a5",
+          "value": "0x16613524e02ad97edfef371bc883f2f5d6c480a5"
+        }
+      ]
+    }
+  ],
+  "requests": [
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.225
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.24
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.289
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.246
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.242
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.321
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.219
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.259
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.269
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.583
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.232
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.266
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.286
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.223
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.266
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.303
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.219
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.25
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.282
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.218
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.265
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.294
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.212
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.46
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.28
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.231
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.298
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.226
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.265
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.294
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.238
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.238
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.296
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.213
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.269
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.294
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.461
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.247
+    }
+  ]
+}

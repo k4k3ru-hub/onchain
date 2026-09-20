@@ -1,0 +1,149 @@
+{
+  "block_number": 51561574,
+  "block_hash": "0xa66454b85d843249cd05ce55655c3a33e9f6ac38ead78a26f68004d0bee64571",
+  "source_sha256": {
+    "aerodrome-source-0xfe678bffc3c1c8d1de4478cc5c3e1b93ee4638ae.json": "818618407fcb39a4b50f02631d9ca3c1037cb04d563f84a9f2b4240994c09fc9",
+    "dependency-source-0x932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c.json": "d6e3b150882b6eb7b7fcb4a6e8a14b0ddcd181e64797b5e0a5c04fc99506e8c1"
+  },
+  "calls": [
+    {
+      "name": "migration_target_zero",
+      "call": {
+        "to": "0x932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "data": "0x628470e9"
+      },
+      "expected": {
+        "result": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "name": "0x29f4dc9fd61a76f848bb607d2862fef11ba85b7a:factory_registered",
+      "call": {
+        "to": "0x932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "data": "0x032bb44300000000000000000000000029f4dc9fd61a76f848bb607d2862fef11ba85b7a"
+      },
+      "expected": {
+        "result": "0x0000000000000000000000000000000000000000000000000000000000000001"
+      }
+    },
+    {
+      "name": "0x29f4dc9fd61a76f848bb607d2862fef11ba85b7a:gauge_unavailable",
+      "call": {
+        "to": "0x16613524e02ad97edfef371bc883f2f5d6c480a5",
+        "data": "0xb9a09fd5000000000000000000000000b0bc332f85ab53f3a74a0e5cd713e373528ebb2e"
+      },
+      "expected": {
+        "result": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "name": "0x29f4dc9fd61a76f848bb607d2862fef11ba85b7a:unlock",
+      "call": {
+        "to": "0x932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "data": "0xe674a0bd00000000000000000000000029f4dc9fd61a76f848bb607d2862fef11ba85b7a000000000000000000000000fe3c928ff2081df0a6473e12f06f22fb4b21a26f",
+        "from": "0xfe3c928ff2081df0a6473e12f06f22fb4b21a26f"
+      },
+      "expected": {
+        "revert_data": "0x0f2e5b6c"
+      }
+    },
+    {
+      "name": "0x29f4dc9fd61a76f848bb607d2862fef11ba85b7a:migrate",
+      "call": {
+        "to": "0x932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "data": "0x540f779200000000000000000000000029f4dc9fd61a76f848bb607d2862fef11ba85b7a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "from": "0xfe3c928ff2081df0a6473e12f06f22fb4b21a26f"
+      },
+      "expected": {
+        "revert_data": "0x1e6a33fb"
+      }
+    },
+    {
+      "name": "0x29f4dc9fd61a76f848bb607d2862fef11ba85b7a:stake",
+      "call": {
+        "to": "0x29f4dc9fd61a76f848bb607d2862fef11ba85b7a",
+        "data": "0x3a4b66f1",
+        "from": "0xfe3c928ff2081df0a6473e12f06f22fb4b21a26f"
+      },
+      "expected": {
+        "revert_data": "0xe569becd"
+      }
+    },
+    {
+      "name": "0x29f4dc9fd61a76f848bb607d2862fef11ba85b7a:direct_unlock",
+      "call": {
+        "to": "0x29f4dc9fd61a76f848bb607d2862fef11ba85b7a",
+        "data": "0xe674a0bd000000000000000000000000fe3c928ff2081df0a6473e12f06f22fb4b21a26f000000000000000000000000fe3c928ff2081df0a6473e12f06f22fb4b21a26f",
+        "from": "0xfe3c928ff2081df0a6473e12f06f22fb4b21a26f"
+      },
+      "expected": {
+        "revert_data": "0x32cc7236"
+      }
+    },
+    {
+      "name": "0x2b7e3decd50dbfe052d5a21ca8640ec202392485:factory_registered",
+      "call": {
+        "to": "0x932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "data": "0x032bb4430000000000000000000000002b7e3decd50dbfe052d5a21ca8640ec202392485"
+      },
+      "expected": {
+        "result": "0x0000000000000000000000000000000000000000000000000000000000000001"
+      }
+    },
+    {
+      "name": "0x2b7e3decd50dbfe052d5a21ca8640ec202392485:gauge_unavailable",
+      "call": {
+        "to": "0x16613524e02ad97edfef371bc883f2f5d6c480a5",
+        "data": "0xb9a09fd500000000000000000000000039f197dc4c4adea97a4fd478e2015930ac2efbf1"
+      },
+      "expected": {
+        "result": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "name": "0x2b7e3decd50dbfe052d5a21ca8640ec202392485:unlock",
+      "call": {
+        "to": "0x932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "data": "0xe674a0bd0000000000000000000000002b7e3decd50dbfe052d5a21ca8640ec202392485000000000000000000000000fe3c928ff2081df0a6473e12f06f22fb4b21a26f",
+        "from": "0xfe3c928ff2081df0a6473e12f06f22fb4b21a26f"
+      },
+      "expected": {
+        "revert_data": "0x0f2e5b6c"
+      }
+    },
+    {
+      "name": "0x2b7e3decd50dbfe052d5a21ca8640ec202392485:migrate",
+      "call": {
+        "to": "0x932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "data": "0x540f77920000000000000000000000002b7e3decd50dbfe052d5a21ca8640ec2023924850000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "from": "0xfe3c928ff2081df0a6473e12f06f22fb4b21a26f"
+      },
+      "expected": {
+        "revert_data": "0x1e6a33fb"
+      }
+    },
+    {
+      "name": "0x2b7e3decd50dbfe052d5a21ca8640ec202392485:stake",
+      "call": {
+        "to": "0x2b7e3decd50dbfe052d5a21ca8640ec202392485",
+        "data": "0x3a4b66f1",
+        "from": "0xfe3c928ff2081df0a6473e12f06f22fb4b21a26f"
+      },
+      "expected": {
+        "revert_data": "0xe569becd"
+      }
+    },
+    {
+      "name": "0x2b7e3decd50dbfe052d5a21ca8640ec202392485:direct_unlock",
+      "call": {
+        "to": "0x2b7e3decd50dbfe052d5a21ca8640ec202392485",
+        "data": "0xe674a0bd000000000000000000000000fe3c928ff2081df0a6473e12f06f22fb4b21a26f000000000000000000000000fe3c928ff2081df0a6473e12f06f22fb4b21a26f",
+        "from": "0xfe3c928ff2081df0a6473e12f06f22fb4b21a26f"
+      },
+      "expected": {
+        "revert_data": "0x32cc7236"
+      }
+    }
+  ],
+  "mode": "manual_source_review_plan_not_automatic_certification"
+}

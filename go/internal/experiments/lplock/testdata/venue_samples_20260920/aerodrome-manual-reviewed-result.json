@@ -1,0 +1,52 @@
+{
+  "mode": "manual_source_review_plus_rpc_probes",
+  "scope": "observed_configuration_without_configuration_changes",
+  "block_number": 51561574,
+  "block_hash": "0xa66454b85d843249cd05ce55655c3a33e9f6ac38ead78a26f68004d0bee64571",
+  "source_sha256": {
+    "aerodrome-source-0xfe678bffc3c1c8d1de4478cc5c3e1b93ee4638ae.json": "818618407fcb39a4b50f02631d9ca3c1037cb04d563f84a9f2b4240994c09fc9",
+    "dependency-source-0x932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c.json": "d6e3b150882b6eb7b7fcb4a6e8a14b0ddcd181e64797b5e0a5c04fc99506e8c1"
+  },
+  "checks": [
+    "locker_and_factory_compiler_outputs_matched_rpc_runtime_with_only_declared_immutables",
+    "fixed_eip1167_proxy_target_matched_observed_implementation",
+    "all_pool_tick_gross_and_net_liquidity_explained_by_single_nft",
+    "locker_manager_pool_and_nft_getters_matched_sample",
+    "nft_transfer_path_requires_factory_and_factory_unlock_requires_unexpired_check",
+    "factory_migration_and_locker_staking_paths_blocked_by_observed_zero_gates",
+    "initialization_protection_and_remaining_public_calls_reviewed_no_additional_current_principal_exit"
+  ],
+  "limitations": [
+    "not_automatic_arbitrary_contract_certification",
+    "factory_migration_configuration_changes_excluded_from_current_ratio",
+    "token_privileges_holder_concentration_and_factory_owner_effectiveness_not_assessed"
+  ],
+  "results": [
+    {
+      "pool": "0xb0Bc332F85Ab53F3A74A0e5cD713E373528eBB2e",
+      "custodian": "0x29f4dc9fd61a76f848bb607d2862fef11ba85b7a",
+      "token_id": "6577077",
+      "principal_token0": "9998999999873419150994",
+      "principal_token1": "331",
+      "locked_token0": "9998999999873419150994",
+      "locked_token1": "331",
+      "locked_percentage_token0": "100",
+      "locked_percentage_token1": "100",
+      "locked_liquidity_percentage": "100",
+      "locked_until_raw": "4294967295"
+    },
+    {
+      "pool": "0x39F197dc4c4ADEA97A4fd478e2015930AC2Efbf1",
+      "custodian": "0x2b7e3decd50dbfe052d5a21ca8640ec202392485",
+      "token_id": "6577053",
+      "principal_token0": "9998999999999999999999",
+      "principal_token1": "0",
+      "locked_token0": "9998999999999999999999",
+      "locked_token1": "0",
+      "locked_percentage_token0": "100",
+      "locked_percentage_token1": "100",
+      "locked_liquidity_percentage": "100",
+      "locked_until_raw": "4294967295"
+    }
+  ]
+}

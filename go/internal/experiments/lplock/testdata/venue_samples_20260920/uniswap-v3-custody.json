@@ -1,0 +1,297 @@
+{
+  "venue": "uniswap-v3",
+  "block_number": 51561375,
+  "samples": [
+    {
+      "pool": "0xcD0945f8e6a2F5A55972357CcD4B697f660b2F3E",
+      "locked_liquidity_percentage": "0",
+      "positions": [
+        {
+          "token_id": "6049981",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0x2f0f35765563ba038ba80ffb80d76eb6106b946a",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": -887200,
+          "upper": 157800,
+          "liquidity": "187308661262471198621704",
+          "owner_code_hash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "owner_code_bytes": 0,
+          "withdrawal_assessment": "owner_full_decrease_succeeded"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "pool": "0xFadEC700Cf2a7ef99d9e1d9B2825368D28457C6F",
+      "locked_liquidity_percentage": "0",
+      "positions": [
+        {
+          "token_id": "6049843",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xa25cc31f54fd90bba0d653e936d78f9ca137723f",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": -887200,
+          "upper": 887200,
+          "liquidity": "858998538681081",
+          "owner_code_hash": "0xb69486085287804568fa5f5b2023f0433289dec044bae17ac71ac2d8225c64c6",
+          "owner_code_bytes": 23,
+          "withdrawal_assessment": "eip7702_owner_full_decrease_succeeded",
+          "structure": {
+            "kind": "eip7702",
+            "target": "0x7702cb554e6bfb442cb743a7df23154544a7176c"
+          },
+          "probe_result": "0x0000000000000000000000000000000000000000000000000000000001f1f4b50000000000000000000000000000000000000000000004c9ba861963a1761af4"
+        },
+        {
+          "token_id": "6050017",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0x7ea1a45f0657d2dbd77839a916ab83112bdb5590",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 341800,
+          "upper": 351400,
+          "liquidity": "138200502071968089",
+          "owner_code_hash": "0xb09ef517c48d2bf6eed05457ff56871b2596e3fc904fc6e9795882a870c2e993",
+          "owner_code_bytes": 23,
+          "withdrawal_assessment": "eip7702_owner_full_decrease_succeeded",
+          "structure": {
+            "kind": "eip7702",
+            "target": "0x63c0c19a282a1b52b07dd5a65b58948a07dae32b"
+          },
+          "probe_result": "0x0000000000000000000000000000000000000000000000000000000076e948bf0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "pool": "0x5c68867dDb543a8fDadb3512FB145ED93958E60b",
+      "locked_liquidity_percentage": "0",
+      "positions": [
+        {
+          "token_id": "6049792",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xaa3f79a1fb9a5cfd3c1952d014a732c222be8914",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": -887220,
+          "upper": 147300,
+          "liquidity": "474943909103642478739740",
+          "owner_code_hash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "owner_code_bytes": 0,
+          "withdrawal_assessment": "owner_full_decrease_succeeded"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "pool": "0x1CD5c92DED8643aD9A873D991f630426Ef6B2707",
+      "locked_liquidity_percentage": "0",
+      "positions": [
+        {
+          "token_id": "6049770",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xaa3f79a1fb9a5cfd3c1952d014a732c222be8914",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": -887220,
+          "upper": 143160,
+          "liquidity": "584166685017472451175934",
+          "owner_code_hash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "owner_code_bytes": 0,
+          "withdrawal_assessment": "owner_full_decrease_succeeded"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "pool": "0x55BBCE0f44B51437472164eC95cc38f00fD21495",
+      "locked_liquidity_percentage": "0",
+      "positions": [
+        {
+          "token_id": "6049685",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xaa3f79a1fb9a5cfd3c1952d014a732c222be8914",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": -887220,
+          "upper": 114660,
+          "liquidity": "1942967194105906036853409",
+          "owner_code_hash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "owner_code_bytes": 0,
+          "withdrawal_assessment": "owner_full_decrease_succeeded"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "pool": "0x18CB87b5dB850F60c2C97277fa71465074aDD3CE",
+      "locked_liquidity_percentage": "0",
+      "positions": [
+        {
+          "token_id": "6049679",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0x2f0f35765563ba038ba80ffb80d76eb6106b946a",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": -887200,
+          "upper": 137400,
+          "liquidity": "5194169094863255822121705",
+          "owner_code_hash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "owner_code_bytes": 0,
+          "withdrawal_assessment": "owner_full_decrease_succeeded"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "pool": "0x894Bf60e29Ea6269468C5BA5Ff4bd214B0ef4cA3",
+      "locked_liquidity_percentage": "0",
+      "positions": [
+        {
+          "token_id": "6049640",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xaa3f79a1fb9a5cfd3c1952d014a732c222be8914",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": -887220,
+          "upper": 137700,
+          "liquidity": "716357856065759078886740",
+          "owner_code_hash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "owner_code_bytes": 0,
+          "withdrawal_assessment": "owner_full_decrease_succeeded"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "pool": "0x4ee8a52d53F37751Bf1432de5893c0731319Dbf9",
+      "locked_liquidity_percentage": "0",
+      "positions": [
+        {
+          "token_id": "6049586",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xaa3f79a1fb9a5cfd3c1952d014a732c222be8914",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": -887220,
+          "upper": -46560,
+          "liquidity": "5128106189575361225043576388",
+          "owner_code_hash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "owner_code_bytes": 0,
+          "withdrawal_assessment": "owner_full_decrease_succeeded"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "pool": "0x4Ce5141895080c91365123E198341aE05c64f0aa",
+      "locked_liquidity_percentage": "0",
+      "positions": [
+        {
+          "token_id": "6049448",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0x2f0f35765563ba038ba80ffb80d76eb6106b946a",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": -887220,
+          "upper": 130800,
+          "liquidity": "722480446249605741819522",
+          "owner_code_hash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "owner_code_bytes": 0,
+          "withdrawal_assessment": "owner_full_decrease_succeeded"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "pool": "0x4a99e64Bc558447eE427eF63bb4f1eB232c4aCaC",
+      "locked_liquidity_percentage": null,
+      "positions": [
+        {
+          "token_id": "6049443",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0x71d1d363176723f85d98b8b430df33cde89f0a7f",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": -408400,
+          "upper": 887200,
+          "liquidity": "1355657760817103798",
+          "owner_code_hash": "0xc90a53b80c566cc39c28500a6fc529a3e3e0db374c8aaa7ad8eb9b4a7d303726",
+          "owner_code_bytes": 130,
+          "withdrawal_assessment": "unresolved",
+          "structure": {
+            "kind": "unrecognized_runtime",
+            "bytes": 130
+          }
+        }
+      ],
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ]
+    }
+  ],
+  "custodians": [
+    {
+      "address": "0xa25cc31f54fd90bba0d653e936d78f9ca137723f",
+      "code": "0xef01007702cb554e6bfb442cb743a7df23154544a7176c",
+      "structure": {
+        "kind": "eip7702",
+        "target": "0x7702cb554e6bfb442cb743a7df23154544a7176c"
+      }
+    },
+    {
+      "address": "0x7ea1a45f0657d2dbd77839a916ab83112bdb5590",
+      "code": "0xef010063c0c19a282a1b52b07dd5a65b58948a07dae32b",
+      "structure": {
+        "kind": "eip7702",
+        "target": "0x63c0c19a282a1b52b07dd5a65b58948a07dae32b"
+      }
+    },
+    {
+      "address": "0x71d1d363176723f85d98b8b430df33cde89f0a7f",
+      "code": "0x60806040527f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc545f9081906001600160a01b0316368280378136915af43d5f803e156048573d5ff35b3d5ffdfea2646970667358221220351081a2bc0b8044d16f771d234d3e51590b4f7163e5919a9b41811a8fbf82b364736f6c634300081a0033",
+      "structure": {
+        "kind": "unrecognized_runtime",
+        "bytes": 130
+      },
+      "source": {
+        "address": "0x71d1d363176723f85d98b8b430df33cde89f0a7f",
+        "reason": "http_request_failed",
+        "runtime_matches_rpc": false
+      }
+    }
+  ],
+  "requests": [
+    {
+      "method": "eth_getBlockByNumber",
+      "bytes": 10959,
+      "seconds": 0.265
+    },
+    {
+      "method": "eth_getCode",
+      "bytes": 85,
+      "seconds": 0.807
+    },
+    {
+      "method": "eth_call",
+      "bytes": 167,
+      "seconds": 0.244
+    },
+    {
+      "method": "eth_getCode",
+      "bytes": 85,
+      "seconds": 0.452
+    },
+    {
+      "method": "eth_call",
+      "bytes": 167,
+      "seconds": 0.312
+    },
+    {
+      "method": "eth_getCode",
+      "bytes": 299,
+      "seconds": 0.272
+    },
+    {
+      "method": "GET",
+      "http_status": 404,
+      "seconds": 1.071
+    },
+    {
+      "method": "eth_getBlockByNumber",
+      "bytes": 10959,
+      "seconds": 0.219
+    }
+  ]
+}

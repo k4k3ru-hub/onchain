@@ -1,0 +1,35 @@
+{
+  "admin_can_set_migrator": true,
+  "basis": "complete_lp_principal_current_configuration",
+  "block_hash": "0x387c18cd66b280ee8d059eb1e22b3d0d626a950584e2378fd6326e3fa7e46b95",
+  "block_number": 51557560,
+  "checks": {
+    "admin_refund_nft": "ST",
+    "admin_set_migrator": "success_without_persisted_state",
+    "decrease_liquidity": "NOT YET",
+    "direct_nft_decrease": "Not approved",
+    "migrate": "NOT SET",
+    "shorten_lock": "DATE",
+    "withdraw": "NOT YET"
+  },
+  "creation_transaction": "0x49079fb75c2e86b4efe57804297a9873b8830e7025eb7fb18d7e179b08a57083",
+  "custodian": "0x231278eDd38B00B07fBd52120CEf685B9BaEBCC1",
+  "lock_id": "1158",
+  "percentage": "100",
+  "pool": "0xd67f187eb06C51D3Ed02C73A14F82Ef36FeA4665",
+  "principal_token0": "69651978657561984",
+  "principal_token1": "243768074",
+  "rate_limit_retries": 3,
+  "rpc_http_attempts": {
+    "eth_call": 20,
+    "eth_getBlockByNumber": 4,
+    "eth_getCode": 1,
+    "eth_getTransactionReceipt": 1
+  },
+  "runtime_hash": "0x865de3c33580ca7144492890feee24ef985af705497e92e1dea0ef11a8be0eb8",
+  "source_http_requests": 1,
+  "source_sha256": "12116e83ad4a3a53946d65ea783fac4d337b5b23e955525ffd6c71733ebf2f80",
+  "token_id": "5951125",
+  "unlock_date": "1791648509",
+  "wall_seconds": 39.652430125
+}

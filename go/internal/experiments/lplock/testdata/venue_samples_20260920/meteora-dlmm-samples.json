@@ -1,0 +1,717 @@
+{
+  "venue": "meteora-dlmm",
+  "selection_count": 10,
+  "samples": [
+    {
+      "pool": "G5ukktNKR1WAkaemHjiVJhfCJ3zQzRBEZbuDeCpRzoas",
+      "creation_event": {
+        "pool": "G5ukktNKR1WAkaemHjiVJhfCJ3zQzRBEZbuDeCpRzoas",
+        "signature": "29eUDivc3duuAbY4mecvz3WJ1oQMrFTspQuUVKNxj4VaWKwdHxyHPkf6zkv13jTPrjGF71xXay7xQoL78fLSbXA6",
+        "creation_slot": 448754898,
+        "event": {
+          "pool": "G5ukktNKR1WAkaemHjiVJhfCJ3zQzRBEZbuDeCpRzoas",
+          "bin_step": 80,
+          "token_x": "2NokmVvD17JXYs3eWpxYnZxQ723Pjd3yb9KfcJYSd74e",
+          "token_y": "So11111111111111111111111111111111111111112",
+          "outer_instruction": 7,
+          "inner_instruction": 7,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6fe02146d917e5fd353026324fb1fd304fc865402c06f5857beb9503d262a61e2c50001471bfe087c94bead6969b13396c963f061376ff17320d572aa3f74283b365fb069b8857feab8184fb687f634618c035dac439dc1aeb3b5598a0f00000000001"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "G5ukktNKR1WAkaemHjiVJhfCJ3zQzRBEZbuDeCpRzoas",
+        "enumeration_slot": 448755496,
+        "snapshot_slot": 448755497,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "GK8Sac6RzqRpQRjfPbRTwGroMuquF4axgGnzJA1R87v3",
+            "owner": "3vAWE7KmJaSpyPYcdXShGLYRdq5wnVaYvCenKqnqSccK",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "-807",
+            "upper_bin_id": "-739",
+            "nonzero_shares_in_legacy_70_bins": 69,
+            "raw_data_bytes": 8120
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 3
+    },
+    {
+      "pool": "rJxPEp4JVLGvoDTUNuXcZvd2AHGoG2tU7ThtzHks8U3",
+      "creation_event": {
+        "pool": "rJxPEp4JVLGvoDTUNuXcZvd2AHGoG2tU7ThtzHks8U3",
+        "signature": "RnfTUFVDWwxrgB7ULHaBiqifGXZv1JAd5nY24xG3HgxQWGFBjJdeW2f84LKgyu5BMzRX8U4xwTHJ9uqjunhVBxe",
+        "creation_slot": 448753077,
+        "event": {
+          "pool": "rJxPEp4JVLGvoDTUNuXcZvd2AHGoG2tU7ThtzHks8U3",
+          "bin_step": 50,
+          "token_x": "HfMbPyDdZH6QMaDDUokjYCkHxzjoGBMpgaUvpLWGbF5p",
+          "token_y": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f0ca1c2e486e939fe6a4f4029dcb33f0c03dc1f19c5b06cc1978a2cc8b0c0515c3200f78e589f98890c0a9a8d735d512d715fd8e024ed6e18adf1800b86b11e6f2cafc6fa7af3bedbad3a3d65f36aabc97431b1bbe4c2d2f6e0e47ca60203452f5d61"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "rJxPEp4JVLGvoDTUNuXcZvd2AHGoG2tU7ThtzHks8U3",
+        "enumeration_slot": 448755514,
+        "snapshot_slot": 448755517,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "BdcEZf6bK7XFVwZyMEZGESVPYJ6PYr7BYkPdn6q4hbv8",
+            "owner": "EQPS3NL4Rk2dK8zZ9b5dcwwzrdbSkRoQxmMhzqoWEJ9V",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "-1764",
+            "upper_bin_id": "-1696",
+            "nonzero_shares_in_legacy_70_bins": 69,
+            "raw_data_bytes": 8120
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 3
+    },
+    {
+      "pool": "Be5ZrEoNnTtEAjMWkk983SQAsdH8N8sw84rwiaUtVgzR",
+      "creation_event": {
+        "pool": "Be5ZrEoNnTtEAjMWkk983SQAsdH8N8sw84rwiaUtVgzR",
+        "signature": "3FApPRLNGJa2nhdEUfbC6kWzmL224y1N3raQB6v1jqr9JKWA9LFNfwAL77DSiQXPXFmNpP3rhSGfjBcJSnbjzLSq",
+        "creation_slot": 448752686,
+        "event": {
+          "pool": "Be5ZrEoNnTtEAjMWkk983SQAsdH8N8sw84rwiaUtVgzR",
+          "bin_step": 1,
+          "token_x": "5M8CRiyK3Lk2xtZ1uSUz3ESEhvJyXKsZh6CWZMSNtKxi",
+          "token_y": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f9e1485bc01569f1a7aa5e62b8db4d593dfabe1adfe29b9f8554781b69100fcae010040968066a1461f6881205997578ffee7e0eadd083a76017a5308018d579a3a0fce010e60afedb22717bd63192f54145a3f965a33bb82d2c7029eb2ce1e208264"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "Be5ZrEoNnTtEAjMWkk983SQAsdH8N8sw84rwiaUtVgzR",
+        "enumeration_slot": 448755534,
+        "snapshot_slot": 448755536,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "8AeB9VWKpK7iP5nGaYjNpHsgkghtjf5jLNWj8jKVYLvi",
+            "owner": "FydBsKNR1b429jBnf1beMrUknL9kEQkyAADZUf2i362H",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "-34",
+            "upper_bin_id": "34",
+            "nonzero_shares_in_legacy_70_bins": 69,
+            "raw_data_bytes": 8120
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 3
+    },
+    {
+      "pool": "9xcXkcaTLqjPHSNxjQXnLvbZhKpQPSSDC8AGi6vAPCu9",
+      "creation_event": {
+        "pool": "9xcXkcaTLqjPHSNxjQXnLvbZhKpQPSSDC8AGi6vAPCu9",
+        "signature": "4kJ1i4yjTZpynrkqBGQDyj2TudsLSkpWeqQE1VySBgrjzmybV3a5F2tmBsDjt1RUewrWPAiETzV7WXHHtSLvToaM",
+        "creation_slot": 448752623,
+        "event": {
+          "pool": "9xcXkcaTLqjPHSNxjQXnLvbZhKpQPSSDC8AGi6vAPCu9",
+          "bin_step": 80,
+          "token_x": "7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs",
+          "token_y": "So11111111111111111111111111111111111111112",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f851c9d31dcb230cd00d7358190874b8b4f11d7203f065b0c1b3564579e85e63c500066e5188a1308a1db90b6d31f3fbdca8c3df2678c8112dfdd3d192c5a3cc457a8069b8857feab8184fb687f634618c035dac439dc1aeb3b5598a0f00000000001"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "9xcXkcaTLqjPHSNxjQXnLvbZhKpQPSSDC8AGi6vAPCu9",
+        "enumeration_slot": 448755554,
+        "snapshot_slot": 448755555,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "3AaDjDT1Kv83YqhsBvTwafaYXznw7fFs2J6cfymHFzWS",
+            "owner": "GiNN4ygnURRriZJvMi8VKvtzvPZMU7R5fd6e8QKdQ4De",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "679",
+            "upper_bin_id": "692",
+            "nonzero_shares_in_legacy_70_bins": 14,
+            "raw_data_bytes": 8120
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 3
+    },
+    {
+      "pool": "6YXgDLnggHKumNSnKdWyGHjYa8NpCprkNZPj8wXTVTkt",
+      "creation_event": {
+        "pool": "6YXgDLnggHKumNSnKdWyGHjYa8NpCprkNZPj8wXTVTkt",
+        "signature": "XLaZPs52nxj4f2Twk2R4CEuvSUdVWs6P3VEvH2bAuBbkzgSsfy1KwpnzXZzU3XrFZ3od1HrbE57Z3AgEn17EqU4",
+        "creation_slot": 448752251,
+        "event": {
+          "pool": "6YXgDLnggHKumNSnKdWyGHjYa8NpCprkNZPj8wXTVTkt",
+          "bin_step": 80,
+          "token_x": "7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs",
+          "token_y": "So11111111111111111111111111111111111111112",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f525e2011b251cab90d906aca96a7e6ef4f9e9e09cde6d07a145653742c789159500066e5188a1308a1db90b6d31f3fbdca8c3df2678c8112dfdd3d192c5a3cc457a8069b8857feab8184fb687f634618c035dac439dc1aeb3b5598a0f00000000001"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "6YXgDLnggHKumNSnKdWyGHjYa8NpCprkNZPj8wXTVTkt",
+        "enumeration_slot": 448755572,
+        "snapshot_slot": 448755573,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "8q8jmwkBaLjhg43p8vGs52VfFfqfa8yq2TpGGgUrYKBt",
+            "owner": "GiNN4ygnURRriZJvMi8VKvtzvPZMU7R5fd6e8QKdQ4De",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "680",
+            "upper_bin_id": "693",
+            "nonzero_shares_in_legacy_70_bins": 14,
+            "raw_data_bytes": 8120
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 3
+    },
+    {
+      "pool": "B6Q22QgNo7boxqLMXGqVZDAwqMQXMVBu16HSeAZTkc5v",
+      "creation_event": {
+        "pool": "B6Q22QgNo7boxqLMXGqVZDAwqMQXMVBu16HSeAZTkc5v",
+        "signature": "VJXtZsPAcTq6zHoSHeq9YTM71qHGzoDHkNmjexWdVucqtou7JpsfrctcwECU4UQitFpafr7H5XRd5Y9mh3h4Fyo",
+        "creation_slot": 448750778,
+        "event": {
+          "pool": "B6Q22QgNo7boxqLMXGqVZDAwqMQXMVBu16HSeAZTkc5v",
+          "bin_step": 8,
+          "token_x": "9gP2kCy3wA1ctvYWQk75guqXuHfrEomqydHLtcTCqiLa",
+          "token_y": "27G8MtK7VtTcCHkpASjSDdkWWYfoqT6ggEuKidVJidD4",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f95f6cca969c3605d31cce1b4f48dfb346a029e5a1b65b56ecbcd36c802be2321080080f40e7441035c75e018d15f7f7fa7e4366ff09833598ecffa61bfead869fde31076469c1041d9e9b39fc2ede11333973b3e95732a4439207193a61cc4108d43"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "B6Q22QgNo7boxqLMXGqVZDAwqMQXMVBu16HSeAZTkc5v",
+        "enumeration_slot": 448755592,
+        "snapshot_slot": 448755593,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "GL3YneevA3KHuWC1VcFxLd3N9DSRFzk366CVjgQ96S36",
+            "owner": "GiNN4ygnURRriZJvMi8VKvtzvPZMU7R5fd6e8QKdQ4De",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "584",
+            "upper_bin_id": "646",
+            "nonzero_shares_in_legacy_70_bins": 63,
+            "raw_data_bytes": 8120
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 3
+    },
+    {
+      "pool": "CTGRQXUujspK5a4aitfqMWvJGfbv3VVbmdXMaLCKvMrM",
+      "creation_event": {
+        "pool": "CTGRQXUujspK5a4aitfqMWvJGfbv3VVbmdXMaLCKvMrM",
+        "signature": "5ASTujBEdgWaoYWTvk7H4mRB2SnCXJFRKiWkWyGVGUjMoiitzmVS3hFMppK7y2EmxQobt53ZzuWjnHKPCshCj1SU",
+        "creation_slot": 448750448,
+        "event": {
+          "pool": "CTGRQXUujspK5a4aitfqMWvJGfbv3VVbmdXMaLCKvMrM",
+          "bin_step": 10,
+          "token_x": "9gP2kCy3wA1ctvYWQk75guqXuHfrEomqydHLtcTCqiLa",
+          "token_y": "27G8MtK7VtTcCHkpASjSDdkWWYfoqT6ggEuKidVJidD4",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6faa2b17f3d9f64e37624def446c3bdda5d5001bcb18512899cfb40cb3d39096860a0080f40e7441035c75e018d15f7f7fa7e4366ff09833598ecffa61bfead869fde31076469c1041d9e9b39fc2ede11333973b3e95732a4439207193a61cc4108d43"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "CTGRQXUujspK5a4aitfqMWvJGfbv3VVbmdXMaLCKvMrM",
+        "enumeration_slot": 448755609,
+        "snapshot_slot": 448755610,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "3fKbJikhowMWcTR6Rg7vHdttnhcFRKGPrdSz9Cc1uWuU",
+            "owner": "GiNN4ygnURRriZJvMi8VKvtzvPZMU7R5fd6e8QKdQ4De",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "466",
+            "upper_bin_id": "516",
+            "nonzero_shares_in_legacy_70_bins": 51,
+            "raw_data_bytes": 8120
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 3
+    },
+    {
+      "pool": "52ZhMifDSt5tbyTXD2hPuPGJgWSwmkPer7Ucx7EMrB8G",
+      "creation_event": {
+        "pool": "52ZhMifDSt5tbyTXD2hPuPGJgWSwmkPer7Ucx7EMrB8G",
+        "signature": "4yfEoNWjf2yU9FD9SD8RZk7DFeFJso8mqmuVmhCtBMVoQ8RQbqyn34moN1vgERXAH3spEia19cgxJLTcsAvXENbK",
+        "creation_slot": 448748524,
+        "event": {
+          "pool": "52ZhMifDSt5tbyTXD2hPuPGJgWSwmkPer7Ucx7EMrB8G",
+          "bin_step": 400,
+          "token_x": "JAtFQn9yiSxCPBRnECvhaF8Vz3YtNq8Sk8nbCZ9ra54k",
+          "token_y": "So11111111111111111111111111111111111111112",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f3bd54c3bea155ec1bc30872088f519f9897368dda978ee08aa8a83231e805d159001ff1eda11d14ddb2a1067cc2255bcb7a28484c342b270693fd0a098e02d9ed521069b8857feab8184fb687f634618c035dac439dc1aeb3b5598a0f00000000001"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "52ZhMifDSt5tbyTXD2hPuPGJgWSwmkPer7Ucx7EMrB8G",
+        "enumeration_slot": 448755626,
+        "snapshot_slot": 448755627,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "RZ6t4azKFDsCnVjjNdLz458MyFqxZrd8uPJ72RdxWiB",
+            "owner": "GuQ8EtxEYafK5s3c34Sj2Le7aUXuYedDQ28F64Hvi67K",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "-200",
+            "upper_bin_id": "-119",
+            "nonzero_shares_in_legacy_70_bins": 70,
+            "raw_data_bytes": 9464
+          },
+          {
+            "position": "J8CnMUsy8obJhLoVNTZdkkqhEZn2QF2ZtSSyzGsBEKvF",
+            "owner": "DQ4Lz566PRAdz71ciZeKjLjYyzwDdMoPPRoisFzMSBVu",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "-200",
+            "upper_bin_id": "-119",
+            "nonzero_shares_in_legacy_70_bins": 70,
+            "raw_data_bytes": 9464
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 3
+    },
+    {
+      "pool": "4uCTEA8NkdoxxnpD9tS5d6xhzSALTom3Ar96qDgoFpKv",
+      "creation_event": {
+        "pool": "4uCTEA8NkdoxxnpD9tS5d6xhzSALTom3Ar96qDgoFpKv",
+        "signature": "2RE9iBbCZXdGVb7kXFVPbK9exKrfdPshsbiY7VSJ6CPfVtAtnrbERoo5wijcJCtByN95Myiv7yJUmJzusp2vcPDQ",
+        "creation_slot": 448748414,
+        "event": {
+          "pool": "4uCTEA8NkdoxxnpD9tS5d6xhzSALTom3Ar96qDgoFpKv",
+          "bin_step": 125,
+          "token_x": "2CFiKwy5ATZZQkjrVtrvXPFaa5WZddv2uJ25Acs8uz6J",
+          "token_y": "So11111111111111111111111111111111111111112",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f39f2363dc794b8643a3e8f1153d38158bc8eb7defa409a0176a8af20d33104557d0011bdb61a1a6757012947de0cb0b62126cfe8d99038fdd6c044e1e0844a4b5e47069b8857feab8184fb687f634618c035dac439dc1aeb3b5598a0f00000000001"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "4uCTEA8NkdoxxnpD9tS5d6xhzSALTom3Ar96qDgoFpKv",
+        "enumeration_slot": 448755644,
+        "snapshot_slot": 448755645,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "7PY5MGNSBNfLGysVwnVqLeJ2y9UnGDhXr3gxoYnVigXy",
+            "owner": "9iK4LcHLSBz8u5DNaRmc2DHGfdienuvgKenejmf7AgeS",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "-704",
+            "upper_bin_id": "-670",
+            "nonzero_shares_in_legacy_70_bins": 35,
+            "raw_data_bytes": 8120
+          },
+          {
+            "position": "BBpq3uxtQJPe97eJwVWPEBscQR6xWTzJvnek7mJaem2C",
+            "owner": "5L3yfrbTgVGxxdziAsRvx5iuHJKbGbVtLwWqoAUoBRSR",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "-704",
+            "upper_bin_id": "-670",
+            "nonzero_shares_in_legacy_70_bins": 35,
+            "raw_data_bytes": 8120
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 3
+    },
+    {
+      "pool": "5zPSHDVj5ZBY9WS5XFY4GqDU3pX7xycKY4Tgbu8kN82d",
+      "creation_event": {
+        "pool": "5zPSHDVj5ZBY9WS5XFY4GqDU3pX7xycKY4Tgbu8kN82d",
+        "signature": "AmHSDcs3xPNXrihYmffxmWQvo74jyD1ddfTH2pJKPkgNSvCF5WFb9eFdTfbheECffauQ9MpLa14PFgyWkNTBDkA",
+        "creation_slot": 448746586,
+        "event": {
+          "pool": "5zPSHDVj5ZBY9WS5XFY4GqDU3pX7xycKY4Tgbu8kN82d",
+          "bin_step": 50,
+          "token_x": "GTBxUiw6wJdmmkCGZgRHLyYxqu1vG4KtRpeox6yDpump",
+          "token_y": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f4a2238dd2781bd3de1c8462087f37b3d5143989d417c8398d883da9d8a4203b23200e594cb231b48b6a32e8e47574aa0c638fac8d62a4d00e70219c78af6c371f74fc6fa7af3bedbad3a3d65f36aabc97431b1bbe4c2d2f6e0e47ca60203452f5d61"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "5zPSHDVj5ZBY9WS5XFY4GqDU3pX7xycKY4Tgbu8kN82d",
+        "enumeration_slot": 448755662,
+        "snapshot_slot": 448755663,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "CfuoML5v1TKKf2ds8a3c2Mv8cWLama6tqdKzaLeZPkKD",
+            "owner": "EMaCjDvQnBkRuVQagCRVVEehKwVbkGKmyQgKBN2BLuxv",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "-1024",
+            "upper_bin_id": "-953",
+            "nonzero_shares_in_legacy_70_bins": 70,
+            "raw_data_bytes": 8344
+          },
+          {
+            "position": "F1DbdKQ1Y7zEcF7Ym2LagrUiVcTyPn42ELdAab71rz9j",
+            "owner": "EMaCjDvQnBkRuVQagCRVVEehKwVbkGKmyQgKBN2BLuxv",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "-1013",
+            "upper_bin_id": "-991",
+            "nonzero_shares_in_legacy_70_bins": 23,
+            "raw_data_bytes": 8120
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 3
+    }
+  ],
+  "selection_failures": [],
+  "sampling_policy": "most recent verified pool creation events; frozen before custody inspection",
+  "read_only": true,
+  "idl_sha256": "9b35628fcf9a60d1ca4abea8fe6aae93f91d1c70606292ed8a721bf39c4a6919",
+  "requests": [
+    {
+      "method": "GET",
+      "bytes": 210551,
+      "seconds": 0.405
+    },
+    {
+      "method": "GET",
+      "bytes": 56934,
+      "seconds": 0.366
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 484,
+      "seconds": 3.047
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 21369,
+      "seconds": 0.637
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 483,
+      "seconds": 1.135
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 5081,
+      "seconds": 0.535
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 1634,
+      "seconds": 1.143
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4828,
+      "seconds": 1.094
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 486,
+      "seconds": 1.139
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4841,
+      "seconds": 0.485
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 1416,
+      "seconds": 0.949
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4838,
+      "seconds": 0.529
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 2567,
+      "seconds": 0.9
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4835,
+      "seconds": 0.596
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 5323,
+      "seconds": 0.978
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4836,
+      "seconds": 0.493
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 2051,
+      "seconds": 1.031
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4944,
+      "seconds": 0.579
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 1380,
+      "seconds": 1.087
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 5189,
+      "seconds": 0.543
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 179319,
+      "seconds": 2.926
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4939,
+      "seconds": 0.533
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 21369,
+      "seconds": 0.591
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 421,
+      "seconds": 0.489
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 12674,
+      "seconds": 0.604
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 5081,
+      "seconds": 0.516
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 421,
+      "seconds": 0.819
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 12674,
+      "seconds": 1.042
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4828,
+      "seconds": 0.562
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 421,
+      "seconds": 0.489
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 12674,
+      "seconds": 0.639
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4841,
+      "seconds": 0.548
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 421,
+      "seconds": 0.897
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 12674,
+      "seconds": 0.606
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4838,
+      "seconds": 0.581
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 421,
+      "seconds": 0.587
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 12674,
+      "seconds": 0.496
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4835,
+      "seconds": 0.621
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 421,
+      "seconds": 0.564
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 12674,
+      "seconds": 0.529
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4836,
+      "seconds": 0.586
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 421,
+      "seconds": 0.596
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 12674,
+      "seconds": 0.514
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4944,
+      "seconds": 0.551
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 746,
+      "seconds": 0.503
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 27248,
+      "seconds": 0.726
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 5189,
+      "seconds": 0.568
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 747,
+      "seconds": 0.487
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 23664,
+      "seconds": 0.649
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4939,
+      "seconds": 0.595
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 747,
+      "seconds": 0.596
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 23964,
+      "seconds": 0.606
+    }
+  ],
+  "wall_seconds": 87.815,
+  "sampling_complete": true
+}

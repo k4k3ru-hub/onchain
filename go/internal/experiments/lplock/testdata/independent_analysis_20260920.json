@@ -1,0 +1,469 @@
+{
+  "scope": "source-derived storage extraction, followed by a separate reference comparison; percentage remains unproven",
+  "discovery": {
+    "block_hash": "0xa817722482859dcd437a0e12c020e99401d0282685af33b40c6165c5f0f60382",
+    "block_number": 51557927,
+    "block_timestamp": 1789905201,
+    "chain_id": 8453,
+    "complete_single_position_coverage": true,
+    "creation_transaction": "0x49079fb75c2e86b4efe57804297a9873b8830e7025eb7fb18d7e179b08a57083",
+    "custodian": "0x231278eDd38B00B07fBd52120CEf685B9BaEBCC1",
+    "manager": "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
+    "pool": "0xd67f187eb06C51D3Ed02C73A14F82Ef36FeA4665",
+    "principal_token0": "69651978657561984",
+    "principal_token1": "243768074",
+    "rate_limit_retries": 1,
+    "rpc_http_attempts": {
+      "eth_call": 8,
+      "eth_getBlockByNumber": 4,
+      "eth_getCode": 1,
+      "eth_getTransactionReceipt": 1
+    },
+    "runtime_hash_observed": "0x865de3c33580ca7144492890feee24ef985af705497e92e1dea0ef11a8be0eb8",
+    "source_http_requests": 1,
+    "source_match": "exact_match",
+    "token_id": "5951125",
+    "wall_seconds": 21.160072917
+  },
+  "analysis_plan": {
+    "records": [
+      {
+        "entry_selector": "00f714ce",
+        "manager_field": {
+          "mapping_slot": "15",
+          "slot": "1",
+          "offset": 0,
+          "bytes": 20,
+          "field_ast_id": 1734
+        },
+        "nft_field": {
+          "mapping_slot": "15",
+          "slot": "3",
+          "offset": 0,
+          "bytes": 32,
+          "field_ast_id": 1738
+        },
+        "time_fields": [
+          {
+            "mapping_slot": "15",
+            "slot": "8",
+            "offset": 0,
+            "bytes": 32,
+            "field_ast_id": 1748,
+            "comparison": "<"
+          }
+        ],
+        "owner_fields": [
+          {
+            "mapping_slot": "15",
+            "slot": "4",
+            "offset": 0,
+            "bytes": 20,
+            "field_ast_id": 1740
+          }
+        ],
+        "guard_dominance_proven": false
+      }
+    ],
+    "asset_operations": [
+      {
+        "entry_name_observed": "lock",
+        "entry_selector": "a35a96b8",
+        "operation": "nft_transfer",
+        "target": null,
+        "arguments": [
+          {
+            "kind": "sender"
+          },
+          {
+            "kind": "parameter",
+            "declaration": 4294967268
+          },
+          null
+        ],
+        "requires_found": [
+          {
+            "left": {
+              "kind": "state",
+              "variable": 206
+            },
+            "operator": "!=",
+            "right": {
+              "kind": "literal",
+              "value": 2
+            }
+          }
+        ],
+        "source_location": "8470:84:20"
+      },
+      {
+        "entry_name_observed": "lock",
+        "entry_selector": "a35a96b8",
+        "operation": "lp_decrease",
+        "target": null,
+        "arguments": [
+          null
+        ],
+        "requires_found": [
+          {
+            "left": {
+              "kind": "state",
+              "variable": 206
+            },
+            "operator": "!=",
+            "right": {
+              "kind": "literal",
+              "value": 2
+            }
+          }
+        ],
+        "source_location": "9368:184:20"
+      },
+      {
+        "entry_name_observed": "decreaseLiquidity",
+        "entry_selector": "f11478f8",
+        "operation": "lp_decrease",
+        "target": {
+          "kind": "record_field",
+          "variable": 2194,
+          "index": {
+            "kind": "parameter",
+            "declaration": 3500
+          },
+          "field": 1734
+        },
+        "arguments": [
+          {
+            "kind": "parameter",
+            "declaration": 3503
+          }
+        ],
+        "requires_found": [
+          {
+            "left": {
+              "kind": "record_field",
+              "variable": 2194,
+              "index": {
+                "kind": "parameter",
+                "declaration": 3500
+              },
+              "field": 1748
+            },
+            "operator": "<",
+            "right": {
+              "kind": "timestamp"
+            }
+          },
+          {
+            "left": {
+              "kind": "state",
+              "variable": 206
+            },
+            "operator": "!=",
+            "right": {
+              "kind": "literal",
+              "value": 2
+            }
+          },
+          {
+            "left": {
+              "kind": "record_field",
+              "variable": 2194,
+              "index": {
+                "kind": "parameter",
+                "declaration": 4127
+              },
+              "field": 1740
+            },
+            "operator": "==",
+            "right": {
+              "kind": "sender"
+            }
+          }
+        ],
+        "source_location": "16316:53:20"
+      },
+      {
+        "entry_name_observed": "withdraw",
+        "entry_selector": "00f714ce",
+        "operation": "nft_transfer",
+        "target": {
+          "kind": "record_field",
+          "variable": 2194,
+          "index": {
+            "kind": "parameter",
+            "declaration": 3673
+          },
+          "field": 1734
+        },
+        "arguments": [
+          {
+            "kind": "parameter",
+            "declaration": 4294967268
+          },
+          {
+            "kind": "parameter",
+            "declaration": 3675
+          },
+          {
+            "kind": "record_field",
+            "variable": 2194,
+            "index": {
+              "kind": "parameter",
+              "declaration": 3673
+            },
+            "field": 1738
+          }
+        ],
+        "requires_found": [
+          {
+            "left": {
+              "kind": "record_field",
+              "variable": 2194,
+              "index": {
+                "kind": "parameter",
+                "declaration": 3673
+              },
+              "field": 1748
+            },
+            "operator": "<",
+            "right": {
+              "kind": "timestamp"
+            }
+          },
+          {
+            "left": {
+              "kind": "state",
+              "variable": 206
+            },
+            "operator": "!=",
+            "right": {
+              "kind": "literal",
+              "value": 2
+            }
+          },
+          {
+            "left": {
+              "kind": "record_field",
+              "variable": 2194,
+              "index": {
+                "kind": "parameter",
+                "declaration": 4127
+              },
+              "field": 1740
+            },
+            "operator": "==",
+            "right": {
+              "kind": "sender"
+            }
+          }
+        ],
+        "source_location": "17797:87:20"
+      },
+      {
+        "entry_name_observed": "migrate",
+        "entry_selector": "454b0608",
+        "operation": "approval",
+        "target": {
+          "kind": "record_field",
+          "variable": 2194,
+          "index": {
+            "kind": "parameter",
+            "declaration": 3785
+          },
+          "field": 1734
+        },
+        "arguments": [
+          {
+            "kind": "state",
+            "variable": 2177
+          },
+          {
+            "kind": "record_field",
+            "variable": 2194,
+            "index": {
+              "kind": "parameter",
+              "declaration": 3785
+            },
+            "field": 1738
+          }
+        ],
+        "requires_found": [
+          {
+            "left": {
+              "kind": "state",
+              "variable": 2177
+            },
+            "operator": "!=",
+            "right": {
+              "kind": "literal",
+              "value": 0
+            }
+          },
+          {
+            "left": {
+              "kind": "state",
+              "variable": 206
+            },
+            "operator": "!=",
+            "right": {
+              "kind": "literal",
+              "value": 2
+            }
+          },
+          {
+            "left": {
+              "kind": "record_field",
+              "variable": 2194,
+              "index": {
+                "kind": "parameter",
+                "declaration": 4127
+              },
+              "field": 1740
+            },
+            "operator": "==",
+            "right": {
+              "kind": "sender"
+            }
+          }
+        ],
+        "source_location": "18575:71:20"
+      }
+    ],
+    "mutable_gates": [
+      {
+        "slot": "12",
+        "offset": 0,
+        "bytes": 20,
+        "writers": [
+          {
+            "selector": "23cf3118",
+            "name_observed": "setMigrator",
+            "role_storage": [
+              {
+                "astId": 7,
+                "contract": "contracts/UNCX_LiquidityLocker_UniV3.sol:UNCX_LiquidityLocker_UniV3",
+                "label": "_owner",
+                "offset": 0,
+                "slot": "0",
+                "type": "t_address"
+              }
+            ]
+          }
+        ],
+        "exit_selector": "454b0608"
+      }
+    ],
+    "locked_liquidity_percentage": null,
+    "unresolved": [
+      "all_path_control_flow_and_interprocedural_asset_effects_not_proven"
+    ],
+    "public_entry_count": 38,
+    "source_input_sha256": "950d7cc4aa0cdce2a9bff8c2d07834744e9a793c804f5abdc7f3e102654a159d"
+  },
+  "independent_result": {
+    "block_hash": "0xa817722482859dcd437a0e12c020e99401d0282685af33b40c6165c5f0f60382",
+    "block_number": 51557927,
+    "candidate_key_count": 9,
+    "custodian": "0x231278eDd38B00B07fBd52120CEf685B9BaEBCC1",
+    "locked_liquidity_percentage": null,
+    "mutable_gates": [
+      {
+        "address": "0x0000000000000000000000000000000000000000",
+        "writer_count": 1,
+        "writer_role_addresses": [
+          "0x31c44A17aa2E639B40f33DA805CB1DB55d969693"
+        ]
+      }
+    ],
+    "pool": "0xd67f187eb06C51D3Ed02C73A14F82Ef36FeA4665",
+    "rate_limit_retries": 0,
+    "record_key_discovered": "1158",
+    "record_owner_addresses": [
+      "0x7618283E4D27C1CdCA572B791B499e4DE9d9954A"
+    ],
+    "rpc_http_attempts": {
+      "eth_getBlockByNumber": 2,
+      "storage_batch_http": 3
+    },
+    "storage_rpc_entries_including_retries": 14,
+    "time_fields": [
+      {
+        "comparison": "<",
+        "condition_passes": false,
+        "value": "1791648509"
+      }
+    ],
+    "token_id": "5951125",
+    "unresolved": [
+      "all_path_control_flow_and_interprocedural_asset_effects_not_proven"
+    ],
+    "wall_seconds": 6.388784083
+  },
+  "reference_result": {
+    "admin_address": "0x31c44A17aa2E639B40f33DA805CB1DB55d969693",
+    "admin_can_set_migrator": true,
+    "basis": "complete_lp_principal_current_configuration",
+    "block_hash": "0xa817722482859dcd437a0e12c020e99401d0282685af33b40c6165c5f0f60382",
+    "block_number": 51557927,
+    "checks": {
+      "admin_refund_nft": "ST",
+      "admin_set_migrator": "success_without_persisted_state",
+      "decrease_liquidity": "NOT YET",
+      "direct_nft_decrease": "Not approved",
+      "migrate": "NOT SET",
+      "shorten_lock": "DATE",
+      "withdraw": "NOT YET"
+    },
+    "creation_transaction": "0x49079fb75c2e86b4efe57804297a9873b8830e7025eb7fb18d7e179b08a57083",
+    "custodian": "0x231278eDd38B00B07fBd52120CEf685B9BaEBCC1",
+    "lock_id": "1158",
+    "lock_owner": "0x7618283E4D27C1CdCA572B791B499e4DE9d9954A",
+    "migrator": "0x0000000000000000000000000000000000000000",
+    "percentage": "100",
+    "pool": "0xd67f187eb06C51D3Ed02C73A14F82Ef36FeA4665",
+    "principal_token0": "69651978657561984",
+    "principal_token1": "243768074",
+    "rate_limit_retries": 1,
+    "rpc_http_attempts": {
+      "eth_call": 18,
+      "eth_getBlockByNumber": 4,
+      "eth_getCode": 1,
+      "eth_getTransactionReceipt": 1
+    },
+    "runtime_hash": "0x865de3c33580ca7144492890feee24ef985af705497e92e1dea0ef11a8be0eb8",
+    "source_http_requests": 1,
+    "source_sha256": "12116e83ad4a3a53946d65ea783fac4d337b5b23e955525ffd6c71733ebf2f80",
+    "token_id": "5951125",
+    "unlock_date": "1791648509",
+    "wall_seconds": 35.800565083
+  },
+  "comparison": {
+    "pool": "0xd67f187eb06C51D3Ed02C73A14F82Ef36FeA4665",
+    "block_number": 51557927,
+    "field_matches": {
+      "record_id": true,
+      "time_value": true,
+      "record_owner": true,
+      "migration_address": true,
+      "writer_role_address": true
+    },
+    "independent_locked_liquidity_percentage": null,
+    "reference_percentage": "100",
+    "percentage_comparison": "not_reached",
+    "reference_does_not_fill_independent_unknowns": true,
+    "independent_result_sha256": "ffaa541eeae2ec65b9ee4e2564b9d3348b5745d196dd20eb087b639a12cc7a95"
+  },
+  "artifact_sha256": {
+    "source.json": "950d7cc4aa0cdce2a9bff8c2d07834744e9a793c804f5abdc7f3e102654a159d",
+    "compiled.json": "de92111f059df2c9fc8c2849c1a129827a35e60ab952e52de53ba2e58719ce8d",
+    "analysis-plan.json": "6a70e27a1733ca65f2f5abcfb351ef3749a63928f4ae976564badc058ab2cfbf",
+    "independent-result.json": "ffaa541eeae2ec65b9ee4e2564b9d3348b5745d196dd20eb087b639a12cc7a95"
+  },
+  "preliminary_reference_attempt": {
+    "rpc_http_attempts": 26,
+    "retries": 3,
+    "source_http_requests": 1,
+    "note": "first comparison run did not emit owner/admin/migrator values; final run includes them"
+  }
+}

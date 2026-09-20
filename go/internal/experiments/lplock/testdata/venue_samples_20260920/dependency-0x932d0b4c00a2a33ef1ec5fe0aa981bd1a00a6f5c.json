@@ -1,0 +1,49 @@
+{
+  "address": "0x932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+  "block_number": 51561574,
+  "runtime_matches_rpc": true,
+  "compilation": {
+    "language": "Solidity",
+    "compiler": "solc",
+    "compilerVersion": "0.8.30+commit.73712a01",
+    "compilerSettings": {
+      "viaIR": false,
+      "metadata": {
+        "appendCBOR": true,
+        "bytecodeHash": "ipfs",
+        "useLiteralContent": false
+      },
+      "libraries": {},
+      "optimizer": {
+        "runs": 200,
+        "enabled": true
+      },
+      "evmVersion": "prague",
+      "remappings": [
+        "forge-std/=lib/forge-std/src/",
+        "createX/=lib/createX/src/",
+        "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
+        "openzeppelin-contracts/=lib/openzeppelin-contracts/",
+        "openzeppelin/=lib/createX/lib/openzeppelin-contracts/contracts/",
+        "solady/=lib/createX/lib/solady/src/"
+      ]
+    },
+    "name": "CLLockerFactory",
+    "fullyQualifiedName": "src/extensions/cl/CLLockerFactory.sol:CLLockerFactory"
+  },
+  "source_file_sha256": "d6e3b150882b6eb7b7fcb4a6e8a14b0ddcd181e64797b5e0a5c04fc99506e8c1",
+  "requests": [
+    {
+      "method": "eth_getCode",
+      "bytes": 24485,
+      "seconds": 0.437
+    },
+    {
+      "method": "GET",
+      "bytes": 1125494,
+      "seconds": 2.428
+    }
+  ]
+}

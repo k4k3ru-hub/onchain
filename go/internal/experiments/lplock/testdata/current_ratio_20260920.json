@@ -1,0 +1,968 @@
+{
+  "discovery": {
+    "block_hash": "0xe952ab612e84f8be7fc15b35139adc8a7e0b6b4598c302af116582afec7b55c5",
+    "block_number": 51559656,
+    "block_timestamp": 1789908659,
+    "chain_id": 8453,
+    "complete_single_position_coverage": true,
+    "creation_transaction": "0x49079fb75c2e86b4efe57804297a9873b8830e7025eb7fb18d7e179b08a57083",
+    "custodian": "0x231278eDd38B00B07fBd52120CEf685B9BaEBCC1",
+    "manager": "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
+    "pool": "0xd67f187eb06C51D3Ed02C73A14F82Ef36FeA4665",
+    "position_liquidity": "4120549568929",
+    "principal_token0": "69651978657561984",
+    "principal_token1": "243768074",
+    "rate_limit_retries": 0,
+    "rpc_http_attempts": {
+      "eth_call": 7,
+      "eth_getBlockByNumber": 4,
+      "eth_getCode": 1,
+      "eth_getTransactionReceipt": 1
+    },
+    "runtime_hash_observed": "0x865de3c33580ca7144492890feee24ef985af705497e92e1dea0ef11a8be0eb8",
+    "source_http_requests": 1,
+    "source_match": "exact_match",
+    "token0": "0x4200000000000000000000000000000000000006",
+    "token1": "0xc90AD341843833542E68B7A01bEd586E11991660",
+    "token_id": "5951125",
+    "wall_seconds": 18.56732675
+  },
+  "analysis_plan": {
+    "records": [
+      {
+        "entry_selector": "00f714ce",
+        "manager_field": {
+          "mapping_slot": "15",
+          "slot": "1",
+          "offset": 0,
+          "bytes": 20,
+          "field_ast_id": 1734
+        },
+        "nft_field": {
+          "mapping_slot": "15",
+          "slot": "3",
+          "offset": 0,
+          "bytes": 32,
+          "field_ast_id": 1738
+        },
+        "time_fields": [
+          {
+            "mapping_slot": "15",
+            "slot": "8",
+            "offset": 0,
+            "bytes": 32,
+            "field_ast_id": 1748,
+            "comparison": "<"
+          }
+        ],
+        "owner_fields": [
+          {
+            "mapping_slot": "15",
+            "slot": "4",
+            "offset": 0,
+            "bytes": 20,
+            "field_ast_id": 1740
+          }
+        ],
+        "guard_dominance_proven": false
+      }
+    ],
+    "asset_operations": [
+      {
+        "entry_name_observed": "lock",
+        "entry_selector": "a35a96b8",
+        "operation": "nft_transfer",
+        "target": null,
+        "arguments": [
+          {
+            "kind": "sender"
+          },
+          {
+            "kind": "parameter",
+            "declaration": 4294967268
+          },
+          null
+        ],
+        "requires_found": [
+          {
+            "left": {
+              "kind": "state",
+              "variable": 206
+            },
+            "operator": "!=",
+            "right": {
+              "kind": "literal",
+              "value": 2
+            }
+          }
+        ],
+        "source_location": "8470:84:20"
+      },
+      {
+        "entry_name_observed": "lock",
+        "entry_selector": "a35a96b8",
+        "operation": "lp_decrease",
+        "target": null,
+        "arguments": [
+          null
+        ],
+        "requires_found": [
+          {
+            "left": {
+              "kind": "state",
+              "variable": 206
+            },
+            "operator": "!=",
+            "right": {
+              "kind": "literal",
+              "value": 2
+            }
+          }
+        ],
+        "source_location": "9368:184:20"
+      },
+      {
+        "entry_name_observed": "decreaseLiquidity",
+        "entry_selector": "f11478f8",
+        "operation": "lp_decrease",
+        "target": {
+          "kind": "record_field",
+          "variable": 2194,
+          "index": {
+            "kind": "parameter",
+            "declaration": 3500
+          },
+          "field": 1734
+        },
+        "arguments": [
+          {
+            "kind": "parameter",
+            "declaration": 3503
+          }
+        ],
+        "requires_found": [
+          {
+            "left": {
+              "kind": "record_field",
+              "variable": 2194,
+              "index": {
+                "kind": "parameter",
+                "declaration": 3500
+              },
+              "field": 1748
+            },
+            "operator": "<",
+            "right": {
+              "kind": "timestamp"
+            }
+          },
+          {
+            "left": {
+              "kind": "state",
+              "variable": 206
+            },
+            "operator": "!=",
+            "right": {
+              "kind": "literal",
+              "value": 2
+            }
+          },
+          {
+            "left": {
+              "kind": "record_field",
+              "variable": 2194,
+              "index": {
+                "kind": "parameter",
+                "declaration": 4127
+              },
+              "field": 1740
+            },
+            "operator": "==",
+            "right": {
+              "kind": "sender"
+            }
+          }
+        ],
+        "source_location": "16316:53:20"
+      },
+      {
+        "entry_name_observed": "withdraw",
+        "entry_selector": "00f714ce",
+        "operation": "nft_transfer",
+        "target": {
+          "kind": "record_field",
+          "variable": 2194,
+          "index": {
+            "kind": "parameter",
+            "declaration": 3673
+          },
+          "field": 1734
+        },
+        "arguments": [
+          {
+            "kind": "parameter",
+            "declaration": 4294967268
+          },
+          {
+            "kind": "parameter",
+            "declaration": 3675
+          },
+          {
+            "kind": "record_field",
+            "variable": 2194,
+            "index": {
+              "kind": "parameter",
+              "declaration": 3673
+            },
+            "field": 1738
+          }
+        ],
+        "requires_found": [
+          {
+            "left": {
+              "kind": "record_field",
+              "variable": 2194,
+              "index": {
+                "kind": "parameter",
+                "declaration": 3673
+              },
+              "field": 1748
+            },
+            "operator": "<",
+            "right": {
+              "kind": "timestamp"
+            }
+          },
+          {
+            "left": {
+              "kind": "state",
+              "variable": 206
+            },
+            "operator": "!=",
+            "right": {
+              "kind": "literal",
+              "value": 2
+            }
+          },
+          {
+            "left": {
+              "kind": "record_field",
+              "variable": 2194,
+              "index": {
+                "kind": "parameter",
+                "declaration": 4127
+              },
+              "field": 1740
+            },
+            "operator": "==",
+            "right": {
+              "kind": "sender"
+            }
+          }
+        ],
+        "source_location": "17797:87:20"
+      },
+      {
+        "entry_name_observed": "migrate",
+        "entry_selector": "454b0608",
+        "operation": "approval",
+        "target": {
+          "kind": "record_field",
+          "variable": 2194,
+          "index": {
+            "kind": "parameter",
+            "declaration": 3785
+          },
+          "field": 1734
+        },
+        "arguments": [
+          {
+            "kind": "state",
+            "variable": 2177
+          },
+          {
+            "kind": "record_field",
+            "variable": 2194,
+            "index": {
+              "kind": "parameter",
+              "declaration": 3785
+            },
+            "field": 1738
+          }
+        ],
+        "requires_found": [
+          {
+            "left": {
+              "kind": "state",
+              "variable": 2177
+            },
+            "operator": "!=",
+            "right": {
+              "kind": "literal",
+              "value": 0
+            }
+          },
+          {
+            "left": {
+              "kind": "state",
+              "variable": 206
+            },
+            "operator": "!=",
+            "right": {
+              "kind": "literal",
+              "value": 2
+            }
+          },
+          {
+            "left": {
+              "kind": "record_field",
+              "variable": 2194,
+              "index": {
+                "kind": "parameter",
+                "declaration": 4127
+              },
+              "field": 1740
+            },
+            "operator": "==",
+            "right": {
+              "kind": "sender"
+            }
+          }
+        ],
+        "source_location": "18575:71:20"
+      }
+    ],
+    "mutable_gates": [
+      {
+        "slot": "12",
+        "offset": 0,
+        "bytes": 20,
+        "writers": [
+          {
+            "selector": "23cf3118",
+            "name_observed": "setMigrator",
+            "role_storage": [
+              {
+                "astId": 7,
+                "contract": "contracts/UNCX_LiquidityLocker_UniV3.sol:UNCX_LiquidityLocker_UniV3",
+                "label": "_owner",
+                "offset": 0,
+                "slot": "0",
+                "type": "t_address"
+              }
+            ]
+          }
+        ],
+        "exit_selector": "454b0608"
+      }
+    ],
+    "locked_liquidity_percentage": null,
+    "unresolved": [
+      "all_path_control_flow_and_interprocedural_asset_effects_not_proven"
+    ],
+    "public_entry_count": 38,
+    "source_input_sha256": "950d7cc4aa0cdce2a9bff8c2d07834744e9a793c804f5abdc7f3e102654a159d"
+  },
+  "independent_result": {
+    "block_hash": "0xe952ab612e84f8be7fc15b35139adc8a7e0b6b4598c302af116582afec7b55c5",
+    "block_number": 51559656,
+    "candidate_key_count": 9,
+    "custodian": "0x231278eDd38B00B07fBd52120CEf685B9BaEBCC1",
+    "locked_liquidity_percentage": null,
+    "mutable_gates": [
+      {
+        "address": "0x0000000000000000000000000000000000000000",
+        "writer_count": 1,
+        "writer_role_addresses": [
+          "0x31c44A17aa2E639B40f33DA805CB1DB55d969693"
+        ]
+      }
+    ],
+    "pool": "0xd67f187eb06C51D3Ed02C73A14F82Ef36FeA4665",
+    "rate_limit_retries": 0,
+    "record_key_discovered": "1158",
+    "record_owner_addresses": [
+      "0x7618283E4D27C1CdCA572B791B499e4DE9d9954A"
+    ],
+    "rpc_http_attempts": {
+      "eth_getBlockByNumber": 2,
+      "storage_batch_http": 3
+    },
+    "storage_rpc_entries_including_retries": 14,
+    "time_fields": [
+      {
+        "comparison": "<",
+        "condition_passes": false,
+        "value": "1791648509"
+      }
+    ],
+    "token_id": "5951125",
+    "unresolved": [
+      "all_path_control_flow_and_interprocedural_asset_effects_not_proven"
+    ],
+    "wall_seconds": 6.228239625
+  },
+  "current_plan": {
+    "routes": [
+      {
+        "entry_selector": "a35a96b8",
+        "name_observed": "lock",
+        "operation": "nft_transfer",
+        "source_location": "8470:84:20",
+        "assessment": "incoming_transfer_requires_current_owner_as_from"
+      },
+      {
+        "entry_selector": "a35a96b8",
+        "name_observed": "lock",
+        "operation": "lp_decrease",
+        "source_location": "9368:184:20",
+        "assessment": "existing_custody_excluded_by_incoming_transfer"
+      },
+      {
+        "entry_selector": "f11478f8",
+        "name_observed": "decreaseLiquidity",
+        "operation": "lp_decrease",
+        "source_location": "16316:53:20",
+        "control_flow_outcomes": [
+          "blocked"
+        ],
+        "assessment": "blocked_by_current_state"
+      },
+      {
+        "entry_selector": "00f714ce",
+        "name_observed": "withdraw",
+        "operation": "nft_transfer",
+        "source_location": "17797:87:20",
+        "control_flow_outcomes": [
+          "blocked"
+        ],
+        "assessment": "blocked_by_current_state"
+      },
+      {
+        "entry_selector": "454b0608",
+        "name_observed": "migrate",
+        "operation": "approval",
+        "source_location": "18575:71:20",
+        "control_flow_outcomes": [
+          "blocked"
+        ],
+        "assessment": "blocked_by_current_state"
+      }
+    ],
+    "probe_entries": [
+      {
+        "selector": "f11478f8",
+        "operation": "lp_decrease",
+        "expected_revert_reasons": [
+          "ETERNAL_LOCK",
+          "NOT YET"
+        ]
+      },
+      {
+        "selector": "00f714ce",
+        "operation": "nft_transfer",
+        "expected_revert_reasons": [
+          "ETERNAL_LOCK",
+          "NOT YET"
+        ]
+      },
+      {
+        "selector": "454b0608",
+        "operation": "approval",
+        "expected_revert_reasons": [
+          "NOT SET"
+        ]
+      }
+    ],
+    "external_call_inventory": [
+      {
+        "function": "lock",
+        "callee": "countryIsValid",
+        "selector": "5cb49b55",
+        "mutability": "view",
+        "source_location": "7844:47:20"
+      },
+      {
+        "function": "lock",
+        "callee": "useFee",
+        "selector": "32c07c9e",
+        "mutability": "nonpayable",
+        "source_location": "8241:41:20"
+      },
+      {
+        "function": "lock",
+        "callee": "safeTransferFrom",
+        "selector": "42842e0e",
+        "mutability": "nonpayable",
+        "source_location": "8470:84:20"
+      },
+      {
+        "function": "lock",
+        "callee": "positions",
+        "selector": "99fbab88",
+        "mutability": "view",
+        "source_location": "8739:50:20"
+      },
+      {
+        "function": "lock",
+        "callee": "factory",
+        "selector": "c45a0155",
+        "mutability": "view",
+        "source_location": "8845:35:20"
+      },
+      {
+        "function": "lock",
+        "callee": "getPool",
+        "selector": "1698ee82",
+        "mutability": "view",
+        "source_location": "8906:63:20"
+      },
+      {
+        "function": "lock",
+        "callee": "collect",
+        "selector": "fc6f7865",
+        "mutability": "payable",
+        "source_location": "9061:151:20"
+      },
+      {
+        "function": "lock",
+        "callee": "decreaseLiquidity",
+        "selector": "0c49ccbe",
+        "mutability": "payable",
+        "source_location": "9368:184:20"
+      },
+      {
+        "function": "lock",
+        "callee": "collect",
+        "selector": "fc6f7865",
+        "mutability": "payable",
+        "source_location": "9566:142:20"
+      },
+      {
+        "function": "emitLockEvent",
+        "callee": "positions",
+        "selector": "99fbab88",
+        "mutability": "view",
+        "source_location": "10670:52:20"
+      },
+      {
+        "function": "_collect",
+        "callee": "positions",
+        "selector": "99fbab88",
+        "mutability": "view",
+        "source_location": "12329:54:20"
+      },
+      {
+        "function": "_collect",
+        "callee": "balanceOf",
+        "selector": "70a08231",
+        "mutability": "view",
+        "source_location": "12417:40:20"
+      },
+      {
+        "function": "_collect",
+        "callee": "balanceOf",
+        "selector": "70a08231",
+        "mutability": "view",
+        "source_location": "12490:40:20"
+      },
+      {
+        "function": "_collect",
+        "callee": "collect",
+        "selector": "fc6f7865",
+        "mutability": "payable",
+        "source_location": "12545:136:20"
+      },
+      {
+        "function": "_collect",
+        "callee": "balanceOf",
+        "selector": "70a08231",
+        "mutability": "view",
+        "source_location": "12707:40:20"
+      },
+      {
+        "function": "_collect",
+        "callee": "balanceOf",
+        "selector": "70a08231",
+        "mutability": "view",
+        "source_location": "12783:40:20"
+      },
+      {
+        "function": "_collect",
+        "callee": "collect",
+        "selector": "fc6f7865",
+        "mutability": "payable",
+        "source_location": "12102:133:20"
+      },
+      {
+        "function": "increaseLiquidity",
+        "callee": "positions",
+        "selector": "99fbab88",
+        "mutability": "view",
+        "source_location": "14296:54:20"
+      },
+      {
+        "function": "increaseLiquidity",
+        "callee": "balanceOf",
+        "selector": "70a08231",
+        "mutability": "view",
+        "source_location": "14386:39:20"
+      },
+      {
+        "function": "increaseLiquidity",
+        "callee": "balanceOf",
+        "selector": "70a08231",
+        "mutability": "view",
+        "source_location": "14460:39:20"
+      },
+      {
+        "function": "increaseLiquidity",
+        "callee": "increaseLiquidity",
+        "selector": "219f5d17",
+        "mutability": "payable",
+        "source_location": "14951:53:20"
+      },
+      {
+        "function": "increaseLiquidity",
+        "callee": "balanceOf",
+        "selector": "70a08231",
+        "mutability": "view",
+        "source_location": "15038:39:20"
+      },
+      {
+        "function": "increaseLiquidity",
+        "callee": "balanceOf",
+        "selector": "70a08231",
+        "mutability": "view",
+        "source_location": "15127:39:20"
+      },
+      {
+        "function": "decreaseLiquidity",
+        "callee": "decreaseLiquidity",
+        "selector": "0c49ccbe",
+        "mutability": "payable",
+        "source_location": "16316:53:20"
+      },
+      {
+        "function": "decreaseLiquidity",
+        "callee": "collect",
+        "selector": "fc6f7865",
+        "mutability": "payable",
+        "source_location": "16379:145:20"
+      },
+      {
+        "function": "withdraw",
+        "callee": "safeTransferFrom",
+        "selector": "42842e0e",
+        "mutability": "nonpayable",
+        "source_location": "17797:87:20"
+      },
+      {
+        "function": "migrate",
+        "callee": "approve",
+        "selector": "095ea7b3",
+        "mutability": "nonpayable",
+        "source_location": "18575:71:20"
+      },
+      {
+        "function": "migrate",
+        "callee": "migrate",
+        "selector": "4ef88bea",
+        "mutability": "nonpayable",
+        "source_location": "18656:71:20"
+      },
+      {
+        "function": "_getLiquidity",
+        "callee": "positions",
+        "selector": "99fbab88",
+        "mutability": "view",
+        "source_location": "24028:39:20"
+      }
+    ],
+    "reachable_function_count": 74,
+    "unresolved": [],
+    "scope": "observed_configuration_without_configuration_changes",
+    "review_mode": "source_derived_direct_exits_and_manual_remaining_call_graph_review",
+    "arbitrary_contract_certification": false
+  },
+  "current_probes": {
+    "block_hash": "0xe952ab612e84f8be7fc15b35139adc8a7e0b6b4598c302af116582afec7b55c5",
+    "block_number": 51559656,
+    "custodian": "0x231278eDd38B00B07fBd52120CEf685B9BaEBCC1",
+    "custody_unchanged": true,
+    "direct_decrease_reason": "Not approved",
+    "direct_decrease_reverted": true,
+    "erc20_selector_reason": "empty_revert",
+    "erc20_selector_reverted": true,
+    "exit_checks": [
+      {
+        "name_observed": "decreaseLiquidity",
+        "operation": "lp_decrease",
+        "reason": "NOT YET",
+        "reverted": true,
+        "selector": "f11478f8"
+      },
+      {
+        "name_observed": "withdraw",
+        "operation": "nft_transfer",
+        "reason": "NOT YET",
+        "reverted": true,
+        "selector": "00f714ce"
+      },
+      {
+        "name_observed": "migrate",
+        "operation": "approval",
+        "reason": "NOT SET",
+        "reverted": true,
+        "selector": "454b0608"
+      }
+    ],
+    "incoming_existing_nft_reverted": true,
+    "incoming_revert_reason": "ERC721: transfer of token that is not own",
+    "pool": "0xd67f187eb06C51D3Ed02C73A14F82Ef36FeA4665",
+    "rate_limit_retries": 2,
+    "rpc_http_attempts": {
+      "eth_call": 10,
+      "eth_getBlockByNumber": 2,
+      "eth_getCode": 1
+    },
+    "runtime_unchanged": true,
+    "token_id": "5951125",
+    "wall_seconds": 18.195538625
+  },
+  "source_review": {
+    "reviewer": "Codex source inspection after pool-based discovery",
+    "scope": "observed_configuration_without_configuration_changes",
+    "input_sha256": {
+      "source.json": "950d7cc4aa0cdce2a9bff8c2d07834744e9a793c804f5abdc7f3e102654a159d",
+      "current-plan.json": "6c2cc69f0cc424fa43cbd9883edc0bbd20ceeed0f9efa5dbef76337d4bd51b31"
+    },
+    "completed_checks": [
+      "remaining_external_calls",
+      "storage_writes",
+      "callbacks_and_modifiers",
+      "operator_approvals",
+      "incoming_transfer_scope"
+    ],
+    "findings": [
+      {
+        "check": "remaining_external_calls",
+        "result": "Reviewed the discovered main contract, inherited ownership and reentrancy functions, and reachable transfer helpers. The additional manager calls collect already owed tokens or increase principal. Low-level token calls encode fixed ERC20 transfer, transferFrom or approve selectors; native-asset calls carry empty calldata. No arbitrary-calldata forwarding or delegatecall path was found. The ERC20 transfer selector is separately probed against the actual NFT manager."
+      },
+      {
+        "check": "storage_writes",
+        "result": "The existing record manager and NFT identity have no replacement setter. Record creation follows a successful incoming NFT transfer. Existing expiry updates require a larger date; record deletion follows the blocked withdrawal or migration path. Owner, pending owner, collectors and fee fields do not bypass the separately enforced date. Configuration writers are evaluated separately and excluded from the frozen-configuration metric."
+      },
+      {
+        "check": "callbacks_and_modifiers",
+        "result": "The source applies the shared reentrancy modifier to deposit, collect, increase, decrease, withdraw, relock, migration, record-owner changes and refunds. The modifier changes only its guard flag and checks it before entry. Fee/token/native callbacks do not gain a callable unguarded LP exit in the inspected source. This is a bounded source review, not a formal proof covering arbitrary external-contract bugs."
+      },
+      {
+        "check": "operator_approvals",
+        "result": "No setApprovalForAll or NFT permit forwarding path exists in the inspected custody source. The explicit NFT approval path has a false nonzero-address guard at the observed block. Per-NFT approval is checked as zero by RPC. Token approvals in the increase path apply to position tokens and follow incoming transfers, rather than granting an operator permission over the already held NFT."
+      },
+      {
+        "check": "incoming_transfer_scope",
+        "result": "For the already held NFT, the deposit path first requires transferring the same manager and token ID from msg.sender to the custodian. ownerOf identifies the custodian as current owner. No self-call with deposit calldata exists; guarded callbacks cannot reenter deposit. The later LP fee decrease applies to the same incoming NFT expressions. A real manager call with the custodian as caller and the record owner as from is probed separately."
+      }
+    ],
+    "limitations": [
+      "manual source review is required for this experiment",
+      "one non-proxy EVM custodian and one NFT covering all pool principal",
+      "does not establish immunity to future configuration changes or arbitrary undiscovered vulnerabilities"
+    ]
+  },
+  "current_result": {
+    "block_hash": "0xe952ab612e84f8be7fc15b35139adc8a7e0b6b4598c302af116582afec7b55c5",
+    "block_number": 51559656,
+    "candidate_key_count": 9,
+    "custodian": "0x231278eDd38B00B07fBd52120CEf685B9BaEBCC1",
+    "locked_liquidity_percentage": "100",
+    "mutable_gates": [
+      {
+        "address": "0x0000000000000000000000000000000000000000",
+        "writer_count": 1,
+        "writer_role_addresses": [
+          "0x31c44A17aa2E639B40f33DA805CB1DB55d969693"
+        ]
+      }
+    ],
+    "pool": "0xd67f187eb06C51D3Ed02C73A14F82Ef36FeA4665",
+    "rate_limit_retries": 0,
+    "record_key_discovered": "1158",
+    "record_owner_addresses": [
+      "0x7618283E4D27C1CdCA572B791B499e4DE9d9954A"
+    ],
+    "rpc_http_attempts": {
+      "eth_getBlockByNumber": 2,
+      "storage_batch_http": 3
+    },
+    "storage_rpc_entries_including_retries": 14,
+    "time_fields": [
+      {
+        "comparison": "<",
+        "condition_passes": false,
+        "value": "1791648509"
+      }
+    ],
+    "token_id": "5951125",
+    "unresolved": [],
+    "wall_seconds": 6.228239625,
+    "principal_percentages": {
+      "token0": "100",
+      "token1": "100"
+    },
+    "pool_principal": {
+      "token0": "69651978657561984",
+      "token1": "243768074"
+    },
+    "locked_principal": {
+      "token0": "69651978657561984",
+      "token1": "243768074"
+    },
+    "scope": "observed_configuration_without_configuration_changes",
+    "review_mode": "source_derived_direct_exits_and_manual_remaining_call_graph_review",
+    "arbitrary_contract_certification": false,
+    "future_configuration_changes_excluded": true,
+    "input_sha256": {
+      "discovery.json": "ef29c8bb30607c5a0c553c643d0835534311f3b8f88ed6ff882f8f87e469ff69",
+      "independent-result.json": "8295fb2b626410de352f2c7081f04c4ed85396e343d253c07cebc4f8123660a7",
+      "current-plan.json": "6c2cc69f0cc424fa43cbd9883edc0bbd20ceeed0f9efa5dbef76337d4bd51b31",
+      "current-probes.json": "074d7b18f2f27c26a62daf358161fc5ba974f681004510d6676c90001e55a2df",
+      "source-review.json": "195df92b16f64635b1b11e802108a274c9b6b217ed4cbf590f1920f94b6513d0"
+    }
+  },
+  "reference_result": {
+    "admin_address": "0x31c44A17aa2E639B40f33DA805CB1DB55d969693",
+    "admin_can_set_migrator": true,
+    "basis": "complete_lp_principal_current_configuration",
+    "block_hash": "0xe952ab612e84f8be7fc15b35139adc8a7e0b6b4598c302af116582afec7b55c5",
+    "block_number": 51559656,
+    "checks": {
+      "admin_refund_nft": "ST",
+      "admin_set_migrator": "success_without_persisted_state",
+      "decrease_liquidity": "NOT YET",
+      "direct_nft_decrease": "Not approved",
+      "migrate": "NOT SET",
+      "shorten_lock": "DATE",
+      "withdraw": "NOT YET"
+    },
+    "creation_transaction": "0x49079fb75c2e86b4efe57804297a9873b8830e7025eb7fb18d7e179b08a57083",
+    "custodian": "0x231278eDd38B00B07fBd52120CEf685B9BaEBCC1",
+    "lock_id": "1158",
+    "lock_owner": "0x7618283E4D27C1CdCA572B791B499e4DE9d9954A",
+    "migrator": "0x0000000000000000000000000000000000000000",
+    "percentage": "100",
+    "pool": "0xd67f187eb06C51D3Ed02C73A14F82Ef36FeA4665",
+    "principal_token0": "69651978657561984",
+    "principal_token1": "243768074",
+    "rate_limit_retries": 1,
+    "rpc_http_attempts": {
+      "eth_call": 18,
+      "eth_getBlockByNumber": 4,
+      "eth_getCode": 1,
+      "eth_getTransactionReceipt": 1
+    },
+    "runtime_hash": "0x865de3c33580ca7144492890feee24ef985af705497e92e1dea0ef11a8be0eb8",
+    "source_http_requests": 1,
+    "source_sha256": "12116e83ad4a3a53946d65ea783fac4d337b5b23e955525ffd6c71733ebf2f80",
+    "token_id": "5951125",
+    "unlock_date": "1791648509",
+    "wall_seconds": 35.867964541
+  },
+  "comparison": {
+    "pool": "0xd67f187eb06C51D3Ed02C73A14F82Ef36FeA4665",
+    "block_number": 51559656,
+    "field_matches": {
+      "record_id": true,
+      "time_value": true,
+      "record_owner": true,
+      "migration_address": true,
+      "writer_role_address": true,
+      "principal_token0": true,
+      "principal_token1": true
+    },
+    "independent_locked_liquidity_percentage": "100",
+    "reference_percentage": "100",
+    "percentage_comparison": "matched",
+    "reference_does_not_fill_independent_unknowns": true,
+    "independent_result_sha256": "f2f67cbb11bf5c724ab43744ebfcbf9287e90d6c6858fd59d79d0fb567127af8"
+  },
+  "execution_order": [
+    "independent discovery",
+    "source compile and structural analysis",
+    "independent storage reads",
+    "current source-derived plan and manual source review",
+    "independent read-only exit simulations",
+    "independent current-result.json saved",
+    "separate reference run at the same block",
+    "comparison"
+  ],
+  "input_files_sha256": {
+    "discovery.json": "ef29c8bb30607c5a0c553c643d0835534311f3b8f88ed6ff882f8f87e469ff69",
+    "analysis-plan.json": "6a70e27a1733ca65f2f5abcfb351ef3749a63928f4ae976564badc058ab2cfbf",
+    "independent-result.json": "8295fb2b626410de352f2c7081f04c4ed85396e343d253c07cebc4f8123660a7",
+    "current-plan.json": "6c2cc69f0cc424fa43cbd9883edc0bbd20ceeed0f9efa5dbef76337d4bd51b31",
+    "current-probes.json": "074d7b18f2f27c26a62daf358161fc5ba974f681004510d6676c90001e55a2df",
+    "source-review.json": "195df92b16f64635b1b11e802108a274c9b6b217ed4cbf590f1920f94b6513d0",
+    "current-result.json": "f2f67cbb11bf5c724ab43744ebfcbf9287e90d6c6858fd59d79d0fb567127af8",
+    "reference-result.json": "3dd0d749db6c8ae775bc25020e31010bb8fd894161a190e16dff9b784fbfe171",
+    "comparison.json": "cb43475514da48b0d0877cad5c7be1a401be6eba38483bde3d65df30cbcd84bd"
+  },
+  "metrics": [
+    {
+      "phase": "discovery",
+      "logical_rpc_calls": 13,
+      "rpc_http_attempts": 13,
+      "rate_limit_retries": 0,
+      "source_http_requests": 1,
+      "wall_seconds": 18.56732675
+    },
+    {
+      "phase": "storage",
+      "logical_rpc_calls": 16,
+      "rpc_http_attempts": 5,
+      "rate_limit_retries": 0,
+      "source_http_requests": 0,
+      "wall_seconds": 6.228239625
+    },
+    {
+      "phase": "exit_probes",
+      "logical_rpc_calls": 11,
+      "rpc_http_attempts": 13,
+      "rate_limit_retries": 2,
+      "source_http_requests": 0,
+      "wall_seconds": 18.195538625
+    },
+    {
+      "phase": "reference_only",
+      "logical_rpc_calls": 23,
+      "rpc_http_attempts": 24,
+      "rate_limit_retries": 1,
+      "source_http_requests": 1,
+      "wall_seconds": 35.867964541
+    }
+  ],
+  "rpc_failed_attempts": [
+    {
+      "phase": "discovery_sandbox_attempt",
+      "outcome": "dns_blocked_before_rpc_response",
+      "confirmed_completed_rpc_calls": 0
+    },
+    {
+      "phase": "initial_exit_probe",
+      "outcome": "empty_revert_data_decoder_rejected_provider_response",
+      "logical_calls_before_failure": 10,
+      "http_attempts": null,
+      "rate_limit_retries": null,
+      "wall_seconds": 13.69,
+      "note": "Failed before final header recheck. Per-method retry counts were not persisted in this initial test version; not included in successful-run metrics."
+    }
+  ],
+  "market_hub_evaluation_axes": [
+    "lp_locked_liquidity_percentage",
+    "lock_configuration_change_authority",
+    "holder_concentration",
+    "token_contract_authority"
+  ]
+}

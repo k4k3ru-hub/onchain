@@ -1,0 +1,379 @@
+{
+  "sampled_at_utc_date": "2026-09-20",
+  "report_date_jst": "2026-09-21",
+  "scope": "pool-creation-triggered, no locker registry, no UNCX-specific calls",
+  "venues": [
+    {
+      "venue": "uniswap-v3",
+      "sample_count": 10,
+      "automatic_calculated_count": 9,
+      "manual_calculated_count": 0,
+      "rpc_methods_initial_sampling": {
+        "eth_call": 83,
+        "eth_getBlockByNumber": 22,
+        "eth_getCode": 11,
+        "eth_getLogs": 6,
+        "eth_getTransactionReceipt": 11
+      },
+      "rows": [
+        {
+          "pool": "0xcD0945f8e6a2F5A55972357CcD4B697f660b2F3E",
+          "automatic_percentage": "0",
+          "manual_reviewed_percentage": null,
+          "reasons": []
+        },
+        {
+          "pool": "0xFadEC700Cf2a7ef99d9e1d9B2825368D28457C6F",
+          "automatic_percentage": "0",
+          "manual_reviewed_percentage": null,
+          "reasons": []
+        },
+        {
+          "pool": "0x5c68867dDb543a8fDadb3512FB145ED93958E60b",
+          "automatic_percentage": "0",
+          "manual_reviewed_percentage": null,
+          "reasons": []
+        },
+        {
+          "pool": "0x1CD5c92DED8643aD9A873D991f630426Ef6B2707",
+          "automatic_percentage": "0",
+          "manual_reviewed_percentage": null,
+          "reasons": []
+        },
+        {
+          "pool": "0x55BBCE0f44B51437472164eC95cc38f00fD21495",
+          "automatic_percentage": "0",
+          "manual_reviewed_percentage": null,
+          "reasons": []
+        },
+        {
+          "pool": "0x18CB87b5dB850F60c2C97277fa71465074aDD3CE",
+          "automatic_percentage": "0",
+          "manual_reviewed_percentage": null,
+          "reasons": []
+        },
+        {
+          "pool": "0x894Bf60e29Ea6269468C5BA5Ff4bd214B0ef4cA3",
+          "automatic_percentage": "0",
+          "manual_reviewed_percentage": null,
+          "reasons": []
+        },
+        {
+          "pool": "0x4ee8a52d53F37751Bf1432de5893c0731319Dbf9",
+          "automatic_percentage": "0",
+          "manual_reviewed_percentage": null,
+          "reasons": []
+        },
+        {
+          "pool": "0x4Ce5141895080c91365123E198341aE05c64f0aa",
+          "automatic_percentage": "0",
+          "manual_reviewed_percentage": null,
+          "reasons": []
+        },
+        {
+          "pool": "0x4a99e64Bc558447eE427eF63bb4f1eB232c4aCaC",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "custodian_or_withdrawal_conditions_unresolved"
+          ]
+        }
+      ],
+      "unresolved_count": 1
+    },
+    {
+      "venue": "aerodrome",
+      "sample_count": 10,
+      "automatic_calculated_count": 7,
+      "manual_calculated_count": 2,
+      "rpc_methods_initial_sampling": {
+        "eth_call": 120,
+        "eth_getBlockByNumber": 22,
+        "eth_getCode": 10,
+        "eth_getLogs": 40,
+        "eth_getTransactionReceipt": 20
+      },
+      "rows": [
+        {
+          "pool": "0x2a7bc428a1b986Ed5938a11878224DdB52039Ac0",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "inspection_incomplete"
+          ]
+        },
+        {
+          "pool": "0xb0Bc332F85Ab53F3A74A0e5cD713E373528eBB2e",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": "100",
+          "reasons": [
+            "custodian_or_withdrawal_conditions_unresolved"
+          ]
+        },
+        {
+          "pool": "0x39F197dc4c4ADEA97A4fd478e2015930AC2Efbf1",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": "100",
+          "reasons": [
+            "custodian_or_withdrawal_conditions_unresolved"
+          ]
+        },
+        {
+          "pool": "0x97398cD4282af7a7Eb29ca6f3D2C116a7E05f151",
+          "automatic_percentage": "0",
+          "manual_reviewed_percentage": null,
+          "reasons": []
+        },
+        {
+          "pool": "0x66DB18a72a1B077AA8719de617F905bdaBeb8dDF",
+          "automatic_percentage": "0",
+          "manual_reviewed_percentage": null,
+          "reasons": []
+        },
+        {
+          "pool": "0x7bC91Be1891A2c902014925C33d20E573ea6A735",
+          "automatic_percentage": "0",
+          "manual_reviewed_percentage": null,
+          "reasons": []
+        },
+        {
+          "pool": "0xd91bC8E3Ed133284215A39dAa36D3b9C3F6a50f9",
+          "automatic_percentage": "0",
+          "manual_reviewed_percentage": null,
+          "reasons": []
+        },
+        {
+          "pool": "0x8967DfD611Ac87C9222dD7064fb8a65539C77498",
+          "automatic_percentage": "0",
+          "manual_reviewed_percentage": null,
+          "reasons": []
+        },
+        {
+          "pool": "0x64728bE7aDa3EcA3Df0e5FC05Dc59B296B2899f0",
+          "automatic_percentage": "0",
+          "manual_reviewed_percentage": null,
+          "reasons": []
+        },
+        {
+          "pool": "0xfd616e10311Ac827FA953cA04f62Fb2B054d8Da6",
+          "automatic_percentage": "0",
+          "manual_reviewed_percentage": null,
+          "reasons": []
+        }
+      ],
+      "unresolved_count": 1
+    },
+    {
+      "venue": "meteora-dlmm",
+      "sample_count": 10,
+      "automatic_calculated_count": 0,
+      "manual_calculated_count": 0,
+      "rpc_methods_initial_sampling": {
+        "GET": 2,
+        "getSignaturesForAddress": 10,
+        "getTransaction": 20,
+        "getProgramAccounts": 10,
+        "getMultipleAccounts": 10
+      },
+      "rows": [
+        {
+          "pool": "G5ukktNKR1WAkaemHjiVJhfCJ3zQzRBEZbuDeCpRzoas",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "withdrawal_semantics_and_all_bin_principal_not_verified"
+          ]
+        },
+        {
+          "pool": "rJxPEp4JVLGvoDTUNuXcZvd2AHGoG2tU7ThtzHks8U3",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "withdrawal_semantics_and_all_bin_principal_not_verified"
+          ]
+        },
+        {
+          "pool": "Be5ZrEoNnTtEAjMWkk983SQAsdH8N8sw84rwiaUtVgzR",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "withdrawal_semantics_and_all_bin_principal_not_verified"
+          ]
+        },
+        {
+          "pool": "9xcXkcaTLqjPHSNxjQXnLvbZhKpQPSSDC8AGi6vAPCu9",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "withdrawal_semantics_and_all_bin_principal_not_verified"
+          ]
+        },
+        {
+          "pool": "6YXgDLnggHKumNSnKdWyGHjYa8NpCprkNZPj8wXTVTkt",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "withdrawal_semantics_and_all_bin_principal_not_verified"
+          ]
+        },
+        {
+          "pool": "B6Q22QgNo7boxqLMXGqVZDAwqMQXMVBu16HSeAZTkc5v",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "withdrawal_semantics_and_all_bin_principal_not_verified"
+          ]
+        },
+        {
+          "pool": "CTGRQXUujspK5a4aitfqMWvJGfbv3VVbmdXMaLCKvMrM",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "withdrawal_semantics_and_all_bin_principal_not_verified"
+          ]
+        },
+        {
+          "pool": "52ZhMifDSt5tbyTXD2hPuPGJgWSwmkPer7Ucx7EMrB8G",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "withdrawal_semantics_and_all_bin_principal_not_verified"
+          ]
+        },
+        {
+          "pool": "4uCTEA8NkdoxxnpD9tS5d6xhzSALTom3Ar96qDgoFpKv",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "withdrawal_semantics_and_all_bin_principal_not_verified"
+          ]
+        },
+        {
+          "pool": "5zPSHDVj5ZBY9WS5XFY4GqDU3pX7xycKY4Tgbu8kN82d",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "withdrawal_semantics_and_all_bin_principal_not_verified"
+          ]
+        }
+      ],
+      "unresolved_count": 10
+    },
+    {
+      "venue": "cetus-clmm",
+      "sample_count": 10,
+      "automatic_calculated_count": 0,
+      "manual_calculated_count": 0,
+      "rpc_methods_initial_sampling": {
+        "graphql": 39
+      },
+      "rows": [
+        {
+          "pool": "0xa29a4ab6c6029085ba818f121154099a4ea2d94674c6ff71167c562495fd453c",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "withdrawal_semantics_and_pool_principal_not_verified"
+          ]
+        },
+        {
+          "pool": "0xcc9a57d5e74b3d2e57e3d63403b7818804eb4560cde17b33fb2534d182d5c413",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "withdrawal_semantics_and_pool_principal_not_verified"
+          ]
+        },
+        {
+          "pool": "0xb30c202dd0f1e43b8be0cba3d372ac333e3e3c1f99adece6a111dc6a0e2a8f22",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "parent_object_not_returned",
+            "withdrawal_semantics_and_pool_principal_not_verified"
+          ]
+        },
+        {
+          "pool": "0x0d1ad4a350d896cf4927b9e83d825ef71862bde7499c3f41bba00738dcae7ec5",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "parent_object_not_returned",
+            "withdrawal_semantics_and_pool_principal_not_verified"
+          ]
+        },
+        {
+          "pool": "0x053412ea24c38bd51e428bfdd5686b1611d91c30df76880c508dfafdbdce1787",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "withdrawal_semantics_and_pool_principal_not_verified"
+          ]
+        },
+        {
+          "pool": "0x9ed4e71f56a74677860c7e015ac8126d18053106e156cb8bfcdf94dec77c413e",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "withdrawal_semantics_and_pool_principal_not_verified"
+          ]
+        },
+        {
+          "pool": "0x2afc33dbcd69f4833e5ccde3881b9f3d764e55c51fd65d3871068d6dc2ae94c9",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "withdrawal_semantics_and_pool_principal_not_verified"
+          ]
+        },
+        {
+          "pool": "0x0c3426fd593b4234d2776fe1b71a641836106322267903abbb546a8b3962940b",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "withdrawal_semantics_and_pool_principal_not_verified"
+          ]
+        },
+        {
+          "pool": "0x6fc09f72fca1088528c6caa8f96a8b380a9bb12a4dafe811ed914722241cc4f1",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "parent_object_not_returned",
+            "position_object_not_returned",
+            "withdrawal_semantics_and_pool_principal_not_verified"
+          ]
+        },
+        {
+          "pool": "0xb36f68c90b84da8fdba66dcb30008112408f2a3c83756a1f051d8483219b3892",
+          "automatic_percentage": null,
+          "manual_reviewed_percentage": null,
+          "reasons": [
+            "withdrawal_semantics_and_pool_principal_not_verified"
+          ]
+        }
+      ],
+      "unresolved_count": 10
+    }
+  ],
+  "artifacts": {
+    "aerodrome-custody.json": "6f48ac77077a8189fc2136b2c6979de8858b46fa226a9252d9edef14d410acae",
+    "aerodrome-getters.json": "868ac63424cd865f1932ac8adb9e5af54b9b4f3b65323409c58b5f5479b2a151",
+    "aerodrome-manifest.json": "d35306a5efa267739955c5a0e61d36af3086b7ff620823dfc7780c7ceaa16523",
+    "aerodrome-manual-review-http-errors.json": "59cbcb4b24bfd443f8313d98dced8ba8d087b798f89272d2394a8e0455f7f2cb",
+    "aerodrome-manual-review-plan.json": "2f1be2c0e592fd2e88e722c5389ccffd5200c1a839451c19f695eeb928e17b42",
+    "aerodrome-manual-review-probes.json": "bc55ad01b3f60f10d58926325a216d7f2d79733075c66b412b974e0038896025",
+    "aerodrome-manual-reviewed-result.json": "a4e4cdb3009d2e7ad67fddd5ad09ffa414c0a24271d7a40cbd328a496a93cd9c",
+    "aerodrome-samples.json": "b12596d9381b12630cb81b5835aa8589495a5408ed83100edd635b538a788510",
+    "aerodrome-source-analysis.json": "b1a7d7b41befd4210a53f2902977e540e0c2e9feb4c80ffb69e897094e019c9f",
+    "cetus-clmm-initial-query-errors.json": "fcf8a91eb3b95cceb83e4b33817f78fcaf529bc8e790462ae9485f21602f0be0",
+    "cetus-clmm-manifest.json": "7681fcc2988724d7a93d7a8b04cdbd2e7810825ee82305646f4bf8372d05d72a",
+    "cetus-clmm-samples.json": "901c095e7d199bcc7ad286226a9df7f8f8637af4b445db08fae7eacd553f605c",
+    "dependency-0x932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c.json": "540c12fed4f842394a87fa484a8001cb8331ec8b6676dabda8fd773bbca35865",
+    "meteora-dlmm-manifest.json": "c2d96cd6d08142ff415ba0d8ccf0ba5e1931b89fb77c1d98348e70014cbdd352",
+    "meteora-dlmm-samples.json": "c810c252f259a87e7a5e52d006eac07bf9b58d350c036117d5154c73a60c6293",
+    "uniswap-v3-custody.json": "33ed5f8a3dd1fc65b62588ed08c556f53b6996668bddb38f036330fbb93ee7b6",
+    "uniswap-v3-manifest.json": "d06d3835b24be6616e247080db838925e3fa7fd0706efc82b37fdcd5cb217930",
+    "uniswap-v3-samples.json": "44fa77cfe0f31349a69c5b8e4b4792d8450f03ee0fabcad1f67c33e3af8e125f"
+  }
+}
