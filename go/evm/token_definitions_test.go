@@ -9,6 +9,7 @@ import (
 //
 // Version:
 //   - 2026-09-17: Added.
+//   - 2026-09-20: Reject native metadata on unknown chains.
 func TestTokenDefinitionsAreScopedAndDetached(t *testing.T) {
 	address := common.HexToAddress("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913")
 	value, ok := LookupTokenMetadata(ChainIDBaseMainnet, address)
@@ -25,8 +26,8 @@ func TestTokenDefinitionsAreScopedAndDetached(t *testing.T) {
 			t.Fatalf("definition leaked to chain=%d", chain)
 		}
 	}
-	if _, ok := LookupTokenMetadata(ChainIDBaseMainnet, common.Address{}); ok {
-		t.Fatal("native currency treated as erc20")
+	if _, ok := LookupTokenMetadata(ChainID(999999), common.Address{}); ok {
+		t.Fatal("unknown native currency resolved")
 	}
 	for key, token := range tokenDefinitions {
 		if !common.IsHexAddress(token.Address) || common.HexToAddress(token.Address) != key.address || token.Symbol == "" {
@@ -47,5 +48,36 @@ func TestBaseSepoliaCbBTCDefinition(t *testing.T) {
 	}
 	if _, ok := LookupTokenMetadata(ChainIDBaseMainnet, address); ok {
 		t.Fatal("testnet definition leaked into mainnet")
+	}
+}
+
+// TestNativeTokenDefinitions verifies explicit chain scoping and detached native metadata.
+//
+// Version:
+//   - 2026-09-20: Added.
+func TestNativeTokenDefinitions(t *testing.T) {
+	expected := map[ChainID]string{
+		ChainIDEthereumMainnet: "ETH", ChainIDEthereumSepolia: "ETH",
+		ChainIDBaseMainnet: "ETH", ChainIDBaseSepolia: "ETH",
+		ChainIDRobinhoodMainnet: "ETH", ChainIDRobinhoodTestnet: "ETH",
+		ChainIDBNBMainnet: "BNB", ChainIDPolygonMainnet: "POL", ChainIDPolygonAmoy: "POL",
+	}
+	for chain, symbol := range expected {
+		t.Run(chain.String(), func(t *testing.T) {
+			value, ok := LookupTokenMetadata(chain, common.Address{})
+			if !ok || value.Symbol != symbol || value.Decimals != 18 || value.Address != "0x0000000000000000000000000000000000000000" {
+				t.Fatalf("unexpected native definition: %+v found=%t", value, ok)
+			}
+			value.Symbol = "changed"
+			again, _ := LookupTokenMetadata(chain, common.Address{})
+			if again.Symbol != symbol {
+				t.Fatal("native definition mutated")
+			}
+		})
+	}
+	for _, chain := range []ChainID{0, 999999} {
+		if _, ok := LookupTokenMetadata(chain, common.Address{}); ok {
+			t.Fatal("unknown chain resolved as native currency")
+		}
 	}
 }

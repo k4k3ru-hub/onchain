@@ -7,12 +7,23 @@ type tokenDefinitionKey struct {
 	address common.Address
 }
 
-// Definitions cover configured MarketHub tokens whose metadata was observed
+// ERC20 definitions cover configured MarketHub tokens whose metadata was observed
 // during initialization on 2026-09-16. They are trusted reference data, not
 // evidence of historical contract state or token safety.
 // Base Sepolia cbBTC was additionally verified by RPC on 2026-09-17; its address
 // is documented at https://docs.horizen.io/horizen-chain/tokens-and-gas/cbtc/.
+// Native entries are explicit current chain definitions, with the zero address
+// as the native-currency identifier; they are not ERC20 contract observations.
 var tokenDefinitions = map[tokenDefinitionKey]TokenMetadata{
+	{ChainIDEthereumMainnet, common.Address{}}:                                                   {Symbol: "ETH", Address: "0x0000000000000000000000000000000000000000", Decimals: 18},
+	{ChainIDEthereumSepolia, common.Address{}}:                                                   {Symbol: "ETH", Address: "0x0000000000000000000000000000000000000000", Decimals: 18},
+	{ChainIDBaseMainnet, common.Address{}}:                                                       {Symbol: "ETH", Address: "0x0000000000000000000000000000000000000000", Decimals: 18},
+	{ChainIDBaseSepolia, common.Address{}}:                                                       {Symbol: "ETH", Address: "0x0000000000000000000000000000000000000000", Decimals: 18},
+	{ChainIDRobinhoodMainnet, common.Address{}}:                                                  {Symbol: "ETH", Address: "0x0000000000000000000000000000000000000000", Decimals: 18},
+	{ChainIDRobinhoodTestnet, common.Address{}}:                                                  {Symbol: "ETH", Address: "0x0000000000000000000000000000000000000000", Decimals: 18},
+	{ChainIDBNBMainnet, common.Address{}}:                                                        {Symbol: "BNB", Address: "0x0000000000000000000000000000000000000000", Decimals: 18},
+	{ChainIDPolygonMainnet, common.Address{}}:                                                    {Symbol: "POL", Address: "0x0000000000000000000000000000000000000000", Decimals: 18},
+	{ChainIDPolygonAmoy, common.Address{}}:                                                       {Symbol: "POL", Address: "0x0000000000000000000000000000000000000000", Decimals: 18},
 	{ChainIDBaseSepolia, common.HexToAddress("0xcbb7c0006f23900c38eb856149f799620fcb8a4a")}:      {Symbol: "cbBTC", Address: "0xcbb7c0006f23900c38eb856149f799620fcb8a4a", Decimals: 8},
 	{ChainIDEthereumMainnet, common.HexToAddress("0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599")}:  {Symbol: "WBTC", Address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599", Decimals: 8},
 	{ChainIDEthereumMainnet, common.HexToAddress("0xdAC17F958D2ee523a2206206994597C13D831ec7")}:  {Symbol: "USDT", Address: "0xdAC17F958D2ee523a2206206994597C13D831ec7", Decimals: 6},
@@ -25,11 +36,14 @@ var tokenDefinitions = map[tokenDefinitionKey]TokenMetadata{
 }
 
 // LookupTokenMetadata returns trusted reference metadata for a chain and address.
-// It performs no RPC and returns false for undefined tokens, including native currency.
-// Returned values are copies; historical reads must not use these definitions.
+// The zero address identifies native currency on explicitly registered chains.
+// It performs no RPC and returns false for undefined chain/address combinations.
+// Returned values are copies of current reference definitions, not historical RPC
+// observations. Historical ERC20 reads must query the contract at the requested block.
 //
 // Version:
 //   - 2026-09-17: Added.
+//   - 2026-09-20: Resolve native currency metadata by chain ID and zero address.
 func LookupTokenMetadata(chainID ChainID, address common.Address) (TokenMetadata, bool) {
 	value, ok := tokenDefinitions[tokenDefinitionKey{chainID, address}]
 	return value, ok

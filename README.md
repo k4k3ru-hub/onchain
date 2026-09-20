@@ -246,3 +246,28 @@ threshold using existing deposit defaults. Robinhood mainnet uses 12 confirmatio
 The EVM helper counts the containing block as one and avoids unsigned overflow.
 Non-EVM adapters must apply native confirmation semantics. These thresholds are
 not a consensus-finality guarantee; deposit APIs remain unchanged.
+
+
+## EVM token reference metadata
+
+`evm.LookupTokenMetadata(chainID, address)` resolves explicitly registered token
+symbols and decimals without RPC. The zero address identifies native currency:
+ETH on Ethereum mainnet/Sepolia, Base mainnet/Sepolia and Robinhood mainnet/testnet;
+BNB on BNB mainnet; POL on Polygon mainnet/Amoy. Each registered native currency
+uses 18 decimals. Unknown chain/address combinations return `false`; an unknown
+chain's zero address must never default to ETH. WETH remains a separate ERC-20.
+
+```go
+metadata, ok := evm.LookupTokenMetadata(evm.ChainIDBaseMainnet, common.Address{})
+// ok == true; metadata.Symbol == "ETH"; metadata.Decimals == 18.
+```
+
+These are current reference definitions, not evidence of historical contract state.
+Historical ERC-20 reads must still use `erc20.Client.GetTokenMetadata` (or the
+individual symbol/decimals methods) with the requested block number. ERC-20 RPC
+methods continue to reject the zero address. Consumers should distinguish
+reference-derived metadata from RPC observations.
+
+Network references: [Robinhood](https://docs.robinhood.com/chain/connecting/),
+[Polygon](https://docs.polygon.technology/tools/dApp-development/common-tools/remix/),
+[BNB](https://docs.bnbchain.org/bnb-smart-chain/developers/wallet-configuration/).
