@@ -1,0 +1,12 @@
+{
+  "forkBlock": 2032290,
+  "image": "ghcr.io/foundry-rs/foundry@sha256:043752653d5be351c71709091b3db97c4421c907eb40ea294195e7f532aadf46",
+  "rpcAttempts": 0,
+  "cacheHits": 185,
+  "rpcByMethod": {},
+  "rpcErrors": 0,
+  "rpcElapsedMs": 0,
+  "wallElapsedMs": 1973.675,
+  "upstreamStopped": false,
+  "localCalls": 74
+}

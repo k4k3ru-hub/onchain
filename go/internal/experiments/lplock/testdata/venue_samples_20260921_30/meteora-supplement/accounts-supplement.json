@@ -1,0 +1,418 @@
+{
+  "samples": [
+    {
+      "pool": "Fmr8h9V8XXpeevF48YNM3TpQxnjvjT5suVajLRQghK9g",
+      "locked_liquidity_percentage": null,
+      "positions": [],
+      "enumeration_slot": 449024933,
+      "snapshot_slot": 449024939,
+      "pool_keys": {
+        "token_x_mint": "2Qwa1vD9qz9WyEARJ3rgqQBirotQNHzKb6x6dWezpump",
+        "token_y_mint": "So11111111111111111111111111111111111111112",
+        "bin_step": 100,
+        "activation_type": 0
+      },
+      "reason": "creation_history_and_withdrawal_semantics_and_all_bin_principal_not_verified"
+    },
+    {
+      "pool": "8CxoDUA2nAmGpbYQsTU5XmxKxHBTbWAoSTnRdQSFTHJ",
+      "locked_liquidity_percentage": null,
+      "positions": [
+        {
+          "position": "2R18GziE55h3T6uLmNCahB4m3W2qzRrfpbRDCPdGnRcr",
+          "owner": "3XqscBSeEYX2Ng32MuSUrTjtUYFd7cMagKbyus2ER7hZ",
+          "operator": "11111111111111111111111111111111",
+          "lock_release_point": "0",
+          "version": "1",
+          "lower_bin_id": "-339",
+          "upper_bin_id": "-269",
+          "nonzero_shares_in_legacy_70_bins": 70,
+          "raw_data_bytes": 8232
+        },
+        {
+          "position": "33qRRdT1evh6gA72hxosgFCgYzh8PG4mm4ZcQD8LPas1",
+          "owner": "DPThv6UBCdM467YXMGufh8jYN92fXiDKrU8thNDvpH3",
+          "operator": "11111111111111111111111111111111",
+          "lock_release_point": "0",
+          "version": "1",
+          "lower_bin_id": "-406",
+          "upper_bin_id": "-305",
+          "nonzero_shares_in_legacy_70_bins": 70,
+          "raw_data_bytes": 11704
+        },
+        {
+          "position": "4jPVbXEL9ujEyZokkX7BGnuW1izM9f9Tb5D8Y7vQBVBh",
+          "owner": "cSVGR3jSa5YxPfy6dZ8xvzQSdB79msrU2KbkvoKMtfe",
+          "operator": "11111111111111111111111111111111",
+          "lock_release_point": "0",
+          "version": "1",
+          "lower_bin_id": "-349",
+          "upper_bin_id": "-286",
+          "nonzero_shares_in_legacy_70_bins": 64,
+          "raw_data_bytes": 8120
+        },
+        {
+          "position": "6PiDb95LHZPUpNQxg3pfsR7Uj9EHG275bzscPEJGDWE6",
+          "owner": "61pjPtEuyEv7C3s7MbMpYidEJXWUFadjc3iJCQczcNzp",
+          "operator": "11111111111111111111111111111111",
+          "lock_release_point": "0",
+          "version": "1",
+          "lower_bin_id": "-394",
+          "upper_bin_id": "-278",
+          "nonzero_shares_in_legacy_70_bins": 70,
+          "raw_data_bytes": 13384
+        },
+        {
+          "position": "6UtmgXJNFVKB2E8o28KrtawNQEVU2e5fHUZ6cNybN8Nq",
+          "owner": "9sgepAEMAVWo8LzzVT7CL4dhqxZnnhATbtkhnintTbv9",
+          "operator": "11111111111111111111111111111111",
+          "lock_release_point": "0",
+          "version": "1",
+          "lower_bin_id": "-363",
+          "upper_bin_id": "-308",
+          "nonzero_shares_in_legacy_70_bins": 56,
+          "raw_data_bytes": 8120
+        },
+        {
+          "position": "7HMsaKkdSR8p3zMH7Pofoy5abgcoH54meNUcR192rRGd",
+          "owner": "BLXV8yJMSozMtp35Wd8Hs934rHXdApT6EFdZ8tGMKotR",
+          "operator": "11111111111111111111111111111111",
+          "lock_release_point": "0",
+          "version": "1",
+          "lower_bin_id": "-356",
+          "upper_bin_id": "-321",
+          "nonzero_shares_in_legacy_70_bins": 36,
+          "raw_data_bytes": 8120
+        },
+        {
+          "position": "7uaqbJNUeU4Zg5c72P39bML6S1v7p8oS79govXpiEVtD",
+          "owner": "BFYehR6GU3tmvWNouRNL3aqm5xZUkgh4MnF7oZngmLgJ",
+          "operator": "11111111111111111111111111111111",
+          "lock_release_point": "0",
+          "version": "1",
+          "lower_bin_id": "-408",
+          "upper_bin_id": "-339",
+          "nonzero_shares_in_legacy_70_bins": 70,
+          "raw_data_bytes": 8120
+        },
+        {
+          "position": "8xDbkfUhVq85HVvpwa7b2LKBaZstTNCR5RGURp7j9fnH",
+          "owner": "BFYehR6GU3tmvWNouRNL3aqm5xZUkgh4MnF7oZngmLgJ",
+          "operator": "11111111111111111111111111111111",
+          "lock_release_point": "0",
+          "version": "1",
+          "lower_bin_id": "-355",
+          "upper_bin_id": "-286",
+          "nonzero_shares_in_legacy_70_bins": 69,
+          "raw_data_bytes": 8120
+        },
+        {
+          "position": "AqEh4Mv1HbLPqtnwq9TA3PMpowfgKnYa7AzDkvrxvhfY",
+          "owner": "FnPy3wiCc7Z14mgYpcEpkYFHLGGzDnHVe9im63vGP2WL",
+          "operator": "11111111111111111111111111111111",
+          "lock_release_point": "0",
+          "version": "1",
+          "lower_bin_id": "-321",
+          "upper_bin_id": "-290",
+          "nonzero_shares_in_legacy_70_bins": 32,
+          "raw_data_bytes": 8120
+        },
+        {
+          "position": "As9ciAwqbK37sRna1EMcmVEbUKdV4yX71HFU5BmwzVvV",
+          "reason": "account_disappeared"
+        },
+        {
+          "position": "BDjU2jEkzrNViGvVHqoaNHSC7du1tnE5gciGDAoUy6hi",
+          "owner": "FfYQoHTGJYSb6yP8Kp7ujDvv7mrMuy6k2f9MnASmopov",
+          "operator": "11111111111111111111111111111111",
+          "lock_release_point": "0",
+          "version": "1",
+          "lower_bin_id": "-376",
+          "upper_bin_id": "-313",
+          "nonzero_shares_in_legacy_70_bins": 64,
+          "raw_data_bytes": 8120
+        },
+        {
+          "position": "CQijew45evUxg8jE46XrGA8U3AoYK111URmUTJuiF4QQ",
+          "owner": "21oCLEZQ9vg57P96hLT23prFwWgKERMxCMFiNsCPVc7s",
+          "operator": "11111111111111111111111111111111",
+          "lock_release_point": "0",
+          "version": "1",
+          "lower_bin_id": "-321",
+          "upper_bin_id": "-252",
+          "nonzero_shares_in_legacy_70_bins": 70,
+          "raw_data_bytes": 8120
+        },
+        {
+          "position": "DfNaRC5UVX2SswxX3hkJ4zwXTbdXCbbxoBZU1f8mA9yD",
+          "owner": "BFYehR6GU3tmvWNouRNL3aqm5xZUkgh4MnF7oZngmLgJ",
+          "operator": "11111111111111111111111111111111",
+          "lock_release_point": "0",
+          "version": "1",
+          "lower_bin_id": "-377",
+          "upper_bin_id": "-308",
+          "nonzero_shares_in_legacy_70_bins": 70,
+          "raw_data_bytes": 8120
+        },
+        {
+          "position": "EaK4uAdLx8cyNT3ruLsvKnQA5TXXKzwEpA6L9vQEZWzm",
+          "owner": "G8chPUe2HAigKjphFeb8KQBSdAtHz7vggEHTFFHqKAYX",
+          "operator": "11111111111111111111111111111111",
+          "lock_release_point": "0",
+          "version": "1",
+          "lower_bin_id": "-320",
+          "upper_bin_id": "-282",
+          "nonzero_shares_in_legacy_70_bins": 39,
+          "raw_data_bytes": 8120
+        },
+        {
+          "position": "J2VxZisNc6fG5WcL1kQfeyGL5KkzdPHkZYkLAGPMSRZW",
+          "owner": "AHkVHbpcBQYsHwKFZSU2ddWABTuESBc9qN2vvZzYwQ15",
+          "operator": "11111111111111111111111111111111",
+          "lock_release_point": "0",
+          "version": "1",
+          "lower_bin_id": "-410",
+          "upper_bin_id": "-327",
+          "nonzero_shares_in_legacy_70_bins": 70,
+          "raw_data_bytes": 9688
+        }
+      ],
+      "enumeration_slot": 449024948,
+      "snapshot_slot": 449024955,
+      "pool_keys": {
+        "token_x_mint": "2Hm8qcnud7LEes2inqHcohQKcD7sqAqX8wb9W2uxwB7g",
+        "token_y_mint": "So11111111111111111111111111111111111111112",
+        "bin_step": 200,
+        "activation_type": 0
+      },
+      "reason": "creation_history_and_withdrawal_semantics_and_all_bin_principal_not_verified"
+    },
+    {
+      "pool": "DHKABvUViQiv9uDd2Sdbgk7q3aSBzU4SCsf517j7Lqap",
+      "locked_liquidity_percentage": null,
+      "positions": [],
+      "enumeration_slot": 449024962,
+      "snapshot_slot": 449024969,
+      "pool_keys": {
+        "token_x_mint": "5TEXBNqSxfod4n15zqrCk1kt6nQc9KfEuqqkR2x2pump",
+        "token_y_mint": "So11111111111111111111111111111111111111112",
+        "bin_step": 20,
+        "activation_type": 0
+      },
+      "reason": "creation_history_and_withdrawal_semantics_and_all_bin_principal_not_verified"
+    },
+    {
+      "pool": "HZvXjbBFLMEERjaLmZXeaoBuYmxUrzPZtjxd4sQhgVoD",
+      "locked_liquidity_percentage": null,
+      "positions": [],
+      "enumeration_slot": 449024978,
+      "snapshot_slot": 449024984,
+      "pool_keys": {
+        "token_x_mint": "5TEXBNqSxfod4n15zqrCk1kt6nQc9KfEuqqkR2x2pump",
+        "token_y_mint": "So11111111111111111111111111111111111111112",
+        "bin_step": 100,
+        "activation_type": 0
+      },
+      "reason": "creation_history_and_withdrawal_semantics_and_all_bin_principal_not_verified"
+    },
+    {
+      "pool": "FzYWfFzCCfN8GngEJ3MLekV4swrc13ujkHKEwqrDLQpb",
+      "locked_liquidity_percentage": null,
+      "positions": [
+        {
+          "position": "AQPyFmopFKbxb6rCmpubGaDbv4AgP3VXE8gfFtsLmze9",
+          "owner": "G8chPUe2HAigKjphFeb8KQBSdAtHz7vggEHTFFHqKAYX",
+          "operator": "11111111111111111111111111111111",
+          "lock_release_point": "0",
+          "version": "1",
+          "lower_bin_id": "-385",
+          "upper_bin_id": "-317",
+          "nonzero_shares_in_legacy_70_bins": 69,
+          "raw_data_bytes": 8120
+        }
+      ],
+      "enumeration_slot": 449024994,
+      "snapshot_slot": 449024999,
+      "pool_keys": {
+        "token_x_mint": "3T4ZBX6amaLpSWe8MpVpgUhaniVq93ATNXcPeNzVTxJV",
+        "token_y_mint": "So11111111111111111111111111111111111111112",
+        "bin_step": 200,
+        "activation_type": 0
+      },
+      "reason": "creation_history_and_withdrawal_semantics_and_all_bin_principal_not_verified"
+    },
+    {
+      "pool": "tjtFxh8R3RP6YrNsm3iwyRUe7A3DVVQExEXjfmZy1tc",
+      "locked_liquidity_percentage": null,
+      "positions": [
+        {
+          "position": "6Yc1aR1MyyxJSPh2xCUVz2DnUSDfVbvxSYzRiWSYJvBU",
+          "owner": "86eHs1NynwtY7vL9Dn519jKvGy6oN15B3nVzKzh8Rf1j",
+          "operator": "11111111111111111111111111111111",
+          "lock_release_point": "0",
+          "version": "1",
+          "lower_bin_id": "-772",
+          "upper_bin_id": "-703",
+          "nonzero_shares_in_legacy_70_bins": 70,
+          "raw_data_bytes": 8120
+        },
+        {
+          "position": "APJigu6T3JLhgdMZ8fb2TQHEMKVMMd4W2wqwMsnEomsT",
+          "owner": "HEauHfXzF65VE7MaJAF71yvXdzdqY6FYS6U62CP4p69",
+          "operator": "11111111111111111111111111111111",
+          "lock_release_point": "0",
+          "version": "1",
+          "lower_bin_id": "-808",
+          "upper_bin_id": "-739",
+          "nonzero_shares_in_legacy_70_bins": 70,
+          "raw_data_bytes": 8120
+        }
+      ],
+      "enumeration_slot": 449025009,
+      "snapshot_slot": 449025015,
+      "pool_keys": {
+        "token_x_mint": "3T4ZBX6amaLpSWe8MpVpgUhaniVq93ATNXcPeNzVTxJV",
+        "token_y_mint": "So11111111111111111111111111111111111111112",
+        "bin_step": 100,
+        "activation_type": 0
+      },
+      "reason": "creation_history_and_withdrawal_semantics_and_all_bin_principal_not_verified"
+    },
+    {
+      "pool": "EfF67JFp6PaXrKU5tYBERLPBauUzMFUV3gsjSdF4751X",
+      "locked_liquidity_percentage": null,
+      "positions": [],
+      "enumeration_slot": 449025024,
+      "snapshot_slot": 449025030,
+      "pool_keys": {
+        "token_x_mint": "7DtK5nPsQEMyENpdhADW4dxz9rkh3pKf46p8SMn6pump",
+        "token_y_mint": "So11111111111111111111111111111111111111112",
+        "bin_step": 100,
+        "activation_type": 0
+      },
+      "reason": "creation_history_and_withdrawal_semantics_and_all_bin_principal_not_verified"
+    },
+    {
+      "pool": "72Q1SaNJDisTsCLQnFV4YEFG3TUNEDRqXkrKEK43nqBc",
+      "locked_liquidity_percentage": null,
+      "positions": [],
+      "enumeration_slot": 449025040,
+      "snapshot_slot": 449025046,
+      "pool_keys": {
+        "token_x_mint": "GpUkmLHWPZkBFYjNiwrhuqoFXaoxB6cF2WYKgFbPpump",
+        "token_y_mint": "So11111111111111111111111111111111111111112",
+        "bin_step": 100,
+        "activation_type": 0
+      },
+      "reason": "creation_history_and_withdrawal_semantics_and_all_bin_principal_not_verified"
+    },
+    {
+      "pool": "wXtCM1S9ViYybfXPRA2aAQiXniE4wwRLh2zTvCHci2x",
+      "locked_liquidity_percentage": null,
+      "positions": [],
+      "enumeration_slot": 449025055,
+      "snapshot_slot": 449025061,
+      "pool_keys": {
+        "token_x_mint": "B8WvjPmz1wJ9xPRKEkyWHFzPZoaqkKWCytgtFjhTpump",
+        "token_y_mint": "So11111111111111111111111111111111111111112",
+        "bin_step": 100,
+        "activation_type": 0
+      },
+      "reason": "creation_history_and_withdrawal_semantics_and_all_bin_principal_not_verified"
+    }
+  ],
+  "creation_verification": "unchanged",
+  "read_only": true,
+  "requests": [
+    {
+      "method": "getProgramAccounts",
+      "bytes": 96,
+      "seconds": 0.622
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 1469,
+      "seconds": 0.593
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 4987,
+      "seconds": 0.588
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 169376,
+      "seconds": 1.022
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 96,
+      "seconds": 0.517
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 1469,
+      "seconds": 0.61
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 96,
+      "seconds": 0.586
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 1469,
+      "seconds": 0.565
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 421,
+      "seconds": 0.492
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 12459,
+      "seconds": 0.487
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 747,
+      "seconds": 0.578
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 23449,
+      "seconds": 0.599
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 96,
+      "seconds": 0.591
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 1469,
+      "seconds": 0.589
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 96,
+      "seconds": 0.488
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 1469,
+      "seconds": 0.573
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 96,
+      "seconds": 0.584
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 1469,
+      "seconds": 0.61
+    }
+  ]
+}

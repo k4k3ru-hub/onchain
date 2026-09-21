@@ -1,0 +1,59 @@
+{
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getProgramAccounts",
+    "params": [
+      "LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo",
+      {
+        "encoding": "base64",
+        "commitment": "finalized",
+        "withContext": true,
+        "dataSlice": {
+          "offset": 0,
+          "length": 72
+        },
+        "filters": [
+          {
+            "memcmp": {
+              "offset": 0,
+              "bytes": "LgkNAEYaVX3"
+            }
+          },
+          {
+            "memcmp": {
+              "offset": 8,
+              "bytes": "AEEFSKWWYE4ivkQUDWtW8gQiuxbeZxvp24uqcTKuCcFY"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "result": {
+      "context": {
+        "slot": 449020892,
+        "apiVersion": "4.2.1"
+      },
+      "value": [
+        {
+          "pubkey": "8TV2bVP8ivzqSMRY8mrWpGeNcCefmsXNdsSWhCdeLp2f",
+          "account": {
+            "lamports": 41899840,
+            "data": [
+              "dbDUx/W0hbaJHLakDKgGQJYkg07iPRf3+zXDpyLlOuMztc213IaJb5Zsh36EYBvT1aEN/btYYJPBnMxEMqrOGChXwuxc9VTN",
+              "base64"
+            ],
+            "owner": "LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo",
+            "executable": false,
+            "rentEpoch": 18446744073709551615,
+            "space": 8120
+          }
+        }
+      ]
+    },
+    "id": 1
+  }
+}

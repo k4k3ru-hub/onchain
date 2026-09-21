@@ -1,0 +1,9 @@
+{
+  "scope": "historical_fork_selected_token_route_amount_and_addresses",
+  "buyThenSellRejectedByToken": "observed",
+  "automaticRecipientRestriction": "observed",
+  "ownerControlledAllowlistBypass": "observed",
+  "ownerRoundTripSucceeded": "observed",
+  "sellStillRejectedAfter65Blocks": "observed",
+  "safetyVerdict": "not_provided"
+}

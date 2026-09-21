@@ -1,0 +1,49 @@
+{
+  "depositReceipt": {
+    "status": "0x1",
+    "logs": [
+      {
+        "address": "0x4200000000000000000000000000000000000006",
+        "topics": [
+          "0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c",
+          "0x0000000000000000000000001000000000000000000000000000000000000001"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000005af3107a4000",
+        "blockHash": "0xac1d78f3e99005cc50b9b9b73b50d67b0ad20c08290c10674a5d5b9e97854191",
+        "blockNumber": "0x1f02a7",
+        "blockTimestamp": "0x64c86227",
+        "transactionHash": "0x3b032b5a76f49cd5e975bfb9b66dbfa2786f69655e8b4c3a777d91a0de204459",
+        "transactionIndex": "0x0",
+        "logIndex": "0x0",
+        "removed": false
+      }
+    ],
+    "transactionHash": "0x3b032b5a76f49cd5e975bfb9b66dbfa2786f69655e8b4c3a777d91a0de204459",
+    "blockNumber": "0x1f02a7",
+    "gasUsed": "0xaf42"
+  },
+  "transferReceipt": {
+    "status": "0x1",
+    "logs": [
+      {
+        "address": "0x4200000000000000000000000000000000000006",
+        "topics": [
+          "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+          "0x0000000000000000000000001000000000000000000000000000000000000001",
+          "0x0000000000000000000000001000000000000000000000000000000000000002"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000005af3107a4000",
+        "blockHash": "0x13596df1ab0268b13408954caea6c2c05a473a2b1f3a01a2a96d41c4d0fc240d",
+        "blockNumber": "0x1f02a9",
+        "blockTimestamp": "0x64c86227",
+        "transactionHash": "0x65f7fc616fa6eac0e1d1efc8e94d341cb7d1b3589f5a380b7280e5dc8098e32a",
+        "transactionIndex": "0x0",
+        "logIndex": "0x0",
+        "removed": false
+      }
+    ],
+    "transactionHash": "0x65f7fc616fa6eac0e1d1efc8e94d341cb7d1b3589f5a380b7280e5dc8098e32a",
+    "blockNumber": "0x1f02a9",
+    "gasUsed": "0xb4e1"
+  }
+}

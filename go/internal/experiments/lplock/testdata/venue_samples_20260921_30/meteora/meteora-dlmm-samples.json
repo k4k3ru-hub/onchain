@@ -1,0 +1,1531 @@
+{
+  "venue": "meteora-dlmm",
+  "selection_count": 30,
+  "samples": [
+    {
+      "pool": "8CQ52hsenrpLkw461izbbtKUaQGUw3YQpWd23bp9Dr2c",
+      "creation_event": {
+        "pool": "8CQ52hsenrpLkw461izbbtKUaQGUw3YQpWd23bp9Dr2c",
+        "signature": "4puL7KTAZoNEQAxifofwiGMQ2qCQubk4fNCXHB4EBrnRzsv14VhRRHzvWC1xPR3KMY9zr1Wqq7tMWGqczWLSezgt",
+        "creation_slot": 449019533,
+        "creation_time": 1789984137,
+        "event": {
+          "pool": "8CQ52hsenrpLkw461izbbtKUaQGUw3YQpWd23bp9Dr2c",
+          "bin_step": 250,
+          "token_x": "ZesMGYmokFiEuDvNzWeMhB7jxF6eUW8c512vwSKSTNK",
+          "token_y": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f6aed4838ffea10e51cf1a4f49ee0bfc4495084d64f1d4f9f6df819924dc3ed81fa00085d674a838c4114298418bc642de6d7f6e65b8d1335ab7b1d7244b7bcb60724c6fa7af3bedbad3a3d65f36aabc97431b1bbe4c2d2f6e0e47ca60203452f5d61"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "8CQ52hsenrpLkw461izbbtKUaQGUw3YQpWd23bp9Dr2c",
+        "enumeration_slot": 449020850,
+        "snapshot_slot": 449020851,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "5CpbQWhDWXYWV2Tm7a9Udw65YYpSLUqRfNjZbYaepkvb",
+            "owner": "61XhvNTk6zM29eyDkwyzKEGGGdtKtuU6EJrdwZJwTBqm",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "-244",
+            "upper_bin_id": "-176",
+            "nonzero_shares_in_legacy_70_bins": 69,
+            "raw_data_bytes": 8120
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    },
+    {
+      "pool": "D6pwaMHu72nAuz9ErWLat5kQNy1K5wVwmcEcAMiZqPuV",
+      "creation_event": {
+        "pool": "D6pwaMHu72nAuz9ErWLat5kQNy1K5wVwmcEcAMiZqPuV",
+        "signature": "3FCfPEvsRYFKsAEgrwNumyoupouRpHovNR66JzeHD4MNgCpYvuScvtFhBisXnr5SUHaxN8YrVx7XnyFr1MtXCcjX",
+        "creation_slot": 449018403,
+        "creation_time": 1789983838,
+        "event": {
+          "pool": "D6pwaMHu72nAuz9ErWLat5kQNy1K5wVwmcEcAMiZqPuV",
+          "bin_step": 250,
+          "token_x": "6AUURRdHb9TrfPHv9AMofa8NEVoZDXcsbWKcUBpFSRXs",
+          "token_y": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6fb3ca5aaa87b9186c4400b18f69e3a798b1eadb8b1fa14f34448384bb372b299cfa004cb7b9b9360fd35ad12ab40898919b9c215e3b299bdaa2f09b418b532b187486c6fa7af3bedbad3a3d65f36aabc97431b1bbe4c2d2f6e0e47ca60203452f5d61"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "D6pwaMHu72nAuz9ErWLat5kQNy1K5wVwmcEcAMiZqPuV",
+        "enumeration_slot": 449020869,
+        "snapshot_slot": 449020871,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "BBtFtEE1G15k2YkhZPxsvh8Fo4QGtS8iPdhTabuE2CuU",
+            "owner": "61XhvNTk6zM29eyDkwyzKEGGGdtKtuU6EJrdwZJwTBqm",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "-269",
+            "upper_bin_id": "-201",
+            "nonzero_shares_in_legacy_70_bins": 69,
+            "raw_data_bytes": 8120
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    },
+    {
+      "pool": "5sTGyfjJbjNxE182nTih9hFdMSz7pJfui5YrigGK92Ui",
+      "creation_event": {
+        "pool": "5sTGyfjJbjNxE182nTih9hFdMSz7pJfui5YrigGK92Ui",
+        "signature": "5rWYqEgnT62Yd3xjnE5HpZFB6w1YUsf6CiceDvBAwNnD6HGcFZYoZ52rMCEh3Nt57assEeXYhYTj4eMQRj8qk6m",
+        "creation_slot": 449017882,
+        "creation_time": 1789983700,
+        "event": {
+          "pool": "5sTGyfjJbjNxE182nTih9hFdMSz7pJfui5YrigGK92Ui",
+          "bin_step": 50,
+          "token_x": "EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm",
+          "token_y": "9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f485b7f77e72f78f8247450b736ae94d50348af6ee43651514597b3a7d177a56b3200c5f9fb32f49111ab20c33f2598fc836c113e291881ac21ee29169394011244e47978b714453cd3e87aeb1fc09bf067f96cd2d4d69b571395aa9bf186aff9da3f"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "5sTGyfjJbjNxE182nTih9hFdMSz7pJfui5YrigGK92Ui",
+        "enumeration_slot": 449020881,
+        "snapshot_slot": 449020882,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "HLUmnbT5vu3M8Dktk9gVLxNwamttEzASe6FyVyxX7s6d",
+            "owner": "GiNN4ygnURRriZJvMi8VKvtzvPZMU7R5fd6e8QKdQ4De",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "11",
+            "upper_bin_id": "51",
+            "nonzero_shares_in_legacy_70_bins": 41,
+            "raw_data_bytes": 8120
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    },
+    {
+      "pool": "AEEFSKWWYE4ivkQUDWtW8gQiuxbeZxvp24uqcTKuCcFY",
+      "creation_event": {
+        "pool": "AEEFSKWWYE4ivkQUDWtW8gQiuxbeZxvp24uqcTKuCcFY",
+        "signature": "2LffXqUirnvx3AB1ZDbTaxqv5DxanWcghZqB5ruq6ZaBuwyRyKG7g95mF5j8NwZsD76GtCwQarbZzEatbgDQaB4S",
+        "creation_slot": 449017672,
+        "creation_time": 1789983643,
+        "event": {
+          "pool": "AEEFSKWWYE4ivkQUDWtW8gQiuxbeZxvp24uqcTKuCcFY",
+          "bin_step": 200,
+          "token_x": "E4Ap4icMLwKot8rkkTbq5JkS5kZxt5XCE3yfxbzYBjHx",
+          "token_y": "So11111111111111111111111111111111111111112",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f891cb6a40ca806409624834ee23d17f7fb35c3a722e53ae333b5cdb5dc86896fc800c1f7c42cfe7faab0ba2f704b3a79e659a2611abccbfe2a2217c3bdf343a662df069b8857feab8184fb687f634618c035dac439dc1aeb3b5598a0f00000000001"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "AEEFSKWWYE4ivkQUDWtW8gQiuxbeZxvp24uqcTKuCcFY",
+        "enumeration_slot": 449020892,
+        "snapshot_slot": 449020892,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "8TV2bVP8ivzqSMRY8mrWpGeNcCefmsXNdsSWhCdeLp2f",
+            "owner": "B8C92vtiBoPGivhdb3zBzHpsDKGkkpLnccpisqpLn4bN",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "-528",
+            "upper_bin_id": "-460",
+            "nonzero_shares_in_legacy_70_bins": 69,
+            "raw_data_bytes": 8120
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    },
+    {
+      "pool": "9a9BJqrQ5mdWGpmi7yGbReh6z9rNX9LXpMDESsrbtMJ4",
+      "creation_event": {
+        "pool": "9a9BJqrQ5mdWGpmi7yGbReh6z9rNX9LXpMDESsrbtMJ4",
+        "signature": "rCniodokQX914cuVwiNfquz4RDVeJgBdi2ZVeTsMnanL6RnLTtSvnSmerGoFfxSzrtiq6Z4nhAXGuvLBWVUyiEc",
+        "creation_slot": 449015942,
+        "creation_time": 1789983180,
+        "event": {
+          "pool": "9a9BJqrQ5mdWGpmi7yGbReh6z9rNX9LXpMDESsrbtMJ4",
+          "bin_step": 10,
+          "token_x": "BBosJLw8ZzoATiEyywiifx7AgmrD2Cm3XjFWbhbRhChy",
+          "token_y": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f7f5ae89f97168beda558a369b44050640be05605bb4006a296d3b9aaa3190c650a009759ab9865267584597bd73c70d85915499da3700193238a820c630e06c308d4c6fa7af3bedbad3a3d65f36aabc97431b1bbe4c2d2f6e0e47ca60203452f5d61"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "9a9BJqrQ5mdWGpmi7yGbReh6z9rNX9LXpMDESsrbtMJ4",
+        "enumeration_slot": 449020901,
+        "snapshot_slot": 449020902,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "7iuBQX59Nzmmp57b1UjQvSj5zrgCLz8a8piZ8D4S6eib",
+            "owner": "F7YebN3D5hQQbya9nvHdwNzbCL7jTwBrgnkEhBTj8S9a",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "2057",
+            "upper_bin_id": "2126",
+            "nonzero_shares_in_legacy_70_bins": 70,
+            "raw_data_bytes": 8120
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    },
+    {
+      "pool": "3qY5g1g8epTKNBt6X3H8bXCfnVCDtojFhMmYEs45qdrM",
+      "creation_event": {
+        "pool": "3qY5g1g8epTKNBt6X3H8bXCfnVCDtojFhMmYEs45qdrM",
+        "signature": "yiok3rmx23rYZZe12X9QbgBqou83EYK29yUmmV2xJTTdXKTFdgCrDHGGRbrfBcZjSA7QKKsabY6DYBwSyRMsCgG",
+        "creation_slot": 449015652,
+        "creation_time": 1789983102,
+        "event": {
+          "pool": "3qY5g1g8epTKNBt6X3H8bXCfnVCDtojFhMmYEs45qdrM",
+          "bin_step": 10,
+          "token_x": "RUMsPfFZFnN1ZmGANwP7FNMJMjKH4m9RiMePrtVtLe7",
+          "token_y": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f2a2665458709c49cf16378f1db55f91d638ce9a3ef1fd7c6fd88e8c14a62e8de0a000644e010654c2105158f960f0400ca951c7dd992ba4ee8eb79ada81da8b3feecc6fa7af3bedbad3a3d65f36aabc97431b1bbe4c2d2f6e0e47ca60203452f5d61"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "3qY5g1g8epTKNBt6X3H8bXCfnVCDtojFhMmYEs45qdrM",
+        "enumeration_slot": 449020912,
+        "snapshot_slot": 449020913,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "DLQSXNsxmGUoE39YvXhFC2kCAqNakkaiZ12qySxZPr9o",
+            "owner": "F7YebN3D5hQQbya9nvHdwNzbCL7jTwBrgnkEhBTj8S9a",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "2161",
+            "upper_bin_id": "2230",
+            "nonzero_shares_in_legacy_70_bins": 70,
+            "raw_data_bytes": 8120
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    },
+    {
+      "pool": "Fmr8h9V8XXpeevF48YNM3TpQxnjvjT5suVajLRQghK9g",
+      "creation_event": {
+        "pool": "Fmr8h9V8XXpeevF48YNM3TpQxnjvjT5suVajLRQghK9g",
+        "reason": "creation_history_page_budget",
+        "creation_unverified": true
+      },
+      "locked_liquidity_percentage": null,
+      "reason": "creation_history_page_budget",
+      "http_attempts": 0
+    },
+    {
+      "pool": "ETRXg9VartQeihBCZGbyJxaHyRSXDZ5WPh4pNKUg5Aoi",
+      "creation_event": {
+        "pool": "ETRXg9VartQeihBCZGbyJxaHyRSXDZ5WPh4pNKUg5Aoi",
+        "signature": "26nJHFYMuLGNNn1mhEt2rP9LHx99g5BejUQHbQhXXWGKJxb6XvSenYgumuWfuV8U2DH8rvBccEKyMaUtvC2DB9td",
+        "creation_slot": 449011999,
+        "creation_time": 1789982131,
+        "event": {
+          "pool": "ETRXg9VartQeihBCZGbyJxaHyRSXDZ5WPh4pNKUg5Aoi",
+          "bin_step": 200,
+          "token_x": "JAtFQn9yiSxCPBRnECvhaF8Vz3YtNq8Sk8nbCZ9ra54k",
+          "token_y": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6fc7ecc4169539723cd8528f7ab6a27a09910408b92e1ec36cc016394e3d1f78c9c800ff1eda11d14ddb2a1067cc2255bcb7a28484c342b270693fd0a098e02d9ed521c6fa7af3bedbad3a3d65f36aabc97431b1bbe4c2d2f6e0e47ca60203452f5d61"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "ETRXg9VartQeihBCZGbyJxaHyRSXDZ5WPh4pNKUg5Aoi",
+        "enumeration_slot": 449020924,
+        "snapshot_slot": 449020924,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "Apc2945oXXdrZVnDxPpLNNzLFhH6rxFeKQ2DU5sHQwmr",
+            "owner": "DQ4Lz566PRAdz71ciZeKjLjYyzwDdMoPPRoisFzMSBVu",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "-506",
+            "upper_bin_id": "-345",
+            "nonzero_shares_in_legacy_70_bins": 70,
+            "raw_data_bytes": 18424
+          },
+          {
+            "position": "CAAfaWh3LBQzpMQaPwBihAzMQSHv79qRssvXCvunxFCB",
+            "owner": "GuQ8EtxEYafK5s3c34Sj2Le7aUXuYedDQ28F64Hvi67K",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "-505",
+            "upper_bin_id": "-344",
+            "nonzero_shares_in_legacy_70_bins": 70,
+            "raw_data_bytes": 18424
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    },
+    {
+      "pool": "8CxoDUA2nAmGpbYQsTU5XmxKxHBTbWAoSTnRdQSFTHJ",
+      "creation_event": {
+        "pool": "8CxoDUA2nAmGpbYQsTU5XmxKxHBTbWAoSTnRdQSFTHJ",
+        "reason": "creation_history_page_budget",
+        "creation_unverified": true
+      },
+      "locked_liquidity_percentage": null,
+      "reason": "creation_history_page_budget",
+      "http_attempts": 0
+    },
+    {
+      "pool": "DHKABvUViQiv9uDd2Sdbgk7q3aSBzU4SCsf517j7Lqap",
+      "creation_event": {
+        "pool": "DHKABvUViQiv9uDd2Sdbgk7q3aSBzU4SCsf517j7Lqap",
+        "reason": "creation_history_page_budget",
+        "creation_unverified": true
+      },
+      "locked_liquidity_percentage": null,
+      "reason": "creation_history_page_budget",
+      "http_attempts": 0
+    },
+    {
+      "pool": "HZvXjbBFLMEERjaLmZXeaoBuYmxUrzPZtjxd4sQhgVoD",
+      "creation_event": {
+        "pool": "HZvXjbBFLMEERjaLmZXeaoBuYmxUrzPZtjxd4sQhgVoD",
+        "reason": "creation_history_page_budget",
+        "creation_unverified": true
+      },
+      "locked_liquidity_percentage": null,
+      "reason": "creation_history_page_budget",
+      "http_attempts": 0
+    },
+    {
+      "pool": "6sqsG8yV1xjf9DQBSoDjUVux64fNaKZ39mJSedMbwMi",
+      "creation_event": {
+        "pool": "6sqsG8yV1xjf9DQBSoDjUVux64fNaKZ39mJSedMbwMi",
+        "signature": "3FKFpH3h4cgVumLE3UEQaeKBKYdFR1ikwn1AiqfMR35RydV4i1Z92c5ahvzmH71b9Qtg2zNxKAQrzSxf6MtL1We3",
+        "creation_slot": 448985957,
+        "creation_time": 1789975199,
+        "event": {
+          "pool": "6sqsG8yV1xjf9DQBSoDjUVux64fNaKZ39mJSedMbwMi",
+          "bin_step": 250,
+          "token_x": "72yxYmhLgDGwdyi2b9GjDynBB6VuG3kDxNKqDbzXh5bi",
+          "token_y": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f01816451da75929bbf125c76d7eaae853ae445f5f8e95b3f7e71d48824885a19fa0059a81acb6faabe537dce82c2792d5912bdd7f79f2d4df01cfd9684eb9bfd0dadc6fa7af3bedbad3a3d65f36aabc97431b1bbe4c2d2f6e0e47ca60203452f5d61"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "6sqsG8yV1xjf9DQBSoDjUVux64fNaKZ39mJSedMbwMi",
+        "enumeration_slot": 449020935,
+        "snapshot_slot": 449020936,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "B16YtQYzMo83LX1hqUumCVXix7PPM3FKLJ2wK6qYFDf",
+            "owner": "61XhvNTk6zM29eyDkwyzKEGGGdtKtuU6EJrdwZJwTBqm",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "-280",
+            "upper_bin_id": "-212",
+            "nonzero_shares_in_legacy_70_bins": 69,
+            "raw_data_bytes": 8120
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    },
+    {
+      "pool": "FQqsPXLu2UexFZavDfswP71rN3kVb9z5ZkWNSxVfvSis",
+      "creation_event": {
+        "pool": "FQqsPXLu2UexFZavDfswP71rN3kVb9z5ZkWNSxVfvSis",
+        "signature": "5gxziF6eVkDhdnhZogihkXAaYeS1T43R7YL48ntcisZ9gq9maKTnk2QAX51Y1phHxJFYhobCZUnAWPeAJa1pbidc",
+        "creation_slot": 448982944,
+        "creation_time": 1789974400,
+        "event": {
+          "pool": "FQqsPXLu2UexFZavDfswP71rN3kVb9z5ZkWNSxVfvSis",
+          "bin_step": 250,
+          "token_x": "GJSfEpiK9RnmRt9AnZi3FL1b2K6AApcW1SzTs2FeHGis",
+          "token_y": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6fd61f3b4e704ebf94fe5d0d8bda40bc7926fe932559965044acb92a404509fb68fa00e35730d1290e909b183b608a562d1a9cfc4de6b993df7ffe500289c1da454e68c6fa7af3bedbad3a3d65f36aabc97431b1bbe4c2d2f6e0e47ca60203452f5d61"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "FQqsPXLu2UexFZavDfswP71rN3kVb9z5ZkWNSxVfvSis",
+        "enumeration_slot": 449020945,
+        "snapshot_slot": 449020946,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "AfhUaxBoS4YsVi8zUtW7fnnk8xTXyXSFzYQ6ZqR9g66x",
+            "owner": "61XhvNTk6zM29eyDkwyzKEGGGdtKtuU6EJrdwZJwTBqm",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "-301",
+            "upper_bin_id": "-244",
+            "nonzero_shares_in_legacy_70_bins": 58,
+            "raw_data_bytes": 8120
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    },
+    {
+      "pool": "Hpj7ZuLga8N7jYxPxkf7MX9TtErZqe4HKAjNpRKeX7zV",
+      "creation_event": {
+        "pool": "Hpj7ZuLga8N7jYxPxkf7MX9TtErZqe4HKAjNpRKeX7zV",
+        "signature": "PV3b9qSKrSUS9YyFB6rSqAsSetXCBp7ncHExPw8sXEiiXxRUwJ2cHVNLV3JnVMVzC9fde3KSpfPAVUGm54QGDb2",
+        "creation_slot": 448981378,
+        "creation_time": 1789973984,
+        "event": {
+          "pool": "Hpj7ZuLga8N7jYxPxkf7MX9TtErZqe4HKAjNpRKeX7zV",
+          "bin_step": 250,
+          "token_x": "HgcxVs6kJhPAaGqnPNGaa7zYgNT49hJrLufiqcNMuYZT",
+          "token_y": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6ff9f4e80baaa6731bb7b1c1f72042d7083f293e141d55eedc82fe7598c5eb459efa00f7e14c862c65703cb6b5b14fec43bd61fa154e695a38611b0b82591e8fc669f6c6fa7af3bedbad3a3d65f36aabc97431b1bbe4c2d2f6e0e47ca60203452f5d61"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "Hpj7ZuLga8N7jYxPxkf7MX9TtErZqe4HKAjNpRKeX7zV",
+        "enumeration_slot": 449020956,
+        "snapshot_slot": 449020957,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "DUiESFo73FCqXuBwo31DFWJV8ZMjSf5CALQgizavYUCy",
+            "owner": "61XhvNTk6zM29eyDkwyzKEGGGdtKtuU6EJrdwZJwTBqm",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "-240",
+            "upper_bin_id": "-180",
+            "nonzero_shares_in_legacy_70_bins": 61,
+            "raw_data_bytes": 8120
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    },
+    {
+      "pool": "FzYWfFzCCfN8GngEJ3MLekV4swrc13ujkHKEwqrDLQpb",
+      "creation_event": {
+        "pool": "FzYWfFzCCfN8GngEJ3MLekV4swrc13ujkHKEwqrDLQpb",
+        "reason": "creation_history_page_budget",
+        "creation_unverified": true
+      },
+      "locked_liquidity_percentage": null,
+      "reason": "creation_history_page_budget",
+      "http_attempts": 0
+    },
+    {
+      "pool": "tjtFxh8R3RP6YrNsm3iwyRUe7A3DVVQExEXjfmZy1tc",
+      "creation_event": {
+        "pool": "tjtFxh8R3RP6YrNsm3iwyRUe7A3DVVQExEXjfmZy1tc",
+        "reason": "creation_history_page_budget",
+        "creation_unverified": true
+      },
+      "locked_liquidity_percentage": null,
+      "reason": "creation_history_page_budget",
+      "http_attempts": 0
+    },
+    {
+      "pool": "7d6SBFRv1khk2Du8iFqpcqs4zwi6jpuMugTLkKTTh74m",
+      "creation_event": {
+        "pool": "7d6SBFRv1khk2Du8iFqpcqs4zwi6jpuMugTLkKTTh74m",
+        "signature": "4ps5wwRjiCMLpwTpfX1t9M3EkWX8agkhDKi8LctajqTBwvqVdHmAdPRwMitperWpeQkkiYC3hfnWSTARjY1Jr8oo",
+        "creation_slot": 448978422,
+        "creation_time": 1789973201,
+        "event": {
+          "pool": "7d6SBFRv1khk2Du8iFqpcqs4zwi6jpuMugTLkKTTh74m",
+          "bin_step": 100,
+          "token_x": "7DtK5nPsQEMyENpdhADW4dxz9rkh3pKf46p8SMn6pump",
+          "token_y": "So11111111111111111111111111111111111111112",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f62652cce1a891b3220791deafc2c62c183de9c2773f2205ea5ff9c9d2bc7b2d264005c731c13191cd05bdf22b6a01f5fd5c2bc3699b2f3e7963bdee303159bb8edbf069b8857feab8184fb687f634618c035dac439dc1aeb3b5598a0f00000000001"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "7d6SBFRv1khk2Du8iFqpcqs4zwi6jpuMugTLkKTTh74m",
+        "enumeration_slot": 449020966,
+        "snapshot_slot": 449020967,
+        "activation_type": 0,
+        "positions": [],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    },
+    {
+      "pool": "EfF67JFp6PaXrKU5tYBERLPBauUzMFUV3gsjSdF4751X",
+      "creation_event": {
+        "pool": "EfF67JFp6PaXrKU5tYBERLPBauUzMFUV3gsjSdF4751X",
+        "reason": "creation_history_page_budget",
+        "creation_unverified": true
+      },
+      "locked_liquidity_percentage": null,
+      "reason": "creation_history_page_budget",
+      "http_attempts": 0
+    },
+    {
+      "pool": "HNVx1DHzfzijDZp4YdXCFMMEmFe1RhgFkfu5PWN282P8",
+      "creation_event": {
+        "pool": "HNVx1DHzfzijDZp4YdXCFMMEmFe1RhgFkfu5PWN282P8",
+        "signature": "4nJaZ8Y8oqaXDU25SbS1zvNUth6jyuNJcUujTKjW6Yg3vgUTGL18KXBVH9Sn5ehH8H45PB1pn65G6sdMbkxivQkW",
+        "creation_slot": 448973414,
+        "creation_time": 1789971870,
+        "event": {
+          "pool": "HNVx1DHzfzijDZp4YdXCFMMEmFe1RhgFkfu5PWN282P8",
+          "bin_step": 200,
+          "token_x": "EvchpvEQi6vSP2bAqq2mfkmnfKjweMky82dWicAhbr5z",
+          "token_y": "So11111111111111111111111111111111111111112",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6ff33ceb783b02d169d2a148de070220b46436bd50be4f845fd45cd8cd36d594afc800cee4155d11d126653b6539d413988b60a6bc5ade3493e692a40709ce069635b5069b8857feab8184fb687f634618c035dac439dc1aeb3b5598a0f00000000001"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "HNVx1DHzfzijDZp4YdXCFMMEmFe1RhgFkfu5PWN282P8",
+        "enumeration_slot": 449020977,
+        "snapshot_slot": 449020978,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "2FP15Js6PKetiYYhRzLVG3WyyghzVvVshteXBWj7XEjn",
+            "owner": "bmbQnxpknKtqnke92zhkV9yDU5Zp4GFdSrHV8oEyW7T",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "-408",
+            "upper_bin_id": "-340",
+            "nonzero_shares_in_legacy_70_bins": 69,
+            "raw_data_bytes": 8120
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    },
+    {
+      "pool": "69c7JTkJnwYp9RiBWcVUU8QA3jcSUp2VnqmMwtKDUWFn",
+      "creation_event": {
+        "pool": "69c7JTkJnwYp9RiBWcVUU8QA3jcSUp2VnqmMwtKDUWFn",
+        "signature": "49QdMbB1H7kfb8Xdk96gfBzRUk9pwAh1YFhZg5tuwAsQnCif23YRpPWhGd24pWKwPdppPs9bKFxxGy7jLfidFxvy",
+        "creation_slot": 448972058,
+        "creation_time": 1789971506,
+        "event": {
+          "pool": "69c7JTkJnwYp9RiBWcVUU8QA3jcSUp2VnqmMwtKDUWFn",
+          "bin_step": 250,
+          "token_x": "3ZLekZYq2qkZiSpnSvabjit34tUkjSwD1JFuW9as9wBG",
+          "token_y": "So11111111111111111111111111111111111111112",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f4c7ec7504a635c9194deebfac8ca73c4044aa0d2517f3994a3209e454f334e65fa0026002dd72796cb04c14931f56173115c7cef06664f0902ffec3d665777e6d66b069b8857feab8184fb687f634618c035dac439dc1aeb3b5598a0f00000000001"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "69c7JTkJnwYp9RiBWcVUU8QA3jcSUp2VnqmMwtKDUWFn",
+        "enumeration_slot": 449020987,
+        "snapshot_slot": 449020988,
+        "activation_type": 0,
+        "positions": [],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    },
+    {
+      "pool": "3D3gdE31gY64nFGreG4Fc83mi2pHStePSky3UFdG4dqJ",
+      "creation_event": {
+        "pool": "3D3gdE31gY64nFGreG4Fc83mi2pHStePSky3UFdG4dqJ",
+        "signature": "JZU3HJBi8m1dvo538dz6iFoeuACMAMRrJwAMfzf2pN8cdAnrvBceQysAKNFf6WEQXowtaMs8ZYujWUWmffx3LLN",
+        "creation_slot": 448966445,
+        "creation_time": 1789970013,
+        "event": {
+          "pool": "3D3gdE31gY64nFGreG4Fc83mi2pHStePSky3UFdG4dqJ",
+          "bin_step": 30,
+          "token_x": "uniHfuPhEQSrtpzXpJZDCSq53yaejKKpNhFUiKoHKHV",
+          "token_y": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f20cd60a041cf5e0791b93ac463db0ebaaa48426c2092fdde42a079569a1ab9e91e000d85e37d1efdc889b99e4f53322bfd27f29a03ea852a27877c03a34412a096a4c6fa7af3bedbad3a3d65f36aabc97431b1bbe4c2d2f6e0e47ca60203452f5d61"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "3D3gdE31gY64nFGreG4Fc83mi2pHStePSky3UFdG4dqJ",
+        "enumeration_slot": 449020998,
+        "snapshot_slot": 449020998,
+        "activation_type": 0,
+        "positions": [],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    },
+    {
+      "pool": "HCXWfFXnH2eL5NyPVoNwUwmJVQEPrm85bav7Y8HdRdgb",
+      "creation_event": {
+        "pool": "HCXWfFXnH2eL5NyPVoNwUwmJVQEPrm85bav7Y8HdRdgb",
+        "signature": "295jwTkRf1FLLDaG962Ci1qkLEcTuffHCswZ2YqzbgopjRYMCpURoV2YmBCD2HACGV7LMwYESpUz6QdXWJax4vdg",
+        "creation_slot": 448964903,
+        "creation_time": 1789969602,
+        "event": {
+          "pool": "HCXWfFXnH2eL5NyPVoNwUwmJVQEPrm85bav7Y8HdRdgb",
+          "bin_step": 200,
+          "token_x": "CVTfVQ3Tr8AEqk1m6cJMJmH3WfVVkN4dATWCzQRiMHhS",
+          "token_y": "So11111111111111111111111111111111111111112",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6ff0aee108a492e4f20a5922d86f6f19decafea356d816bf9d162b4fb180e25348c800aabaf7ad5161ae1a025926c16484a994d51ea4ed4fa182addae7fed4618c3859069b8857feab8184fb687f634618c035dac439dc1aeb3b5598a0f00000000001"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "HCXWfFXnH2eL5NyPVoNwUwmJVQEPrm85bav7Y8HdRdgb",
+        "enumeration_slot": 449021010,
+        "snapshot_slot": 449021011,
+        "activation_type": 0,
+        "positions": [],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    },
+    {
+      "pool": "2UvYWfRAgrkwwFAmtTYaPD7tVh9kFFDyaNXYjy5F8oqN",
+      "creation_event": {
+        "pool": "2UvYWfRAgrkwwFAmtTYaPD7tVh9kFFDyaNXYjy5F8oqN",
+        "signature": "3XKkfhnnBcqgJZ4jJ9uK9ww5GWKH65EEniMAvVZ1DMX14ozSNbtj5xgmmwSegRLjiqoxx16DNYyFJAZwbieJ3ye4",
+        "creation_slot": 448964474,
+        "creation_time": 1789969488,
+        "event": {
+          "pool": "2UvYWfRAgrkwwFAmtTYaPD7tVh9kFFDyaNXYjy5F8oqN",
+          "bin_step": 100,
+          "token_x": "D6vjReVRQyub2RisbRJa1RAopAyzdDDrDpQrbZ4XTRND",
+          "token_y": "So11111111111111111111111111111111111111112",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f1602e90e46b2a4d139ab4321a77a38a5991e1b286cde9903faf627753926c9e56400b3d0e6ca279780b1970a45e3608052c1507d26ec509adc711353def7d25450fe069b8857feab8184fb687f634618c035dac439dc1aeb3b5598a0f00000000001"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "2UvYWfRAgrkwwFAmtTYaPD7tVh9kFFDyaNXYjy5F8oqN",
+        "enumeration_slot": 449021020,
+        "snapshot_slot": 449021021,
+        "activation_type": 0,
+        "positions": [],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    },
+    {
+      "pool": "72Q1SaNJDisTsCLQnFV4YEFG3TUNEDRqXkrKEK43nqBc",
+      "creation_event": {
+        "pool": "72Q1SaNJDisTsCLQnFV4YEFG3TUNEDRqXkrKEK43nqBc",
+        "reason": "creation_history_page_budget",
+        "creation_unverified": true
+      },
+      "locked_liquidity_percentage": null,
+      "reason": "creation_history_page_budget",
+      "http_attempts": 0
+    },
+    {
+      "pool": "9XZRFew8iTa6V6GMhz87SvH5AFYRPVkNY1Z258zuiRU7",
+      "creation_event": {
+        "pool": "9XZRFew8iTa6V6GMhz87SvH5AFYRPVkNY1Z258zuiRU7",
+        "signature": "5xGZczbe9ajov8n3K5oCsRda54YyA8B7NsBnitCxyMd6bwyPvJh7oqA9fj4sSxFp9J2FuqN8ZwaNk9XPXpCnxidP",
+        "creation_slot": 448956759,
+        "creation_time": 1789967440,
+        "event": {
+          "pool": "9XZRFew8iTa6V6GMhz87SvH5AFYRPVkNY1Z258zuiRU7",
+          "bin_step": 4,
+          "token_x": "METvsvVRapdj9cFLzq4Tr43xK4tAjQfwX76z3n6mWQL",
+          "token_y": "swso1x7A8Dy36znxtcstSVLNseeCQzNV3wVAfa5GGLu",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f7eb1933348799d42f6237b6bce00b7847a2d3c88c9f922f15bf28a425469088c0400052ed71e38b463ca162a580917bde71aebe058313a5dcbae869205cbeaa9fbad0d0d16b269b5b8a0e689462c0c490fafca4f56e35913af8e78b10eca8f67ebd6"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "9XZRFew8iTa6V6GMhz87SvH5AFYRPVkNY1Z258zuiRU7",
+        "enumeration_slot": 449021030,
+        "snapshot_slot": 449021031,
+        "activation_type": 0,
+        "positions": [],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    },
+    {
+      "pool": "7FE7UpSnDBfxKbQT4VwFS9jabC2XDAssXMNjq9cwgKkD",
+      "creation_event": {
+        "pool": "7FE7UpSnDBfxKbQT4VwFS9jabC2XDAssXMNjq9cwgKkD",
+        "signature": "cpwvahdyLrAQFSqkCHvDWCd9Q982bUJLxR8mENxxx98ZEJVfvsC2sjUTM92tqZdt2PMuVSLbabvuJyw6SEws341",
+        "creation_slot": 448954998,
+        "creation_time": 1789966972,
+        "event": {
+          "pool": "7FE7UpSnDBfxKbQT4VwFS9jabC2XDAssXMNjq9cwgKkD",
+          "bin_step": 200,
+          "token_x": "EzfgjvkSwthhgHaceR3LnKXUoRkP6NUhfghdaHAj1tUv",
+          "token_y": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f5ccb140ed860709b6181b3862c351a5caaadf4efc7626930d840438d10a39eaac800cfedc7127f8f8cb61b2e203fd3e4d25b0a981ec4d79f4b75ecffbf4889860a3fc6fa7af3bedbad3a3d65f36aabc97431b1bbe4c2d2f6e0e47ca60203452f5d61"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "7FE7UpSnDBfxKbQT4VwFS9jabC2XDAssXMNjq9cwgKkD",
+        "enumeration_slot": 449021040,
+        "snapshot_slot": 449021041,
+        "activation_type": 0,
+        "positions": [],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    },
+    {
+      "pool": "8JVdQvTjttYeAeKwpWWPeTHYuJmXKLBc1HQXi3VeCbCM",
+      "creation_event": {
+        "pool": "8JVdQvTjttYeAeKwpWWPeTHYuJmXKLBc1HQXi3VeCbCM",
+        "signature": "Y2rfn8kR8LFnBGh5JBePv6kKf1P8i5VdRiTR7kCRiBDWE1tUJFkheaeeLeex3Jk9kAcmXJahZ3LEeZ1Wm7DVX32",
+        "creation_slot": 448951840,
+        "creation_time": 1789966134,
+        "event": {
+          "pool": "8JVdQvTjttYeAeKwpWWPeTHYuJmXKLBc1HQXi3VeCbCM",
+          "bin_step": 80,
+          "token_x": "4UHmZGe6X4DZ5dxYGiGXMhi3Sp34uPWtHB7qDMyvRbYB",
+          "token_y": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f6c7d0d4284eaa6583d8ffb9d2ab3d74ffefd72924bfdbd1072cc846b7b2640e250003390b3d742512a0ae68ea937a1ee1259af47c8083c3058b75a486a8e7f5d87e8c6fa7af3bedbad3a3d65f36aabc97431b1bbe4c2d2f6e0e47ca60203452f5d61"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "8JVdQvTjttYeAeKwpWWPeTHYuJmXKLBc1HQXi3VeCbCM",
+        "enumeration_slot": 449021051,
+        "snapshot_slot": 449021052,
+        "activation_type": 0,
+        "positions": [],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    },
+    {
+      "pool": "HbuqoK5nnmhZYSTqhBeHt7RKib2FYN3LLDJPCyGfvZiC",
+      "creation_event": {
+        "pool": "HbuqoK5nnmhZYSTqhBeHt7RKib2FYN3LLDJPCyGfvZiC",
+        "signature": "3pqf9TnKY7JhXmQ52L6kiR3kUWvwadpnkkHeV3Qq3QZzvBkYPh1vqAQ2PxX2EVPRf8rT4DGQMywFQLCGiX1TvRHV",
+        "creation_slot": 448951239,
+        "creation_time": 1789965975,
+        "event": {
+          "pool": "HbuqoK5nnmhZYSTqhBeHt7RKib2FYN3LLDJPCyGfvZiC",
+          "bin_step": 200,
+          "token_x": "3e6to4qrHByU19Sij9DVKPB4AQD5RuyhH2Sj2ESLpump",
+          "token_y": "So11111111111111111111111111111111111111112",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6ff6ac7c7a220066c7adb87df56e0c4c0465b18395b12174ffefd190cd46ccc65dc800273886eb69a44bf45d946b5d2b5766f277a3f1004eac5cae9587f1a1618b4b5f069b8857feab8184fb687f634618c035dac439dc1aeb3b5598a0f00000000001"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "HbuqoK5nnmhZYSTqhBeHt7RKib2FYN3LLDJPCyGfvZiC",
+        "enumeration_slot": 449021061,
+        "snapshot_slot": 449021063,
+        "activation_type": 0,
+        "positions": [],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    },
+    {
+      "pool": "wXtCM1S9ViYybfXPRA2aAQiXniE4wwRLh2zTvCHci2x",
+      "creation_event": {
+        "pool": "wXtCM1S9ViYybfXPRA2aAQiXniE4wwRLh2zTvCHci2x",
+        "reason": "creation_history_page_budget",
+        "creation_unverified": true
+      },
+      "locked_liquidity_percentage": null,
+      "reason": "creation_history_page_budget",
+      "http_attempts": 0
+    },
+    {
+      "pool": "A4EvtGYx3eiTcL1hZrQc5REWX4wreo1tsDCMgrm2aGNw",
+      "creation_event": {
+        "pool": "A4EvtGYx3eiTcL1hZrQc5REWX4wreo1tsDCMgrm2aGNw",
+        "signature": "3NYwMBvLWTY9kiTW3ZFq4iyM1M89HhDCRxvFhd3hKCu2iy98A5dUeGZvygEZ5wHzminYuPEp9pUkqpBchXruGqoc",
+        "creation_slot": 448943030,
+        "creation_time": 1789963781,
+        "event": {
+          "pool": "A4EvtGYx3eiTcL1hZrQc5REWX4wreo1tsDCMgrm2aGNw",
+          "bin_step": 20,
+          "token_x": "METAwkXcqyXKy1AtsSgJ8JiUHwGCafnZL38n3vYmeta",
+          "token_y": "METvsvVRapdj9cFLzq4Tr43xK4tAjQfwX76z3n6mWQL",
+          "outer_instruction": 0,
+          "inner_instruction": 6,
+          "raw_event_hex": "e445a52e51cb9a1db94afc7d1bd7bc6f868daca3aea3af6e4615d0c59d575769eb6774828d263a4305e0f1b6965cbb8c1400052ed35672dc321c4aedc049add08bfc3f4a3df02c18a0b0348b73d3f4041bd3052ed71e38b463ca162a580917bde71aebe058313a5dcbae869205cbeaa9fbad"
+        }
+      },
+      "locked_liquidity_percentage": null,
+      "evidence": {
+        "pool": "A4EvtGYx3eiTcL1hZrQc5REWX4wreo1tsDCMgrm2aGNw",
+        "enumeration_slot": 449021072,
+        "snapshot_slot": 449021072,
+        "activation_type": 0,
+        "positions": [
+          {
+            "position": "62nLD5VXgwvYyUC1T9DWEjmspp3CGeyGLSdmkRrF92m6",
+            "owner": "GiNN4ygnURRriZJvMi8VKvtzvPZMU7R5fd6e8QKdQ4De",
+            "operator": "11111111111111111111111111111111",
+            "lock_release_point": "0",
+            "version": "1",
+            "lower_bin_id": "1465",
+            "upper_bin_id": "1566",
+            "nonzero_shares_in_legacy_70_bins": 70,
+            "raw_data_bytes": 11704
+          }
+        ],
+        "percentage": null,
+        "reason": "withdrawal_semantics_and_all_bin_principal_not_verified"
+      },
+      "reason": "withdrawal_semantics_and_all_bin_principal_not_verified",
+      "http_attempts": 2
+    }
+  ],
+  "selection_failures": [
+    {
+      "pool": "Fmr8h9V8XXpeevF48YNM3TpQxnjvjT5suVajLRQghK9g",
+      "reason": "creation_history_page_budget"
+    },
+    {
+      "pool": "8CxoDUA2nAmGpbYQsTU5XmxKxHBTbWAoSTnRdQSFTHJ",
+      "reason": "creation_history_page_budget"
+    },
+    {
+      "pool": "DHKABvUViQiv9uDd2Sdbgk7q3aSBzU4SCsf517j7Lqap",
+      "reason": "creation_history_page_budget"
+    },
+    {
+      "pool": "HZvXjbBFLMEERjaLmZXeaoBuYmxUrzPZtjxd4sQhgVoD",
+      "reason": "creation_history_page_budget"
+    },
+    {
+      "pool": "FzYWfFzCCfN8GngEJ3MLekV4swrc13ujkHKEwqrDLQpb",
+      "reason": "creation_history_page_budget"
+    },
+    {
+      "pool": "tjtFxh8R3RP6YrNsm3iwyRUe7A3DVVQExEXjfmZy1tc",
+      "reason": "creation_history_page_budget"
+    },
+    {
+      "pool": "EfF67JFp6PaXrKU5tYBERLPBauUzMFUV3gsjSdF4751X",
+      "reason": "creation_history_page_budget"
+    },
+    {
+      "pool": "72Q1SaNJDisTsCLQnFV4YEFG3TUNEDRqXkrKEK43nqBc",
+      "reason": "creation_history_page_budget"
+    },
+    {
+      "pool": "wXtCM1S9ViYybfXPRA2aAQiXniE4wwRLh2zTvCHci2x",
+      "reason": "creation_history_page_budget"
+    }
+  ],
+  "sampling_policy": "most recent verified pool creation events; frozen before custody inspection",
+  "read_only": true,
+  "idl_sha256": "9b35628fcf9a60d1ca4abea8fe6aae93f91d1c70606292ed8a721bf39c4a6919",
+  "requests": [
+    {
+      "method": "GET",
+      "bytes": 210551,
+      "seconds": 0.309
+    },
+    {
+      "method": "GET",
+      "bytes": 56045,
+      "seconds": 0.347
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 1155,
+      "seconds": 1.054
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4937,
+      "seconds": 0.538
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 1601,
+      "seconds": 1.009
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4942,
+      "seconds": 0.586
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 482,
+      "seconds": 1.506
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4843,
+      "seconds": 0.505
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 2501,
+      "seconds": 1.058
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4946,
+      "seconds": 0.555
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 3159,
+      "seconds": 1.859
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 5115,
+      "seconds": 0.561
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 1187,
+      "seconds": 1.175
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 5115,
+      "seconds": 0.593
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 239371,
+      "seconds": 1.174
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 247701,
+      "seconds": 1.279
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 251268,
+      "seconds": 2.425
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 5703,
+      "seconds": 1.116
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4944,
+      "seconds": 0.583
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 226369,
+      "seconds": 1.103
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 234639,
+      "seconds": 2.153
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 235590,
+      "seconds": 1.878
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 224875,
+      "seconds": 2.254
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 232463,
+      "seconds": 1.416
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 235681,
+      "seconds": 1.251
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 224419,
+      "seconds": 1.161
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 223886,
+      "seconds": 1.139
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 225638,
+      "seconds": 1.223
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 15017,
+      "seconds": 1.019
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4941,
+      "seconds": 1.164
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 223935,
+      "seconds": 1.84
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 228362,
+      "seconds": 1.668
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 85912,
+      "seconds": 1.447
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4940,
+      "seconds": 0.549
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 245823,
+      "seconds": 1.195
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 247327,
+      "seconds": 1.252
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 83007,
+      "seconds": 2.641
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4947,
+      "seconds": 0.548
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 227991,
+      "seconds": 1.133
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 237330,
+      "seconds": 1.14
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 240206,
+      "seconds": 1.182
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 237307,
+      "seconds": 1.221
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 239284,
+      "seconds": 1.821
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 233048,
+      "seconds": 1.288
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 929,
+      "seconds": 1.264
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4942,
+      "seconds": 0.592
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 237644,
+      "seconds": 1.084
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 241456,
+      "seconds": 2.934
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 236985,
+      "seconds": 3.905
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 223802,
+      "seconds": 1.256
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 235975,
+      "seconds": 1.536
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 55829,
+      "seconds": 1.242
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 5186,
+      "seconds": 0.613
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 2083,
+      "seconds": 1.038
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 5084,
+      "seconds": 0.595
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 707,
+      "seconds": 1.136
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4824,
+      "seconds": 0.481
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 36553,
+      "seconds": 1.519
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 5185,
+      "seconds": 0.53
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 260,
+      "seconds": 1.239
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4937,
+      "seconds": 0.686
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 241572,
+      "seconds": 1.195
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 252820,
+      "seconds": 1.538
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 242245,
+      "seconds": 1.273
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 8561,
+      "seconds": 1.151
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4817,
+      "seconds": 1.357
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 2951,
+      "seconds": 1.392
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 5076,
+      "seconds": 0.478
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 49738,
+      "seconds": 1.382
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4945,
+      "seconds": 0.5
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 260,
+      "seconds": 1.042
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4943,
+      "seconds": 0.981
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 237214,
+      "seconds": 1.946
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 242768,
+      "seconds": 1.438
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 256645,
+      "seconds": 1.453
+    },
+    {
+      "method": "getSignaturesForAddress",
+      "bytes": 3765,
+      "seconds": 1.07
+    },
+    {
+      "method": "getTransaction",
+      "bytes": 4820,
+      "seconds": 1.96
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 421,
+      "seconds": 0.625
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 12674,
+      "seconds": 0.516
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 421,
+      "seconds": 2.831
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 12674,
+      "seconds": 0.493
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 421,
+      "seconds": 0.844
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 12674,
+      "seconds": 0.682
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 421,
+      "seconds": 0.554
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 12674,
+      "seconds": 0.515
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 421,
+      "seconds": 0.583
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 12674,
+      "seconds": 0.519
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 421,
+      "seconds": 0.556
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 12674,
+      "seconds": 0.529
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 749,
+      "seconds": 0.581
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 51146,
+      "seconds": 0.715
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 420,
+      "seconds": 0.484
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 12674,
+      "seconds": 0.508
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 421,
+      "seconds": 0.564
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 12674,
+      "seconds": 0.519
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 421,
+      "seconds": 0.589
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 12674,
+      "seconds": 0.497
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 96,
+      "seconds": 0.58
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 1684,
+      "seconds": 0.507
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 421,
+      "seconds": 0.564
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 12674,
+      "seconds": 0.512
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 96,
+      "seconds": 0.589
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 1684,
+      "seconds": 0.507
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 96,
+      "seconds": 0.588
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 1684,
+      "seconds": 0.493
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 96,
+      "seconds": 0.852
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 1684,
+      "seconds": 0.508
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 96,
+      "seconds": 0.585
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 1684,
+      "seconds": 0.618
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 96,
+      "seconds": 0.588
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 1684,
+      "seconds": 0.482
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 96,
+      "seconds": 0.5
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 1684,
+      "seconds": 0.634
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 96,
+      "seconds": 0.582
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 1684,
+      "seconds": 0.698
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 96,
+      "seconds": 0.503
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 1684,
+      "seconds": 0.496
+    },
+    {
+      "method": "getProgramAccounts",
+      "bytes": 422,
+      "seconds": 0.581
+    },
+    {
+      "method": "getMultipleAccounts",
+      "bytes": 17455,
+      "seconds": 1.192
+    }
+  ],
+  "immutable_cache_hits": 21,
+  "wall_seconds": 197.175,
+  "sampling_complete": true
+}

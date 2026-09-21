@@ -23,24 +23,37 @@ def main():
     parser.add_argument("--count", type=int, default=10)
     parser.add_argument("--manifest", type=Path, help="reuse the frozen Cetus cohort and checkpoint")
     args = parser.parse_args()
-    if not 10 <= args.count <= 30:
+    if not 1 <= args.count <= 30:
         raise ValueError("sample_count_out_of_range")
     sys.path.insert(0, str(args.legacy_dir.resolve()))
     from probe import Reader, CETUS
     from pool_first_non_evm import decode_creations, meteora_event, SOLANA
 
     class ThrottledReader(Reader):
+        def __init__(self, output):
+            super().__init__(output)
+            self.immutable_cache = {}
+            self.cache_hits = 0
+
         def request(self, url, payload=None):
+            key = hashlib.sha256((url + json.dumps(payload, sort_keys=True)).encode()).hexdigest()
+            immutable = payload is None or payload.get("method") == "getTransaction"
+            if immutable and key in self.immutable_cache:
+                self.cache_hits += 1
+                return self.immutable_cache[key]
             for attempt in range(4):
                 # Public Solana method limits are tighter than general HTTP limits.
                 time.sleep(1.5 if payload and payload.get("method") in ["getTransaction", "getProgramAccounts"] else 0.15)
                 try:
-                    return super().request(url, payload)
+                    data = super().request(url, payload)
+                    if immutable:
+                        self.immutable_cache[key] = data
+                    self.save("request_observation_" + key, {"payload": payload, "response": data})
+                    return data
                 except RuntimeError:
-                    retry = self.requests[-1].get("http_status") == 429
-                    if not retry or attempt == 3:
+                    if attempt == 3:
                         raise
-                    time.sleep(3 * (attempt + 1))
+                    time.sleep(2 ** (attempt + 1))
 
     if args.env_file:
         os.environ["MARKETHUB_ENV_FILE"] = str(args.env_file.resolve())
@@ -51,6 +64,7 @@ def main():
 
     def save():
         result["requests"] = reader.requests
+        result["immutable_cache_hits"] = reader.cache_hits
         result["wall_seconds"] = round(time.monotonic() - started, 3)
         reader.save(args.venue + "-samples", result)
 
@@ -63,6 +77,10 @@ def main():
             reader.save("meteora-sampling-idl", idl)
             result["idl_sha256"] = hashlib.sha256(json.dumps(idl, sort_keys=True).encode()).hexdigest()
             candidates = reader.request("https://dlmm.datapi.meteora.ag/pools?page_size=30&sort_by=pool_created_at:desc")["data"]
+            candidates = candidates[:args.count]
+            if len(candidates) != args.count or len({c["address"] for c in candidates}) != args.count:
+                raise RuntimeError("candidate_count_mismatch")
+            reader.save(args.venue + "-candidate-manifest", {"candidates": candidates, "selection": "latest API candidates frozen before creation and custody inspection; failures are retained"})
             manifest = []
             for candidate in candidates:
                 pool = candidate["address"]
@@ -82,18 +100,17 @@ def main():
                     events = [e for e in decode_creations(transaction) if e["pool"] == pool]
                     if len(events) != 1:
                         raise RuntimeError("creation_event_not_matched")
-                    manifest.append({"pool": pool, "signature": signature, "creation_slot": transaction["slot"], "event": events[0]})
-                    if len(manifest) == args.count:
-                        break
+                    manifest.append({"pool": pool, "signature": signature, "creation_slot": transaction["slot"], "creation_time": transaction.get("blockTime"), "event": events[0]})
                 except RuntimeError as exc:
                     result["selection_failures"].append({"pool": pool, "reason": str(exc)})
+                    manifest.append({"pool": pool, "reason": str(exc), "creation_unverified": True})
             reader.save(args.venue + "-manifest", {"venue": args.venue, "events": manifest, "candidate_source": "official index for discovery only; creation events verified by RPC"})
-            if len(manifest) < args.count:
-                raise RuntimeError("insufficient_verified_creation_events")
             for event in manifest:
                 row = {"pool": event["pool"], "creation_event": event, "locked_liquidity_percentage": None}
                 begin = len(reader.requests)
                 try:
+                    if event.get("creation_unverified"):
+                        raise RuntimeError(event["reason"])
                     evidence = meteora_event(reader, event["signature"], idl)
                     matching = [s for s in evidence["samples"] if s["pool"] == event["pool"]]
                     if len(matching) != 1:

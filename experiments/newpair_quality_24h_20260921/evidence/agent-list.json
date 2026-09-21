@@ -1,0 +1,155 @@
+{
+  "counts": {},
+  "finished_at": "2026-09-21T11:57:00.616074Z",
+  "gateway_requests": 1,
+  "pages": [
+    {
+      "filter": {},
+      "epoch": "0628de024f01d6bc5a5f7e1810804ab2",
+      "version": 1070532,
+      "timestamp": 1789991820557897,
+      "pairs": [],
+      "excludedPairs": [],
+      "coverage": [
+        {
+          "chainFamily": "evm",
+          "chain": "base",
+          "network": "mainnet",
+          "venue": "aerodrome",
+          "source": "0x5e7bb104d84c7cb9b682aac2f3d509f5f406809a",
+          "observedFrom": 1789922296605907,
+          "position": {
+            "kind": "block",
+            "number": "0",
+            "id": ""
+          },
+          "status": "live"
+        },
+        {
+          "chainFamily": "evm",
+          "chain": "base",
+          "network": "mainnet",
+          "venue": "aerodrome",
+          "source": "0xf8f2eb4940cfe7d13603dddd87f123820fc061ef",
+          "observedFrom": 0,
+          "position": {
+            "kind": "block",
+            "number": "0",
+            "id": ""
+          },
+          "status": "recovering",
+          "reason": "rpc_or_storage_unavailable"
+        },
+        {
+          "chainFamily": "evm",
+          "chain": "base",
+          "network": "mainnet",
+          "venue": "uniswap-v3",
+          "source": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+          "observedFrom": 0,
+          "position": {
+            "kind": "block",
+            "number": "0",
+            "id": ""
+          },
+          "status": "recovering",
+          "reason": "rpc_or_storage_unavailable"
+        },
+        {
+          "chainFamily": "evm",
+          "chain": "base",
+          "network": "mainnet",
+          "venue": "uniswap-v4",
+          "source": "0x498581ff718922c3f8e6a244956af099b2652b2b",
+          "observedFrom": 0,
+          "position": {
+            "kind": "block",
+            "number": "0",
+            "id": ""
+          },
+          "status": "recovering",
+          "reason": "rpc_or_storage_unavailable"
+        },
+        {
+          "chainFamily": "evm",
+          "chain": "base",
+          "network": "sepolia",
+          "venue": "uniswap-v3",
+          "source": "0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24",
+          "observedFrom": 1789913411278279,
+          "position": {
+            "kind": "block",
+            "number": "47101225",
+            "id": "0x2b226a1567f34c69111aec10925cfd4079e2b2ffcbc43a75a6c4c47782aa14c1"
+          },
+          "status": "live",
+          "reason": "history_incomplete"
+        },
+        {
+          "chainFamily": "evm",
+          "chain": "ethereum",
+          "network": "mainnet",
+          "venue": "uniswap-v3",
+          "source": "0x1f98431c8ad98523631ae4a59f267346ea31f984",
+          "observedFrom": 0,
+          "position": {
+            "kind": "block",
+            "number": "0",
+            "id": ""
+          },
+          "status": "recovering",
+          "reason": "rpc_or_storage_unavailable"
+        },
+        {
+          "chainFamily": "evm",
+          "chain": "ethereum",
+          "network": "mainnet",
+          "venue": "uniswap-v4",
+          "source": "0x000000000004444c5dc75cb358380d2e3de08a90",
+          "observedFrom": 0,
+          "position": {
+            "kind": "block",
+            "number": "0",
+            "id": ""
+          },
+          "status": "recovering",
+          "reason": "rpc_or_storage_unavailable"
+        },
+        {
+          "chainFamily": "evm",
+          "chain": "robinhood",
+          "network": "mainnet",
+          "venue": "uniswap-v3",
+          "source": "0x1f7d7550b1b028f7571e69a784071f0205fd2efa",
+          "observedFrom": 0,
+          "position": {
+            "kind": "block",
+            "number": "0",
+            "id": ""
+          },
+          "status": "recovering",
+          "reason": "rpc_or_storage_unavailable"
+        },
+        {
+          "chainFamily": "evm",
+          "chain": "robinhood",
+          "network": "mainnet",
+          "venue": "uniswap-v4",
+          "source": "0x8366a39cc670b4001a1121b8f6a443a643e40951",
+          "observedFrom": 0,
+          "position": {
+            "kind": "block",
+            "number": "0",
+            "id": ""
+          },
+          "status": "recovering",
+          "reason": "rpc_or_storage_unavailable"
+        }
+      ],
+      "truncated": false
+    }
+  ],
+  "pairs": [],
+  "selection": "all currently listed pools returned by Agent List; custody not inspected before collection",
+  "started_at": "2026-09-21T11:56:59.606503Z"
+}

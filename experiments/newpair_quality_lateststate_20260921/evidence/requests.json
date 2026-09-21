@@ -1,0 +1,1325 @@
+[
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "e587742b0fddbf67bdb6ad3071228786df9a1820affb8e55aba171428e3ca0b2",
+    "method": "eth_getBlockByNumber",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:39:20.150393+00:00",
+    "success": true,
+    "seconds": 0.317
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "50082b9502ac1ac6d0fdbb4ff100583bd46932905c80c9ba34631d11e859d6b3",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:42:47.263584+00:00",
+    "success": true,
+    "seconds": 0.313
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "8cb0059cb4809d076e6b33bbd88af590c45f3ae3e24d0c67438cb2a32e534020",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:42:47.986794+00:00",
+    "success": true,
+    "seconds": 0.419
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "b0df4fe568e5701d7b50759bcd625f186ab5a939e9a086067c1f117ce2aab680",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:42:48.821880+00:00",
+    "success": true,
+    "seconds": 0.335
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "98c90daa7803efdca305c5185eaa703c8ef80293fec0bd117c3871fae7edbbeb",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:42:49.583215+00:00",
+    "success": true,
+    "seconds": 0.42
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "c705aaea126774e02c067ee8a16278a8f3e282f27545927bfe506bc21fef2ea1",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:42:50.419197+00:00",
+    "success": true,
+    "seconds": 0.312
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "a9bc3579dd1990d12352d28f3904c1e51e574d54846ad4591eed1cdf3213c603",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:42:51.155954+00:00",
+    "success": true,
+    "seconds": 0.349
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "cc8fc51c80932bbed5d4369d2f81617c990f42a0592598242c8f10cc7ad0065d",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:42:51.930559+00:00",
+    "success": true,
+    "seconds": 0.623
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "b7024626c98a67fac905bf460c2839f4b84377886c8d852e4a73ea06e51e4fb5",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:42:52.984218+00:00",
+    "success": true,
+    "seconds": 0.344
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "80a80f07baccd4e585ab6a0a887882d738ad3a0cacc59d09015840ebe6557f60",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:42:53.760637+00:00",
+    "success": true,
+    "seconds": 0.401
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "68a856ea2bbfcd243c18acacd9bb24d8936ad07b4a05c502b60a14e07d594ee1",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:42:54.597911+00:00",
+    "http_status": 429,
+    "seconds": 0.299
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "68a856ea2bbfcd243c18acacd9bb24d8936ad07b4a05c502b60a14e07d594ee1",
+    "method": "eth_call",
+    "attempt": 2,
+    "started_utc": "2026-09-21T13:42:57.307429+00:00",
+    "http_status": 429,
+    "seconds": 0.248
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "68a856ea2bbfcd243c18acacd9bb24d8936ad07b4a05c502b60a14e07d594ee1",
+    "method": "eth_call",
+    "attempt": 3,
+    "started_utc": "2026-09-21T13:43:01.961758+00:00",
+    "success": true,
+    "seconds": 0.321
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "8eb171dd1b8888fcaa208cf6ea46e383d75d8ecac315d141462bacaf831223f8",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:02.717932+00:00",
+    "success": true,
+    "seconds": 0.324
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "bdc46756a0fc8d6cdb40a5218df4dc3db38d8261e61a010190f53b2bf4746368",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:03.495012+00:00",
+    "success": true,
+    "seconds": 0.34
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "4ec21cb532427d92466e6f4623eb00dab19f3c109a116241c151002c7f3fccf9",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:04.280181+00:00",
+    "success": true,
+    "seconds": 0.331
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "eb9010e17912a9f7202a1f5c5076a15cb9ac490a11c4e58bc73234f0cdc4760b",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:05.064336+00:00",
+    "success": true,
+    "seconds": 0.597
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "b2cef8a9e0f5c81a14fad2874792be27fe395c087d46af0f603e7090549c9b9e",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:06.113210+00:00",
+    "http_status": 429,
+    "seconds": 0.317
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "b2cef8a9e0f5c81a14fad2874792be27fe395c087d46af0f603e7090549c9b9e",
+    "method": "eth_call",
+    "attempt": 2,
+    "started_utc": "2026-09-21T13:43:08.840072+00:00",
+    "http_status": 429,
+    "seconds": 0.265
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "b2cef8a9e0f5c81a14fad2874792be27fe395c087d46af0f603e7090549c9b9e",
+    "method": "eth_call",
+    "attempt": 3,
+    "started_utc": "2026-09-21T13:43:13.507129+00:00",
+    "success": true,
+    "seconds": 0.574
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "0a11f3b35f223e8c64f4a15cf29f6c8da8318ce2c92257a25293fcbd46b54ad6",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:14.530321+00:00",
+    "success": true,
+    "seconds": 0.308
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "15209ebcdfd206c8ccb0694819b602bc261fd8b5c17448ad01ea8e239e392a4a",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:15.298452+00:00",
+    "success": true,
+    "seconds": 0.374
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "4f52be71cf4b3b2fc9dd16ccaa01b293d3f0a524eb7486d23d76bc1cd24af0a8",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:16.137353+00:00",
+    "success": true,
+    "seconds": 0.341
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "a0a6b5e551d16e59b29c3e14b5a373eb671614a913345949b506ff52cba3643c",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:16.942587+00:00",
+    "success": true,
+    "seconds": 0.319
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "0f5b77126f8d25b71378dc28df90dac9aaabb577c5ccddb31ecf26d6d73f873a",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:17.735449+00:00",
+    "http_status": 429,
+    "seconds": 0.417
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "0f5b77126f8d25b71378dc28df90dac9aaabb577c5ccddb31ecf26d6d73f873a",
+    "method": "eth_call",
+    "attempt": 2,
+    "started_utc": "2026-09-21T13:43:20.560822+00:00",
+    "success": true,
+    "seconds": 0.336
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "f04c1fd0bc4b5d8cca56e1e36a36f51cc38b61ae98fb4eda296a432a9b48051d",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:21.369214+00:00",
+    "success": true,
+    "seconds": 0.312
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "be3b318cacff901e7b27da9d3d28ec17d35de57c5578a2644166d3316578c2a5",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:22.160427+00:00",
+    "success": true,
+    "seconds": 0.338
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "084a11af54c1ded81c9782a1268a02d949605c63f1f8dd5e078deb10cadfe2be",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:22.978733+00:00",
+    "success": true,
+    "seconds": 0.335
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "d68dd257a11fb1541ddaa205c5be919c31912d9a92031a94101c7f8d7166d827",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:23.804374+00:00",
+    "success": true,
+    "seconds": 0.336
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "f7f8d1b8b4ccb7336dfc171f0a0ee72d1ee39a8ce52f5ccd87b54d3d279045fb",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:24.641012+00:00",
+    "http_status": 429,
+    "seconds": 0.363
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "f7f8d1b8b4ccb7336dfc171f0a0ee72d1ee39a8ce52f5ccd87b54d3d279045fb",
+    "method": "eth_call",
+    "attempt": 2,
+    "started_utc": "2026-09-21T13:43:27.412156+00:00",
+    "http_status": 429,
+    "seconds": 0.252
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "f7f8d1b8b4ccb7336dfc171f0a0ee72d1ee39a8ce52f5ccd87b54d3d279045fb",
+    "method": "eth_call",
+    "attempt": 3,
+    "started_utc": "2026-09-21T13:43:32.073902+00:00",
+    "success": true,
+    "seconds": 0.36
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "68b061422185f4f5ec4349cc23517d71a93e2cb1d1c1d9188bc259b67b1d0c3d",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:32.917718+00:00",
+    "success": true,
+    "seconds": 0.304
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "b6f808d50c3667eac9ab14ab48bcedb76effdcb922a550616835663afe629753",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:33.726008+00:00",
+    "success": true,
+    "seconds": 0.355
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "8c20800130ec2e3c15fce382e0fb56a664707e3d2214173830588de965c6fb94",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:34.587013+00:00",
+    "success": true,
+    "seconds": 0.302
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "95768d26b4a3f047b89a2f9d001d77bbeae486e6cb1692327b93702e963d6cb2",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:35.398575+00:00",
+    "success": true,
+    "seconds": 0.631
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "2fc1bbd7ae9c907d51bdeb326848ff80d7929efeb7608ae2fb884865d0c36226",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:36.542025+00:00",
+    "http_status": 429,
+    "seconds": 0.3
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "2fc1bbd7ae9c907d51bdeb326848ff80d7929efeb7608ae2fb884865d0c36226",
+    "method": "eth_call",
+    "attempt": 2,
+    "started_utc": "2026-09-21T13:43:39.249518+00:00",
+    "http_status": 429,
+    "seconds": 0.278
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "2fc1bbd7ae9c907d51bdeb326848ff80d7929efeb7608ae2fb884865d0c36226",
+    "method": "eth_call",
+    "attempt": 3,
+    "started_utc": "2026-09-21T13:43:43.933792+00:00",
+    "success": true,
+    "seconds": 0.321
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "5acecacbd47209dbeae508c14ba0cfa1a9010c542e0bb2210613918c6a1c2627",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:44.828274+00:00",
+    "success": true,
+    "seconds": 0.306
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "b58d39c2349d3971a3ebce75f449b1baee874c5be7033b3069f79c590d621d18",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:45.650521+00:00",
+    "success": true,
+    "seconds": 0.4
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "135ad970e83f268004f1aaad3832076cba686ef18f2d6f8eb2f2dc351604f9dd",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:46.574874+00:00",
+    "success": true,
+    "seconds": 0.293
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "757dd0a7061186364a09a0e5a62380790abbfac3ceff5eebfae338f465dc74be",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:47.386016+00:00",
+    "success": true,
+    "seconds": 0.293
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "43239499b73dc3663d58f36c91b597427ae86f51237e3360d051e9ee3e6bcd98",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:48.206934+00:00",
+    "http_status": 429,
+    "seconds": 0.263
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "43239499b73dc3663d58f36c91b597427ae86f51237e3360d051e9ee3e6bcd98",
+    "method": "eth_call",
+    "attempt": 2,
+    "started_utc": "2026-09-21T13:43:50.875823+00:00",
+    "success": true,
+    "seconds": 0.401
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "b66919b662fc79483a3cc09943aa93f9cbc2e0223917cc3d554185c8973ec06a",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:51.789733+00:00",
+    "success": true,
+    "seconds": 0.34
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "1ba9990756108c6cf1b412c6c984f2e740ed6fc80ecbd26801329b6accd4001e",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:52.662819+00:00",
+    "success": true,
+    "seconds": 0.323
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "778e698ec0a83c4ce3a7691353aaa359d0a710cdf08e31d5c83fe0a0e9b6db0e",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:53.520473+00:00",
+    "success": true,
+    "seconds": 0.385
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "7bc833829139c4835af82a9b78478908e01ff32b35197e41bad5a7c67a0f5d8e",
+    "method": "eth_getBlockByNumber",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:43:54.557231+00:00",
+    "success": true,
+    "seconds": 0.496
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "ebabccab3e9eb27de0a0eed3c8346c7fb6e02f2f21731ce982ee984435c2362a",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:44:38.106555+00:00",
+    "success": true,
+    "seconds": 0.38
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "1d570af6c3055e861aa8e847c0184d474fd975f5471781bdfb8b79ced1425fef",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:44:39.493860+00:00",
+    "success": true,
+    "seconds": 0.289
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "7d6710015fa7b8af474b4d9d0d3c169c5f7d7057f50c8e745d2b329979b1922f",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:44:40.789633+00:00",
+    "success": true,
+    "seconds": 0.335
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "4026320ea9822540be6fa37c7a8fd232d3bfdb0edd1df7eb652f744185f97754",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:44:42.130835+00:00",
+    "success": true,
+    "seconds": 0.307
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "8dde1b20e4d92bd2079ba796c6795cf8e4aaebd8f39baf55c0b04f3538a091aa",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:44:43.443388+00:00",
+    "success": true,
+    "seconds": 0.324
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "39d0ffb8e82c81a36d0be82b6f09dcc202e254d4bef1c743b239f874b41aa272",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:44:44.772911+00:00",
+    "success": true,
+    "seconds": 0.314
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "a21335c87bf4d4b01eeb6032897391d953c79ece8dfa7b2d50307955f5588a07",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:44:46.093301+00:00",
+    "success": true,
+    "seconds": 0.303
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "34150b5e6f8a48c8ccdd75d31151ffa428c03282c25e6d6db2499d30e5ccd37d",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:44:47.402453+00:00",
+    "http_status": 429,
+    "seconds": 0.272
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "34150b5e6f8a48c8ccdd75d31151ffa428c03282c25e6d6db2499d30e5ccd37d",
+    "method": "eth_call",
+    "attempt": 2,
+    "started_utc": "2026-09-21T13:44:50.686385+00:00",
+    "success": true,
+    "seconds": 0.387
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "a767b68ab88f27503ea6a80a8d252702f6fa465bd0cfe76e77f0ae54b3f985cf",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:44:52.077089+00:00",
+    "success": true,
+    "seconds": 0.321
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "9b5c2aded473546675c29b93a99df0a546693d1e77ceb638a0d75d4541f4d3ca",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:44:53.402894+00:00",
+    "success": true,
+    "seconds": 0.278
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "d39e0070b7629a1a3f5ced490e16e618c4b3efe39e4fec1b37408c28a59b22ed",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:44:54.688153+00:00",
+    "success": true,
+    "seconds": 0.299
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "fcd9e2725d226bf1d87ea9402751a4f3e662ee11781efd16501609b5c5f94036",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:44:55.993722+00:00",
+    "success": true,
+    "seconds": 0.309
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "27a2466af7dc5614ce8afd9fa806710bc5f47abce81b7e83172b70ba45a12cd7",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:44:57.304792+00:00",
+    "http_status": 429,
+    "seconds": 0.278
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "27a2466af7dc5614ce8afd9fa806710bc5f47abce81b7e83172b70ba45a12cd7",
+    "method": "eth_call",
+    "attempt": 2,
+    "started_utc": "2026-09-21T13:45:00.588162+00:00",
+    "success": true,
+    "seconds": 0.392
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "b41b56e1f3af09f97c25dcb4150ab43464c128508c801225dbe8a1cbcdc5b439",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:45:01.984422+00:00",
+    "success": true,
+    "seconds": 0.596
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "8f4cd67bf840ba3929050703383fd0aa34d7e64041d41abfcd40b8c9b43a6fc3",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:45:03.586447+00:00",
+    "success": true,
+    "seconds": 0.295
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "511a9581c5d9a04c09b71ee2e9c239a78065746400226cb225e14c1925bf7b56",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:45:04.885212+00:00",
+    "success": true,
+    "seconds": 0.343
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "540604a2724ad85cf9543c99b380e6dd5c9323cd7b657e923b500ed2749763dd",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:45:06.233911+00:00",
+    "success": true,
+    "seconds": 0.324
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "8c1feab44d70442cd500579c3f572881fc27b6a3d85106d9f0079ba8005e9e37",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:45:07.562242+00:00",
+    "http_status": 429,
+    "seconds": 0.257
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "8c1feab44d70442cd500579c3f572881fc27b6a3d85106d9f0079ba8005e9e37",
+    "method": "eth_call",
+    "attempt": 2,
+    "started_utc": "2026-09-21T13:45:10.827280+00:00",
+    "success": true,
+    "seconds": 0.471
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "6aca3966ce8998b88885d9f638b35d5cd82aab4b2e3dffba59870930bce7316e",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:45:12.307414+00:00",
+    "success": true,
+    "seconds": 0.383
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "8d97c9aba10b5adc24d3ee62d7f30325d0b8c1eceb128de6c71d370b53b65c6d",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:45:13.695973+00:00",
+    "success": true,
+    "seconds": 0.284
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "7bc833829139c4835af82a9b78478908e01ff32b35197e41bad5a7c67a0f5d8e",
+    "method": "eth_getBlockByNumber",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:45:15.691931+00:00",
+    "success": true,
+    "seconds": 0.245
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "feaf75f4dd258dbf11f4896f8d7d437d01ba0917f485d0b279be837d2996e6f9",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:46:53.379939+00:00",
+    "success": true,
+    "seconds": 0.4
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "1ea01f6ab60ead347163f7bcb42dc2ea855b15946d7f86970e185fcccc682b8d",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:46:54.786020+00:00",
+    "success": true,
+    "seconds": 0.376
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "f24cdff51fe964b49f918a4a2fd1c42f4c11db5d825e9dc3ef350d2ae8b15a71",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:46:56.168786+00:00",
+    "success": true,
+    "seconds": 0.53
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "707b3644db83a55c7c9f88e47824fa10a7be65c866eae4a721f7a568dda9d222",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:46:57.701409+00:00",
+    "success": true,
+    "seconds": 0.316
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "bf04929710d05dcca92564747666934f9474ce0e350dd2fca4e4cec4aaceafde",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:46:59.022828+00:00",
+    "success": true,
+    "seconds": 0.251
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "6cf8ecc0e5ad2b93556ee95cf630864cde06d0b6412fd1a9b3ea62aa192dd3a0",
+    "method": "eth_getCode",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:47:00.284007+00:00",
+    "success": true,
+    "seconds": 0.248
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "1b393f65d31e51456c10dc359c0490f5edc9c1334f28e17c685f0aefe506f6b1",
+    "method": "eth_getCode",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:47:01.550041+00:00",
+    "success": true,
+    "seconds": 0.524
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "28c99865102d47f2618bd8871e7f614187e4df557de6729d4a181df1a1f62fd0",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:47:03.101574+00:00",
+    "success": true,
+    "seconds": 0.483
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "7bc833829139c4835af82a9b78478908e01ff32b35197e41bad5a7c67a0f5d8e",
+    "method": "eth_getBlockByNumber",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:47:04.595402+00:00",
+    "success": true,
+    "seconds": 0.243
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "a532b99e653f4196a8b4f06074dec6de4e6ec939f3a684db6e20abd678f35358",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:47:51.457265+00:00",
+    "success": true,
+    "seconds": 0.302
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "75067c5d412676618203bffe6d0eede49d3c992b4b92c13b973a74be3839fec6",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:47:52.762123+00:00",
+    "success": true,
+    "seconds": 0.317
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "6cd108055378a2315a9d576dfe7be06502202d5a643d9710dfeb719a193c44e3",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:47:54.084538+00:00",
+    "success": true,
+    "seconds": 0.352
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "44f2b1f860cf727a2d267cf4c02906cae1e0d026de2498f89fffcff1848beb19",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:47:55.443821+00:00",
+    "success": true,
+    "seconds": 0.404
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "b25a9d2848f63afb04089388a367161e85b4e5883504dca55549a0a32475d41b",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:47:56.854988+00:00",
+    "success": true,
+    "seconds": 0.35
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "db4295b00c27e3e9243e27655b839ce0075da2359b13b1872a3284378c734aca",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:47:58.211059+00:00",
+    "http_status": 429,
+    "seconds": 0.269
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "db4295b00c27e3e9243e27655b839ce0075da2359b13b1872a3284378c734aca",
+    "method": "eth_call",
+    "attempt": 2,
+    "started_utc": "2026-09-21T13:48:01.490680+00:00",
+    "success": true,
+    "seconds": 0.431
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "5a3ef5bef40230aac1abdbc4adecbfe9db08e4e8d51030ed20fc816a7ac661a7",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:02.924902+00:00",
+    "success": true,
+    "seconds": 0.313
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "bea62f098aa66e53702c90e3a09b3f6caa474fdce354a85939eda3a2e1109eda",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:04.241360+00:00",
+    "success": true,
+    "seconds": 0.324
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "d26b7dc4f1fb746cfec6acf9ee23fc873c8c8cacbbf28d43a329c5c6ea1ab8c3",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:05.569835+00:00",
+    "success": true,
+    "seconds": 0.327
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "87f62b71938de554c37e5fe5f439595a78b9fb067ddb2879b0be40ab3fdbded3",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:06.903546+00:00",
+    "success": true,
+    "seconds": 0.327
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "4c0cbbf4785a36ce862efe042a481a862d20d65ba4664ff2cfb755df636640a4",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:08.237626+00:00",
+    "http_status": 429,
+    "seconds": 0.277
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "4c0cbbf4785a36ce862efe042a481a862d20d65ba4664ff2cfb755df636640a4",
+    "method": "eth_call",
+    "attempt": 2,
+    "started_utc": "2026-09-21T13:48:11.522116+00:00",
+    "success": true,
+    "seconds": 0.341
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "49d24a9b0bc1148446811ee1a568ae6c6f1e21e889adfc641cb22e6f6ed66271",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:12.865954+00:00",
+    "success": true,
+    "seconds": 0.32
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "655a60029e95f663519a80e9d35593df813ba2e26593dc6ba48f5f10d301c7c7",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:14.193038+00:00",
+    "success": true,
+    "seconds": 0.326
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "9301d647953fb37107f1f5dc90edb222e9fa5021a69e6fc1e3da97b3a4853952",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:15.525224+00:00",
+    "success": true,
+    "seconds": 0.28
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "18edff1bc81890fc813fbbf68fa3bd2caab85b3caf9965190810aeec9ca2ed6f",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:16.812065+00:00",
+    "success": true,
+    "seconds": 0.332
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "ef811c7322a04421e43e881ab0d7e59ac6129b0b0545b6b68b4a9c43b71f020d",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:18.151151+00:00",
+    "http_status": 429,
+    "seconds": 0.288
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "ef811c7322a04421e43e881ab0d7e59ac6129b0b0545b6b68b4a9c43b71f020d",
+    "method": "eth_call",
+    "attempt": 2,
+    "started_utc": "2026-09-21T13:48:21.447294+00:00",
+    "success": true,
+    "seconds": 0.4
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "15238ed0dc008856cedd9a790b293a9524d2aabcffcac00edac763036c9e9434",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:22.853879+00:00",
+    "success": true,
+    "seconds": 0.345
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "d9b8ae2bae70cb60beaa740f5472329cf0172aa8dbd5cf405444fea71357ce52",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:24.201594+00:00",
+    "success": true,
+    "seconds": 0.364
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "927f18bd48bd73bb9d4a321a45a1517c2f597de717e8a5d0592bda1342e1ea3a",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:25.569417+00:00",
+    "success": true,
+    "seconds": 0.445
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "7ed6db5766a170858216fca2f1754512ff3cd832162bd3cf656f50675ac41add",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:27.017392+00:00",
+    "success": true,
+    "seconds": 0.327
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "d0b76855ed7243dd7d08b3bf6f5860b1b809d3799692f19f5db8f68b12b9e924",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:28.346395+00:00",
+    "http_status": 429,
+    "seconds": 0.284
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "d0b76855ed7243dd7d08b3bf6f5860b1b809d3799692f19f5db8f68b12b9e924",
+    "method": "eth_call",
+    "attempt": 2,
+    "started_utc": "2026-09-21T13:48:31.638933+00:00",
+    "success": true,
+    "seconds": 0.387
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "4d14cbdb747714af7af8b874c6cf5a08ede492c37aba8d1127dd3ffd979ca30d",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:33.032750+00:00",
+    "success": true,
+    "seconds": 0.351
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "a871d10c1783f38f364301daa6e7d36afc033af5804672abaa43e4bd2a9d2e42",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:34.386546+00:00",
+    "success": true,
+    "seconds": 0.337
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "62568847c65fb9b0006917920a8668e80b13855ce41a018b4abfa5e9147d078c",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:35.729240+00:00",
+    "success": true,
+    "seconds": 0.354
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "1dcf74c87812c54bed472ba3f30268611255142ed2187ec354a44601395dea37",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:37.086414+00:00",
+    "success": true,
+    "seconds": 0.341
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "0fab03c2ef7c4527ae535ceea32b81889e311faa59d6ac316e1e77a83efe4531",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:38.435163+00:00",
+    "http_status": 429,
+    "seconds": 0.529
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "0fab03c2ef7c4527ae535ceea32b81889e311faa59d6ac316e1e77a83efe4531",
+    "method": "eth_call",
+    "attempt": 2,
+    "started_utc": "2026-09-21T13:48:41.970000+00:00",
+    "success": true,
+    "seconds": 0.356
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "d60aa795d53ffffeac3a84f41ef30dfbec6740ebbefe3ea28c4360199ce9e224",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:43.329622+00:00",
+    "success": true,
+    "seconds": 0.333
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "c849f5c60019cf164c48657f3abc0aece7fe56c36214f9b22863cdbd7a1eddf1",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:44.667766+00:00",
+    "success": true,
+    "seconds": 0.331
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "bade1c51dd0653e76cdc318f0ae528e2b37b77db286feea81c409f4f2adb6c5a",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:46.003157+00:00",
+    "success": true,
+    "seconds": 0.356
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "f6b4b44fd4a9060dcdaa3f1d95561d31223fa69bf355aec49f60c80001e803f3",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:47.361665+00:00",
+    "success": true,
+    "seconds": 0.412
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "72d74a4d9de23f1bd19a0777c044f40b22b1e67b3df0b978488b15733224f460",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:48.781565+00:00",
+    "http_status": 429,
+    "seconds": 0.305
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "72d74a4d9de23f1bd19a0777c044f40b22b1e67b3df0b978488b15733224f460",
+    "method": "eth_call",
+    "attempt": 2,
+    "started_utc": "2026-09-21T13:48:52.098931+00:00",
+    "success": true,
+    "seconds": 0.457
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "96972097312ca96191826329eae8e012d07cdf6908531036ea4e869e02c4fc3c",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:53.561025+00:00",
+    "success": true,
+    "seconds": 0.372
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "f8d424bbd8869e9104fa28f1fa3ce2b5399dd42b1ea50af82ea0c5e565e39237",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:54.935500+00:00",
+    "success": true,
+    "seconds": 0.452
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "36e3e170910f834e082e572ee2be49be8ea962ed4f1932cd0a5990e6a5389463",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:56.390398+00:00",
+    "success": true,
+    "seconds": 0.352
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "2e721f58cbd319d157218523ce0f25c425595f5e3746f2b38859e26be2a8235d",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:57.750123+00:00",
+    "success": true,
+    "seconds": 0.321
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "a13f6961999023aed386e232295fa9c1a3b5b5ad6bd399fd8b784e9125b8d745",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:48:59.078058+00:00",
+    "http_status": 429,
+    "seconds": 0.291
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "a13f6961999023aed386e232295fa9c1a3b5b5ad6bd399fd8b784e9125b8d745",
+    "method": "eth_call",
+    "attempt": 2,
+    "started_utc": "2026-09-21T13:49:02.381213+00:00",
+    "success": true,
+    "seconds": 0.365
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "32f50f4031797d1777914f1c56c23b43846f483677d15e713afd2e7e990602ad",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:49:03.750359+00:00",
+    "success": true,
+    "seconds": 0.325
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "28197fc2b70bb71659c27a735428ac598137ca39cb3ab91a470761b7b1ae125f",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:49:05.083236+00:00",
+    "success": true,
+    "seconds": 0.359
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "5c07812e221dcf34370ba173685e43d17b27ba2c82a836d4d57b12c6296895f8",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:49:06.445354+00:00",
+    "success": true,
+    "seconds": 0.355
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "12c40cc77a01c63c946f569f683a5a2a67969bd7b251567203600748751c279c",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:49:07.804545+00:00",
+    "success": true,
+    "seconds": 0.4
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "5c8b9104276022215032dc5fecaaf21cc2354a398ff025f635ad81310dea7ab9",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:49:09.208045+00:00",
+    "http_status": 429,
+    "seconds": 0.32
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "5c8b9104276022215032dc5fecaaf21cc2354a398ff025f635ad81310dea7ab9",
+    "method": "eth_call",
+    "attempt": 2,
+    "started_utc": "2026-09-21T13:49:12.532269+00:00",
+    "success": true,
+    "seconds": 0.387
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "e10894a25af52cc8b8eba4f82cab943b8f33058bb6203401301ce30c3083dd88",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:49:13.924272+00:00",
+    "success": true,
+    "seconds": 0.392
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "f25c4894e1ef1508b85d0ea73bf97f9692b8288c1f0aead4bbc8058c373503e6",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:49:15.323682+00:00",
+    "success": true,
+    "seconds": 0.434
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "fcff65b5ca998a44fd9c73a06027a52a9509d8461155c86d114100833981fb5b",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:49:16.760124+00:00",
+    "success": true,
+    "seconds": 0.376
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "d585a384981503e1a6d6b9f2df471d1d6554304f94d441e50f14e048891b8e73",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:49:18.142676+00:00",
+    "success": true,
+    "seconds": 0.354
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "370ead4cb415c984e20cb62aa9003fa573156a8e229e925d0f6d65da0d71104b",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:49:19.501363+00:00",
+    "http_status": 429,
+    "seconds": 0.277
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "370ead4cb415c984e20cb62aa9003fa573156a8e229e925d0f6d65da0d71104b",
+    "method": "eth_call",
+    "attempt": 2,
+    "started_utc": "2026-09-21T13:49:22.782773+00:00",
+    "success": true,
+    "seconds": 0.39
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "6022cfa92c412f5261f18aaae9fa062b8b406e0045c18c6c50930ba971a04225",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:49:24.175709+00:00",
+    "success": true,
+    "seconds": 0.307
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "cd8db90273e6b94666a8f54963c5de0c0de0c5589fc694edc4150ae5b3731d4a",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:49:25.489129+00:00",
+    "success": true,
+    "seconds": 0.442
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "d1c0e3daca60a834bf2f925e14285fe0ccf257087cd476e9cb579f38367179cf",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:49:26.938770+00:00",
+    "success": true,
+    "seconds": 0.409
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "bd7bede637700ed893ff201dea6291bca0c0933191f9aeeb92a583e7db24858e",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:49:28.350853+00:00",
+    "success": true,
+    "seconds": 0.298
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "7d3f0daa1982652d6b14b9fff93903d8795d8f90f2e65c8e02835ecf8e2f85f5",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:49:29.709370+00:00",
+    "success": true,
+    "seconds": 0.338
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "322b6bbadde5dbeea8d21fae98bd038c94001228451a666ce402b638e89fb1dc",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:49:31.049991+00:00",
+    "success": true,
+    "seconds": 0.301
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "dfe16084b5a0b68f4662e9bdcc6346e6c4dff014b87bed3b4af908150503681f",
+    "method": "eth_call",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:49:32.357422+00:00",
+    "success": true,
+    "seconds": 0.299
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "7bc833829139c4835af82a9b78478908e01ff32b35197e41bad5a7c67a0f5d8e",
+    "method": "eth_getBlockByNumber",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:49:33.713956+00:00",
+    "success": true,
+    "seconds": 0.258
+  },
+  {
+    "endpoint": "https://mainnet.base.org",
+    "key": "7bc833829139c4835af82a9b78478908e01ff32b35197e41bad5a7c67a0f5d8e",
+    "method": "eth_getBlockByNumber",
+    "attempt": 1,
+    "started_utc": "2026-09-21T13:50:57.487066+00:00",
+    "success": true,
+    "seconds": 0.288
+  }
+]

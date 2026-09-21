@@ -1,0 +1,53 @@
+{
+  "address": "0x434bccab043311a20b16021c137ea81702790f7b",
+  "block_number": 51596896,
+  "source_provider": "sourcify",
+  "runtime_matches_rpc": true,
+  "compilation": {
+    "language": "Solidity",
+    "compiler": "solc",
+    "compilerVersion": "0.7.6+commit.7338295f",
+    "compilerSettings": {
+      "viaIR": false,
+      "metadata": {
+        "bytecodeHash": "ipfs",
+        "useLiteralContent": false
+      },
+      "optimizer": {
+        "runs": 200,
+        "enabled": true
+      },
+      "evmVersion": "istanbul",
+      "remappings": [
+        "@ensdomains/=node_modules/@ensdomains/",
+        "@solidity-parser/=node_modules/solhint/node_modules/@solidity-parser/",
+        "ds-test/=lib/forge-std/lib/ds-test/src/",
+        "forge-std/=lib/forge-std/src/",
+        "hardhat/=node_modules/hardhat/",
+        "@openzeppelin/=lib/openzeppelin-contracts/",
+        "@nomad-xyz/=lib/ExcessivelySafeCall/",
+        "@uniswap/=lib/solidity-lib/",
+        "base64-sol/=lib/base64/",
+        "ExcessivelySafeCall/=lib/ExcessivelySafeCall/src/",
+        "base64/=lib/base64/",
+        "openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/",
+        "solidity-lib/=lib/solidity-lib/contracts/"
+      ]
+    },
+    "name": "CLGauge",
+    "fullyQualifiedName": "contracts/gauge/CLGauge.sol:CLGauge"
+  },
+  "source_file_sha256": "1e8dfd9540493a658c84dbe0ca0c5bddb9aa64d5ed23cb68a3481534d77b30aa",
+  "requests": [
+    {
+      "method": "eth_getCode",
+      "bytes": 26431,
+      "seconds": 0.339
+    },
+    {
+      "method": "GET",
+      "bytes": 617796,
+      "seconds": 2.309
+    }
+  ]
+}

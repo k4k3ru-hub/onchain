@@ -1,6 +1,7 @@
 package lplock
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"testing"
 	"time"
 
@@ -76,10 +78,11 @@ func TestSampleCoverageRequiresAllPositions(t *testing.T) {
 	}
 }
 
-// TestLPVenueSamplesLive freezes ten creation events before examining custody.
+// TestLPVenueSamplesLive inspects a frozen cohort or selects recent creation events before examining custody.
 //
 // Version:
 //   - 2026-09-20: Added.
+//   - 2026-09-21: Support bounded cohort sizes, cached observations and delegated EOA withdrawal probes.
 func TestLPVenueSamplesLive(t *testing.T) {
 	venue := os.Getenv("ONCHAIN_SAMPLE_VENUE")
 	if venue == "" {
@@ -88,6 +91,14 @@ func TestLPVenueSamplesLive(t *testing.T) {
 	dir := os.Getenv("ONCHAIN_SAMPLE_DIR")
 	if dir == "" {
 		t.Fatal("failed to sample venue: directory=empty")
+	}
+	count := 10
+	if value := os.Getenv("ONCHAIN_SAMPLE_COUNT"); value != "" {
+		parsed, err := strconv.Atoi(value)
+		if err != nil || parsed < 1 || parsed > 40 {
+			t.Fatal("failed to select samples: count=out_of_range")
+		}
+		count = parsed
 	}
 	factory := common.HexToAddress("0x33128a8fc17869897dce68ed026d694621f6fdfd")
 	manager := common.HexToAddress("0x03a520b32c04bf3beef7beb72e919cf822ed34f1")
@@ -113,7 +124,14 @@ func TestLPVenueSamplesLive(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer raw.Close()
-	p := &measuredRPC{sdk: sdk, raw: raw, methods: map[string]int{}}
+	p := &measuredRPC{sdk: sdk, raw: raw, methods: map[string]int{}, retryAll: true}
+	if value := os.Getenv("ONCHAIN_SAMPLE_BLOCK"); value != "" {
+		block, ok := new(big.Int).SetString(value, 10)
+		if !ok || block.Sign() <= 0 {
+			t.Fatal("failed to pin sample block: block=invalid")
+		}
+		p.pinBlock = block
+	}
 	started := time.Now()
 	write := func(name string, value any) {
 		t.Helper()
@@ -136,6 +154,24 @@ func TestLPVenueSamplesLive(t *testing.T) {
 	end := header.Number.Uint64()
 	topic := crypto.Keccak256Hash([]byte(signature))
 	var events []types.Log
+	if manifestPath := os.Getenv("ONCHAIN_SAMPLE_MANIFEST"); manifestPath != "" {
+		data, err := os.ReadFile(manifestPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var manifest struct {
+			Venue   string         `json:"venue"`
+			Factory common.Address `json:"factory"`
+			Events  []types.Log    `json:"events"`
+		}
+		if err := json.Unmarshal(data, &manifest); err != nil {
+			t.Fatal(err)
+		}
+		if manifest.Venue != venue || manifest.Factory != factory || len(manifest.Events) == 0 || len(manifest.Events) > 40 {
+			t.Fatal("failed to reuse sample manifest: manifest=invalid")
+		}
+		events = manifest.Events
+	}
 	logs := func(addresses []common.Address, topic common.Hash, from, to uint64) ([]types.Log, error) {
 		var result []types.Log
 		err := p.invoke(ctx, "eth_getLogs", func() error {
@@ -145,7 +181,7 @@ func TestLPVenueSamplesLive(t *testing.T) {
 		})
 		return result, err
 	}
-	for offset := uint64(0); offset < 400000 && len(events) < 10; offset += 2000 {
+	for offset := uint64(0); os.Getenv("ONCHAIN_SAMPLE_MANIFEST") == "" && offset < 400000 && len(events) < count; offset += 2000 {
 		batch, err := logs([]common.Address{factory}, topic, end-offset-1999, end-offset)
 		if err != nil {
 			t.Fatal(err)
@@ -158,16 +194,20 @@ func TestLPVenueSamplesLive(t *testing.T) {
 		}
 		return events[i].Index > events[j].Index
 	})
-	if len(events) < 10 {
+	if len(events) < count && os.Getenv("ONCHAIN_SAMPLE_MANIFEST") == "" {
 		write(venue+"-insufficient.json", events)
 		t.Fatal("failed to select sample: creation_events=too_short")
 	}
-	events = events[:10]
-	write(venue+"-manifest.json", map[string]any{"venue": venue, "chain": "base", "network": "mainnet", "factory": factory, "manager": manager, "block_number": end, "block_hash": header.Hash(), "block_timestamp": header.Time, "selection": "latest ten distinct creation events before custody inspection", "events": events})
-	pools := make([]common.Address, 10)
-	seenPools := make(map[common.Address]bool, 10)
+	selection := "frozen externally before custody inspection"
+	if os.Getenv("ONCHAIN_SAMPLE_MANIFEST") == "" {
+		events = events[:count]
+		selection = fmt.Sprintf("latest %d distinct creation events before custody inspection", count)
+	}
+	write(venue+"-manifest.json", map[string]any{"venue": venue, "chain": "base", "network": "mainnet", "factory": factory, "manager": manager, "block_number": end, "block_hash": header.Hash(), "block_timestamp": header.Time, "selection": selection, "events": events})
+	pools := make([]common.Address, len(events))
+	seenPools := make(map[common.Address]bool, len(events))
 	for i, e := range events {
-		if e.Removed || e.Address != factory || len(e.Topics) != 4 || len(e.Data) < 32 {
+		if e.Removed || e.Address != factory || e.BlockNumber > end || len(e.Topics) != 4 || e.Topics[0] != topic || len(e.Data) < 32 {
 			t.Fatal("failed to validate sample input: event=invalid")
 		}
 		pools[i] = common.BytesToAddress(e.Data[len(e.Data)-20:])
@@ -176,9 +216,42 @@ func TestLPVenueSamplesLive(t *testing.T) {
 		}
 		seenPools[pools[i]] = true
 	}
+	if os.Getenv("ONCHAIN_SAMPLE_DISCOVERY_ONLY") == "1" {
+		write(venue+"-discovery-metrics.json", map[string]any{"rpc_http_attempts": p.methods, "selection_count": len(events), "block_number": end})
+		return
+	}
 	mintTopic := crypto.Keccak256Hash([]byte("Mint(address,address,int24,int24,uint128,uint256,uint256)"))
 	var mints []types.Log
-	for start := events[len(events)-1].BlockNumber; start <= end; start += 2000 {
+	startBlock := events[len(events)-1].BlockNumber
+	if cachePath := os.Getenv("ONCHAIN_SAMPLE_MINT_CACHE"); cachePath != "" {
+		data, err := os.ReadFile(cachePath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var cache struct {
+			From  uint64      `json:"from_block"`
+			To    uint64      `json:"to_block"`
+			Hash  common.Hash `json:"block_hash"`
+			Mints []types.Log `json:"mints"`
+		}
+		if err := json.Unmarshal(data, &cache); err != nil {
+			t.Fatal(err)
+		}
+		if cache.From > startBlock || cache.To < startBlock || cache.To > end {
+			t.Fatal("failed to reuse mint cache: range=invalid")
+		}
+		cachedHeader, err := p.HeaderByNumber(ctx, new(big.Int).SetUint64(cache.To))
+		if err != nil || cachedHeader.Hash() != cache.Hash {
+			t.Fatal("failed to reuse mint cache: block_hash=unverified", err)
+		}
+		for _, mint := range cache.Mints {
+			if seenPools[mint.Address] && mint.BlockNumber >= startBlock && mint.BlockNumber <= cache.To && !mint.Removed {
+				mints = append(mints, mint)
+			}
+		}
+		startBlock = cache.To + 1
+	}
+	for start := startBlock; start <= end; start += 2000 {
 		to := start + 1999
 		if to > end {
 			to = end
@@ -209,7 +282,8 @@ func TestLPVenueSamplesLive(t *testing.T) {
 		}
 		return decodeWords(data, n)
 	}
-	results := make([]map[string]any, 0, 10)
+	ownerCodes := map[common.Address][]byte{}
+	results := make([]map[string]any, 0, len(events))
 	for i, event := range events {
 		pool := pools[i]
 		begin := time.Now()
@@ -238,6 +312,16 @@ func TestLPVenueSamplesLive(t *testing.T) {
 				spacing = signedTick(pairThird)
 			}
 			row["tick_spacing"] = spacing
+			mintTransactions := map[common.Hash]bool{}
+			for _, mint := range mints {
+				if mint.Address == pool && !mint.Removed && len(mint.Topics) == 4 {
+					mintTransactions[mint.TxHash] = true
+				}
+			}
+			row["mint_transaction_count"] = len(mintTransactions)
+			if len(mintTransactions) > 64 {
+				return fmt.Errorf("failed to enumerate positions: mint_transactions=too_long")
+			}
 			factoryArgs := []*big.Int{event.Topics[1].Big(), event.Topics[2].Big(), pairThird}
 			factorySig := "getPool(address,address,uint24)"
 			if protocol == clliquidity.Slipstream {
@@ -260,15 +344,6 @@ func TestLPVenueSamplesLive(t *testing.T) {
 			}
 			row["principal_token0"], row["principal_token1"] = snapshot.Amounts.Token0.String(), snapshot.Amounts.Token1.String()
 			ids := map[string]*big.Int{}
-			mintTransactions := map[common.Hash]bool{}
-			for _, mint := range mints {
-				if mint.Address == pool && !mint.Removed && len(mint.Topics) == 4 {
-					mintTransactions[mint.TxHash] = true
-				}
-			}
-			if len(mintTransactions) > 64 {
-				return fmt.Errorf("failed to enumerate positions: mint_transactions=too_long")
-			}
 			for hash := range mintTransactions {
 				r, err := receipt(hash)
 				if err != nil {
@@ -301,15 +376,25 @@ func TestLPVenueSamplesLive(t *testing.T) {
 					return err
 				}
 				position := samplePosition{ID: id.String(), Manager: manager, Owner: common.BigToAddress(owner[0]), Approved: common.BigToAddress(approval[0]), Lower: signedTick(words[5]), Upper: signedTick(words[6]), Liquidity: words[7].String(), Withdrawal: "unresolved"}
-				var code []byte
-				if err := p.invoke(ctx, "eth_getCode", func() error { var err error; code, err = raw.CodeAt(ctx, position.Owner, header.Number); return err }); err != nil {
-					return err
+				code, cached := ownerCodes[position.Owner]
+				if !cached {
+					if err := p.invoke(ctx, "eth_getCode", func() error { var err error; code, err = raw.CodeAt(ctx, position.Owner, header.Number); return err }); err != nil {
+						return err
+					}
+					ownerCodes[position.Owner] = code
 				}
 				position.CodeBytes, position.CodeHash = len(code), crypto.Keccak256Hash(code)
-				if len(code) == 0 && position.Owner != (common.Address{}) && position.Owner != common.HexToAddress("0xdead") {
+				delegated := len(code) == 23 && bytes.Equal(code[:3], []byte{0xef, 0x01, 0x00})
+				if (len(code) == 0 || delegated) && position.Owner != (common.Address{}) && position.Owner != common.HexToAddress("0xdead") {
 					data := query("decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))", id, words[7], new(big.Int), new(big.Int), new(big.Int).SetUint64(header.Time+3600))
-					if _, err := p.CallContract(ctx, ethereum.CallMsg{From: position.Owner, To: &manager, Data: data}, header.Number); err == nil {
+					if returned, err := p.CallContract(ctx, ethereum.CallMsg{From: position.Owner, To: &manager, Data: data}, header.Number); err == nil {
+						if _, err := decodeWords(returned, 2); err != nil {
+							return fmt.Errorf("failed to verify withdrawal response: %w", err)
+						}
 						position.Withdrawal = "owner_full_decrease_succeeded"
+						if delegated {
+							position.Withdrawal = "eip7702_owner_full_decrease_succeeded"
+						}
 					} else {
 						if _, e := probeRevert(err); e != nil {
 							return err
@@ -333,7 +418,7 @@ func TestLPVenueSamplesLive(t *testing.T) {
 			}
 			allOpen := true
 			for _, position := range positions {
-				if position.Withdrawal != "owner_full_decrease_succeeded" {
+				if position.Withdrawal != "owner_full_decrease_succeeded" && position.Withdrawal != "eip7702_owner_full_decrease_succeeded" {
 					allOpen = false
 				}
 			}
@@ -358,7 +443,7 @@ func TestLPVenueSamplesLive(t *testing.T) {
 		row["rpc_http_attempts"] = metrics
 		row["wall_seconds"] = time.Since(begin).Seconds()
 		results = append(results, row)
-		write(venue+"-samples.json", map[string]any{"venue": venue, "samples": results, "rpc_http_attempts": p.methods, "rate_limit_retries": p.retries, "wall_seconds": time.Since(started).Seconds(), "selection_count": 10, "block_number": end, "block_hash": header.Hash()})
+		write(venue+"-samples.json", map[string]any{"venue": venue, "samples": results, "rpc_http_attempts": p.methods, "rate_limit_retries": p.retries, "wall_seconds": time.Since(started).Seconds(), "selection_count": len(events), "block_number": end, "block_hash": header.Hash()})
 		t.Logf("venue=%s sample=%d pool=%s percentage=%v reasons=%v", venue, i+1, pool.Hex(), row["locked_liquidity_percentage"], row["reasons"])
 	}
 	after, err := p.HeaderByNumber(ctx, header.Number)
@@ -368,5 +453,5 @@ func TestLPVenueSamplesLive(t *testing.T) {
 	if after.Hash() != header.Hash() {
 		t.Fatal("failed to verify samples: block_hash=mismatch")
 	}
-	write(venue+"-samples.json", map[string]any{"venue": venue, "samples": results, "rpc_http_attempts": p.methods, "rate_limit_retries": p.retries, "wall_seconds": time.Since(started).Seconds(), "selection_count": 10, "block_number": end, "block_hash": header.Hash(), "final_block_hash_verified": true})
+	write(venue+"-samples.json", map[string]any{"venue": venue, "samples": results, "rpc_http_attempts": p.methods, "rate_limit_retries": p.retries, "wall_seconds": time.Since(started).Seconds(), "selection_count": len(events), "block_number": end, "block_hash": header.Hash(), "final_block_hash_verified": true})
 }

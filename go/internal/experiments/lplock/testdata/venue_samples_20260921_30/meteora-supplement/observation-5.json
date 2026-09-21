@@ -1,0 +1,36 @@
+{
+  "method": "getProgramAccounts",
+  "params": [
+    "LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo",
+    {
+      "encoding": "base64",
+      "commitment": "finalized",
+      "withContext": true,
+      "dataSlice": {
+        "offset": 0,
+        "length": 72
+      },
+      "filters": [
+        {
+          "memcmp": {
+            "offset": 0,
+            "bytes": "LgkNAEYaVX3"
+          }
+        },
+        {
+          "memcmp": {
+            "offset": 8,
+            "bytes": "DHKABvUViQiv9uDd2Sdbgk7q3aSBzU4SCsf517j7Lqap"
+          }
+        }
+      ]
+    }
+  ],
+  "result": {
+    "context": {
+      "slot": 449024962,
+      "apiVersion": "4.2.1"
+    },
+    "value": []
+  }
+}

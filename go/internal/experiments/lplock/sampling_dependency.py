@@ -19,9 +19,20 @@ def main():
     result = {'address': args.address, 'block_number': args.block}
     try:
         code = reader.rpc('https://mainnet.base.org', 'eth_getCode', [args.address, hex(args.block)])
-        source = reader.request('https://sourcify.dev/server/v2/contract/8453/' + args.address + '?fields=all')
-        result['runtime_matches_rpc'] = source['runtimeBytecode']['onchainBytecode'].lower() == code.lower()
-        result['compilation'] = source['compilation']
+        reader.save('dependency-runtime-' + args.address, {'block_number': args.block, 'code': code})
+        try:
+            source = reader.request('https://sourcify.dev/server/v2/contract/8453/' + args.address + '?fields=all')
+            result['source_provider'] = 'sourcify'
+            result['runtime_matches_rpc'] = source['runtimeBytecode']['onchainBytecode'].lower() == code.lower()
+            result['compilation'] = source['compilation']
+        except RuntimeError as exc:
+            result['sourcify_failure'] = str(exc)
+            source = reader.request('https://base.blockscout.com/api/v2/smart-contracts/' + args.address)
+            result['source_provider'] = 'blockscout'
+            result['runtime_matches_rpc'] = source.get('deployed_bytecode', '').lower() == code.lower()
+            result['source_available'] = bool(source.get('source_code'))
+            # A runtime match without verified source does not verify semantics.
+            result['source_verified'] = bool(source.get('is_verified') and source.get('source_code'))
         reader.save('dependency-source-' + args.address, source)
         result['source_file_sha256'] = hashlib.sha256((args.output / ('dependency-source-' + args.address + '.json')).read_bytes()).hexdigest()
     except RuntimeError as exc:

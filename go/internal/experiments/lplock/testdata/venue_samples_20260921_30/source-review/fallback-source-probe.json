@@ -1,0 +1,33 @@
+{
+  "runtime": {
+    "keys": [
+      "jsonrpc",
+      "result",
+      "id"
+    ],
+    "saved": true
+  },
+  "blockscout": {
+    "keys": [
+      "conflicting_implementations",
+      "creation_bytecode",
+      "creation_status",
+      "deployed_bytecode",
+      "implementations",
+      "proxy_type"
+    ],
+    "saved": true
+  },
+  "requests": [
+    {
+      "method": "eth_getCode",
+      "bytes": 21985,
+      "seconds": 0.243
+    },
+    {
+      "method": "GET",
+      "bytes": 22099,
+      "seconds": 0.698
+    }
+  ]
+}

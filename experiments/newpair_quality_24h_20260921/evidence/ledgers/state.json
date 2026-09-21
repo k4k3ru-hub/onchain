@@ -1,0 +1,657 @@
+[
+  {
+    "method": "eth_getBlockByNumber",
+    "request_key": "7a89c9466a0205538dee44ec302853119841fee5683c6b82d3e1f7f852790bf5",
+    "attempt": 1,
+    "response_bytes": 46563,
+    "success": true,
+    "seconds": 0.536
+  },
+  {
+    "method": "eth_call",
+    "request_key": "d8ce85b2c612751d2f7dabaf55644a07ad508a001a9787e025aaf0fa20076a99",
+    "attempt": 1,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 0.42
+  },
+  {
+    "method": "eth_call",
+    "request_key": "9b2c8c85b14cbc17f7b109083cb3764d227d60cac072386afa1897af3ba4104a",
+    "attempt": 1,
+    "response_bytes": 41959,
+    "success": true,
+    "seconds": 0.404
+  },
+  {
+    "method": "eth_call",
+    "request_key": "937fe723d64c3735f02516aa30da7718af1b1da071935088b9f30397c9a415d3",
+    "attempt": 1,
+    "response_bytes": 42215,
+    "success": true,
+    "seconds": 0.345
+  },
+  {
+    "method": "eth_call",
+    "request_key": "4ad36e2fdf65337ebcc86ea9a4fabd8682eaca0ee0d9a5ce243d47d615c094f5",
+    "attempt": 1,
+    "response_bytes": 42151,
+    "success": true,
+    "seconds": 0.355
+  },
+  {
+    "method": "eth_call",
+    "request_key": "e99bfdc7b8fba7a87098be6dceae16e41b07f285cb7cbc10747f5fdcb93a01a5",
+    "attempt": 1,
+    "response_bytes": 42151,
+    "success": true,
+    "seconds": 0.352
+  },
+  {
+    "method": "eth_call",
+    "request_key": "c1f2756a68909124defae497f446ef8c042e653becfe82519c8e99422baf321f",
+    "attempt": 1,
+    "response_bytes": 42151,
+    "success": true,
+    "seconds": 0.345
+  },
+  {
+    "method": "eth_call",
+    "request_key": "ce2e4cb7896981d646c5af9dc0492b92e1590dbdc6a8e85aa5eda7b79072adef",
+    "attempt": 1,
+    "response_bytes": 42279,
+    "success": true,
+    "seconds": 0.318
+  },
+  {
+    "method": "eth_call",
+    "request_key": "0a7985f17f8cd32f2bc0b5025d6cc4c91e02fdc7363cf08dfe95f118f2a4c178",
+    "attempt": 1,
+    "http_status": 429,
+    "seconds": 0.287
+  },
+  {
+    "method": "eth_call",
+    "request_key": "0a7985f17f8cd32f2bc0b5025d6cc4c91e02fdc7363cf08dfe95f118f2a4c178",
+    "attempt": 2,
+    "http_status": 429,
+    "seconds": 0.267
+  },
+  {
+    "method": "eth_call",
+    "request_key": "0a7985f17f8cd32f2bc0b5025d6cc4c91e02fdc7363cf08dfe95f118f2a4c178",
+    "attempt": 3,
+    "response_bytes": 41959,
+    "success": true,
+    "seconds": 0.393
+  },
+  {
+    "method": "eth_call",
+    "request_key": "651ce1b060c91edeedb2cfd82707292b4e607e895967fd0af78bc8e1f95d53f5",
+    "attempt": 1,
+    "response_bytes": 41959,
+    "success": true,
+    "seconds": 0.391
+  },
+  {
+    "method": "eth_call",
+    "request_key": "fe9bf128bb4915d3477c7371b644acc1542ba26e27f13947937383dbff10c90f",
+    "attempt": 1,
+    "response_bytes": 42151,
+    "success": true,
+    "seconds": 0.328
+  },
+  {
+    "method": "eth_call",
+    "request_key": "b7921beaf91a915c7d1ae36e29160052937565ba4eb886b734b3484715686fca",
+    "attempt": 1,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 0.466
+  },
+  {
+    "method": "eth_call",
+    "request_key": "94473d15ce19169b7fb73a308f717c46d37e6fb16f585e17bad69f45630e8427",
+    "attempt": 1,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 0.383
+  },
+  {
+    "method": "eth_call",
+    "request_key": "bf577d99b3d99b1f3b2a8d2a783a02ca42b5c8ce965ea2ef17392179310aa03e",
+    "attempt": 1,
+    "http_status": 429,
+    "seconds": 0.361
+  },
+  {
+    "method": "eth_call",
+    "request_key": "bf577d99b3d99b1f3b2a8d2a783a02ca42b5c8ce965ea2ef17392179310aa03e",
+    "attempt": 2,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 0.306
+  },
+  {
+    "method": "eth_call",
+    "request_key": "f538f99fe7bab845efce093e64ef9e5fa8a38ab3f5617e86d5f6c99a6b393c55",
+    "attempt": 1,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 0.402
+  },
+  {
+    "method": "eth_call",
+    "request_key": "5bb3505af8eb837668c92e8112717af64faa98d01d228fb685e365cec0864056",
+    "attempt": 1,
+    "response_bytes": 41959,
+    "success": true,
+    "seconds": 0.359
+  },
+  {
+    "method": "eth_call",
+    "request_key": "54372f4157e04264e8d42a04ce55e9efad382d35a45ff6b2bcd814e68c6b8a7b",
+    "attempt": 1,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 1.322
+  },
+  {
+    "method": "eth_call",
+    "request_key": "fa26f5c341031c9960ce653ed2dee7493b687c19e29aa3e5afd20dd66c1cc314",
+    "attempt": 1,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 0.412
+  },
+  {
+    "method": "eth_call",
+    "request_key": "293d0a95c3860d2e92ea2a7a29a3705bb8a1c7cf4d4f52876ef6b5809916036d",
+    "attempt": 1,
+    "http_status": 429,
+    "seconds": 0.267
+  },
+  {
+    "method": "eth_call",
+    "request_key": "293d0a95c3860d2e92ea2a7a29a3705bb8a1c7cf4d4f52876ef6b5809916036d",
+    "attempt": 2,
+    "response_bytes": 42279,
+    "success": true,
+    "seconds": 0.477
+  },
+  {
+    "method": "eth_call",
+    "request_key": "9301f55076a17be41419b6da240d98f81ba4b4def0dfd20961c4c19ea751ecd7",
+    "attempt": 1,
+    "response_bytes": 42407,
+    "success": true,
+    "seconds": 0.738
+  },
+  {
+    "method": "eth_call",
+    "request_key": "452c7084fbcad37aee6c5916a946a4e83e87019d06323867bee584c31b172025",
+    "attempt": 1,
+    "response_bytes": 42727,
+    "success": true,
+    "seconds": 0.376
+  },
+  {
+    "method": "eth_call",
+    "request_key": "4bd39f721b4ddeb19ba9c28502e2b739b674b11244243ba8ba609e72ef316085",
+    "attempt": 1,
+    "response_bytes": 42151,
+    "success": true,
+    "seconds": 0.336
+  },
+  {
+    "method": "eth_call",
+    "request_key": "8ce3673139edc7ca9d91e5c011cf63c5e9849e58d3e1bcc435d8ba64ce85443d",
+    "attempt": 1,
+    "response_bytes": 41959,
+    "success": true,
+    "seconds": 0.381
+  },
+  {
+    "method": "eth_call",
+    "request_key": "2ff23e7a879be882ef9a6fce8814f0ac36ee242bce63a4c62d0b0b71210aeb10",
+    "attempt": 1,
+    "http_status": 429,
+    "seconds": 0.272
+  },
+  {
+    "method": "eth_call",
+    "request_key": "2ff23e7a879be882ef9a6fce8814f0ac36ee242bce63a4c62d0b0b71210aeb10",
+    "attempt": 2,
+    "http_status": 429,
+    "seconds": 0.284
+  },
+  {
+    "method": "eth_call",
+    "request_key": "2ff23e7a879be882ef9a6fce8814f0ac36ee242bce63a4c62d0b0b71210aeb10",
+    "attempt": 3,
+    "response_bytes": 41959,
+    "success": true,
+    "seconds": 0.299
+  },
+  {
+    "method": "eth_call",
+    "request_key": "196fec1196270eba7ae6f4fdb8993291e4c97293bf99a1c8afd763a96ec388b3",
+    "attempt": 1,
+    "response_bytes": 41959,
+    "success": true,
+    "seconds": 0.31
+  },
+  {
+    "method": "eth_call",
+    "request_key": "ac17c08d2926c622e453e2d3e6c9695607a93807b8936e970e067244344369b5",
+    "attempt": 1,
+    "response_bytes": 41959,
+    "success": true,
+    "seconds": 0.41
+  },
+  {
+    "method": "eth_call",
+    "request_key": "ea377850fb6af43f595773dfe758e76c2042c359bd74ea8e982eb4223c3a2212",
+    "attempt": 1,
+    "response_bytes": 41959,
+    "success": true,
+    "seconds": 0.319
+  },
+  {
+    "method": "eth_call",
+    "request_key": "6b6274d3b38e23c356c999c180c67715d92fbe923770d318f7100264fadbf70d",
+    "attempt": 1,
+    "response_bytes": 41959,
+    "success": true,
+    "seconds": 0.578
+  },
+  {
+    "method": "eth_call",
+    "request_key": "7e264fd387570258d9502430f954e52fe9819d03e59a2faa43d02cf0b2218f68",
+    "attempt": 1,
+    "http_status": 429,
+    "seconds": 0.302
+  },
+  {
+    "method": "eth_call",
+    "request_key": "7e264fd387570258d9502430f954e52fe9819d03e59a2faa43d02cf0b2218f68",
+    "attempt": 2,
+    "response_bytes": 42151,
+    "success": true,
+    "seconds": 0.309
+  },
+  {
+    "method": "eth_call",
+    "request_key": "afa79af11fb72e8d42f8aa6fd1204315080112dcbcb3b236dc501a440c0f1eb4",
+    "attempt": 1,
+    "response_bytes": 42151,
+    "success": true,
+    "seconds": 0.326
+  },
+  {
+    "method": "eth_call",
+    "request_key": "fc90792d141e13e10877282669064c7b1a02de27ebb41f0e1979bb6c9e784712",
+    "attempt": 1,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 0.317
+  },
+  {
+    "method": "eth_call",
+    "request_key": "40d39a6803ed3d8b3b51ee06b4965b12a9616df3015921d9ec949fc84b3760d5",
+    "attempt": 1,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 0.565
+  },
+  {
+    "method": "eth_call",
+    "request_key": "6065461cab8738c6ca372d2896ef165b6132a1f3fa9d9f2ea196af8e8772eab2",
+    "attempt": 1,
+    "response_bytes": 41959,
+    "success": true,
+    "seconds": 0.331
+  },
+  {
+    "method": "eth_call",
+    "request_key": "9b73952ab21b30b2bfc5d83a7854860a029e01631486600920a8ccb6947026c8",
+    "attempt": 1,
+    "http_status": 429,
+    "seconds": 0.264
+  },
+  {
+    "method": "eth_call",
+    "request_key": "9b73952ab21b30b2bfc5d83a7854860a029e01631486600920a8ccb6947026c8",
+    "attempt": 2,
+    "http_status": 429,
+    "seconds": 0.278
+  },
+  {
+    "method": "eth_call",
+    "request_key": "9b73952ab21b30b2bfc5d83a7854860a029e01631486600920a8ccb6947026c8",
+    "attempt": 3,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 0.648
+  },
+  {
+    "method": "eth_call",
+    "request_key": "b704868fbdb3febe96114176a40ff3eda8fce1c937348802b56493ccb11d3437",
+    "attempt": 1,
+    "response_bytes": 41959,
+    "success": true,
+    "seconds": 0.416
+  },
+  {
+    "method": "eth_call",
+    "request_key": "710f87b040f420e3d4cedf90f06a0bc49a68dc1c7144d3591bf27038b6b3f7db",
+    "attempt": 1,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 0.394
+  },
+  {
+    "method": "eth_call",
+    "request_key": "e69c6741d9b8f2b94b0d0d6684390e4aa8fe177971636e3e7b204fca05984c37",
+    "attempt": 1,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 0.338
+  },
+  {
+    "method": "eth_call",
+    "request_key": "47dce33234cbb0cb7e91d8a54ad42630fa1cf8b08810a63620450ebab203b9b6",
+    "attempt": 1,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 0.342
+  },
+  {
+    "method": "eth_call",
+    "request_key": "831b3809a61a46933e738f039bb994b6db1e4a911ae3ae5c7c1c952eeb885f18",
+    "attempt": 1,
+    "http_status": 429,
+    "seconds": 0.33
+  },
+  {
+    "method": "eth_call",
+    "request_key": "831b3809a61a46933e738f039bb994b6db1e4a911ae3ae5c7c1c952eeb885f18",
+    "attempt": 2,
+    "response_bytes": 42343,
+    "success": true,
+    "seconds": 0.336
+  },
+  {
+    "method": "eth_call",
+    "request_key": "97786c2e93e41dd32fcd68c1d3bda79705dd3a4c8274ef21917f3ef08ade753c",
+    "attempt": 1,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 0.373
+  },
+  {
+    "method": "eth_call",
+    "request_key": "53a16db816168501f278f55370526696a4c116a1ff0c3f2794b55aa323855c21",
+    "attempt": 1,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 0.324
+  },
+  {
+    "method": "eth_call",
+    "request_key": "232a984ddfc38439e2728c1360fe056e9810e1b95ded4c8c0eaca938a8ce7c4d",
+    "attempt": 1,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 0.31
+  },
+  {
+    "method": "eth_call",
+    "request_key": "c1e9c2367b3baf4f7d2ecfd6258fa920fb531680f65210e322c607c696d53964",
+    "attempt": 1,
+    "response_bytes": 42087,
+    "success": true,
+    "seconds": 0.318
+  },
+  {
+    "method": "eth_call",
+    "request_key": "0528ab7110a4dac805852e4cb545185a0838e91ac58907435dfba4983d5635ae",
+    "attempt": 1,
+    "http_status": 429,
+    "seconds": 0.269
+  },
+  {
+    "method": "eth_call",
+    "request_key": "0528ab7110a4dac805852e4cb545185a0838e91ac58907435dfba4983d5635ae",
+    "attempt": 2,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 0.331
+  },
+  {
+    "method": "eth_call",
+    "request_key": "7ca3a7fffe0f1b93bf4048bf8e28de55353948345a03a86b4b3fe059af98cc6a",
+    "attempt": 1,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 0.31
+  },
+  {
+    "method": "eth_call",
+    "request_key": "600214bb3435da51077eb6863e5b566a01c8b5d6902eed1c6f3fbaf4cd69cdeb",
+    "attempt": 1,
+    "response_bytes": 42343,
+    "success": true,
+    "seconds": 0.318
+  },
+  {
+    "method": "eth_call",
+    "request_key": "8e825da88cb2844f579c9997f63a1afec32b666325fa6de96f0f2d6b4e9999cf",
+    "attempt": 1,
+    "response_bytes": 42343,
+    "success": true,
+    "seconds": 0.373
+  },
+  {
+    "method": "eth_call",
+    "request_key": "4312f78f77e59e873c885f9a3fdfa723c7d6424e0fd1e9dc3c801ec180086ecb",
+    "attempt": 1,
+    "response_bytes": 42535,
+    "success": true,
+    "seconds": 0.321
+  },
+  {
+    "method": "eth_call",
+    "request_key": "7c1074419165bdee33eb1a523bf47def125ccc658d77fa7837f4bfa33d996a94",
+    "attempt": 1,
+    "http_status": 429,
+    "seconds": 0.279
+  },
+  {
+    "method": "eth_call",
+    "request_key": "7c1074419165bdee33eb1a523bf47def125ccc658d77fa7837f4bfa33d996a94",
+    "attempt": 2,
+    "http_status": 429,
+    "seconds": 0.296
+  },
+  {
+    "method": "eth_call",
+    "request_key": "7c1074419165bdee33eb1a523bf47def125ccc658d77fa7837f4bfa33d996a94",
+    "attempt": 3,
+    "response_bytes": 42151,
+    "success": true,
+    "seconds": 0.419
+  },
+  {
+    "method": "eth_call",
+    "request_key": "355eee3dba356d6c48dc431168c6c3c3e1beb594f73ee6d08bcfbde28710d3eb",
+    "attempt": 1,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 0.282
+  },
+  {
+    "method": "eth_call",
+    "request_key": "e1cb69f5e18f02e8b6cca6047d08cfccc4b3c89fb3dc424fd1fb0319202fe372",
+    "attempt": 1,
+    "response_bytes": 41959,
+    "success": true,
+    "seconds": 0.322
+  },
+  {
+    "method": "eth_call",
+    "request_key": "6348f5caba1981dda4075c50b4732d3655cfed18ead943af40e575f6ce84121f",
+    "attempt": 1,
+    "response_bytes": 42727,
+    "success": true,
+    "seconds": 0.323
+  },
+  {
+    "method": "eth_call",
+    "request_key": "5884ac2c4bbd5b333cc144ee4a6c40f0b931f6f9769f6ea85646ffd51044cfcb",
+    "attempt": 1,
+    "response_bytes": 42087,
+    "success": true,
+    "seconds": 0.333
+  },
+  {
+    "method": "eth_call",
+    "request_key": "0d0472f8b05f96c6c273ad95131b68efc4b9969a389db0d563729d3184612a20",
+    "attempt": 1,
+    "http_status": 429,
+    "seconds": 0.33
+  },
+  {
+    "method": "eth_call",
+    "request_key": "0d0472f8b05f96c6c273ad95131b68efc4b9969a389db0d563729d3184612a20",
+    "attempt": 2,
+    "response_bytes": 41959,
+    "success": true,
+    "seconds": 0.319
+  },
+  {
+    "method": "eth_call",
+    "request_key": "60039d8ed75ed3c4fb34f63eb980aacaaea9f9a5fb4fa7f8299f168bb402babf",
+    "attempt": 1,
+    "response_bytes": 41959,
+    "success": true,
+    "seconds": 0.323
+  },
+  {
+    "method": "eth_call",
+    "request_key": "730d690228a4147ffe6e5139baa198cbfdc00a7058601c3ba8b1366e3cdff3a4",
+    "attempt": 1,
+    "response_bytes": 42535,
+    "success": true,
+    "seconds": 0.308
+  },
+  {
+    "method": "eth_call",
+    "request_key": "0e80b81eb2881bffc953055a7826b02d794f9432a9dd998d26a9cfaf88a2257a",
+    "attempt": 1,
+    "response_bytes": 41959,
+    "success": true,
+    "seconds": 0.599
+  },
+  {
+    "method": "eth_call",
+    "request_key": "4878c13be7b89012a5f9866f1319ab15be934ac29b3e81786164cd2a839aa86a",
+    "attempt": 1,
+    "response_bytes": 42151,
+    "success": true,
+    "seconds": 0.31
+  },
+  {
+    "method": "eth_call",
+    "request_key": "b9aab7b46b252b65979e2f8e6abc1e2136e6c3bab8521a80fe9c7924a0063892",
+    "attempt": 1,
+    "http_status": 429,
+    "seconds": 0.265
+  },
+  {
+    "method": "eth_call",
+    "request_key": "b9aab7b46b252b65979e2f8e6abc1e2136e6c3bab8521a80fe9c7924a0063892",
+    "attempt": 2,
+    "http_status": 429,
+    "seconds": 0.313
+  },
+  {
+    "method": "eth_call",
+    "request_key": "b9aab7b46b252b65979e2f8e6abc1e2136e6c3bab8521a80fe9c7924a0063892",
+    "attempt": 3,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 0.382
+  },
+  {
+    "method": "eth_call",
+    "request_key": "a8216b8b8ebbf161d0ae7a29414631391574485a16c43f8273cf56ebc1dd1eeb",
+    "attempt": 1,
+    "response_bytes": 46311,
+    "success": true,
+    "seconds": 0.434
+  },
+  {
+    "method": "eth_call",
+    "request_key": "cc35600dc528952ecc5603727dc112cecf02a5b84b8e7dc96d17513d356cd976",
+    "attempt": 1,
+    "response_bytes": 50599,
+    "success": true,
+    "seconds": 0.324
+  },
+  {
+    "method": "eth_call",
+    "request_key": "ff61aed32fef03bc14c9c6a954a88aff784819fc1e61ad6f0e2a2214b8394bec",
+    "attempt": 1,
+    "response_bytes": 50983,
+    "success": true,
+    "seconds": 0.348
+  },
+  {
+    "method": "eth_call",
+    "request_key": "a65b3d1cb0730ca6312927062593831cade6a882c7e65ddd04c333142bb2afd2",
+    "attempt": 1,
+    "response_bytes": 42919,
+    "success": true,
+    "seconds": 0.33
+  },
+  {
+    "method": "eth_call",
+    "request_key": "af2230921e22f541b8774f373cba53f52e6876fdb054a3b71bef913d8de209d1",
+    "attempt": 1,
+    "http_status": 429,
+    "seconds": 0.295
+  },
+  {
+    "method": "eth_call",
+    "request_key": "af2230921e22f541b8774f373cba53f52e6876fdb054a3b71bef913d8de209d1",
+    "attempt": 2,
+    "response_bytes": 41959,
+    "success": true,
+    "seconds": 0.431
+  },
+  {
+    "method": "eth_call",
+    "request_key": "47feccff85f4cc6f9cf815420832a5b5f99848d5cbe4019909b304000ba7bf93",
+    "attempt": 1,
+    "response_bytes": 41767,
+    "success": true,
+    "seconds": 0.333
+  },
+  {
+    "method": "eth_call",
+    "request_key": "07c581235b15e68e5339d65bb48ba0d762cad9897f7496e524cbc5f6a6808b5c",
+    "attempt": 1,
+    "response_bytes": 14311,
+    "success": true,
+    "seconds": 0.266
+  },
+  {
+    "method": "eth_getBlockByNumber",
+    "request_key": "7a89c9466a0205538dee44ec302853119841fee5683c6b82d3e1f7f852790bf5",
+    "attempt": 1,
+    "response_bytes": 46563,
+    "success": true,
+    "seconds": 0.247
+  }
+]

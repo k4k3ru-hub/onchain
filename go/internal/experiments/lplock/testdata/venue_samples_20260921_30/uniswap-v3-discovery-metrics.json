@@ -1,0 +1,8 @@
+{
+  "block_number": 51596896,
+  "rpc_http_attempts": {
+    "eth_getBlockByNumber": 1,
+    "eth_getLogs": 2
+  },
+  "selection_count": 30
+}

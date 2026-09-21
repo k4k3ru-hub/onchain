@@ -1,0 +1,34 @@
+[
+  {
+    "file": "sources/dependency-source-0x958845900983025c31cc6e0a7a65c4c9be55020c.json.gz",
+    "sha256_uncompressed": "86d4f1239c6526657db4d0325312558d3b3729828d0e65b297e40c93d5a49843",
+    "address": "0x958845900983025C31cC6e0a7A65c4C9BE55020c",
+    "chain_id": "8453",
+    "compiler": "0.8.4+commit.c7e474f2",
+    "contract": "contracts/locker/vault/MultiVault.sol:MultiVault"
+  },
+  {
+    "file": "sources/dependency-source-0x434bccab043311a20b16021c137ea81702790f7b.json.gz",
+    "sha256_uncompressed": "1e8dfd9540493a658c84dbe0ca0c5bddb9aa64d5ed23cb68a3481534d77b30aa",
+    "address": "0x434BCcaB043311a20b16021C137EA81702790f7B",
+    "chain_id": "8453",
+    "compiler": "0.7.6+commit.7338295f",
+    "contract": "contracts/gauge/CLGauge.sol:CLGauge"
+  },
+  {
+    "file": "sources/aerodrome-source-0xfe678bffc3c1c8d1de4478cc5c3e1b93ee4638ae.json.gz",
+    "sha256_uncompressed": "818618407fcb39a4b50f02631d9ca3c1037cb04d563f84a9f2b4240994c09fc9",
+    "address": "0xfe678BFfC3C1c8D1De4478CC5C3e1b93EE4638aE",
+    "chain_id": "8453",
+    "compiler": "0.8.30+commit.73712a01",
+    "contract": "src/extensions/cl/CLLocker.sol:CLLocker"
+  },
+  {
+    "file": "sources/dependency-source-0x932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c.json.gz",
+    "sha256_uncompressed": "d6e3b150882b6eb7b7fcb4a6e8a14b0ddcd181e64797b5e0a5c04fc99506e8c1",
+    "address": "0x932D0b4C00a2a33EF1EC5fE0aA981BD1A00a6f5C",
+    "chain_id": "8453",
+    "compiler": "0.8.30+commit.73712a01",
+    "contract": "src/extensions/cl/CLLockerFactory.sol:CLLockerFactory"
+  }
+]

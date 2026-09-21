@@ -43,11 +43,16 @@ type measuredRPC struct {
 	methods  map[string]int
 	retries  int
 	pinBlock *big.Int
+	retryAll bool
 }
 
 func (p *measuredRPC) invoke(ctx context.Context, method string, fn func() error) error {
 	for attempt := 0; attempt < 4; attempt++ {
-		if delay := time.Until(p.last.Add(1500 * time.Millisecond)); delay > 0 {
+		interval := 1500 * time.Millisecond
+		if p.retryAll && attempt > 0 {
+			interval = time.Duration(1<<attempt) * time.Second
+		}
+		if delay := time.Until(p.last.Add(interval)); delay > 0 {
 			timer := time.NewTimer(delay)
 			select {
 			case <-ctx.Done():
@@ -60,10 +65,15 @@ func (p *measuredRPC) invoke(ctx context.Context, method string, fn func() error
 		p.methods[method]++
 		err := fn()
 		var httpErr rpc.HTTPError
-		if !errors.As(err, &httpErr) || httpErr.StatusCode != 429 || attempt == 3 {
+		limited := errors.As(err, &httpErr) && httpErr.StatusCode == 429
+		_, revertErr := probeRevert(err)
+		retry := limited || (p.retryAll && err != nil && revertErr != nil && ctx.Err() == nil)
+		if !retry || attempt == 3 {
 			return err
 		}
-		p.retries++
+		if limited {
+			p.retries++
+		}
 	}
 	return fmt.Errorf("failed to read probe data: attempts=out_of_range")
 }

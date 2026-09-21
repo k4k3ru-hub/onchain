@@ -1,0 +1,686 @@
+{
+  "block_number": 51596896,
+  "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+  "source_sha256": "818618407fcb39a4b50f02631d9ca3c1037cb04d563f84a9f2b4240994c09fc9",
+  "compiled_sha256": "a7414259ac9ed6949c9a7ddeaaffc96bb62ec55581861653e0e59960fab17e50",
+  "custodians": [
+    {
+      "address": "0xdbf7a3d301e39871e6644a17fb1af1a3889078af",
+      "getters": {
+        "lockedUntil": "0x00000000000000000000000000000000000000000000000000000000ffffffff",
+        "owner": "0x000000000000000000000000aa96b0fef2dfdde41b4d8ad752e89249e5e689a9",
+        "factory": "0x000000000000000000000000932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "pool": "0x000000000000000000000000197a0913acc071cc6d0b5611a72b65f5838797ee",
+        "lp": "0x0000000000000000000000000000000000000000000000000000000000652625",
+        "nfpManager": "0x000000000000000000000000e1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53",
+        "staked": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "gauge": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "voter": "0x00000000000000000000000016613524e02ad97edfef371bc883f2f5d6c480a5"
+      },
+      "implementation": "0xfe678bffc3c1c8d1de4478cc5c3e1b93ee4638ae",
+      "compiled_runtime_matches": true,
+      "immutable_values_by_ast_id": {
+        "1424": "00000000000000000000000016613524e02ad97edfef371bc883f2f5d6c480a5",
+        "1427": "000000000000000000000000932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "1430": "000000000000000000000000940181a94a35a4569e4529a3cdfb74e38fd98631",
+        "1434": "0000000000000000000000000000000000000000000000000000000000000001",
+        "1437": "0000000000000000000000000000000000000000000000000000000000000000",
+        "2450": "000000000000000000000000e1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53"
+      }
+    },
+    {
+      "address": "0x79a33ab528f03f2cd9eca299ad0b491c41a92670",
+      "getters": {
+        "lockedUntil": "0x00000000000000000000000000000000000000000000000000000000ffffffff",
+        "owner": "0x000000000000000000000000aa96b0fef2dfdde41b4d8ad752e89249e5e689a9",
+        "factory": "0x000000000000000000000000932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "pool": "0x000000000000000000000000e74e3f51364ceb93f4b1263f47cf21faaa059f00",
+        "lp": "0x0000000000000000000000000000000000000000000000000000000000652609",
+        "nfpManager": "0x000000000000000000000000e1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53",
+        "staked": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "gauge": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "voter": "0x00000000000000000000000016613524e02ad97edfef371bc883f2f5d6c480a5"
+      },
+      "implementation": "0xfe678bffc3c1c8d1de4478cc5c3e1b93ee4638ae",
+      "compiled_runtime_matches": true,
+      "immutable_values_by_ast_id": {
+        "1424": "00000000000000000000000016613524e02ad97edfef371bc883f2f5d6c480a5",
+        "1427": "000000000000000000000000932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "1430": "000000000000000000000000940181a94a35a4569e4529a3cdfb74e38fd98631",
+        "1434": "0000000000000000000000000000000000000000000000000000000000000001",
+        "1437": "0000000000000000000000000000000000000000000000000000000000000000",
+        "2450": "000000000000000000000000e1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53"
+      }
+    },
+    {
+      "address": "0x37385f18c00fb0a435670d878c8a1cfa097d9505",
+      "getters": {
+        "lockedUntil": "0x00000000000000000000000000000000000000000000000000000000ffffffff",
+        "owner": "0x000000000000000000000000cc279a76b37ff631a909edbfc91b2ab3692f5e0d",
+        "factory": "0x000000000000000000000000932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "pool": "0x0000000000000000000000008c8a812ab3765286a9940114e546c109936e0ef1",
+        "lp": "0x0000000000000000000000000000000000000000000000000000000000649345",
+        "nfpManager": "0x000000000000000000000000e1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53",
+        "staked": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "gauge": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "voter": "0x00000000000000000000000016613524e02ad97edfef371bc883f2f5d6c480a5"
+      },
+      "implementation": "0xfe678bffc3c1c8d1de4478cc5c3e1b93ee4638ae",
+      "compiled_runtime_matches": true,
+      "immutable_values_by_ast_id": {
+        "1424": "00000000000000000000000016613524e02ad97edfef371bc883f2f5d6c480a5",
+        "1427": "000000000000000000000000932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "1430": "000000000000000000000000940181a94a35a4569e4529a3cdfb74e38fd98631",
+        "1434": "0000000000000000000000000000000000000000000000000000000000000001",
+        "1437": "0000000000000000000000000000000000000000000000000000000000000000",
+        "2450": "000000000000000000000000e1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53"
+      }
+    },
+    {
+      "address": "0x493dc57607d6a564e149f627a45d26cb3a20543e",
+      "getters": {
+        "lockedUntil": "0x00000000000000000000000000000000000000000000000000000000ffffffff",
+        "owner": "0x000000000000000000000000cc279a76b37ff631a909edbfc91b2ab3692f5e0d",
+        "factory": "0x000000000000000000000000932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "pool": "0x000000000000000000000000c1a3dd634d9c6e03039470c027738ae8492b127f",
+        "lp": "0x0000000000000000000000000000000000000000000000000000000000649305",
+        "nfpManager": "0x000000000000000000000000e1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53",
+        "staked": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "gauge": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "voter": "0x00000000000000000000000016613524e02ad97edfef371bc883f2f5d6c480a5"
+      },
+      "implementation": "0xfe678bffc3c1c8d1de4478cc5c3e1b93ee4638ae",
+      "compiled_runtime_matches": true,
+      "immutable_values_by_ast_id": {
+        "1424": "00000000000000000000000016613524e02ad97edfef371bc883f2f5d6c480a5",
+        "1427": "000000000000000000000000932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "1430": "000000000000000000000000940181a94a35a4569e4529a3cdfb74e38fd98631",
+        "1434": "0000000000000000000000000000000000000000000000000000000000000001",
+        "1437": "0000000000000000000000000000000000000000000000000000000000000000",
+        "2450": "000000000000000000000000e1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53"
+      }
+    },
+    {
+      "address": "0x29f4dc9fd61a76f848bb607d2862fef11ba85b7a",
+      "getters": {
+        "lockedUntil": "0x00000000000000000000000000000000000000000000000000000000ffffffff",
+        "owner": "0x000000000000000000000000fe3c928ff2081df0a6473e12f06f22fb4b21a26f",
+        "factory": "0x000000000000000000000000932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "pool": "0x000000000000000000000000b0bc332f85ab53f3a74a0e5cd713e373528ebb2e",
+        "lp": "0x0000000000000000000000000000000000000000000000000000000000645bb5",
+        "nfpManager": "0x000000000000000000000000e1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53",
+        "staked": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "gauge": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "voter": "0x00000000000000000000000016613524e02ad97edfef371bc883f2f5d6c480a5"
+      },
+      "implementation": "0xfe678bffc3c1c8d1de4478cc5c3e1b93ee4638ae",
+      "compiled_runtime_matches": true,
+      "immutable_values_by_ast_id": {
+        "1424": "00000000000000000000000016613524e02ad97edfef371bc883f2f5d6c480a5",
+        "1427": "000000000000000000000000932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "1430": "000000000000000000000000940181a94a35a4569e4529a3cdfb74e38fd98631",
+        "1434": "0000000000000000000000000000000000000000000000000000000000000001",
+        "1437": "0000000000000000000000000000000000000000000000000000000000000000",
+        "2450": "000000000000000000000000e1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53"
+      }
+    },
+    {
+      "address": "0x2b7e3decd50dbfe052d5a21ca8640ec202392485",
+      "getters": {
+        "lockedUntil": "0x00000000000000000000000000000000000000000000000000000000ffffffff",
+        "owner": "0x000000000000000000000000fe3c928ff2081df0a6473e12f06f22fb4b21a26f",
+        "factory": "0x000000000000000000000000932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "pool": "0x00000000000000000000000039f197dc4c4adea97a4fd478e2015930ac2efbf1",
+        "lp": "0x0000000000000000000000000000000000000000000000000000000000645b9d",
+        "nfpManager": "0x000000000000000000000000e1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53",
+        "staked": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "gauge": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "voter": "0x00000000000000000000000016613524e02ad97edfef371bc883f2f5d6c480a5"
+      },
+      "implementation": "0xfe678bffc3c1c8d1de4478cc5c3e1b93ee4638ae",
+      "compiled_runtime_matches": true,
+      "immutable_values_by_ast_id": {
+        "1424": "00000000000000000000000016613524e02ad97edfef371bc883f2f5d6c480a5",
+        "1427": "000000000000000000000000932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "1430": "000000000000000000000000940181a94a35a4569e4529a3cdfb74e38fd98631",
+        "1434": "0000000000000000000000000000000000000000000000000000000000000001",
+        "1437": "0000000000000000000000000000000000000000000000000000000000000000",
+        "2450": "000000000000000000000000e1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53"
+      }
+    },
+    {
+      "address": "0xc6e3368888785f7e0d32c868ec08d28fc25d6e46",
+      "getters": {
+        "lockedUntil": "0x00000000000000000000000000000000000000000000000000000000ffffffff",
+        "owner": "0x000000000000000000000000cc279a76b37ff631a909edbfc91b2ab3692f5e0d",
+        "factory": "0x000000000000000000000000932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "pool": "0x000000000000000000000000fad967620c17fea65d6b9674ba7224e822dcf3be",
+        "lp": "0x0000000000000000000000000000000000000000000000000000000000638d73",
+        "nfpManager": "0x000000000000000000000000e1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53",
+        "staked": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "gauge": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "voter": "0x00000000000000000000000016613524e02ad97edfef371bc883f2f5d6c480a5"
+      },
+      "implementation": "0xfe678bffc3c1c8d1de4478cc5c3e1b93ee4638ae",
+      "compiled_runtime_matches": true,
+      "immutable_values_by_ast_id": {
+        "1424": "00000000000000000000000016613524e02ad97edfef371bc883f2f5d6c480a5",
+        "1427": "000000000000000000000000932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "1430": "000000000000000000000000940181a94a35a4569e4529a3cdfb74e38fd98631",
+        "1434": "0000000000000000000000000000000000000000000000000000000000000001",
+        "1437": "0000000000000000000000000000000000000000000000000000000000000000",
+        "2450": "000000000000000000000000e1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53"
+      }
+    },
+    {
+      "address": "0x44404a7a1eabb807807526c0ae91b5e5c7375076",
+      "getters": {
+        "lockedUntil": "0x00000000000000000000000000000000000000000000000000000000ffffffff",
+        "owner": "0x000000000000000000000000cc279a76b37ff631a909edbfc91b2ab3692f5e0d",
+        "factory": "0x000000000000000000000000932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "pool": "0x0000000000000000000000008332e9b7d81e5f48e2fc38aef5a77972fcd65f53",
+        "lp": "0x0000000000000000000000000000000000000000000000000000000000638d0b",
+        "nfpManager": "0x000000000000000000000000e1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53",
+        "staked": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "gauge": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "voter": "0x00000000000000000000000016613524e02ad97edfef371bc883f2f5d6c480a5"
+      },
+      "implementation": "0xfe678bffc3c1c8d1de4478cc5c3e1b93ee4638ae",
+      "compiled_runtime_matches": true,
+      "immutable_values_by_ast_id": {
+        "1424": "00000000000000000000000016613524e02ad97edfef371bc883f2f5d6c480a5",
+        "1427": "000000000000000000000000932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "1430": "000000000000000000000000940181a94a35a4569e4529a3cdfb74e38fd98631",
+        "1434": "0000000000000000000000000000000000000000000000000000000000000001",
+        "1437": "0000000000000000000000000000000000000000000000000000000000000000",
+        "2450": "000000000000000000000000e1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53"
+      }
+    },
+    {
+      "address": "0xb816da32647bc966e289e64edca294b44f80a569",
+      "getters": {},
+      "implementation": "0x434bccab043311a20b16021c137ea81702790f7b",
+      "compiled_runtime_matches": false,
+      "reason": "compiled_runtime_mismatch"
+    }
+  ],
+  "automatic_lock_verdict": false,
+  "requests": [
+    {
+      "method": "eth_getBlockByNumber",
+      "bytes": 46563,
+      "seconds": 0.239
+    },
+    {
+      "method": "eth_getCode",
+      "bytes": 129,
+      "seconds": 0.245
+    },
+    {
+      "method": "eth_getCode",
+      "bytes": 21207,
+      "seconds": 0.234
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.272
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.243
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.227
+    },
+    {
+      "method": "eth_call",
+      "http_status": 429,
+      "seconds": 0.221
+    },
+    {
+      "method": "eth_call",
+      "http_status": 429,
+      "seconds": 0.234
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.226
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.229
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.226
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.239
+    },
+    {
+      "method": "eth_call",
+      "http_status": 429,
+      "seconds": 0.227
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.229
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.252
+    },
+    {
+      "method": "eth_getCode",
+      "bytes": 129,
+      "seconds": 0.221
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.229
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.328
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.305
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.271
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.22
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.239
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.243
+    },
+    {
+      "method": "eth_call",
+      "http_status": 429,
+      "seconds": 0.213
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.456
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.219
+    },
+    {
+      "method": "eth_getCode",
+      "bytes": 129,
+      "seconds": 0.246
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.253
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.247
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.227
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.248
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.221
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.223
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.276
+    },
+    {
+      "method": "eth_call",
+      "http_status": 429,
+      "seconds": 0.203
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.252
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.293
+    },
+    {
+      "method": "eth_getCode",
+      "bytes": 129,
+      "seconds": 0.25
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.22
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.252
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.228
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.231
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.374
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.24
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.281
+    },
+    {
+      "method": "eth_call",
+      "http_status": 429,
+      "seconds": 0.215
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.22
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.266
+    },
+    {
+      "method": "eth_getCode",
+      "bytes": 129,
+      "seconds": 0.23
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.266
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.217
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.24
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.248
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.243
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.221
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.228
+    },
+    {
+      "method": "eth_call",
+      "http_status": 429,
+      "seconds": 0.215
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.246
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.245
+    },
+    {
+      "method": "eth_getCode",
+      "bytes": 129,
+      "seconds": 0.275
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.24
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.238
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.244
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.339
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.296
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.243
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.233
+    },
+    {
+      "method": "eth_call",
+      "http_status": 429,
+      "seconds": 0.213
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.239
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.261
+    },
+    {
+      "method": "eth_getCode",
+      "bytes": 129,
+      "seconds": 0.245
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.231
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.267
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.79
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.55
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.22
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.241
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.234
+    },
+    {
+      "method": "eth_call",
+      "http_status": 429,
+      "seconds": 0.215
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.256
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.235
+    },
+    {
+      "method": "eth_getCode",
+      "bytes": 129,
+      "seconds": 0.234
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.226
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.248
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.262
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.258
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.225
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.242
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.235
+    },
+    {
+      "method": "eth_call",
+      "http_status": 429,
+      "seconds": 0.206
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.394
+    },
+    {
+      "method": "eth_call",
+      "bytes": 103,
+      "seconds": 0.275
+    },
+    {
+      "method": "eth_getCode",
+      "bytes": 129,
+      "seconds": 0.244
+    },
+    {
+      "method": "eth_getCode",
+      "bytes": 26431,
+      "seconds": 0.246
+    },
+    {
+      "method": "eth_getBlockByNumber",
+      "bytes": 46563,
+      "seconds": 0.262
+    }
+  ],
+  "final_block_hash_verified": true
+}

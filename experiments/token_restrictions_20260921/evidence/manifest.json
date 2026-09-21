@@ -1,0 +1,12 @@
+{
+  "chainId": 8453,
+  "forkBlock": 2032290,
+  "forkBlockHash": "0x59b04b383ee85ed69b367a224c9d9b7fed67d04a68d2c4f717975f3b02be273a",
+  "forkTimestampUTC": "2023-08-01T01:38:47+00:00",
+  "token": "0xac6b1693f547a6235a40c1559b287eab9ee4e167",
+  "tokenRuntimeSHA256": "b809a59789d2d1f58d6e08563ad286464bd0f93b1b5d499bfd8797457c445660",
+  "tokenRuntimeBytes": 12387,
+  "transactionHashScope": "local_fork_only",
+  "sourceComparisonSHA256": "08079a4fea5f958ff6c75c52f018ea29dfb27aba9ae09de26a9addaf01527ed5",
+  "coldAndWarmAssessmentsEqual": true
+}

@@ -1,0 +1,31 @@
+{
+  "block_number": 51596896,
+  "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+  "source_sha256": {
+    "CLGauge": "1e8dfd9540493a658c84dbe0ca0c5bddb9aa64d5ed23cb68a3481534d77b30aa"
+  },
+  "calls": [
+    {
+      "name": "same_position_owner_is_staker",
+      "call": {
+        "to": "0xb816da32647bc966e289e64edca294b44f80a569",
+        "data": "0xc69deec50000000000000000000000002cc76af6104a69975e16c4110fe283a09d150ba500000000000000000000000000000000000000000000000000000000006339ee"
+      },
+      "expected": {
+        "result": "0x0000000000000000000000000000000000000000000000000000000000000001"
+      }
+    },
+    {
+      "name": "gauge_owner_withdraws_nft",
+      "call": {
+        "to": "0xb816da32647bc966e289e64edca294b44f80a569",
+        "from": "0x2cc76af6104a69975e16c4110fe283a09d150ba5",
+        "data": "0x2e1a7d4d00000000000000000000000000000000000000000000000000000000006339ee"
+      },
+      "expected": {
+        "result": "0x"
+      }
+    }
+  ],
+  "mode": "candidate_staker_is_hypothesis_until_both_probes_pass"
+}

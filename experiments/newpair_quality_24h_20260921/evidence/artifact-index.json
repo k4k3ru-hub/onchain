@@ -1,0 +1,130 @@
+{
+  "quality-rpc.json.gz": {
+    "sha256": "ce3f27f2bd03a41301dbccc504c50d6744bcaaf47438880a39311b9ff7ba4469",
+    "bytes": 40397
+  },
+  "census-activity-rpc.json.gz": {
+    "sha256": "aad5f8819c9bd2878919c617f297f7aac3ae44ff11b538025b943d2e9755df72",
+    "bytes": 17271066
+  },
+  "custody-rpc.json.gz": {
+    "sha256": "507e053aee413f77a65a158ccd2fccdef3c4e5845566911ee320be86e1a5bb9d",
+    "bytes": 233167
+  },
+  "activity.json.gz": {
+    "sha256": "ffa85a7c211f2d4ccfb470cc567597ec525a0099b8f2347e6869d5d0bc31c402",
+    "bytes": 877141
+  },
+  "quality.json": {
+    "sha256": "fe8eb2d2502b2a89dc35a999e476b4b1b2fd48ce82f8532a8dce5b5724313883",
+    "bytes": 18500
+  },
+  "census.json.gz": {
+    "sha256": "0643a081bc9329efdac21ce2bf4195e3f5d7f72c60e1a42dc471f792f8d29f4e",
+    "bytes": 674132
+  },
+  "previous-summary.json": {
+    "sha256": "e276c80058be7439e7d534da7f519d64a17f817acc7f4f90054c92641a138339",
+    "bytes": 52899
+  },
+  "sources-rpc.json.gz": {
+    "sha256": "4371cc1d342f2118e16d2bfd0e848e6051cba6cbde99288d92b926a2eafbafc0",
+    "bytes": 85781
+  },
+  "state-rpc.json.gz": {
+    "sha256": "0e8bd3762129338c4859162ca9c759c54f4079ba90ebdcf934edbc43f3166b0b",
+    "bytes": 313752
+  },
+  "custody.json.gz": {
+    "sha256": "56ea79161d0be5a711fa7392e61ae0eebc0603925ce68b86b405c66b0428c164",
+    "bytes": 108044
+  },
+  "agent-list.json": {
+    "sha256": "0f2556d263b452296120362b72531b3185c4052baad14d3196ed401f6b5f5169",
+    "bytes": 4508
+  },
+  "withdrawals-rpc.json.gz": {
+    "sha256": "a161d76b67ffbe942a7723582da07be10b6bda8e5763c063348812acdfb7da54",
+    "bytes": 34605
+  },
+  "snapshot.json.gz": {
+    "sha256": "06d542ff80b178a1413dbd454287f9dd6277d8ea8356d15fe02dd0013b2436ce",
+    "bytes": 251095
+  },
+  "withdrawals.json": {
+    "sha256": "6e028a5992aad955e5b2c2bd0c5bcfabba794be2b74f8c19f07f654bdd369267",
+    "bytes": 31384
+  },
+  "ledgers/sources.json": {
+    "sha256": "32ea943d0ae52b3a083148fa77158e44d445ca4cbc00dfcce4cff14ea27c1244",
+    "bytes": 2354
+  },
+  "ledgers/state.json": {
+    "sha256": "033f695497b7a21ea1c9931048400f1d6563358b570f776ffac9eb3da8d05644",
+    "bytes": 17300
+  },
+  "ledgers/source-get.json": {
+    "sha256": "9bc60c7863bb7b8ba8316bdbd9e104f78781d3a3d27d035fc4c58ef9d222e12d",
+    "bytes": 3057
+  },
+  "ledgers/quality.json": {
+    "sha256": "85ac2d7b5c49bdc766f3bb5d2a3fb311c7b129d2ae95f34b5e6739f79c49d5a0",
+    "bytes": 4086
+  },
+  "ledgers/custody.json": {
+    "sha256": "9699481d258c49cf62d9183ff0d03ea187e3d6ae71a9c7d9d7cb372ce57a82e3",
+    "bytes": 47407
+  },
+  "ledgers/census-activity.json": {
+    "sha256": "6f7b0095d00bd7285cbebb99d7482b824ef68dd9f218595f5ca8e5c8db672322",
+    "bytes": 17656
+  },
+  "ledgers/withdrawals.json": {
+    "sha256": "5759c5c1f2e836a81232cf68f22ab4eaf5fe2594d16f1f1d9e8b1d9caa47ee1e",
+    "bytes": 18007
+  },
+  "sources/0xbdf938149ac6a781f94faa0ed45e6a0e984c6544.json.gz": {
+    "sha256": "2c9ab0077c3d793018d7c77ebe9235f145ce89efda3e6e3f5c19823893d6de15",
+    "bytes": 337042
+  },
+  "sources/0xb429d62f8f3bffb98cdb9569533ea23bf0ba28cc.json.gz": {
+    "sha256": "102aa7631336a71d77674d7fedaef75b0648e4c41d902ba8512a92755a57f8cb",
+    "bytes": 273045
+  },
+  "sources/0xd59ce43e53d69f190e15d9822fb4540dccc91178.json.gz": {
+    "sha256": "ff620e2b51cd915d6f6c2288af3bf55e349df46dba0ed971a76dd43ad3c6a6e4",
+    "bytes": 266063
+  },
+  "sources/0x6eede15fb4c8001fdadad730c5d97b47f3185da6.json.gz": {
+    "sha256": "44529a708d438a187c113ca1f8b363f2f1b380d4ab09906bfaca452311e800a6",
+    "bytes": 66821
+  },
+  "sources/0x7c5f5a4bbd8fd63184577525326123b519429bdc.json.gz": {
+    "sha256": "cc77991f12f8eaf63077466fd94fb6556a118745ced6c3815a8923962cf5fe67",
+    "bytes": 469551
+  },
+  "sources/0xd88f6bdd765313cafa5888c177c325e2c3abf2d2.json.gz": {
+    "sha256": "a25cc62dae99f4f138f813b86152cba9f41faaee488efb7f0a30b44871dac509",
+    "bytes": 12326
+  },
+  "sources/0xffa37784d619f228d8b379d287a4d7282e500762.json.gz": {
+    "sha256": "d93786ce4f4b822b1f05a5ec9b1433754ee65bac7c64fe36e7794fcbda3884d6",
+    "bytes": 86298
+  },
+  "sources/0x0469a4bd3724dc86c9542f4694c976da13c450c0.json.gz": {
+    "sha256": "0ae4ee2816c300c68dc982da57140997d54a9e5ba8cba7d8ab820e7a08240789",
+    "bytes": 317542
+  },
+  "sources/0x5f980dcfc4c0fa3911554cf5ab288ed0eb13dba3.json.gz": {
+    "sha256": "82f694904e66a253284afd691c351b749510a6eb0d6f82013d046dd168fecdb2",
+    "bytes": 187892
+  },
+  "sources/0xcd1680d26922fcd9cabfbb8a56ba40c333fd842a.json.gz": {
+    "sha256": "38e5b126478de2ee104431116c7409674274f00e033ac282517e1f63b54f952d",
+    "bytes": 89463
+  },
+  "sources/0x8b7176d5d0bba63765cfb2709d67c0a4f5f44c23.json.gz": {
+    "sha256": "4221416b1fbbd881e3e60d8736ddf43291c02e5575a4d37ac8011332cb9fc2ca",
+    "bytes": 6865
+  }
+}

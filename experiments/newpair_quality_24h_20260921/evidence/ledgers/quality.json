@@ -1,0 +1,154 @@
+[
+  {
+    "method": "eth_getBlockByNumber",
+    "request_key": "7a89c9466a0205538dee44ec302853119841fee5683c6b82d3e1f7f852790bf5",
+    "attempt": 1,
+    "response_bytes": 46563,
+    "success": true,
+    "seconds": 0.264
+  },
+  {
+    "method": "eth_call",
+    "request_key": "c9b8e8e8629cf1c965c0c09b4a27d90490ad18ffcee1f90906c876079f1d6035",
+    "attempt": 1,
+    "response_bytes": 487,
+    "success": true,
+    "seconds": 0.268
+  },
+  {
+    "method": "eth_call",
+    "request_key": "39523a242f2f5eb87f4c0946683c31cc52a60b3b42c35b12b409d990fcb7a297",
+    "attempt": 1,
+    "response_bytes": 679,
+    "success": true,
+    "seconds": 0.299
+  },
+  {
+    "method": "eth_getBlockByNumber",
+    "request_key": "7a89c9466a0205538dee44ec302853119841fee5683c6b82d3e1f7f852790bf5",
+    "attempt": 1,
+    "response_bytes": 46563,
+    "success": true,
+    "seconds": 0.287
+  },
+  {
+    "method": "eth_call",
+    "request_key": "173b434db51a864a5fb4298b8e2c594ebdc7d1d709ab0562b3d808a299d1ebe5",
+    "attempt": 1,
+    "response_bytes": 1063,
+    "success": true,
+    "seconds": 0.247
+  },
+  {
+    "method": "eth_getCode",
+    "request_key": "312e2fef87dd0812d040addb25042f3502223a746c278938ccaa673fe12f2438",
+    "attempt": 1,
+    "response_bytes": 20325,
+    "success": true,
+    "seconds": 0.25
+  },
+  {
+    "method": "eth_getCode",
+    "request_key": "6c1ce1b7940e32b3d48a0596e50ec68ae1db01f0f0118ea13ba76365b59c1600",
+    "attempt": 1,
+    "response_bytes": 7183,
+    "success": true,
+    "seconds": 0.225
+  },
+  {
+    "method": "eth_getCode",
+    "request_key": "32fc7068bafe83a7f34adba3bcfdd7ec8fa86731abaf9272d3e24269a8f61b77",
+    "attempt": 1,
+    "response_bytes": 7183,
+    "success": true,
+    "seconds": 0.338
+  },
+  {
+    "method": "eth_getCode",
+    "request_key": "ae53e7a32f8f78d4f4ced65a227c8fc55302d353c9a66c1f3ef0cdbef23b2f6d",
+    "attempt": 1,
+    "response_bytes": 7183,
+    "success": true,
+    "seconds": 0.222
+  },
+  {
+    "method": "eth_getCode",
+    "request_key": "b6699046857abda4ea35a1f220f1008b3dc5cfa176443deb4b3e03ca6642f326",
+    "attempt": 1,
+    "response_bytes": 7183,
+    "success": true,
+    "seconds": 0.241
+  },
+  {
+    "method": "eth_getCode",
+    "request_key": "1fa354cca129de75e8ab86a92b1e083170179d6318dde0294da0aa00f64adff7",
+    "attempt": 1,
+    "response_bytes": 7183,
+    "success": true,
+    "seconds": 0.245
+  },
+  {
+    "method": "eth_getCode",
+    "request_key": "3d26ee1d0dd5364efc57869edc5a1b0e535f41843113c5eb4685905e8e7d3a24",
+    "attempt": 1,
+    "response_bytes": 7183,
+    "success": true,
+    "seconds": 0.249
+  },
+  {
+    "method": "eth_getCode",
+    "request_key": "c19edc5f56fd61f7ef4d4e1546bb93391b31e863a60c86636a5afda8fd8b3ae6",
+    "attempt": 1,
+    "response_bytes": 7183,
+    "success": true,
+    "seconds": 0.233
+  },
+  {
+    "method": "eth_getCode",
+    "request_key": "eea62ddf4e5199e90c6547aad71adff9db516290d89463cdc877eb9c8781e074",
+    "attempt": 1,
+    "response_bytes": 7183,
+    "success": true,
+    "seconds": 0.224
+  },
+  {
+    "method": "eth_getCode",
+    "request_key": "3cfa4555debb90fbb1a4af179e08c4dde0c9cd75662f204af22abd141090b3d8",
+    "attempt": 1,
+    "response_bytes": 7183,
+    "success": true,
+    "seconds": 0.475
+  },
+  {
+    "method": "eth_getBlockByNumber",
+    "request_key": "7a89c9466a0205538dee44ec302853119841fee5683c6b82d3e1f7f852790bf5",
+    "attempt": 1,
+    "response_bytes": 46563,
+    "success": true,
+    "seconds": 0.251
+  },
+  {
+    "method": "eth_getBlockByNumber",
+    "request_key": "7a89c9466a0205538dee44ec302853119841fee5683c6b82d3e1f7f852790bf5",
+    "attempt": 1,
+    "response_bytes": 46563,
+    "success": true,
+    "seconds": 1.117
+  },
+  {
+    "method": "eth_call",
+    "request_key": "41e43f792806b7daefc4a70fa57ead518957d0b9fdd3c53f32c8968fda58f48e",
+    "attempt": 1,
+    "response_bytes": 5543,
+    "success": true,
+    "seconds": 0.305
+  },
+  {
+    "method": "eth_getBlockByNumber",
+    "request_key": "7a89c9466a0205538dee44ec302853119841fee5683c6b82d3e1f7f852790bf5",
+    "attempt": 1,
+    "response_bytes": 46563,
+    "success": true,
+    "seconds": 0.236
+  }
+]

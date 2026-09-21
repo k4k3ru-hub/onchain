@@ -1,0 +1,1550 @@
+{
+  "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+  "block_number": 51596896,
+  "final_block_hash_verified": true,
+  "rate_limit_retries": 97,
+  "rpc_http_attempts": {
+    "eth_call": 335,
+    "eth_getBlockByNumber": 62,
+    "eth_getCode": 18,
+    "eth_getLogs": 2,
+    "eth_getTransactionReceipt": 18
+  },
+  "samples": [
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000004200000000000000000000000000000000000006",
+          "0x000000000000000000000000c7f9ab710f98ba8bd3c7568ddc1e69afac58d286",
+          "0x0000000000000000000000000000000000000000000000000000000000000bb8"
+        ],
+        "data": "0x000000000000000000000000000000000000000000000000000000000000003c00000000000000000000000081f3bd2ff7147a6fd779fe749f4bcc82c802c060",
+        "blockNumber": "0x31348ba",
+        "transactionHash": "0x8ea4d01ad31ae583ff78edbe8a4826c6b74a3b0df04b10f184bd4ccc0320db45",
+        "transactionIndex": "0x94",
+        "blockHash": "0x7154501f654bb887a965bc56ef378edb13c0671d5be0d1daf67f210c45a43ad8",
+        "blockTimestamp": "0x6ab0ee57",
+        "logIndex": "0x21d",
+        "removed": false
+      },
+      "locked_liquidity_percentage": "0",
+      "mint_transaction_count": 1,
+      "pool": "0x81f3bD2fF7147a6Fd779fe749f4Bcc82C802C060",
+      "positions": [
+        {
+          "token_id": "6059166",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xd267c90681d10a45180ae8f84e958ecfa4fa63b8",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": -885000,
+          "upper": 885000,
+          "liquidity": "7071067811865475244008",
+          "owner_code_hash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "owner_code_bytes": 0,
+          "withdrawal_assessment": "owner_full_decrease_succeeded"
+        }
+      ],
+      "principal_token0": "5000001992199417570",
+      "principal_token1": "9999996015602751542774834",
+      "reasons": [],
+      "rpc_http_attempts": {
+        "eth_call": 8,
+        "eth_getBlockByNumber": 2,
+        "eth_getCode": 1,
+        "eth_getTransactionReceipt": 1
+      },
+      "tick_spacing": 60,
+      "wall_seconds": 18.00502025
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+          "0x000000000000000000000000b2000000000000000000001ec2f7d2aea54ecc7e",
+          "0x0000000000000000000000000000000000000000000000000000000000000bb8"
+        ],
+        "data": "0x000000000000000000000000000000000000000000000000000000000000003c0000000000000000000000001deab828f8364876009fbd733d6c671095396ad6",
+        "blockNumber": "0x31345ed",
+        "transactionHash": "0x53f436f1ef353e396c847d9e1661de1b1947cda438df2a6d676bbd891d1482a4",
+        "transactionIndex": "0xc2",
+        "blockHash": "0xc66ee38fbf3b801d4adc43706f41d24109de562b434a343c84e698dc76740fcf",
+        "blockTimestamp": "0x6ab0e8bd",
+        "logIndex": "0x2cd",
+        "removed": false
+      },
+      "locked_liquidity_percentage": "0",
+      "mint_transaction_count": 1,
+      "pool": "0x1dEAb828f8364876009fbD733D6c671095396AD6",
+      "positions": [
+        {
+          "token_id": "6058867",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0x034ae79309d850dfc1648dbc9f12e750ce85d4a6",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 331560,
+          "upper": 345420,
+          "liquidity": "7620372693585",
+          "owner_code_hash": "0x6194ac0f48d1bef1b0960da4dc4ef347fcffea92b6780cc028d3a5f5374211af",
+          "owner_code_bytes": 23,
+          "withdrawal_assessment": "eip7702_owner_full_decrease_succeeded"
+        }
+      ],
+      "principal_token0": "99999",
+      "principal_token1": "49794089735803815771",
+      "reasons": [],
+      "rpc_http_attempts": {
+        "eth_call": 8,
+        "eth_getBlockByNumber": 2,
+        "eth_getCode": 1,
+        "eth_getTransactionReceipt": 1
+      },
+      "tick_spacing": 60,
+      "wall_seconds": 17.969806125
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000000055f7cc07c584d27cb5c951cf3d64b5431a9372",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c800000000000000000000000013a3bee2cacdebc8b0ac2830c83591e0d1f4dde4",
+        "blockNumber": "0x31345dd",
+        "transactionHash": "0x2d2049658d4999dcfe79e21fe40879abd67e311ae900bd18e88d7bb5bdb6445f",
+        "transactionIndex": "0x23",
+        "blockHash": "0x33ff57e97e1c552af45632167680f58b5f7d10e1c0e52ec690daa209b71bdba5",
+        "blockTimestamp": "0x6ab0e89d",
+        "logIndex": "0x7b",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0x13A3bEe2CaCDebc8B0Ac2830C83591e0D1f4dDe4",
+      "positions": [
+        {
+          "token_id": "6058859",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xe8d392b8196bc7e854983b90b983cb78e2614991",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "15546084534396004626095120340",
+          "owner_code_hash": "0x1c29cbe126b1502eab121ad25bb9a9a850298ad342c3b3c2579f34a5bebfafdb",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "153139430944519873392779873",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 7,
+        "eth_getBlockByNumber": 2,
+        "eth_getCode": 1,
+        "eth_getTransactionReceipt": 1
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 16.539436417
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x00000000000000000000000001fc31f73cee0afd071291264f197bceac20ae35",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c80000000000000000000000000ccd9736ea0420f79f250a3e805fcb4e16a0273c",
+        "blockNumber": "0x313458a",
+        "transactionHash": "0x3cf75255c2ac16bc0c7c0146246ef30030862cf1e8c7d6be898eba178d851616",
+        "transactionIndex": "0x59",
+        "blockHash": "0xca0f279506722689eea2e330b4ebce7d3289848f76c815221b633d5daf69820d",
+        "blockTimestamp": "0x6ab0e7f7",
+        "logIndex": "0x110",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0x0CcD9736ea0420F79f250A3E805FCB4E16A0273C",
+      "positions": [
+        {
+          "token_id": "6058836",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0x5255b4526e7e96f86ac383645f8fb52698e2f10f",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": -400,
+          "upper": -200,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0xfc5fb81157de65cba1e2fa80de2f3c1e106067688739ebbde1ea4be5ac9791ee",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "0",
+      "principal_token1": "994999999999999999",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 7,
+        "eth_getBlockByNumber": 2,
+        "eth_getCode": 1,
+        "eth_getTransactionReceipt": 1
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 16.49753825
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x00000000000000000000000099daeec17d804155ee67960084051848f72f5a61",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c800000000000000000000000096192a9007e5660dd0a5db39e9b73b34307a54c0",
+        "blockNumber": "0x3134589",
+        "transactionHash": "0xeeb9916168dae963a65ce55bc0ab3aa1b78253f158d75be01e204a535f8f3d2c",
+        "transactionIndex": "0x77",
+        "blockHash": "0x9f69759c29a010352926e8e3feb2a1968deb6a3464cf02e27a85b4ac0bc9e3bc",
+        "blockTimestamp": "0x6ab0e7f5",
+        "logIndex": "0x17c",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0x96192A9007e5660Dd0A5DB39e9B73B34307A54c0",
+      "positions": [
+        {
+          "token_id": "6058835",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xc5161535c8734829e3cd93c62b32f05120e0d751",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0x84837abe7e0cd7e7f525ead19dd7278d2526977c78295d5f7593ef1a67d5d1ad",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 8,
+        "eth_getBlockByNumber": 2,
+        "eth_getCode": 1,
+        "eth_getTransactionReceipt": 1
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 18.015882917
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x000000000000000000000000a287b27ebbe1dc9266d0951cce88284d8d433d37",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c80000000000000000000000007354219c00d667f46b0870364b697596faa239c1",
+        "blockNumber": "0x3134588",
+        "transactionHash": "0x23a82544b3bb8c2185671e70848100364d164f8aedabc4ca1751ecf881eb12c9",
+        "transactionIndex": "0xea",
+        "blockHash": "0xf97404003370d2115994e57d033a585bb9b4a4e8dd1c37c19bbfd0738cfee4c9",
+        "blockTimestamp": "0x6ab0e7f3",
+        "logIndex": "0x308",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0x7354219c00D667f46b0870364b697596FAA239c1",
+      "positions": [
+        {
+          "token_id": "6058833",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xd7fd3dba163862b6c171a436287efdd27260869e",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0x50a9789f22a461b6f688486c116b9c2296cb95b2fa4c031a1cad6f6c7fe918c0",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 9,
+        "eth_getBlockByNumber": 2,
+        "eth_getCode": 1,
+        "eth_getTransactionReceipt": 1
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 20.006808625
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x00000000000000000000000062ba1ab18d08250a8ca651167454a707f3d67e3e",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c80000000000000000000000003a4f5914ea26bb7d3111f063f99c34155840ef72",
+        "blockNumber": "0x3134588",
+        "transactionHash": "0x23a82544b3bb8c2185671e70848100364d164f8aedabc4ca1751ecf881eb12c9",
+        "transactionIndex": "0xea",
+        "blockHash": "0xf97404003370d2115994e57d033a585bb9b4a4e8dd1c37c19bbfd0738cfee4c9",
+        "blockTimestamp": "0x6ab0e7f3",
+        "logIndex": "0x302",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0x3A4f5914EA26bb7d3111F063f99c34155840EF72",
+      "positions": [
+        {
+          "token_id": "6058832",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xd7fd3dba163862b6c171a436287efdd27260869e",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0x50a9789f22a461b6f688486c116b9c2296cb95b2fa4c031a1cad6f6c7fe918c0",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 9,
+        "eth_getBlockByNumber": 2
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 16.993557
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x0000000000000000000000007f44ae69c4f59ae09c5180c1fbd749bd91e748c8",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c80000000000000000000000001b804c10821884b90db03233a91eafec3ddbdff5",
+        "blockNumber": "0x3134587",
+        "transactionHash": "0xf5d46e27ae5c6f6daf0faaf952860b1249b89b51b1a2325931b86cea93853013",
+        "transactionIndex": "0x9f",
+        "blockHash": "0x6ac036f33d2b2270174d487ebf6c5814cfcfa0a503b3d9f24b5d67d7e7525db7",
+        "blockTimestamp": "0x6ab0e7f1",
+        "logIndex": "0x1f7",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0x1b804C10821884B90DB03233a91EAfEC3dDbdFF5",
+      "positions": [
+        {
+          "token_id": "6058831",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xd00dce903bb55135688139324775f711457b1b9e",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0xc4c674ac2507b55a5b62fe84747ecf2ca1a668b7110bb10211ed878f68bb440a",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 8,
+        "eth_getBlockByNumber": 2,
+        "eth_getCode": 1,
+        "eth_getTransactionReceipt": 1
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 18.046643416
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x000000000000000000000000cfea90bf627c3ca5622f804b6aaf1727899161f5",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c8000000000000000000000000d26dc9e38692aea3f37d7637249a4afbc1e1c7a2",
+        "blockNumber": "0x3134587",
+        "transactionHash": "0xf5d46e27ae5c6f6daf0faaf952860b1249b89b51b1a2325931b86cea93853013",
+        "transactionIndex": "0x9f",
+        "blockHash": "0x6ac036f33d2b2270174d487ebf6c5814cfcfa0a503b3d9f24b5d67d7e7525db7",
+        "blockTimestamp": "0x6ab0e7f1",
+        "logIndex": "0x1f1",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0xD26DC9E38692aEa3F37D7637249a4aFbC1e1C7a2",
+      "positions": [
+        {
+          "token_id": "6058830",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xd00dce903bb55135688139324775f711457b1b9e",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0xc4c674ac2507b55a5b62fe84747ecf2ca1a668b7110bb10211ed878f68bb440a",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 8,
+        "eth_getBlockByNumber": 2
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 14.973978833
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x000000000000000000000000d0a10fa31019fe19a259d47223943e09d79464da",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c800000000000000000000000018fbd9aeef91e2a244074e03365cdb692bb7bbba",
+        "blockNumber": "0x3134586",
+        "transactionHash": "0xbbb828db1d40b8e76b90cb7300404086544b32257c451313c89fb907a71386c8",
+        "transactionIndex": "0x27",
+        "blockHash": "0xcd694cd467d638eb8d864a2c22f54bce1eb0dad37315bd1824121306cbb03b1e",
+        "blockTimestamp": "0x6ab0e7ef",
+        "logIndex": "0xfe",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0x18fbD9aEef91e2a244074e03365cdB692bB7bBba",
+      "positions": [
+        {
+          "token_id": "6058829",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xa84cd883cabf730359f8b26e94cc0e928bdca218",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0x7712eb129abadaad844434c6597c8ec6344f668771ac28a5298443099e2105a8",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 15,
+        "eth_getBlockByNumber": 2,
+        "eth_getCode": 1,
+        "eth_getTransactionReceipt": 1
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 38.014337541
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x000000000000000000000000451b931da50f5eec77a41c6f426bdad202c14027",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c8000000000000000000000000af747ab7dda260500ab57223b2726263c259a5a1",
+        "blockNumber": "0x3134586",
+        "transactionHash": "0xbbb828db1d40b8e76b90cb7300404086544b32257c451313c89fb907a71386c8",
+        "transactionIndex": "0x27",
+        "blockHash": "0xcd694cd467d638eb8d864a2c22f54bce1eb0dad37315bd1824121306cbb03b1e",
+        "blockTimestamp": "0x6ab0e7ef",
+        "logIndex": "0xf8",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0xAf747AB7dDA260500aB57223B2726263C259a5a1",
+      "positions": [
+        {
+          "token_id": "6058828",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xa84cd883cabf730359f8b26e94cc0e928bdca218",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": -400,
+          "upper": -200,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0x7712eb129abadaad844434c6597c8ec6344f668771ac28a5298443099e2105a8",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "0",
+      "principal_token1": "994999999999999999",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 13,
+        "eth_getBlockByNumber": 2
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 29.008311792
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x0000000000000000000000007066216df74dcd9041d1aee3b99847bffcf4c0dc",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c8000000000000000000000000da41652493293a4d7d166c4b1c3736664efcd0e8",
+        "blockNumber": "0x3134584",
+        "transactionHash": "0x89a60961844ddae5377438a62492f040391819678f1cdbfc0cd14bfeb49132ef",
+        "transactionIndex": "0xcc",
+        "blockHash": "0x14166a55684332a162831d0050212102d764f220b00b11511f73ad40c546d5a3",
+        "blockTimestamp": "0x6ab0e7eb",
+        "logIndex": "0x2bc",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0xDa41652493293a4D7D166C4b1c3736664EfCD0E8",
+      "positions": [
+        {
+          "token_id": "6058827",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0x1376af47b570e3001ae6a845235d199ceabefbd0",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0x1631e52efef5bfa797024196b4a22d4d57e80f10a80f43ee4058971df3f80852",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 16,
+        "eth_getBlockByNumber": 2,
+        "eth_getCode": 1,
+        "eth_getTransactionReceipt": 1
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 42.026254541
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x00000000000000000000000044e25bbd26276ebe75a6cc386d28486a32bccb2c",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c8000000000000000000000000adbe2f44ac34b6a9b7a2deb0822080f79c9f46b2",
+        "blockNumber": "0x3134584",
+        "transactionHash": "0x89a60961844ddae5377438a62492f040391819678f1cdbfc0cd14bfeb49132ef",
+        "transactionIndex": "0xcc",
+        "blockHash": "0x14166a55684332a162831d0050212102d764f220b00b11511f73ad40c546d5a3",
+        "blockTimestamp": "0x6ab0e7eb",
+        "logIndex": "0x2b6",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0xADbe2F44ac34b6a9B7a2DEb0822080f79c9F46B2",
+      "positions": [
+        {
+          "token_id": "6058826",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0x1376af47b570e3001ae6a845235d199ceabefbd0",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": -400,
+          "upper": -200,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0x1631e52efef5bfa797024196b4a22d4d57e80f10a80f43ee4058971df3f80852",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "0",
+      "principal_token1": "994999999999999999",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 9,
+        "eth_getBlockByNumber": 2
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 17.039067542
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x000000000000000000000000e0a7b5e2f766d4ec0df0ff1aca9314d703e15bfb",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c8000000000000000000000000a94ef708fc567c86eebb2549b7d7dd537ee1a442",
+        "blockNumber": "0x3134583",
+        "transactionHash": "0x7e5e145652386d985c141dde869e9903ba0d37509b1bb380866948f3ea89e874",
+        "transactionIndex": "0x38",
+        "blockHash": "0x4f0d61df7cdf3885c0bad0d423caf1c98e213cf7b488df94f0739ae3870e24a7",
+        "blockTimestamp": "0x6ab0e7e9",
+        "logIndex": "0xff",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0xa94Ef708Fc567c86eEbb2549b7D7Dd537Ee1A442",
+      "positions": [
+        {
+          "token_id": "6058823",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0x577632f2b9b0335a94e67a33e925faa416b2c545",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0x2c283dbf672646286a7ec3ccd9de9f8617699fb27c3cddb5177b3d913287e407",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 8,
+        "eth_getBlockByNumber": 2,
+        "eth_getCode": 1,
+        "eth_getTransactionReceipt": 1
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 17.971393125
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x00000000000000000000000037a2c9ea89b917290edea472c9050dd1c185eaa8",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c800000000000000000000000069360e0650a7e29f45f00bd80945e45f2a11c1ec",
+        "blockNumber": "0x3134583",
+        "transactionHash": "0x7e5e145652386d985c141dde869e9903ba0d37509b1bb380866948f3ea89e874",
+        "transactionIndex": "0x38",
+        "blockHash": "0x4f0d61df7cdf3885c0bad0d423caf1c98e213cf7b488df94f0739ae3870e24a7",
+        "blockTimestamp": "0x6ab0e7e9",
+        "logIndex": "0xf9",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0x69360e0650A7E29F45F00bD80945E45f2A11C1ec",
+      "positions": [
+        {
+          "token_id": "6058822",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0x577632f2b9b0335a94e67a33e925faa416b2c545",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": -400,
+          "upper": -200,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0x2c283dbf672646286a7ec3ccd9de9f8617699fb27c3cddb5177b3d913287e407",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "0",
+      "principal_token1": "994999999999999999",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 8,
+        "eth_getBlockByNumber": 2
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 15.06444275
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005a518892ac4dd57c6c4af9d66e9a2f1923cc70e6",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c800000000000000000000000074604863d835aacc6ade9296c26d9c6235cba761",
+        "blockNumber": "0x3134581",
+        "transactionHash": "0xac74cd5fd51f81a48c2448db9f3a07085cc1fa87cec7ace7784b98f3194b2896",
+        "transactionIndex": "0x42",
+        "blockHash": "0xfa7f62ad2f11ae72f15bd35e5c7fed424a32632a6433d2b0c34ee674b23bf26f",
+        "blockTimestamp": "0x6ab0e7e5",
+        "logIndex": "0xdf",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0x74604863d835aacc6adE9296C26d9C6235cba761",
+      "positions": [
+        {
+          "token_id": "6058821",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xf639519f5c99d187abf6b1ceeed714cb5f09ed55",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": -400,
+          "upper": -200,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0x6b79866e913be3daefd87456f4eab35826a9815efeab98579a7701928f0a922f",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "0",
+      "principal_token1": "994999999999999999",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 8,
+        "eth_getBlockByNumber": 2,
+        "eth_getCode": 1,
+        "eth_getTransactionReceipt": 1
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 17.962312
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x0000000000000000000000008abf188f966aa1f5425d1343779302a95fcfa4c0",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c80000000000000000000000003072754ba262dab6a6a60b8dacc05cef31be71b3",
+        "blockNumber": "0x3134581",
+        "transactionHash": "0xac74cd5fd51f81a48c2448db9f3a07085cc1fa87cec7ace7784b98f3194b2896",
+        "transactionIndex": "0x42",
+        "blockHash": "0xfa7f62ad2f11ae72f15bd35e5c7fed424a32632a6433d2b0c34ee674b23bf26f",
+        "blockTimestamp": "0x6ab0e7e5",
+        "logIndex": "0xd9",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0x3072754Ba262Dab6a6A60B8dAcC05cEf31bE71b3",
+      "positions": [
+        {
+          "token_id": "6058820",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xf639519f5c99d187abf6b1ceeed714cb5f09ed55",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0x6b79866e913be3daefd87456f4eab35826a9815efeab98579a7701928f0a922f",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 10,
+        "eth_getBlockByNumber": 2
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 21.025738667
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x000000000000000000000000b8bc51d4859b43add5d621cdbc4380ddf30dcafd",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c800000000000000000000000090c5eb9ff14642f88f7988e4d89315cba8e4d0f0",
+        "blockNumber": "0x313457f",
+        "transactionHash": "0x6def320dd900058f5edeec559ff9a38b87f8f8c0a21aee4afd9b1d88e237c92f",
+        "transactionIndex": "0x98",
+        "blockHash": "0x82d05af96b36c8913e7b72bd65477d90253b9c39b2e8a31f8eeb62d208c0a3b5",
+        "blockTimestamp": "0x6ab0e7e1",
+        "logIndex": "0x209",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0x90C5eB9Ff14642F88f7988e4D89315cBA8E4D0F0",
+      "positions": [
+        {
+          "token_id": "6058818",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xae61c98deb522ae92297479becfa65fe6147041b",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0xff2f5ecd7c1e0517c74c67c53507bc89390986cbb5b742ff9fd562cc31e138a8",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 13,
+        "eth_getBlockByNumber": 2,
+        "eth_getCode": 1,
+        "eth_getTransactionReceipt": 1
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 31.99815625
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x0000000000000000000000009250a68c06862097b4d240e7587c08ac0704a1b1",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c80000000000000000000000000a2550cc975a059cc5e974bb9e8f8b0a57e5defd",
+        "blockNumber": "0x313457f",
+        "transactionHash": "0x6def320dd900058f5edeec559ff9a38b87f8f8c0a21aee4afd9b1d88e237c92f",
+        "transactionIndex": "0x98",
+        "blockHash": "0x82d05af96b36c8913e7b72bd65477d90253b9c39b2e8a31f8eeb62d208c0a3b5",
+        "blockTimestamp": "0x6ab0e7e1",
+        "logIndex": "0x203",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0x0A2550Cc975a059Cc5E974Bb9e8F8b0A57e5DEFd",
+      "positions": [
+        {
+          "token_id": "6058817",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xae61c98deb522ae92297479becfa65fe6147041b",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0xff2f5ecd7c1e0517c74c67c53507bc89390986cbb5b742ff9fd562cc31e138a8",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 16,
+        "eth_getBlockByNumber": 2
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 39.0666085
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x000000000000000000000000fb9a1f9ccff6aad91592a70214e5d11196f7ca90",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c8000000000000000000000000180a3dc86f251fd068a38aa6cf9b9bcd024efb9c",
+        "blockNumber": "0x313457e",
+        "transactionHash": "0xb7ba1b4b85df6d80e795b101e66b90a65a8f38bbc235a0618f7719b5fd35b13c",
+        "transactionIndex": "0xf4",
+        "blockHash": "0xe246fb13af3645c86463c9d9c26b58a88d321e7135d432906dfb7643158c7114",
+        "blockTimestamp": "0x6ab0e7df",
+        "logIndex": "0x30f",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0x180A3dC86F251fd068a38AA6cF9B9bcD024Efb9c",
+      "positions": [
+        {
+          "token_id": "6058816",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xa2a1310a411f604198fcb4651be60f36191373f0",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0xf3f4ceb03fa29a3bd49853ca9d2f10b414d8faba243a7db397dfc0fea7a1742f",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 16,
+        "eth_getBlockByNumber": 2,
+        "eth_getCode": 1,
+        "eth_getTransactionReceipt": 1
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 41.991255459
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x000000000000000000000000ddc4037218ffa8d0b3f569afec2fdcef76b8d381",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c8000000000000000000000000b5d04a0542077b5b0e651f0c78e70962bd805f2d",
+        "blockNumber": "0x313457e",
+        "transactionHash": "0xb7ba1b4b85df6d80e795b101e66b90a65a8f38bbc235a0618f7719b5fd35b13c",
+        "transactionIndex": "0xf4",
+        "blockHash": "0xe246fb13af3645c86463c9d9c26b58a88d321e7135d432906dfb7643158c7114",
+        "blockTimestamp": "0x6ab0e7df",
+        "logIndex": "0x309",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0xb5d04A0542077B5b0e651f0c78e70962BD805F2d",
+      "positions": [
+        {
+          "token_id": "6058815",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xa2a1310a411f604198fcb4651be60f36191373f0",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0xf3f4ceb03fa29a3bd49853ca9d2f10b414d8faba243a7db397dfc0fea7a1742f",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 16,
+        "eth_getBlockByNumber": 2
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 38.983534625
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x000000000000000000000000fe5c0bb41c60213817891eae75a16302302a2cb2",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c8000000000000000000000000a43439d1b022ec43d5e266acad011e3017677547",
+        "blockNumber": "0x313457d",
+        "transactionHash": "0x1e50b8716e89a5b22fcc8d1c2c03a572617485586d7338b37aaeb875b826f156",
+        "transactionIndex": "0x74",
+        "blockHash": "0x565d6e34767e5c69720631a9e0bdf63af9358fd65ca45d04e7ceeee6f345b0bd",
+        "blockTimestamp": "0x6ab0e7dd",
+        "logIndex": "0x1db",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0xa43439d1b022ec43D5e266aCaD011E3017677547",
+      "positions": [
+        {
+          "token_id": "6058814",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xa69c7fee247e1d3dd61c48d6387ae206be0bf89e",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0x57efbeee29de49e930a41ccc680f221e0411f403beeed5f322dd878916135a10",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 13,
+        "eth_getBlockByNumber": 2,
+        "eth_getCode": 1,
+        "eth_getTransactionReceipt": 1
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 32.049463208
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x000000000000000000000000fe1fa70b78b6bc709cee1b190fcf4c68ba322f55",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c8000000000000000000000000e42155554f488892e28a3701eab2399db2cc5219",
+        "blockNumber": "0x313457d",
+        "transactionHash": "0x1e50b8716e89a5b22fcc8d1c2c03a572617485586d7338b37aaeb875b826f156",
+        "transactionIndex": "0x74",
+        "blockHash": "0x565d6e34767e5c69720631a9e0bdf63af9358fd65ca45d04e7ceeee6f345b0bd",
+        "blockTimestamp": "0x6ab0e7dd",
+        "logIndex": "0x1d5",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0xE42155554f488892e28A3701eab2399dB2Cc5219",
+      "positions": [
+        {
+          "token_id": "6058813",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xa69c7fee247e1d3dd61c48d6387ae206be0bf89e",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0x57efbeee29de49e930a41ccc680f221e0411f403beeed5f322dd878916135a10",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 13,
+        "eth_getBlockByNumber": 2
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 29.05098575
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000004ab7d98f20825163204479d7e16553d3a4cf33c2",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c800000000000000000000000055bfe144ac42be4d651fe7f863244db119ea0a25",
+        "blockNumber": "0x313457c",
+        "transactionHash": "0xf1e5f5e187f6f4920f7c59998540d4fdb28b59c091dc51606b011dd7181ccaac",
+        "transactionIndex": "0xa3",
+        "blockHash": "0xc9710306c499b6989c028c9169c5b3f3faf69390bdc69ad6ab8e4a729d7c934c",
+        "blockTimestamp": "0x6ab0e7db",
+        "logIndex": "0x2d7",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0x55Bfe144AC42be4D651FE7f863244Db119EA0A25",
+      "positions": [
+        {
+          "token_id": "6058812",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0x547121c02fbef380631364181472b5b649718b83",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": -400,
+          "upper": -200,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0xb0d1412d4a1d5981b7421bb1e2b99fe2a81d8765ed81548168421225050487e9",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "0",
+      "principal_token1": "994999999999999999",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 12,
+        "eth_getBlockByNumber": 2,
+        "eth_getCode": 1,
+        "eth_getTransactionReceipt": 1
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 27.985852458
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x000000000000000000000000d1e6f3f0a7f40d5412f7471875879381441bf722",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c80000000000000000000000009a6a853c2db8eb8d8dfe144a0ffcfe709a35cdda",
+        "blockNumber": "0x313457c",
+        "transactionHash": "0xf1e5f5e187f6f4920f7c59998540d4fdb28b59c091dc51606b011dd7181ccaac",
+        "transactionIndex": "0xa3",
+        "blockHash": "0xc9710306c499b6989c028c9169c5b3f3faf69390bdc69ad6ab8e4a729d7c934c",
+        "blockTimestamp": "0x6ab0e7db",
+        "logIndex": "0x2d1",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0x9A6a853c2DB8eb8D8dFE144a0fFCfE709a35cDda",
+      "positions": [
+        {
+          "token_id": "6058811",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0x547121c02fbef380631364181472b5b649718b83",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0xb0d1412d4a1d5981b7421bb1e2b99fe2a81d8765ed81548168421225050487e9",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 14,
+        "eth_getBlockByNumber": 2
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 33.001346625
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x000000000000000000000000a5dfb61c12b0d4572a31800713dffc89cd655c21",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c8000000000000000000000000aee5f24c193652ec1c5ae1a96f52b8cb4a55e4ba",
+        "blockNumber": "0x313457b",
+        "transactionHash": "0x7b681d6d7f7a328894d6b5fde161ced9868474319ff1dd18ce71e267ce6a6407",
+        "transactionIndex": "0x24",
+        "blockHash": "0x3557310cfcd0207039860ed81cba75147080a3e30e76c3d938c838f0e630eba1",
+        "blockTimestamp": "0x6ab0e7d9",
+        "logIndex": "0x79",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0xAee5f24C193652eC1c5ae1a96f52b8Cb4a55e4Ba",
+      "positions": [
+        {
+          "token_id": "6058810",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0x545851811c07942a68fa1c3d2ee345812308ae20",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0x1999087f951c9acf9200e2fea1b354e04aa4b12867a61b17e7918276ee34fc44",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 12,
+        "eth_getBlockByNumber": 2,
+        "eth_getCode": 1,
+        "eth_getTransactionReceipt": 1
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 27.977055916
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x0000000000000000000000009950abfc34f8a049200ce8708d23314e00cc9ee0",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c80000000000000000000000007f5db09a67357e51092ccd222737e5b0c09370e2",
+        "blockNumber": "0x313457b",
+        "transactionHash": "0x7b681d6d7f7a328894d6b5fde161ced9868474319ff1dd18ce71e267ce6a6407",
+        "transactionIndex": "0x24",
+        "blockHash": "0x3557310cfcd0207039860ed81cba75147080a3e30e76c3d938c838f0e630eba1",
+        "blockTimestamp": "0x6ab0e7d9",
+        "logIndex": "0x73",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0x7F5DB09A67357E51092CCd222737e5B0c09370e2",
+      "positions": [
+        {
+          "token_id": "6058809",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0x545851811c07942a68fa1c3d2ee345812308ae20",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0x1999087f951c9acf9200e2fea1b354e04aa4b12867a61b17e7918276ee34fc44",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 13,
+        "eth_getBlockByNumber": 2
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 29.000298208
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x000000000000000000000000dc2f09852c4fe405a6dcf54d65aebcb7afb8f61b",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c80000000000000000000000005b188c047cad2aee119e45906cf3da925631664f",
+        "blockNumber": "0x3134579",
+        "transactionHash": "0x156e3bba0a43b904c570e2d272498be0b0035514be43742f39cd264536bf2767",
+        "transactionIndex": "0xdb",
+        "blockHash": "0x4b51d12bce3a2d6e2c4dc02688179f84097fef2930285af16fa5a86ad2003675",
+        "blockTimestamp": "0x6ab0e7d5",
+        "logIndex": "0x262",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0x5b188C047Cad2aee119e45906cf3DA925631664F",
+      "positions": [
+        {
+          "token_id": "6058808",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0x35ab8da375eec7be2e70c14d6d20cf6f68013f82",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0x630d8315079a992795441e90aef1f0b5f9da8dc31943dbdd40d26c1ce2d7036f",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 13,
+        "eth_getBlockByNumber": 2,
+        "eth_getCode": 1,
+        "eth_getTransactionReceipt": 1
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 32.032947875
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x0000000000000000000000007d49a065d17d6d4a55dc13649901fdbb98b2afba",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c80000000000000000000000001ed89b10ada0813b6981b5113b0c671436a6d6ed",
+        "blockNumber": "0x3134579",
+        "transactionHash": "0x156e3bba0a43b904c570e2d272498be0b0035514be43742f39cd264536bf2767",
+        "transactionIndex": "0xdb",
+        "blockHash": "0x4b51d12bce3a2d6e2c4dc02688179f84097fef2930285af16fa5a86ad2003675",
+        "blockTimestamp": "0x6ab0e7d5",
+        "logIndex": "0x25c",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0x1eD89B10AdA0813b6981B5113b0C671436A6d6ED",
+      "positions": [
+        {
+          "token_id": "6058807",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0x35ab8da375eec7be2e70c14d6d20cf6f68013f82",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0x630d8315079a992795441e90aef1f0b5f9da8dc31943dbdd40d26c1ce2d7036f",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 12,
+        "eth_getBlockByNumber": 2
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 27.000028584
+    },
+    {
+      "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+      "block_number": 51596896,
+      "complete_position_coverage": true,
+      "creation_event": {
+        "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+        "topics": [
+          "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+          "0x0000000000000000000000005cc114f42132d6e5c3e1e499e11aefe6d239185a",
+          "0x000000000000000000000000d9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca",
+          "0x0000000000000000000000000000000000000000000000000000000000002710"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000c8000000000000000000000000c895cdb76e0ad95bb8e613cedc890fa19b5258fc",
+        "blockNumber": "0x3134578",
+        "transactionHash": "0x7317296fd6f849b598761c9cc0cf53a4a6add363f524723339ecba6af077d677",
+        "transactionIndex": "0x3f",
+        "blockHash": "0x5fe66b034d6c8f20fb97f5cfc2ff1fb32b44328edc0878864f02e2dc4ce9d4c9",
+        "blockTimestamp": "0x6ab0e7d3",
+        "logIndex": "0xd8",
+        "removed": false
+      },
+      "locked_liquidity_percentage": null,
+      "mint_transaction_count": 1,
+      "pool": "0xC895Cdb76E0AD95bB8e613cedC890Fa19b5258fc",
+      "positions": [
+        {
+          "token_id": "6058804",
+          "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+          "owner": "0xb525ae0ab3e08cc81cf762a43153866830475806",
+          "approved": "0x0000000000000000000000000000000000000000",
+          "lower": 200,
+          "upper": 400,
+          "liquidity": "101008303454699254217",
+          "owner_code_hash": "0x94f2a8c9ac789d3db93efe9a1a8698fd0f6218943e5dfda49c88b4b4c6c4f455",
+          "owner_code_bytes": 10973,
+          "withdrawal_assessment": "unresolved"
+        }
+      ],
+      "principal_token0": "994999999999999999",
+      "principal_token1": "0",
+      "reasons": [
+        "custodian_or_withdrawal_conditions_unresolved"
+      ],
+      "rpc_http_attempts": {
+        "eth_call": 13,
+        "eth_getBlockByNumber": 2,
+        "eth_getCode": 1,
+        "eth_getTransactionReceipt": 1
+      },
+      "tick_spacing": 200,
+      "wall_seconds": 32.028382459
+    }
+  ],
+  "selection_count": 30,
+  "venue": "uniswap-v3",
+  "wall_seconds": 782.124726209
+}

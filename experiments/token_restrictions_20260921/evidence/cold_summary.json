@@ -1,0 +1,20 @@
+{
+  "forkBlock": 2032290,
+  "image": "ghcr.io/foundry-rs/foundry@sha256:043752653d5be351c71709091b3db97c4421c907eb40ea294195e7f532aadf46",
+  "rpcAttempts": 104,
+  "cacheHits": 83,
+  "rpcByMethod": {
+    "eth_chainId": 1,
+    "eth_getBlockByNumber": 1,
+    "eth_getBalance": 12,
+    "eth_getTransactionCount": 12,
+    "eth_getCode": 12,
+    "eth_getStorageAt": 65,
+    "eth_getBlockByHash": 1
+  },
+  "rpcErrors": 0,
+  "rpcElapsedMs": 27142.042,
+  "wallElapsedMs": 38056.905,
+  "upstreamStopped": false,
+  "localCalls": 74
+}

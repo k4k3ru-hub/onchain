@@ -1,0 +1,213 @@
+{
+  "positions": [
+    {
+      "pool": "0xdf6dfd534c8bf49638db339e8ae0c681b3206495b92a28e2990224433d6d5d35",
+      "token_id": 3073384,
+      "lower": -887200,
+      "upper": 184400,
+      "liquidity": "99084351947979319780625",
+      "protected": true
+    },
+    {
+      "pool": "0x2c24cd48b8def0a513045f725d7e5a977682eaf72c6cf8a4c46e544670b98336",
+      "token_id": 3073510,
+      "lower": -887200,
+      "upper": 184400,
+      "liquidity": "99084351947979319780625",
+      "protected": true
+    },
+    {
+      "pool": "0xc4dc2e129160b3745014bc32dd3fa89203cd431b80d69c13643900ff36b702bc",
+      "token_id": 3073563,
+      "lower": -887200,
+      "upper": 5600,
+      "liquidity": "755794321796817872000017577",
+      "protected": true
+    },
+    {
+      "pool": "0xd210317c5459767d7902170247a3f6fb0e6003fbda0cef89c1328d9d9cc880e4",
+      "token_id": 3073568,
+      "lower": -887200,
+      "upper": 193600,
+      "liquidity": "62551769488661774954055",
+      "protected": true
+    },
+    {
+      "pool": "0x5da1a4517a668fc0e237b5d2b24b32eb27377ec5956edb5c953c85fed6fa9f6c",
+      "token_id": 3073601,
+      "lower": -887200,
+      "upper": 6200,
+      "liquidity": "733458323982366414534436048",
+      "protected": true
+    },
+    {
+      "pool": "0x103f014f310b677b13f44b671ad3d9d7892ef2abf469cadab3444a812573162a",
+      "token_id": 3073641,
+      "lower": -887200,
+      "upper": 181000,
+      "liquidity": "117444164840777835702850",
+      "protected": true
+    },
+    {
+      "pool": "0x469a47fe81c40de2fa280eeb27ba8cc10f9767fab6754336ba90a76e67dedd5f",
+      "token_id": 3073705,
+      "lower": -887200,
+      "upper": -4400,
+      "liquidity": "1246063024732442747346985255",
+      "protected": true
+    },
+    {
+      "pool": "0x8c5a4d499559935e1726d6fca1f7b252b0e18bd8390e0f17ead488fd1343a296",
+      "token_id": 3073716,
+      "lower": -887200,
+      "upper": 25600,
+      "liquidity": "278055094223576241746905284",
+      "protected": true
+    },
+    {
+      "pool": "0x6993018a7a8545eed86bdef9f3d109f1b92d7dc394e4f3519768199b7c0aa1da",
+      "token_id": 3073809,
+      "lower": -887200,
+      "upper": 184400,
+      "liquidity": "99084351947979319780625",
+      "protected": true
+    },
+    {
+      "pool": "0x7193f5f916a3bf21a2bfd34893b1011457712d0628ff4b917ab482370521e031",
+      "token_id": 3073818,
+      "lower": -887200,
+      "upper": 184400,
+      "liquidity": "99084351947979319780625",
+      "protected": true
+    },
+    {
+      "pool": "0xbe1edda21326a81070de92856bf5f9036ad828eb380a0232b6bc8384a4a3f0f6",
+      "token_id": 3073950,
+      "lower": -887200,
+      "upper": 200600,
+      "liquidity": "44080258295838586000026",
+      "protected": true
+    },
+    {
+      "pool": "0xa7fa1eb107a3e293e59f467977789a4ca6a39f70cf55289a1ef13505142d1f42",
+      "token_id": 3074136,
+      "lower": -887200,
+      "upper": 184600,
+      "liquidity": "98098495219206625638992",
+      "protected": true
+    },
+    {
+      "pool": "0xd4f3c004d9ce4fe9b8c7067ac46eef9142683db6a57c6025394d03333c0418fb",
+      "token_id": 3074230,
+      "lower": -887200,
+      "upper": 193800,
+      "liquidity": "61929399945593947217081",
+      "protected": true
+    },
+    {
+      "pool": "0x196f66bdd898c3ea57670fd81ae507acf0cc1ef49e5a562618f1f05c3ca4fa2b",
+      "token_id": 3074244,
+      "lower": -887200,
+      "upper": 410400,
+      "liquidity": "1226656000893977315",
+      "protected": true
+    },
+    {
+      "pool": "0x861f812b0fb02293625f106e1f26c65f99cff8451e9993d389f2411fb678cff1",
+      "token_id": 3074264,
+      "lower": -887200,
+      "upper": 200800,
+      "liquidity": "43641674216792418509498",
+      "protected": true
+    },
+    {
+      "pool": "0xb1e652540ce5f0f981a0fa9d45efb111294e59a350f4e2528e6fbdd4b5da0809",
+      "token_id": 3074266,
+      "lower": -887200,
+      "upper": 409400,
+      "liquidity": "1289544775284981162",
+      "protected": true
+    },
+    {
+      "pool": "0xfcf0f457d9378038713979e2479b0553e127d2267978426197c8d36b05840be1",
+      "token_id": 3074288,
+      "lower": -887200,
+      "upper": 6600,
+      "liquidity": "718935594980621980358623022",
+      "protected": true
+    },
+    {
+      "pool": "0xb7210c3dc63be355c2fb542fbce37d501e96e7011962830ce4385f7d828a0a9f",
+      "token_id": 3074606,
+      "lower": -887200,
+      "upper": 24000,
+      "liquidity": "301212282902318475809719609",
+      "protected": true
+    },
+    {
+      "pool": "0xb5217c0a1967be75b6bd70ee22f1757bd0d5d64b9655cd386ca29fc75c0d09aa",
+      "token_id": 3074816,
+      "lower": -887200,
+      "upper": 194000,
+      "liquidity": "61313222774881128033392",
+      "protected": true
+    },
+    {
+      "pool": "0x179f470a009aec6c0d23f2a4ebb824b900471eb53a5c1da8ea6b9df2c1cbdbe5",
+      "token_id": 3074829,
+      "lower": -887200,
+      "upper": 184800,
+      "liquidity": "97122447440793486411651",
+      "protected": true
+    },
+    {
+      "pool": "0x022d74532b8860a529601f8da252ac4994181717e4f01e2998ddbbd2d4ae1a84",
+      "token_id": 3074844,
+      "lower": -887200,
+      "upper": 184800,
+      "liquidity": "97122447440793486411651",
+      "protected": true
+    },
+    {
+      "pool": "0xe42e913c0fc8a9105b80a7ad9c44d04574fe3debdf661bc9d520b50cd503c56c",
+      "token_id": 3074869,
+      "lower": -887200,
+      "upper": 194000,
+      "liquidity": "61313222774881128033392",
+      "protected": true
+    },
+    {
+      "pool": "0xc7a26fd896f20eeb30622be0c0973a7c1cabb88a4e140878843ec511ae5aa426",
+      "token_id": 3074986,
+      "lower": -887200,
+      "upper": -34200,
+      "liquidity": "5528488803136159428789179656",
+      "protected": true
+    },
+    {
+      "pool": "0x81c14996fbc8f45e13dbe6a5c3e1f64bca80569c1b878978de95f7228c1a8897",
+      "token_id": 3075069,
+      "lower": -887200,
+      "upper": 184800,
+      "liquidity": "97122447440793486411651",
+      "protected": true
+    },
+    {
+      "pool": "0xa3fc35146d8d5e4f4d8d6c57a13a9d087b33d07d45245227473cb1bdcd673667",
+      "token_id": 3075117,
+      "lower": -887200,
+      "upper": 17200,
+      "liquidity": "423180277465481611858995474",
+      "protected": true
+    },
+    {
+      "pool": "0x1cd0ebac1ba97a565b7eb53f46703988789ac059dea8b2846b2fb09df05fc1c4",
+      "token_id": 3075423,
+      "lower": -887200,
+      "upper": 184800,
+      "liquidity": "97122447440793486411651",
+      "protected": true
+    }
+  ],
+  "source": "/Users/kakerusato/k4k3ru/src/onchain/experiments/newpair_quality_24h_20260921/evidence/custody.json.gz"
+}

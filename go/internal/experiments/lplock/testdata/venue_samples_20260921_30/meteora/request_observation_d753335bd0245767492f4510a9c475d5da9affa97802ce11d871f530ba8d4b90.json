@@ -1,0 +1,44 @@
+{
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getProgramAccounts",
+    "params": [
+      "LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo",
+      {
+        "encoding": "base64",
+        "commitment": "finalized",
+        "withContext": true,
+        "dataSlice": {
+          "offset": 0,
+          "length": 72
+        },
+        "filters": [
+          {
+            "memcmp": {
+              "offset": 0,
+              "bytes": "LgkNAEYaVX3"
+            }
+          },
+          {
+            "memcmp": {
+              "offset": 8,
+              "bytes": "9XZRFew8iTa6V6GMhz87SvH5AFYRPVkNY1Z258zuiRU7"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "result": {
+      "context": {
+        "slot": 449021030,
+        "apiVersion": "4.2.1"
+      },
+      "value": []
+    },
+    "id": 1
+  }
+}

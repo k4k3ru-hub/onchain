@@ -1,0 +1,51 @@
+{
+  "method": "getProgramAccounts",
+  "params": [
+    "LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo",
+    {
+      "encoding": "base64",
+      "commitment": "finalized",
+      "withContext": true,
+      "dataSlice": {
+        "offset": 0,
+        "length": 72
+      },
+      "filters": [
+        {
+          "memcmp": {
+            "offset": 0,
+            "bytes": "LgkNAEYaVX3"
+          }
+        },
+        {
+          "memcmp": {
+            "offset": 8,
+            "bytes": "FzYWfFzCCfN8GngEJ3MLekV4swrc13ujkHKEwqrDLQpb"
+          }
+        }
+      ]
+    }
+  ],
+  "result": {
+    "context": {
+      "slot": 449024994,
+      "apiVersion": "4.2.1"
+    },
+    "value": [
+      {
+        "pubkey": "AQPyFmopFKbxb6rCmpubGaDbv4AgP3VXE8gfFtsLmze9",
+        "account": {
+          "lamports": 41899840,
+          "data": [
+            "dbDUx/W0hbbewVplW/zch8bnQ/xS967lk+G4+asylZ2JW/RkfoWmXODSu0XmizV+QmFCPpyTnEFMAbEc+onrwos6mqSVP0G4",
+            "base64"
+          ],
+          "owner": "LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo",
+          "executable": false,
+          "rentEpoch": 18446744073709551615,
+          "space": 8120
+        }
+      }
+    ]
+  }
+}

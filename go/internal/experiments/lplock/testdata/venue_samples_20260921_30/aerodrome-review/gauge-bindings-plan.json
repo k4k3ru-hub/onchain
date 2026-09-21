@@ -1,0 +1,30 @@
+{
+  "block_number": 51596896,
+  "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+  "source_sha256": {
+    "CLGauge": "1e8dfd9540493a658c84dbe0ca0c5bddb9aa64d5ed23cb68a3481534d77b30aa"
+  },
+  "calls": [
+    {
+      "name": "pool",
+      "call": {
+        "to": "0xb816da32647bc966e289e64edca294b44f80a569",
+        "data": "0x16f0115b"
+      },
+      "expected": {
+        "result": "0x000000000000000000000000f9bed06362613a556391de629dc6a57d7e31a776"
+      }
+    },
+    {
+      "name": "nft",
+      "call": {
+        "to": "0xb816da32647bc966e289e64edca294b44f80a569",
+        "data": "0x47ccca02"
+      },
+      "expected": {
+        "result": "0x000000000000000000000000e1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53"
+      }
+    }
+  ],
+  "mode": "candidate_staker_is_hypothesis_until_both_probes_pass"
+}

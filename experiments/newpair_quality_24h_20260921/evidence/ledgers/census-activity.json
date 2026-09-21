@@ -1,0 +1,654 @@
+[
+  {
+    "method": "eth_getBlockByNumber",
+    "request_key": "7a89c9466a0205538dee44ec302853119841fee5683c6b82d3e1f7f852790bf5",
+    "attempt": 1,
+    "failure": "connection_failed",
+    "seconds": 0.02
+  },
+  {
+    "method": "eth_getBlockByNumber",
+    "request_key": "7a89c9466a0205538dee44ec302853119841fee5683c6b82d3e1f7f852790bf5",
+    "attempt": 2,
+    "failure": "connection_failed",
+    "seconds": 0.008
+  },
+  {
+    "method": "eth_getBlockByNumber",
+    "request_key": "7a89c9466a0205538dee44ec302853119841fee5683c6b82d3e1f7f852790bf5",
+    "attempt": 3,
+    "failure": "connection_failed",
+    "seconds": 0.006
+  },
+  {
+    "method": "eth_getBlockByNumber",
+    "request_key": "7a89c9466a0205538dee44ec302853119841fee5683c6b82d3e1f7f852790bf5",
+    "attempt": 4,
+    "failure": "connection_failed",
+    "seconds": 0.008
+  },
+  {
+    "method": "eth_getBlockByNumber",
+    "request_key": "7a89c9466a0205538dee44ec302853119841fee5683c6b82d3e1f7f852790bf5",
+    "attempt": 1,
+    "response_bytes": 46563,
+    "success": true,
+    "seconds": 0.271
+  },
+  {
+    "method": "eth_getBlockByNumber",
+    "request_key": "71abc023afaf4fef92f02b7740b21d7479fe92493e0e3fc615839007c0cc0e54",
+    "attempt": 1,
+    "response_bytes": 11511,
+    "success": true,
+    "seconds": 0.249
+  },
+  {
+    "method": "eth_getBlockByNumber",
+    "request_key": "fcf709bf8d76d3a151eafceaeb7b2653f30a1082ec4bf237362b638b0a3953b2",
+    "attempt": 1,
+    "response_bytes": 9095,
+    "success": true,
+    "seconds": 0.25
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "662d2b16083761f9c8db9df18ceb47f9f50e2a0781a840c87ce5e12bf529e9a6",
+    "attempt": 1,
+    "response_bytes": 100702,
+    "success": true,
+    "seconds": 0.618
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "1c915fd8597a87f7b90b3e9b97fa6350311d5397d4a06cf3c18fe254e5e4a002",
+    "attempt": 1,
+    "response_bytes": 97884,
+    "success": true,
+    "seconds": 0.67
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "9dd14b09344fe9a28de04b0e91c0b3d8f10546049f7578a7c3b0316cbe36e20e",
+    "attempt": 1,
+    "response_bytes": 113886,
+    "success": true,
+    "seconds": 0.696
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "b48f8ecd5d1efc18f0ba81bcfeab82d1a0c073d60cca9bc9c0d4774801ef392f",
+    "attempt": 1,
+    "response_bytes": 151231,
+    "success": true,
+    "seconds": 0.71
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "476cf937a996f12e03d16f7a23cb429cfdeda3809aa6f5fcd56b3c9634ed864c",
+    "attempt": 1,
+    "response_bytes": 140079,
+    "success": true,
+    "seconds": 0.831
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "e255b106979b147680d04584eca64be283bd4634f1b22730174e36d21a3c47bb",
+    "attempt": 1,
+    "response_bytes": 174653,
+    "success": true,
+    "seconds": 0.82
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "d95c5d30c0f155d30a9edb9f980d2e5194cc641e1db9267afd5ce11179127a2d",
+    "attempt": 1,
+    "response_bytes": 154505,
+    "success": true,
+    "seconds": 0.556
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "be34f3d68577cec828b46f687a5a39d780892ae6bae8819648f3e1b5de3ab2bc",
+    "attempt": 1,
+    "response_bytes": 137387,
+    "success": true,
+    "seconds": 0.807
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "8919e2018a38f04024e04927a4e704ef6c94d7cd4383a9e4e69b1afe35506652",
+    "attempt": 1,
+    "response_bytes": 170243,
+    "success": true,
+    "seconds": 0.791
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "1accc653ad1f905ac48fd994f54f00c1f7a9aa20e3cff6fcaa274b64bd9fdf15",
+    "attempt": 1,
+    "response_bytes": 147002,
+    "success": true,
+    "seconds": 0.564
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "167b2b8daa564a692a614a81b4af0000d7277482208b06828eb767059c665356",
+    "attempt": 1,
+    "response_bytes": 172748,
+    "success": true,
+    "seconds": 0.732
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "8250bd46e1fee6465187c07c1282440d2b00261d9ef603af8bee0218c264f7f0",
+    "attempt": 1,
+    "response_bytes": 147761,
+    "success": true,
+    "seconds": 0.651
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "8ef538468c444db4ff07ee354829f1306963a4d245e4bb33829fa71814a892ac",
+    "attempt": 1,
+    "response_bytes": 127207,
+    "success": true,
+    "seconds": 0.833
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "74a2b3968640676fd3fc405a993d055c9ad1d957dd55ce92896041ae0b2e9de5",
+    "attempt": 1,
+    "response_bytes": 103798,
+    "success": true,
+    "seconds": 0.75
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "8e05381bd56c85d7e29a1b15a297afc28ef536aed08795f021d5b2e3e220df13",
+    "attempt": 1,
+    "response_bytes": 129277,
+    "success": true,
+    "seconds": 0.521
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "1c38d94b42df1dfb26fcf4ec61b14488ff20100e274a1200ee972b361b9e459d",
+    "attempt": 1,
+    "response_bytes": 149677,
+    "success": true,
+    "seconds": 0.793
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "db121488331f06b94d2a205d1a7eaad3fd41bef0022873bc84effe28ba5c7d8f",
+    "attempt": 1,
+    "response_bytes": 148712,
+    "success": true,
+    "seconds": 0.701
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "0572d1201364ec85c84b063655440344b5417ca28f5c5afabff7549efc1ce1b4",
+    "attempt": 1,
+    "response_bytes": 142516,
+    "success": true,
+    "seconds": 0.734
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "1dd986829e5e266aec25aca40bbf63425e222624b08c7a240e44279eb6058587",
+    "attempt": 1,
+    "response_bytes": 132015,
+    "success": true,
+    "seconds": 0.728
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "0d9c58db3d1a32d7e0c83a06646af6779d8b36d1eef02a91c34b405270d481a6",
+    "attempt": 1,
+    "response_bytes": 102240,
+    "success": true,
+    "seconds": 0.754
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "757376a437f493b523f2734e7e6b93471373d1ad5aeb2eaeda2ab58c64b3af30",
+    "attempt": 1,
+    "response_bytes": 215196,
+    "success": true,
+    "seconds": 0.539
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "eb50a3f69536e0ebc101a86e37c270be0040c4a4f5d66e13063e26a9ce2b962a",
+    "attempt": 1,
+    "response_bytes": 92266,
+    "success": true,
+    "seconds": 0.653
+  },
+  {
+    "method": "eth_getBlockByNumber",
+    "request_key": "7a89c9466a0205538dee44ec302853119841fee5683c6b82d3e1f7f852790bf5",
+    "attempt": 1,
+    "response_bytes": 46563,
+    "success": true,
+    "seconds": 0.289
+  },
+  {
+    "method": "eth_getBlockByNumber",
+    "request_key": "7a89c9466a0205538dee44ec302853119841fee5683c6b82d3e1f7f852790bf5",
+    "attempt": 1,
+    "response_bytes": 46563,
+    "success": true,
+    "seconds": 0.265
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "c704cdcf0cfdb0123b59f6c9d61db91879d20ac9f9e7bcdc02f3259a5bc28634",
+    "attempt": 1,
+    "response_bytes": 3717504,
+    "success": true,
+    "seconds": 1.189
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "545f25e80d58dc618e5d022f368c4a826ccc16fc72d82091f2d4a262af1b5b4d",
+    "attempt": 1,
+    "response_bytes": 3234671,
+    "success": true,
+    "seconds": 1.472
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "ce905844a82ad4a55bf2377625f1f21a60894b7c9f8c6f8b4fea7b5d4ae9ee12",
+    "attempt": 1,
+    "response_bytes": 5901694,
+    "success": true,
+    "seconds": 1.9
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "8aba3a1e185ddd32902eef1699f5583565fe500da9706f70748214cd28e9b15c",
+    "attempt": 1,
+    "response_bytes": 8196168,
+    "success": true,
+    "seconds": 2.107
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "7301b036e6ea76e5bab79b50bf27bab334e7cb23c97b6641081907ab1e2553dc",
+    "attempt": 1,
+    "response_bytes": 9971543,
+    "success": true,
+    "seconds": 2.201
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "7082053c26d28ef978e588d24a60752c863d48445f569275e36629a3cc0e108b",
+    "attempt": 1,
+    "response_bytes": 10834652,
+    "success": true,
+    "seconds": 2.268
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "b8f683723a439f7ea1350b24334d0eff718abcf07d0eac401b9d93c24e587b7a",
+    "attempt": 1,
+    "http_status": 500,
+    "seconds": 0.857
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "b8f683723a439f7ea1350b24334d0eff718abcf07d0eac401b9d93c24e587b7a",
+    "attempt": 2,
+    "http_status": 500,
+    "seconds": 0.784
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "b8f683723a439f7ea1350b24334d0eff718abcf07d0eac401b9d93c24e587b7a",
+    "attempt": 3,
+    "http_status": 500,
+    "seconds": 0.722
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "b8f683723a439f7ea1350b24334d0eff718abcf07d0eac401b9d93c24e587b7a",
+    "attempt": 4,
+    "http_status": 500,
+    "seconds": 0.687
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "a45aa6fae0ccdc62308e685051090c8d825a848bd14380e91d1d2da617cb7c87",
+    "attempt": 1,
+    "response_bytes": 7532934,
+    "success": true,
+    "seconds": 2.191
+  },
+  {
+    "method": "eth_getBlockByNumber",
+    "request_key": "7a89c9466a0205538dee44ec302853119841fee5683c6b82d3e1f7f852790bf5",
+    "attempt": 1,
+    "response_bytes": 46563,
+    "success": true,
+    "seconds": 0.293
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "1bfafe8c897f8212514b9b280663282c9898e161b81379fa1cb644446d7ae4eb",
+    "attempt": 1,
+    "response_bytes": 6703983,
+    "success": true,
+    "seconds": 2.434
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "72085677c438429882b85ed0e2372d694dc4324066e67160292ac6e8ddc6338b",
+    "attempt": 1,
+    "response_bytes": 9721244,
+    "success": true,
+    "seconds": 1.808
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "9f41b9ac476ff54437745b1464b5c6b23f1a34b4a0df042f7e48e7136db7e0fd",
+    "attempt": 1,
+    "http_status": 500,
+    "seconds": 0.798
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "9f41b9ac476ff54437745b1464b5c6b23f1a34b4a0df042f7e48e7136db7e0fd",
+    "attempt": 2,
+    "http_status": 500,
+    "seconds": 0.736
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "9f41b9ac476ff54437745b1464b5c6b23f1a34b4a0df042f7e48e7136db7e0fd",
+    "attempt": 3,
+    "http_status": 500,
+    "seconds": 0.728
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "9f41b9ac476ff54437745b1464b5c6b23f1a34b4a0df042f7e48e7136db7e0fd",
+    "attempt": 4,
+    "http_status": 500,
+    "seconds": 0.914
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "89e8bfc8160329f6ab8d01b6bef9a64a6f8cb5a101f387b7bdfd3a3c691308f2",
+    "attempt": 1,
+    "response_bytes": 12370984,
+    "success": true,
+    "seconds": 2.739
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "ecb775e60c0a9bac0cca8f73d6a5cd481a28a9c6d3726d09144478dc674063da",
+    "attempt": 1,
+    "response_bytes": 6478723,
+    "success": true,
+    "seconds": 2.013
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "9d469a40ab97a7143fb996d25b506ca4a2c68ed1a0d4063e4ba2a6c4ad36e209",
+    "attempt": 1,
+    "response_bytes": 4850688,
+    "success": true,
+    "seconds": 2.111
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "6db491af0e8be6f0412494989d3930715357da83d272c89172606caa6a87df8a",
+    "attempt": 1,
+    "response_bytes": 4801361,
+    "success": true,
+    "seconds": 2.539
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "ed782e6ee34c23a32e6075748fb1f7a56885a5e5f1938e8efffb00ad99003e19",
+    "attempt": 1,
+    "response_bytes": 7735384,
+    "success": true,
+    "seconds": 2.316
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "ccb69da8a9f6d00804a75897bd1f76bad83157823486add7f1552f874215f952",
+    "attempt": 1,
+    "response_bytes": 7211110,
+    "success": true,
+    "seconds": 1.506
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "4a8cc8267cd02e82b543826e8394e80c295bc98c837b63c35247bf75e8e4ea57",
+    "attempt": 1,
+    "response_bytes": 5941437,
+    "success": true,
+    "seconds": 2.046
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "0819f16c078240050c60a39c6dab41c47d8d195931f5270015cbf74ce5d70805",
+    "attempt": 1,
+    "response_bytes": 5638836,
+    "success": true,
+    "seconds": 2.381
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "21e47c4badd9618f338f4ff0c1132841d5382c5c01747036605fe770a1215a57",
+    "attempt": 1,
+    "response_bytes": 7809471,
+    "success": true,
+    "seconds": 2.253
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "58c4fdb413f308056c7e9e0014163f275b33e16759669caef5707593b8741758",
+    "attempt": 1,
+    "response_bytes": 7116605,
+    "success": true,
+    "seconds": 1.772
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "e13e3d1b0a0faa8a626a5dc6a85675e6e9abdf174f91639a303923e828bcdcc8",
+    "attempt": 1,
+    "response_bytes": 5425049,
+    "success": true,
+    "seconds": 1.49
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "f4100a161b31e394bf12ea1f49b04b7eaf72307c840dc267de5a974e74fc1586",
+    "attempt": 1,
+    "response_bytes": 932,
+    "success": true,
+    "seconds": 0.532
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "50c4fe4da3cff7a0e91639d4b787ebd04d4a6557a1ff6f37dec86e0101458d00",
+    "attempt": 1,
+    "response_bytes": 9868,
+    "success": true,
+    "seconds": 0.409
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "f866da1a65efc24a0fda350a1e933f094239403cafb6f5cee5354331969bc483",
+    "attempt": 1,
+    "response_bytes": 221483,
+    "success": true,
+    "seconds": 0.668
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "57bbb008abaefb958169cc2a28cdd14cfe8fa3c2d0738216163a8b958add6cb5",
+    "attempt": 1,
+    "response_bytes": 589576,
+    "success": true,
+    "seconds": 0.652
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "e4ecf366c2f95611a232cf98ac0c5fbc83b98ecd2c16ca2dccb50f7e1f4983df",
+    "attempt": 1,
+    "response_bytes": 439497,
+    "success": true,
+    "seconds": 0.567
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "ff0f108be28f00e772190e4bc65bdf63f2cb6639e6ae54a011e0f421143af7d3",
+    "attempt": 1,
+    "response_bytes": 237197,
+    "success": true,
+    "seconds": 0.586
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "4efe5f8cd2c4a7529260b7e2bc0a21777d4c89b8e4975cddafde5307c1007b0f",
+    "attempt": 1,
+    "response_bytes": 546410,
+    "success": true,
+    "seconds": 0.777
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "a75c5ade78cc967317be4fc5c9e48ee5332feb9f3da3c7b0c25d909bed877795",
+    "attempt": 1,
+    "response_bytes": 276180,
+    "success": true,
+    "seconds": 0.955
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "cd94b6d41e52f4bb77d78fb9977041e659a68c3c93324d1448c5ad71d73e5f1d",
+    "attempt": 1,
+    "response_bytes": 52588,
+    "success": true,
+    "seconds": 0.505
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "d87d9bb07d2efc69dd100ca2dca69c55d48013d8d66c8addf634817e934100a1",
+    "attempt": 1,
+    "response_bytes": 133418,
+    "success": true,
+    "seconds": 0.593
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "9fbc90739ac40390e5f6fec12e5ce4cbbcdac08078a3ae338bc61861f8e21049",
+    "attempt": 1,
+    "response_bytes": 57952,
+    "success": true,
+    "seconds": 0.4
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "5db2441bbdb3a4a5aa662535a914162099024c2c39e3b5816bfc7417330ac5e6",
+    "attempt": 1,
+    "response_bytes": 58659,
+    "success": true,
+    "seconds": 0.564
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "33604f72fde9b3f79f8d5920cd217534a469d7181df347c8ec510ed46be19224",
+    "attempt": 1,
+    "response_bytes": 48080,
+    "success": true,
+    "seconds": 0.499
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "9d6aba8c77060ffeb64888508fc487b690acfcd2d4b8df14fb6857573ed171b4",
+    "attempt": 1,
+    "response_bytes": 49917,
+    "success": true,
+    "seconds": 0.455
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "98f25a121d01cdafb7f62ca6162017ca97eabc2179c69b7d810cf1055e2eb041",
+    "attempt": 1,
+    "response_bytes": 530319,
+    "success": true,
+    "seconds": 1.6
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "e026506c04629e3082b428ed3efb32a41c23ea25b91f16e873e00c579c5e2d6b",
+    "attempt": 1,
+    "response_bytes": 96837,
+    "success": true,
+    "seconds": 0.484
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "8f6fabe3aa276b82dbbbfeb215755585836b5f85047316efb141ff33703ce776",
+    "attempt": 1,
+    "response_bytes": 51772,
+    "success": true,
+    "seconds": 0.462
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "e112c1f4bf387156006b02a777ca5547e3d355b90ad6e8d2f0aad3323f073f99",
+    "attempt": 1,
+    "response_bytes": 393303,
+    "success": true,
+    "seconds": 0.57
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "438467698e8328ea3364a0de3e47e9cb311ebe3b3c88e21ff9c02a7cdd882ccd",
+    "attempt": 1,
+    "response_bytes": 1159815,
+    "success": true,
+    "seconds": 0.969
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "2338731f3339859a385e10d4ea0df8dd91ace554a57d35c1ee46dab9cd26232d",
+    "attempt": 1,
+    "response_bytes": 62461,
+    "success": true,
+    "seconds": 0.395
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "ee710f1b1167192fdd0860584dc1bbb469169889419f8ffdc73e634c35615a05",
+    "attempt": 1,
+    "response_bytes": 521624,
+    "success": true,
+    "seconds": 0.787
+  },
+  {
+    "method": "eth_getLogs",
+    "request_key": "80474dfaed0ddee84da09b08fea66df8c8d39cc150c9514cbee8291bf4685225",
+    "attempt": 1,
+    "response_bytes": 22048,
+    "success": true,
+    "seconds": 0.472
+  },
+  {
+    "method": "eth_getBlockByNumber",
+    "request_key": "7a89c9466a0205538dee44ec302853119841fee5683c6b82d3e1f7f852790bf5",
+    "attempt": 1,
+    "response_bytes": 46563,
+    "success": true,
+    "seconds": 0.272
+  }
+]

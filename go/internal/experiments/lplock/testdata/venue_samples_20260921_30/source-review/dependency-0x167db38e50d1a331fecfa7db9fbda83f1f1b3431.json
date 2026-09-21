@@ -1,0 +1,17 @@
+{
+  "address": "0x167db38e50d1a331fecfa7db9fbda83f1f1b3431",
+  "block_number": 51596896,
+  "reason": "http_request_failed",
+  "requests": [
+    {
+      "method": "eth_getCode",
+      "bytes": 21985,
+      "seconds": 0.28
+    },
+    {
+      "method": "GET",
+      "http_status": 404,
+      "seconds": 1.116
+    }
+  ]
+}

@@ -2,9 +2,18 @@ import unittest
 
 from sampling_custody import can_report_unlocked, code_structure
 from sampling_plan_probe import matches_expected
+from sampling_runtime_review import match_runtime
 
 
 class SamplingSafetyTests(unittest.TestCase):
+    def test_runtime_comparison_allows_only_consistent_compiler_immutables(self):
+        compiled = {'object': '60000000550000', 'immutableReferences': {'7': [{'start': 2, 'length': 2}, {'start': 5, 'length': 2}]}, 'linkReferences': {}}
+        self.assertEqual(match_runtime(compiled, '0x60001234551234'), {'7': '1234'})
+        self.assertIsNone(match_runtime(compiled, '0x60001234555678'))
+        self.assertIsNone(match_runtime(compiled, '0x60001234561234'))
+        self.assertIsNone(match_runtime(compiled, '0x6000123455123400'))
+        self.assertIsNone(match_runtime({**compiled, 'linkReferences': {'library': {}}}, '0x60001234551234'))
+
     def test_provider_errors_are_not_withdrawal_reverts(self):
         expected = {'revert_data': '0x12345678'}
         self.assertTrue(matches_expected(expected, {'error': {'code': 3, 'data': '0x12345678'}}))

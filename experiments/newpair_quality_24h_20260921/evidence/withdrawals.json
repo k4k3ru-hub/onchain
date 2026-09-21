@@ -1,0 +1,826 @@
+{
+  "block": 51596896,
+  "block_hash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+  "probes": [
+    {
+      "pool": "0xf0ca60d6738995e173238506ea81377c38850cabe3cb60425cb7f93bfacbe805",
+      "venue": "uniswap-v4",
+      "token_id": 3073439,
+      "owner": "0x6c8f55402b4b22ef84078e58289cb6dafac0f583",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "11443311612991483107943",
+        "247713725"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x4ce5141895080c91365123e198341ae05c64f0aa",
+      "venue": "uniswap-v3",
+      "token_id": 6049448,
+      "owner": "0x2f0f35765563ba038ba80ffb80d76eb6106b946a",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "16099185956712",
+        "499999992289336975847423679"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x00000000000000000000000000000000000000000000000000000ea4624297680000000000000000000000000000000000000000019d971de4e678f38aa57ebf"
+    },
+    {
+      "pool": "0x4ee8a52d53f37751bf1432de5893c0731319dbf9",
+      "venue": "uniswap-v3",
+      "token_id": 6049586,
+      "owner": "0xaa3f79a1fb9a5cfd3c1952d014a732c222be8914",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "108365920084",
+        "499999999999999998969806721"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x000000000000000000000000000000000000000000000000000000193b1cb7540000000000000000000000000000000000000000019d971e4fe8401e36987f81"
+    },
+    {
+      "pool": "0x894bf60e29ea6269468c5ba5ff4bd214b0ef4ca3",
+      "venue": "uniswap-v3",
+      "token_id": 6049640,
+      "owner": "0xaa3f79a1fb9a5cfd3c1952d014a732c222be8914",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "398884303945343",
+        "699999619124765262326824465"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x00000000000000000000000000000000000000000000000000016ac87d3e3e7f0000000000000000000000000000000000000000024306af63c3b1bc71787e11"
+    },
+    {
+      "pool": "0x18cb87b5db850f60c2c97277fa71465074add3ce",
+      "venue": "uniswap-v3",
+      "token_id": 6049679,
+      "owner": "0x2f0f35765563ba038ba80ffb80d76eb6106b946a",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "46232974651974",
+        "4999999957158992638166387946"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x00000000000000000000000000000000000000000000000000002a0c7407f24600000000000000000000000000000000000000001027e72ccc88abf9b2034cea"
+    },
+    {
+      "pool": "0x55bbce0f44b51437472164ec95cc38f00fd21495",
+      "venue": "uniswap-v3",
+      "token_id": 6049685,
+      "owner": "0xaa3f79a1fb9a5cfd3c1952d014a732c222be8914",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "29705508049",
+        "599999999997167248034602380"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x00000000000000000000000000000000000000000000000000000006ea9614d1000000000000000000000000000000000000000001f04ef12ca63c91e15d9d8c"
+    },
+    {
+      "pool": "0x1cd5c92ded8643ad9a873d991f630426ef6b2707",
+      "venue": "uniswap-v3",
+      "token_id": 6049770,
+      "owner": "0xaa3f79a1fb9a5cfd3c1952d014a732c222be8914",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "203033039958157",
+        "749999665331005331761439896"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x0000000000000000000000000000000000000000000000000000b8a85039708d0000000000000000000000000000000000000000026c629b536542ae148aa498"
+    },
+    {
+      "pool": "0x5c68867ddb543a8fdadb3512fb145ed93958e60b",
+      "venue": "uniswap-v3",
+      "token_id": 6049792,
+      "owner": "0xaa3f79a1fb9a5cfd3c1952d014a732c222be8914",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "208382505007412",
+        "749999480364473347680676184"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x0000000000000000000000000000000000000000000000000000bd85d53039340000000000000000000000000000000000000000026c62914c7821d5cd7aa958"
+    },
+    {
+      "pool": "0xfadec700cf2a7ef99d9e1d9b2825368d28457c6f",
+      "venue": "uniswap-v3",
+      "token_id": 6050017,
+      "owner": "0x7ea1a45f0657d2dbd77839a916ab83112bdb5590",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "195145119",
+        "1913021086655498362879697"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x000000000000000000000000000000000000000000000000000000000ba1ad9f00000000000000000000000000000000000000000001951914b66510ca94fed1"
+    },
+    {
+      "pool": "0xd0826c326eaf7e338f5d614d7a711126b9ebe241fea54fbe710cc5c578d7051c",
+      "venue": "uniswap-v4",
+      "token_id": 3073714,
+      "owner": "0x0ae7edd0b80b647476ade4c49f95ac6f6929a111",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "668943901187324",
+        "749997428542530641963931529"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0xcd0945f8e6a2f5a55972357ccd4b697f660b2f3e",
+      "venue": "uniswap-v3",
+      "token_id": 6049981,
+      "owner": "0x2f0f35765563ba038ba80ffb80d76eb6106b946a",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "87639030268842",
+        "499999375516008336772513450"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x00000000000000000000000000000000000000000000000000004fb50d4483aa0000000000000000000000000000000000000000019d96fc75736e5bf7533eaa"
+    },
+    {
+      "pool": "0xe84dec27185589974cb6d77d8c337ed88252a4ad4e473109dac9e842cdb86fb1",
+      "venue": "uniswap-v4",
+      "token_id": 3073983,
+      "owner": "0xd8caf5884932951ec88c40a26f1f1331d743fd32",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "1045876",
+        "1600312739334004525669"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x32f4328ed4702f463933d4398994b25474c9bca2",
+      "venue": "uniswap-v3",
+      "token_id": 6050050,
+      "owner": "0xaa3f79a1fb9a5cfd3c1952d014a732c222be8914",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "100460534877750",
+        "6999999904362396300650179525"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x00000000000000000000000000000000000000000000000000005b5e4a7ece360000000000000000000000000000000000000000169e43a32f767bcf82ab6bc5"
+    },
+    {
+      "pool": "0x4f0edcb44c518905da6182db14e5b723a9d5452f6d61501b2f9bb7a18bf2baab",
+      "venue": "uniswap-v4",
+      "token_id": 3073780,
+      "owner": "0x4c87463d1563313c8a4d37b6797d530fae4b5409",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "121380",
+        "989989616441426627074420"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x2e4780894856442c7a5200e0bb06acd5df0d73318f6ab51473e89bbc9d48f60b",
+      "venue": "uniswap-v4",
+      "token_id": 3073824,
+      "owner": "0x55df7b52c913112aa45de61a6f6980fd00daed46",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "489112700755282",
+        "749998043485820840334577330"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0xb6a073a3df073b923dca4cede13b43e7406a5948f5d101b43fdbfaa193948004",
+      "venue": "uniswap-v4",
+      "token_id": 3073956,
+      "owner": "0x2565821a8ca383f9285e61d4c8b20e1a120b4071",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "436196396821053",
+        "9999999999999992377305"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x10599428a2ae2fb244b13f06ae89c81c25d7bf3d4d1e0f418468717b61426b8a",
+      "venue": "uniswap-v4",
+      "token_id": 3073870,
+      "owner": "0x302da56609d1cdae5dc47df7203cc2bab07d428f",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "3382972237064",
+        "6345126013629243326"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0xcd68d0d3319a91927e8090b396eafcd15309c27341a2239d566e8f7d7a417d0b",
+      "venue": "uniswap-v4",
+      "token_id": 3073890,
+      "owner": "0x41acddc4075a0b5f0331169011a39db705922dea",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "17877190338506622683",
+        "867026624794262387580054686"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0xba2946614f06dd6ab7c817d0fe5283a6d9325d7d4cbad64c9eec5f784eaa8ae0",
+      "venue": "uniswap-v4",
+      "token_id": 3073951,
+      "owner": "0x9e975d3024b9551e28245b4cec92e4deb1a5fb64",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "11994999999999999999998",
+        "8115051045808556019650"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0xd702d6788ea273929b6d8b2947fadcda429fbc90",
+      "venue": "uniswap-v3",
+      "token_id": 6050611,
+      "owner": "0x2f0f35765563ba038ba80ffb80d76eb6106b946a",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "72211053361071",
+        "499999764117889581602011596"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x000000000000000000000000000000000000000000000000000041acf22f37af0000000000000000000000000000000000000000019d97118662a6734deb79cc"
+    },
+    {
+      "pool": "0x02042515484d5ac9b06402cf458146aa1003f88745c2ae1128042a0edbad9f2d",
+      "venue": "uniswap-v4",
+      "token_id": 3073974,
+      "owner": "0x06832b43186c6deac394916b6583d6be2d627520",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "532020623993461947667",
+        "4806488856953865670"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x5099fe188f373acdb4d480d1904639c76e186f51",
+      "venue": "uniswap-v3",
+      "token_id": 6051195,
+      "owner": "0x3433e16efacb71e0e2cd605489514b648b30abd0",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "198230174999999",
+        "799998197887407258128186782"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x0000000000000000000000000000000000000000000000000000b44a0f2a25bf00000000000000000000000000000000000000000295be3534ea577e4a897d9e"
+    },
+    {
+      "pool": "0x7a46cafc4ef92a0c50b7540c0764e93ec3ef0363a8eacc63c1683ac37585af5c",
+      "venue": "uniswap-v4",
+      "token_id": 3074119,
+      "owner": "0xba1347eab403faed265e906634a6d5962d1e68dd",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "511998460047998",
+        "4882819655721036040115"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x1e861bf59f247e5fa469d42ebe45745fdee04921",
+      "venue": "uniswap-v3",
+      "token_id": 6051267,
+      "owner": "0x3433e16efacb71e0e2cd605489514b648b30abd0",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "738507525902326",
+        "899993286255322694311877326"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x00000000000000000000000000000000000000000000000000029fab2ebecff6000000000000000000000000000000000000000002e874fdcf1be65930e61ace"
+    },
+    {
+      "pool": "0xf6b0b76200e8f9c6906cba29e35e7d1f1edd25f33457b07d335a1251e01cc803",
+      "venue": "uniswap-v4",
+      "token_id": 3074261,
+      "owner": "0x87397e0ded49d7e92597a9fc8debaa3337fd0958",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "10791097418766955807",
+        "31665228894508403612602240495"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x14c457506122cc78ebeb10a46b4d2cdac3083ef0",
+      "venue": "uniswap-v3",
+      "token_id": 6051582,
+      "owner": "0x93deedc7e8a621c1165159be94e957594796d15d",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "21162177502199047587462",
+        "5979004"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x00000000000000000000000000000000000000000000047b34357c3a717d068600000000000000000000000000000000000000000000000000000000005b3b7c"
+    },
+    {
+      "pool": "0x8bd50175bbc657e94dc007018aedf9a880edc002ec434af77c8e92d4152ab65a",
+      "venue": "uniswap-v4",
+      "token_id": 3074347,
+      "owner": "0x452fb3c5edca4cb1016d9ad5aaadd1969512dfc8",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "192417608091324",
+        "328584760084832521834746"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x19e79c7c64f2f0f011b7ac4d179a859e29bfeb04b1df44f0c9d44a212a3d03d0",
+      "venue": "uniswap-v4",
+      "token_id": 3074350,
+      "owner": "0x2cc797cb9e21418f6335e710e35341063b1675d2",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "17857419885586689",
+        "6953178468290802127"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0xd3a7ec9b9b9ecd54321173a90604a011b3960fcff7b20051cc621f887806cd94",
+      "venue": "uniswap-v4",
+      "token_id": 3074376,
+      "owner": "0xea963f2c013f369665b5b2ee8af7f55af118ade4",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "11816922088974044866",
+        "9986328"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x33b74c2df34c4b47c74dc8d076a3f28cdbedcfdc",
+      "venue": "uniswap-v3",
+      "token_id": 6052120,
+      "owner": "0x115393361d39841d76c3cf659286856a97b9d906",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "15765464393596",
+        "749999895360024382937971143"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x00000000000000000000000000000000000000000000000000000e56aee7a77c0000000000000000000000000000000000000000026c62a7cbb080c2d57b39c7"
+    },
+    {
+      "pool": "0xcf43451e91cc3947ed9ad7b9c498343439a6ccbdb9e0bf45c7809348f150ba0d",
+      "venue": "uniswap-v4",
+      "token_id": 3074515,
+      "owner": "0x18d700d7da8718c876f6362694bcbb11acd29949",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "121476530522320067553800734",
+        "2585082"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x7c48e5a1f5f1fdeb5ef316509cb9b2afa50f0f26600295ff25f21202a94514dd",
+      "venue": "uniswap-v4",
+      "token_id": 3074647,
+      "owner": "0x2c4fb2c2deb6a2d1f74440572fd01754b8ad5b37",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "36188621832565",
+        "953652762178169823464"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0xe03cce449932219fc0ca28f3a4f784ce55de0c4e",
+      "venue": "uniswap-v3",
+      "token_id": 6052765,
+      "owner": "0x8eff8eacbdb09458ea0866136b53c1cd214c0663",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "436497513493396629546267",
+        "101370354786"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x000000000000000000000000000000000000000000005c6e93def34d2e40e51b000000000000000000000000000000000000000000000000000000179a24dc62"
+    },
+    {
+      "pool": "0xc7ed9ed415cbc0949e34641081f4682eb70d2d4939c01fd606debd59af2577b7",
+      "venue": "uniswap-v4",
+      "token_id": 3074683,
+      "owner": "0x2c4fb2c2deb6a2d1f74440572fd01754b8ad5b37",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "173954521387388",
+        "27859038668862062891921"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x172fc3b09e6a8f7d5470283d7c43a3ddb0e5925904de97f1971f6f6081a8eab9",
+      "venue": "uniswap-v4",
+      "token_id": 3075493,
+      "owner": "0x02f4a6d26445b773a90a180b8e46fb8d305130b5",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "7115176",
+        "57123920124997463446028"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0xf9a9b25bd1dd87d28415223191a253ad626940c49f68f1a8874685bbc0f9447c",
+      "venue": "uniswap-v4",
+      "token_id": 3074804,
+      "owner": "0x87227f79e34a92c539d7be4de3e2f7fc2828013d",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "89061095201823",
+        "184668"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x8d24d42356252d85f74797502cbf226def3ad0f48ee427c2768d5b95c89e65de",
+      "venue": "uniswap-v4",
+      "token_id": 3074866,
+      "owner": "0x6363f0d892bfd0e7ff08134db1430568beb98c01",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "23480740368942128993709",
+        "1516301"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0xb55edc2a9273e15697160804fbb231547a12c01831cfc08efe164b4078a7781a",
+      "venue": "uniswap-v4",
+      "token_id": 3074887,
+      "owner": "0x302da56609d1cdae5dc47df7203cc2bab07d428f",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "54151079888791",
+        "3254449090490529083784"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0xa807e6d0487efe38673ab44a703daebae6facb45708d3736048128d2dae9102f",
+      "venue": "uniswap-v4",
+      "token_id": 3074888,
+      "owner": "0x302da56609d1cdae5dc47df7203cc2bab07d428f",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "16067658352736713182064",
+        "184492"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0xd1d435f7dfa90b99ffce1479f25ba12649f3663be285f75bce5bb9dfec1a2d04",
+      "venue": "uniswap-v4",
+      "token_id": 3074912,
+      "owner": "0x302da56609d1cdae5dc47df7203cc2bab07d428f",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "26345358732929",
+        "262439920056552547763"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x2cf3b579a6f00bb6cb22455c288566f10f40fcc8163f8beadc46097d5ef9a448",
+      "venue": "uniswap-v4",
+      "token_id": 3074956,
+      "owner": "0x0dad18f8030b4c9405baba4c5d9b6fafa3b2d24e",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "20436163572692996260454174",
+        "6832639"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0xe40ef580e46b0f420ddaa845fe42268578bb400fddf2d4a3b27fd63b30f349a7",
+      "venue": "uniswap-v4",
+      "token_id": 3075055,
+      "owner": "0xc3e0dd54c3cf07fc29a69634956502b0cb5d31bd",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "10242815",
+        "23083967778"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0xcdb1c9649e4be8739c58b0527615276ac44f05f76ab9207274686fdbfae4f616",
+      "venue": "uniswap-v4",
+      "token_id": 3075103,
+      "owner": "0xe00df84fbd105916b27331d407b8506ce4eb7c8b",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "999999999",
+        "0"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0xdb2c3e873899a7bf233f502657c36c890b5b70af",
+      "venue": "uniswap-v3",
+      "token_id": 6057700,
+      "owner": "0x3433e16efacb71e0e2cd605489514b648b30abd0",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "799997804049439401093767872",
+        "548969931935694"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x00000000000000000000000000000000000000000295be1fdb50ce5ece4a22c00000000000000000000000000000000000000000000000000001f34905c90fce"
+    },
+    {
+      "pool": "0xd22243ffae60bd9b5c27b554c4a5e3340a916fb7d574534a8f60057be7d909a5",
+      "venue": "uniswap-v4",
+      "token_id": 3075168,
+      "owner": "0x66f8947249c1a88e362dd08703526d0432cf8fe5",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "0",
+        "299999800019"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x80ff3c13eac638afb55202bf4dfda121dbfc1afb",
+      "venue": "uniswap-v3",
+      "token_id": 6058035,
+      "owner": "0x12f395c96c88ca2ef145ae46d3f2673d04a03e78",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "4949999999999",
+        "949999626480696525445620965"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x0000000000000000000000000000000000000000000000000000048082fddbff00000000000000000000000000000000000000000311d23ef1cd564e55db64e5"
+    },
+    {
+      "pool": "0x1cb8dc2c4f7f40f1bb389378ef42e74722d8ef4d",
+      "venue": "uniswap-v3",
+      "token_id": 6058036,
+      "owner": "0x12f395c96c88ca2ef145ae46d3f2673d04a03e78",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "4949999999999",
+        "949999626480696525445620965"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x0000000000000000000000000000000000000000000000000000048082fddbff00000000000000000000000000000000000000000311d23ef1cd564e55db64e5"
+    },
+    {
+      "pool": "0x8edec0dfb6d8253969204c7f2e99e8c01dda33a7",
+      "venue": "uniswap-v3",
+      "token_id": 6058173,
+      "owner": "0xaa3f79a1fb9a5cfd3c1952d014a732c222be8914",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "499999997926802249947670203",
+        "104699825067589"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x0000000000000000000000000000000000000000019d971e3322c5bfe2fde6bb00000000000000000000000000000000000000000000000000005f3953e19645"
+    },
+    {
+      "pool": "0x7916d474568dfbcfbb3765df94313f7fe5b19edf",
+      "venue": "uniswap-v3",
+      "token_id": 6058252,
+      "owner": "0xaa3f79a1fb9a5cfd3c1952d014a732c222be8914",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "99830005014905",
+        "10499999999800974234371439"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x00000000000000000000000000000000000000000000000000005acb7bfca17900000000000000000000000000000000000000000008af7623fab2bbce70456f"
+    },
+    {
+      "pool": "0x70d13ff7ed37e0e18b3e66a6f9800a43905ce47dfad3d63dd9d0648abc751616",
+      "venue": "uniswap-v4",
+      "token_id": 3075513,
+      "owner": "0xa77ce92a601d504a6d64af843eb5a3994616969c",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "0",
+        "1919846970505238186707829"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x20b126ee729d1f10a56e1c938c93855477604548e84d0542a025fa3355bae62d",
+      "venue": "uniswap-v4",
+      "token_id": 3075529,
+      "owner": "0xa77ce92a601d504a6d64af843eb5a3994616969c",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "0",
+        "147727829948136205748696806"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0xad60238d58bb7f023a474bc47121e642f3d6e731",
+      "venue": "uniswap-v3",
+      "token_id": 6058681,
+      "owner": "0xaa3f79a1fb9a5cfd3c1952d014a732c222be8914",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "49999995098810080815540727953",
+        "100246203208754"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x0000000000000000000000000000000000000000a18f06cd850c9403bcd1f09100000000000000000000000000000000000000000000000000005b2c63551432"
+    },
+    {
+      "pool": "0xa7676dbe1b9028aedf59837e8dd585bc362276ea5e7ef75fbb57ef4d7c4c2bb4",
+      "venue": "uniswap-v4",
+      "token_id": 3075538,
+      "owner": "0x3098f9694ccd59885265886a0fbfed67673bd8fe",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "19999867076117297677118803125",
+        "13992187"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x81f3bd2ff7147a6fd779fe749f4bcc82c802c060",
+      "venue": "uniswap-v3",
+      "token_id": 6059166,
+      "owner": "0xd267c90681d10a45180ae8f84e958ecfa4fa63b8",
+      "manager": "0x03a520b32c04bf3beef7beb72e919cf822ed34f1",
+      "positive_principal": [
+        "5000001992199417570",
+        "9999996015602751542774834"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x000000000000000000000000000000000000000000000000456393521d4aaee2000000000000000000000000000000000000000000084594dec895185ba9cc32"
+    },
+    {
+      "pool": "0x6716a1d6e6397bb7f2f5b4d06e262a16dfd344dc3c935ea5010073f2e97826e6",
+      "venue": "uniswap-v4",
+      "token_id": 3075600,
+      "owner": "0xea3b157a9159cd08ff570156d98a63c0d593115f",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "3665399491395392498",
+        "348177886384883378424362259"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x1db81c229afb0435d870ea7a9b658a8bcce8ac23388c29a74c178aa214ade371",
+      "venue": "uniswap-v4",
+      "token_id": 3075611,
+      "owner": "0x9dcf1126f7559b9a978dc3b4220d373bd70d44d0",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "36062491959313233628",
+        "162567326606713399167485473"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x1dbc12c4d8360d771e0c524f5d444af9dca8bfa967b5f567220df04eda10d352",
+      "venue": "uniswap-v4",
+      "token_id": 3075674,
+      "owner": "0x0a4a168c60e25d24500f2c3a4a73c9be905bb54c",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "499999999",
+        "0"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0xadc701e6433109d960f343cd47c56080f03d37fe74d4c2fc96bda3a62a72425d",
+      "venue": "uniswap-v4",
+      "token_id": 3075628,
+      "owner": "0x136de9b890ea45c663e8b170fe378f255811a73c",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "10225949827793880668",
+        "42313257816730277158485709416"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0xb015dd9b08bc5af8d9cd6dfdcf31ebf91c0c651203e6d3439c85427ddc9a1a98",
+      "venue": "uniswap-v4",
+      "token_id": 3075639,
+      "owner": "0x1c06141a17308a41549998dd51b76d8867955ede",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "398468592613999",
+        "749980075504350608523383942"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0xd4bd990f3b0aa9c77a3af38279aec2583925e6135e22f59551ac384cf86578c5",
+      "venue": "uniswap-v4",
+      "token_id": 3075652,
+      "owner": "0x9747b338c178197caec68bde0fe5e89c33b3d7c8",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "6772531793070049072",
+        "177629613138263269745603382"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x18919db6efcb3a2e29379f5441d19e39be0fb941aaeb755fbda0770cc249ac36",
+      "venue": "uniswap-v4",
+      "token_id": 3075661,
+      "owner": "0x4d1b821a43fba502c4ea72fd78d2cd04bb97e9f9",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "3256008353543291880",
+        "54521419728190675566982920"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x0974cd9adc1a10705d89d2905cffe393100112d32c9e1a0d00bd81a944dd91f6",
+      "venue": "uniswap-v4",
+      "token_id": 3075666,
+      "owner": "0xceaa2759a553250f0f714fd96d1a71996a7dc346",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "7178891355766951028",
+        "349105573858690340701261559"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    },
+    {
+      "pool": "0x5856ea8f0a01c9a5d8feaca8b3a76b8d3a169a31beee15df70237fffa7a10373",
+      "venue": "uniswap-v4",
+      "token_id": 3075680,
+      "owner": "0x5cfb90ccdfc4e8d44a575b8e42d2c067f87f6614",
+      "manager": "0x7c5f5a4bbd8fd63184577525326123b519429bdc",
+      "positive_principal": [
+        "2868658571096500869",
+        "61879582693085886240915591"
+      ],
+      "withdrawal": "positive_share_withdrawal_succeeded",
+      "returned": "0x"
+    }
+  ],
+  "complete": true
+}
