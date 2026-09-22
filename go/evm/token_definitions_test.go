@@ -10,15 +10,17 @@ import (
 // Version:
 //   - 2026-09-17: Added.
 //   - 2026-09-20: Reject native metadata on unknown chains.
+//   - 2026-09-23: Verify optional reference names and detached name values.
 func TestTokenDefinitionsAreScopedAndDetached(t *testing.T) {
 	address := common.HexToAddress("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913")
 	value, ok := LookupTokenMetadata(ChainIDBaseMainnet, address)
-	if !ok || value.Symbol != "USDC" || value.Decimals != 6 {
+	if !ok || value.Symbol != "USDC" || value.Name != "USD Coin" || value.Decimals != 6 {
 		t.Fatalf("metadata=%+v found=%t", value, ok)
 	}
 	value.Symbol = "changed"
+	value.Name = "changed"
 	again, _ := LookupTokenMetadata(ChainIDBaseMainnet, address)
-	if again.Symbol != "USDC" {
+	if again.Symbol != "USDC" || again.Name != "USD Coin" {
 		t.Fatal("caller mutated definition")
 	}
 	for _, chain := range []ChainID{ChainIDBaseSepolia, ChainIDEthereumMainnet, 0} {
@@ -33,6 +35,36 @@ func TestTokenDefinitionsAreScopedAndDetached(t *testing.T) {
 		if !common.IsHexAddress(token.Address) || common.HexToAddress(token.Address) != key.address || token.Symbol == "" {
 			t.Fatalf("invalid definition=%+v", token)
 		}
+	}
+}
+
+// TestReferenceTokenNames keeps network-specific display names distinct from symbols.
+//
+// Version:
+//   - 2026-09-23: Added.
+func TestReferenceTokenNames(t *testing.T) {
+	for _, tc := range []struct {
+		chain         ChainID
+		address, name string
+	}{
+		{ChainIDBaseMainnet, "0x4200000000000000000000000000000000000006", "Wrapped Ether"},
+		{ChainIDBaseSepolia, "0x4200000000000000000000000000000000000006", "Wrapped Ether"},
+		{ChainIDBaseMainnet, "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", "USD Coin"},
+		{ChainIDBaseSepolia, "0x036CbD53842c5426634e7929541eC2318f3dCF7e", "USDC"},
+		{ChainIDBaseSepolia, "0xcbb7c0006f23900c38eb856149f799620fcb8a4a", "Coinbase Wrapped BTC"},
+		{ChainIDEthereumMainnet, "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599", "Wrapped BTC"},
+		{ChainIDEthereumMainnet, "0xdAC17F958D2ee523a2206206994597C13D831ec7", "Tether USD"},
+		{ChainIDRobinhoodMainnet, "0x39dBED3a2bd333467115dE45665cC57F813C4571", "Pons"},
+		{ChainIDRobinhoodMainnet, "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168", "Global Dollar"},
+	} {
+		value, ok := LookupTokenMetadata(tc.chain, common.HexToAddress(tc.address))
+		if !ok || value.Name != tc.name {
+			t.Fatalf("incorrect reference name: chain_id=%d address=%s got=%q want=%q", tc.chain, tc.address, value.Name, tc.name)
+		}
+	}
+	// Empty Name remains supported for caller-defined catalogs and native currency.
+	if value, _ := LookupTokenMetadata(ChainIDBaseMainnet, common.Address{}); value.Name != "" {
+		t.Fatal("invented native contract name")
 	}
 }
 

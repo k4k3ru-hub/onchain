@@ -10,7 +10,9 @@ import (
 )
 
 type TokenMetadata struct {
-	Symbol   string
+	Symbol string
+	// Name is optional trusted reference metadata, not a historical observation.
+	Name     string
 	Address  string
 	Decimals uint8
 }

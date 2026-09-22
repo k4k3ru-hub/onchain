@@ -251,7 +251,9 @@ not a consensus-finality guarantee; deposit APIs remain unchanged.
 ## EVM token reference metadata
 
 `evm.LookupTokenMetadata(chainID, address)` resolves explicitly registered token
-symbols and decimals without RPC. The zero address identifies native currency:
+symbols, decimals, and optional ERC-20 names without RPC. Names are preserved as
+defined, independently of the symbol; empty `Name` means no name definition.
+See [name provenance](go/evm/TOKEN_METADATA.md). The zero address identifies native currency:
 ETH on Ethereum mainnet/Sepolia, Base mainnet/Sepolia and Robinhood mainnet/testnet;
 BNB on BNB mainnet; POL on Polygon mainnet/Amoy. Each registered native currency
 uses 18 decimals. Unknown chain/address combinations return `false`; an unknown
