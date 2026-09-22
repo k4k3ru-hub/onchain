@@ -1,0 +1,44 @@
+[
+  {
+    "url": "https://raw.githubusercontent.com/argotorg/solc-bin/gh-pages/linux-arm64/list.json",
+    "attempt": 1,
+    "status": 200,
+    "bytes": 4084
+  },
+  {
+    "url": "https://raw.githubusercontent.com/argotorg/solc-bin/gh-pages/linux-arm64/solc-linux-arm64-v0.8.34+commit.80d5c536",
+    "attempt": 1,
+    "status": 200,
+    "bytes": 15156960
+  },
+  {
+    "url": "https://raw.githubusercontent.com/argotorg/solc-bin/gh-pages/linux-arm64/solc-linux-arm64-v0.8.37+commit.f401782d",
+    "attempt": 1,
+    "status": 200,
+    "bytes": 14108808
+  },
+  {
+    "url": "https://raw.githubusercontent.com/argotorg/solc-bin/gh-pages/linux-amd64/list.json",
+    "attempt": 1,
+    "status": 200,
+    "bytes": 47730
+  },
+  {
+    "url": "https://raw.githubusercontent.com/argotorg/solc-bin/gh-pages/linux-amd64/solc-linux-amd64-v0.5.17+commit.d19bba13",
+    "attempt": 1,
+    "status": 200,
+    "bytes": 8007728
+  },
+  {
+    "url": "https://raw.githubusercontent.com/argotorg/solc-bin/gh-pages/linux-amd64/solc-linux-amd64-v0.8.34+commit.80d5c536",
+    "attempt": 1,
+    "status": 200,
+    "bytes": 16865544
+  },
+  {
+    "url": "https://raw.githubusercontent.com/argotorg/solc-bin/gh-pages/linux-amd64/solc-linux-amd64-v0.8.37+commit.f401782d",
+    "attempt": 1,
+    "status": 200,
+    "bytes": 15473648
+  }
+]

@@ -1,0 +1,25 @@
+{
+  "case": "WETH9",
+  "version": "0.5.17+commit.d19bba13",
+  "mode": "native-amd64-emulated-on-arm64",
+  "option": "--no-import-callback",
+  "result": {
+    "canceled": false,
+    "cpuSystemMs": 11.977,
+    "cpuUserMs": 15.97,
+    "deadlineExceeded": false,
+    "elapsedMs": 41.386,
+    "error": "exit status 1",
+    "exitCode": 1,
+    "maxRssKiB": 7172,
+    "outputLimitExceeded": false,
+    "stderr": "unrecognised option '--no-import-callback'\n",
+    "stderrBytes": 43,
+    "stdoutBytes": 0,
+    "stdoutSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "success": false
+  },
+  "onchainRPC": 0,
+  "sourcifyRequests": 0,
+  "compilerDownloads": 0
+}

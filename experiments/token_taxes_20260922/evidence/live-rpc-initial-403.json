@@ -1,0 +1,41 @@
+{
+  "stats": {
+    "logical": 1,
+    "httpAttempts": 4,
+    "cacheHits": 0,
+    "methods": {
+      "eth_chainId": 4
+    },
+    "failedAttempts": 4
+  },
+  "ledger": [
+    {
+      "method": "eth_chainId",
+      "params": [],
+      "attempt": 1,
+      "errorType": "HTTPError",
+      "elapsedMs": 64.935
+    },
+    {
+      "method": "eth_chainId",
+      "params": [],
+      "attempt": 2,
+      "errorType": "HTTPError",
+      "elapsedMs": 50.442
+    },
+    {
+      "method": "eth_chainId",
+      "params": [],
+      "attempt": 3,
+      "errorType": "HTTPError",
+      "elapsedMs": 277.49
+    },
+    {
+      "method": "eth_chainId",
+      "params": [],
+      "attempt": 4,
+      "errorType": "HTTPError",
+      "elapsedMs": 48.121
+    }
+  ]
+}

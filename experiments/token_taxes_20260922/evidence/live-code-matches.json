@@ -1,0 +1,86 @@
+[
+  {
+    "address": "0x4200000000000000000000000000000000000006",
+    "matched": true,
+    "model": "WETH9",
+    "sourceBundleSHA256": "c995cf1598c809dc511723a4625146266e477761cf347959297a1e8cbe03552a",
+    "runtimeSHA256": "667c900c2c6da80d452501a9c6332e046384a0c438c3334ce6f71c86dd7b8735",
+    "compiler": "0.5.17+commit.d19bba13.Emscripten.clang",
+    "compilerSHA256": "0xdac1bc7560247d3e69bce9891f7eb2218a6a8d0106d9cdb4de8e03ede4546153",
+    "substitutions": [
+      {
+        "kind": "reviewed_trailing_metadata",
+        "start": 1989,
+        "length": 52
+      }
+    ]
+  },
+  {
+    "address": "0xaaeb2b5aff0bcb7fbed2f8917725196ee67eee7e",
+    "matched": true,
+    "model": "ShinyLIMPET",
+    "sourceBundleSHA256": "70dde694aab27e4761f2d70b9959e49ae70eaf432c83fd678581561db13473e7",
+    "runtimeSHA256": "16a9b81753b197d79dc5193c2929e61a45e69e243f3069311c73c6052adfa4bd",
+    "compiler": "0.8.37+commit.f401782d.Emscripten.clang",
+    "compilerSHA256": "0xd73fead3cbc860438f56f4d1723677499cdef212d0f8890241748d2d5afc1c5f",
+    "substitutions": [
+      {
+        "kind": "compiler_immutable",
+        "id": "4252",
+        "length": 32,
+        "start": 2392
+      },
+      {
+        "kind": "compiler_immutable",
+        "id": "4254",
+        "length": 32,
+        "start": 2351
+      },
+      {
+        "kind": "compiler_immutable",
+        "id": "4256",
+        "length": 32,
+        "start": 2265
+      },
+      {
+        "kind": "compiler_immutable",
+        "id": "4258",
+        "length": 32,
+        "start": 3822
+      },
+      {
+        "kind": "compiler_immutable",
+        "id": "4260",
+        "length": 32,
+        "start": 3855
+      },
+      {
+        "kind": "compiler_immutable",
+        "id": "4263",
+        "length": 32,
+        "start": 2523
+      },
+      {
+        "kind": "compiler_immutable",
+        "id": "4266",
+        "length": 32,
+        "start": 2582
+      }
+    ]
+  },
+  {
+    "address": "0x7f2f00e54dcaa8b248bdfd75da2ae859d4d8ff3e",
+    "matched": true,
+    "model": "TAOT",
+    "sourceBundleSHA256": "d6453972fa826b639c988c621610b848575baa8ce87fc6745f188e7b2fcac83d",
+    "runtimeSHA256": "9825b6b2c5680fc87cfb9926a36b1b8eefc51eb5143d65f335a961e3561017e2",
+    "compiler": "0.8.34+commit.80d5c536.Emscripten.clang",
+    "compilerSHA256": "0xc8649f8d57f81b3244c7d2dd662efc0620d1ae296f623b347a2c616a6cfd11d8",
+    "substitutions": []
+  },
+  {
+    "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    "matched": false,
+    "reason": "proxy_implementation_not_analyzed"
+  }
+]

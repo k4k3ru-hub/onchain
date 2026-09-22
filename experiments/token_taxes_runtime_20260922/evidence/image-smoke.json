@@ -1,0 +1,40 @@
+[
+  {
+    "canceled": false,
+    "cpuSystemMs": 12.091,
+    "cpuUserMs": 87.661,
+    "deadlineExceeded": false,
+    "elapsedMs": 102.806,
+    "exitCode": 0,
+    "maxRssKiB": 41240,
+    "outputLimitExceeded": false,
+    "stderrBytes": 0,
+    "stdoutBytes": 2195830,
+    "stdoutSHA256": "5c56f0205acff1631054ddba049dd9300d25b9ae4d2f3766712c66ed7d627a0b",
+    "success": true,
+    "compilerErrors": 0,
+    "artifactMatchesPreviousCompile": true,
+    "runtimeSHA256": "57392c497535596c4f56e89eca12a02664feca026764d577e0c0cc0c214c4276",
+    "sourceASTCount": 21,
+    "case": "ShinyLIMPET"
+  },
+  {
+    "canceled": false,
+    "cpuSystemMs": 4.979,
+    "cpuUserMs": 60.747,
+    "deadlineExceeded": false,
+    "elapsedMs": 65.849,
+    "exitCode": 0,
+    "maxRssKiB": 21132,
+    "outputLimitExceeded": false,
+    "stderrBytes": 0,
+    "stdoutBytes": 417281,
+    "stdoutSHA256": "dd142a87801eb86a4a9082348bda558dcc6666710005c387152128f0cbdca9bc",
+    "success": true,
+    "compilerErrors": 0,
+    "artifactMatchesPreviousCompile": true,
+    "runtimeSHA256": "9825b6b2c5680fc87cfb9926a36b1b8eefc51eb5143d65f335a961e3561017e2",
+    "sourceASTCount": 10,
+    "case": "TAOT"
+  }
+]

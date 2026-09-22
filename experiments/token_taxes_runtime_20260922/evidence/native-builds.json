@@ -1,0 +1,47 @@
+[
+  {
+    "platform": "linux-arm64",
+    "version": "0.5.17",
+    "available": false
+  },
+  {
+    "platform": "linux-arm64",
+    "version": "0.8.34",
+    "available": true,
+    "path": "solc-linux-arm64-v0.8.34+commit.80d5c536",
+    "sha256": "0xe4260e58f9f653f984c8c072f7262855ca4628570752aabc9a5b358c57d2a6e5",
+    "bytes": 15156960
+  },
+  {
+    "platform": "linux-arm64",
+    "version": "0.8.37",
+    "available": true,
+    "path": "solc-linux-arm64-v0.8.37+commit.f401782d",
+    "sha256": "0x717142f4275804e75c3d0bafd264db669da9cf411550c7c29cc68f634d17a9da",
+    "bytes": 14108808
+  },
+  {
+    "platform": "linux-amd64",
+    "version": "0.5.17",
+    "available": true,
+    "path": "solc-linux-amd64-v0.5.17+commit.d19bba13",
+    "sha256": "0xc35ce7a4d3ffa5747c178b1e24c8541b2e5d8a82c1db3719eb4433a1f19e16f3",
+    "bytes": 8007728
+  },
+  {
+    "platform": "linux-amd64",
+    "version": "0.8.34",
+    "available": true,
+    "path": "solc-linux-amd64-v0.8.34+commit.80d5c536",
+    "sha256": "0xd40adc6f9fdbb22a97d32a02fa05688bf2ee7886affc48c9851b0afd4a726b39",
+    "bytes": 16865544
+  },
+  {
+    "platform": "linux-amd64",
+    "version": "0.8.37",
+    "available": true,
+    "path": "solc-linux-amd64-v0.8.37+commit.f401782d",
+    "sha256": "0x5de843c2c93563cc66425c99a4fb13fdbf32b4c4ae07469480faaf126e14404a",
+    "bytes": 15473648
+  }
+]

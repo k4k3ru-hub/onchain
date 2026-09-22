@@ -1,0 +1,29 @@
+[
+  {
+    "name": "WETH9",
+    "address": "0x4200000000000000000000000000000000000006",
+    "compiler": "0.5.17+commit.d19bba13",
+    "version": "0.5.17",
+    "qualifiedName": "WETH9.sol:WETH9",
+    "inputBytes": 40406,
+    "inputSHA256": "2e83a206a5e62bd04d4a1452f78e24354c0c11b92ab0a073b9dc7d90d2144600"
+  },
+  {
+    "name": "ShinyLIMPET",
+    "address": "0xaaeb2b5aff0bcb7fbed2f8917725196ee67eee7e",
+    "compiler": "0.8.37+commit.f401782d",
+    "version": "0.8.37",
+    "qualifiedName": "ShinyLIMPET.sol:ShinyLIMPET",
+    "inputBytes": 185058,
+    "inputSHA256": "9d760614d6e50ffcc828d3e779748e009313894140b9c68525de80b4290e2ad0"
+  },
+  {
+    "name": "TAOT",
+    "address": "0x7f2f00e54dcaa8b248bdfd75da2ae859d4d8ff3e",
+    "compiler": "0.8.34+commit.80d5c536",
+    "version": "0.8.34",
+    "qualifiedName": "TAOT.sol:TAOT",
+    "inputBytes": 38103,
+    "inputSHA256": "268132141940a5fea95d9a67b38f497abe3fba6daa58c11eecc2aae2e8f94012"
+  }
+]

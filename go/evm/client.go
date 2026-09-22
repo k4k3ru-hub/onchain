@@ -25,6 +25,7 @@ type HTTPClient struct {
 	blockHeaderByNumberer blockHeaderByNumberer
 	blockNumberer         blockNumberer
 	contractCaller        contractCaller
+	codeReader            codeReader
 	batchCaller           batchCaller
 	gasEstimator          gasEstimator
 	pendingNonceProvider  pendingNonceProvider
@@ -58,6 +59,7 @@ type WSClient struct {
 //   - Client creation error.
 //
 // Version:
+//   - 2026-09-22: Compose the fixed-hash contract code reader.
 //   - 2026-08-17: Added.
 func NewHTTPClient(ctx context.Context, config HTTPConfig) (*HTTPClient, error) {
 	if ctx == nil {
@@ -113,6 +115,7 @@ func composeHTTPClient(config HTTPConfig, ethClient *ethclient.Client) *HTTPClie
 		client.blockHeaderByNumberer = ethClient
 		client.blockNumberer = ethClient
 		client.contractCaller = ethClient
+		client.codeReader = ethClient
 		client.batchCaller = ethClient.Client()
 		client.gasEstimator = ethClient
 		client.pendingNonceProvider = ethClient

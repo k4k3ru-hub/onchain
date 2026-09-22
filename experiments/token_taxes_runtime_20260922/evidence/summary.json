@@ -1,0 +1,64 @@
+{
+  "matrix": [
+    {
+      "mode": "native-amd64",
+      "case": "ShinyLIMPET",
+      "runs": 3,
+      "medianMs": 337.78,
+      "maxRssMiB": 54.105
+    },
+    {
+      "mode": "native-amd64",
+      "case": "TAOT",
+      "runs": 3,
+      "medianMs": 339.077,
+      "maxRssMiB": 40.449
+    },
+    {
+      "mode": "native-amd64",
+      "case": "WETH9",
+      "runs": 3,
+      "medianMs": 118.428,
+      "maxRssMiB": 14.914
+    },
+    {
+      "mode": "native-arm64",
+      "case": "ShinyLIMPET",
+      "runs": 3,
+      "medianMs": 117.723,
+      "maxRssMiB": 41.508
+    },
+    {
+      "mode": "native-arm64",
+      "case": "TAOT",
+      "runs": 3,
+      "medianMs": 91.932,
+      "maxRssMiB": 20.254
+    },
+    {
+      "mode": "node-arm64",
+      "case": "ShinyLIMPET",
+      "runs": 3,
+      "medianMs": 1339.933,
+      "maxRssMiB": 265.207
+    },
+    {
+      "mode": "node-arm64",
+      "case": "TAOT",
+      "runs": 3,
+      "medianMs": 1236.258,
+      "maxRssMiB": 286.848
+    },
+    {
+      "mode": "node-arm64",
+      "case": "WETH9",
+      "runs": 3,
+      "medianMs": 1065.851,
+      "maxRssMiB": 181.504
+    }
+  ],
+  "controlsPassed": 7,
+  "importChecksPassed": 3,
+  "imageSmokePassed": 2,
+  "matrixRunsPassed": 24
+}

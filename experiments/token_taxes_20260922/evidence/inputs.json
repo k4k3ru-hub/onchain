@@ -1,0 +1,402 @@
+{
+  "eventTimestamp": 1790045292841093,
+  "pairs": [
+    {
+      "lpPrincipal": {
+        "token0": {
+          "amount": "5.000001992937197864",
+          "amountPercentage": "0.000499997898596033"
+        },
+        "token1": {
+          "amount": "999999.601412719271883469",
+          "amountPercentage": "99.999500002101403967"
+        },
+        "evaluatedAt": 1790042849904428,
+        "position": {
+          "kind": "block",
+          "number": "51626749",
+          "id": "0x968b022a36e55f34a2b512d07ae82ca232975272428d3064254c12181aa2d96f"
+        }
+      },
+      "fees": {
+        "model": "fixed",
+        "token0ToToken1": {
+          "rate": "0.003"
+        },
+        "token1ToToken0": {
+          "rate": "0.003"
+        },
+        "source": "creation_event",
+        "observedAt": 1790036985146321,
+        "position": {
+          "kind": "block",
+          "number": "51623819",
+          "id": "0x36d982e651c6841a53eaff988b9653280303c2df2729ecda3f389d2c9cdd32a7",
+          "transactionId": "0x68fc03c9a5ac6251b1ce647584b32517936cf252d99b6f22252973063fa91f79",
+          "eventIndex": "362"
+        },
+        "referenceSender": null
+      },
+      "activity": {
+        "startedAt": 1790036985146335,
+        "updatedAt": 1790036990042881,
+        "swapCount": "1",
+        "token0ToToken1": {
+          "count": "1",
+          "token0Amount": "0.000001998934",
+          "token1Amount": "0.398587280728116317",
+          "volumeUsd": null
+        },
+        "token1ToToken0": {
+          "count": "0",
+          "token0Amount": "0",
+          "token1Amount": "0",
+          "volumeUsd": "0"
+        },
+        "liquidityAdded": {
+          "count": "1",
+          "token0Amount": "4.999999999999999865",
+          "token1Amount": "999999.999999999999999787"
+        },
+        "liquidityRemoved": {
+          "count": "0",
+          "token0Amount": "0",
+          "token1Amount": "0"
+        },
+        "netToken0Liquidity": "4.999999999999999865",
+        "netToken1Liquidity": "999999.999999999999999787"
+      },
+      "chainFamily": "evm",
+      "chain": "base",
+      "network": "mainnet",
+      "venue": "uniswap-v3",
+      "poolId": "0xc32d5c4a463593632b8d1f5472cbe06b671d1e5a",
+      "protocol": "uniswap-v3",
+      "source": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+      "creation": {
+        "kind": "block",
+        "number": "51623819",
+        "id": "0x36d982e651c6841a53eaff988b9653280303c2df2729ecda3f389d2c9cdd32a7",
+        "transactionId": "0x68fc03c9a5ac6251b1ce647584b32517936cf252d99b6f22252973063fa91f79",
+        "eventIndex": "362"
+      },
+      "poolCreatedAt": 1790036985000000,
+      "swapObservedAt": 1790036985000000,
+      "swapObservedPosition": {
+        "kind": "block",
+        "number": "51623819",
+        "id": "0x36d982e651c6841a53eaff988b9653280303c2df2729ecda3f389d2c9cdd32a7",
+        "transactionId": "0x45863aad06fb1072e39d3cc9c96a5a38c91f6c086a56ee46163a3b8f0714c594",
+        "eventIndex": "472"
+      },
+      "confirmedAt": 1790037009767137,
+      "lpStateStatus": "synced",
+      "lpStatePosition": {
+        "kind": "block",
+        "number": "51626749",
+        "id": "0x968b022a36e55f34a2b512d07ae82ca232975272428d3064254c12181aa2d96f"
+      },
+      "liquidityEvaluatedAt": 1790045291847275,
+      "isListed": true,
+      "lastObservedAt": 1790036985000000,
+      "liquidityUsd": {
+        "status": "observed",
+        "value": "27442.441965883167396293"
+      },
+      "liquidityMethod": "lp_principal_usdc_spot",
+      "token0": {
+        "id": "0x4200000000000000000000000000000000000006",
+        "kind": "contract",
+        "name": {
+          "status": "observed",
+          "value": "Wrapped Ether"
+        },
+        "symbol": {
+          "status": "known",
+          "value": "WETH",
+          "reason": "sdk_definition"
+        },
+        "decimals": {
+          "status": "known",
+          "value": "18",
+          "reason": "sdk_definition"
+        },
+        "security": {
+          "admin": {
+            "status": "observed",
+            "value": "0x0000000000000000000000000000000000000000",
+            "reason": "eip1967_slot_only"
+          },
+          "beacon": {
+            "status": "observed",
+            "value": "0x0000000000000000000000000000000000000000",
+            "reason": "eip1967_slot_only"
+          },
+          "implementation": {
+            "status": "observed",
+            "value": "0x0000000000000000000000000000000000000000",
+            "reason": "eip1967_slot_only"
+          },
+          "owner": {
+            "status": "unknown",
+            "reason": "invalid_return_data"
+          }
+        }
+      },
+      "token1": {
+        "id": "0xaaeb2b5aff0bcb7fbed2f8917725196ee67eee7e",
+        "kind": "contract",
+        "name": {
+          "status": "observed",
+          "value": "ShinyLIMPET"
+        },
+        "symbol": {
+          "status": "observed",
+          "value": "LMPT"
+        },
+        "decimals": {
+          "status": "observed",
+          "value": "18"
+        },
+        "security": {
+          "admin": {
+            "status": "observed",
+            "value": "0x0000000000000000000000000000000000000000",
+            "reason": "eip1967_slot_only"
+          },
+          "beacon": {
+            "status": "observed",
+            "value": "0x0000000000000000000000000000000000000000",
+            "reason": "eip1967_slot_only"
+          },
+          "implementation": {
+            "status": "observed",
+            "value": "0x0000000000000000000000000000000000000000",
+            "reason": "eip1967_slot_only"
+          },
+          "owner": {
+            "status": "unknown",
+            "reason": "call_unavailable_or_reverted"
+          }
+        }
+      },
+      "security": {
+        "hooks": {
+          "status": "not_applicable"
+        }
+      },
+      "assessmentStatus": "completed",
+      "assessedAt": 1790036989436399,
+      "evaluatorVersion": "evm-new-pair-v1",
+      "protocolState": {
+        "event": "Swap",
+        "feePpm": "3000",
+        "tickSpacing": "60",
+        "sqrtPriceX96": "35431897300149917022312221155164",
+        "activeLiquidity": "2236067977499789696409"
+      },
+      "unsupportedChecks": [
+        "mint_permissions",
+        "liquidity_lock",
+        "holder_concentration",
+        "sell_simulation"
+      ]
+    },
+    {
+      "lpPrincipal": {
+        "token0": {
+          "amount": "92499.999999999993806856",
+          "amountPercentage": "100"
+        },
+        "token1": {
+          "amount": "0",
+          "amountPercentage": "0"
+        },
+        "evaluatedAt": 1790042678220497,
+        "position": {
+          "kind": "block",
+          "number": "51626663",
+          "id": "0xf8d60bedeca680c9d46c3efe42dc0a9a25f0136758972d9efc3d3883d979e1ef"
+        }
+      },
+      "fees": {
+        "model": "variable",
+        "token0ToToken1": {
+          "rate": "0.01"
+        },
+        "token1ToToken0": {
+          "rate": "0.01"
+        },
+        "source": "pool_state",
+        "observedAt": 1790042796544446,
+        "position": {
+          "kind": "block",
+          "number": "51626723",
+          "id": "0xd55ee5dd0076e6455273ab58e7672aac80cdb4dcb883f5ed82dac18564aa97ef"
+        },
+        "referenceSender": "0x0000000000000000000000000000000000000000"
+      },
+      "activity": {
+        "startedAt": 1790036523196951,
+        "updatedAt": 1790040815087762,
+        "swapCount": "4",
+        "token0ToToken1": {
+          "count": "0",
+          "token0Amount": "0",
+          "token1Amount": "0",
+          "volumeUsd": "0"
+        },
+        "token1ToToken0": {
+          "count": "4",
+          "token0Amount": "20390.51070377778892381",
+          "token1Amount": "2720.528148",
+          "volumeUsd": "2720.528148"
+        },
+        "liquidityAdded": {
+          "count": "5",
+          "token0Amount": "172499.999999999989940637",
+          "token1Amount": "0"
+        },
+        "liquidityRemoved": {
+          "count": "2",
+          "token0Amount": "59609.489296222207209965",
+          "token1Amount": "2693.322864"
+        },
+        "netToken0Liquidity": "112890.510703777782730672",
+        "netToken1Liquidity": "-2693.322864"
+      },
+      "chainFamily": "evm",
+      "chain": "base",
+      "network": "mainnet",
+      "venue": "aerodrome",
+      "poolId": "0x8bd619b0953725f2e7a8c3bf763fd8addac9250a",
+      "protocol": "aerodrome",
+      "source": "0xf8f2eb4940cfe7d13603dddd87f123820fc061ef",
+      "creation": {
+        "kind": "block",
+        "number": "51623588",
+        "id": "0x7ecb7224a93094eccccae96d975f7a8b7d88b3a39b0f39b3f69b6a293d96f5aa",
+        "transactionId": "0xcc5b2adcf94d5ea05428b0c8eca62a4e271915b9a6a66dd3ae7f2a0bccfbb091",
+        "eventIndex": "640"
+      },
+      "poolCreatedAt": 1790036523000000,
+      "swapObservedAt": 1790038401000000,
+      "swapObservedPosition": {
+        "kind": "block",
+        "number": "51624527",
+        "id": "0x8019521dd2bc5fe1f7792c71535d2024da4666986d8713befc4233d5d93b8ed9",
+        "transactionId": "0x3a4d86e0a810eb18e0ffecdd8d145bd7b07c5cb680ac7b96acb911f4148c9927",
+        "eventIndex": "175"
+      },
+      "confirmedAt": 1790038426142507,
+      "lpStateStatus": "synced",
+      "lpStatePosition": {
+        "kind": "block",
+        "number": "51626663",
+        "id": "0xf8d60bedeca680c9d46c3efe42dc0a9a25f0136758972d9efc3d3883d979e1ef"
+      },
+      "liquidityEvaluatedAt": 1790042678220513,
+      "isListed": true,
+      "lastObservedAt": 1790040815000000,
+      "liquidityUsd": {
+        "status": "observed",
+        "value": "13015.146046084296100389"
+      },
+      "liquidityMethod": "lp_principal_usdc_spot",
+      "token0": {
+        "id": "0x7f2f00e54dcaa8b248bdfd75da2ae859d4d8ff3e",
+        "kind": "contract",
+        "name": {
+          "status": "observed",
+          "value": "TAOT"
+        },
+        "symbol": {
+          "status": "observed",
+          "value": "TAOT"
+        },
+        "decimals": {
+          "status": "observed",
+          "value": "18"
+        },
+        "security": {
+          "admin": {
+            "status": "observed",
+            "value": "0x0000000000000000000000000000000000000000",
+            "reason": "eip1967_slot_only"
+          },
+          "beacon": {
+            "status": "observed",
+            "value": "0x0000000000000000000000000000000000000000",
+            "reason": "eip1967_slot_only"
+          },
+          "implementation": {
+            "status": "observed",
+            "value": "0x0000000000000000000000000000000000000000",
+            "reason": "eip1967_slot_only"
+          },
+          "owner": {
+            "status": "unknown",
+            "reason": "call_unavailable_or_reverted"
+          }
+        }
+      },
+      "token1": {
+        "id": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+        "kind": "contract",
+        "name": {
+          "status": "observed",
+          "value": "USD Coin"
+        },
+        "symbol": {
+          "status": "known",
+          "value": "USDC",
+          "reason": "sdk_definition"
+        },
+        "decimals": {
+          "status": "known",
+          "value": "6",
+          "reason": "sdk_definition"
+        },
+        "security": {
+          "admin": {
+            "status": "observed",
+            "value": "0x0000000000000000000000000000000000000000",
+            "reason": "eip1967_slot_only"
+          },
+          "beacon": {
+            "status": "observed",
+            "value": "0x0000000000000000000000000000000000000000",
+            "reason": "eip1967_slot_only"
+          },
+          "implementation": {
+            "status": "observed",
+            "value": "0x0000000000000000000000000000000000000000",
+            "reason": "eip1967_slot_only"
+          },
+          "owner": {
+            "status": "observed",
+            "value": "0x3abd6f64a422225e61e435bae41db12096106df7"
+          }
+        }
+      },
+      "security": {
+        "hooks": {
+          "status": "not_applicable"
+        }
+      },
+      "assessmentStatus": "completed",
+      "assessedAt": 1790036527875380,
+      "evaluatorVersion": "evm-new-pair-v1",
+      "protocolState": {
+        "event": "Mint",
+        "tickSpacing": "80"
+      },
+      "unsupportedChecks": [
+        "mint_permissions",
+        "liquidity_lock",
+        "holder_concentration",
+        "sell_simulation"
+      ]
+    }
+  ]
+}

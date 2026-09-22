@@ -1,0 +1,26 @@
+[
+  {
+    "url": "https://binaries.soliditylang.org/bin/list.json",
+    "attempt": 1,
+    "status": 200,
+    "size": 1065650
+  },
+  {
+    "url": "https://binaries.soliditylang.org/bin/soljson-v0.5.17+commit.d19bba13.js",
+    "attempt": 1,
+    "status": 200,
+    "size": 12395217
+  },
+  {
+    "url": "https://binaries.soliditylang.org/bin/soljson-v0.8.34+commit.80d5c536.js",
+    "attempt": 1,
+    "status": 200,
+    "size": 9595022
+  },
+  {
+    "url": "https://binaries.soliditylang.org/bin/soljson-v0.8.37+commit.f401782d.js",
+    "attempt": 1,
+    "status": 200,
+    "size": 9222701
+  }
+]
