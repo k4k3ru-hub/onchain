@@ -2,13 +2,11 @@ package tax
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
-	"errors"
+	"encoding/json"
 	"fmt"
-	"sort"
 
 	"github.com/k4k3ru-hub/onchain/go/evm"
+	"github.com/k4k3ru-hub/onchain/go/evm/erc20/analysis"
 )
 
 // NewAnalyzer composes token tax analysis with explicitly supplied dependencies.
@@ -16,12 +14,29 @@ import (
 // the caller. Construction neither reads environment variables nor starts work.
 //
 // Version:
-//   - 2026-09-22: Added.
+//   - 2026-09-23: Share code verification without extending tax verdicts.
 func NewAnalyzer(reader Reader, sources SourceProvider, compiler Compiler) (*Analyzer, error) {
 	if reader == nil || sources == nil || compiler == nil {
 		return nil, fmt.Errorf("failed to create token tax analyzer: dependency=null")
 	}
-	return &Analyzer{reader: reader, sources: sources, compiler: compiler}, nil
+	code, err := analysis.NewAnalyzer(reader, sourceAdapter{sources}, compilerAdapter{compiler})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create token tax analyzer: %w", err)
+	}
+	return &Analyzer{reader: reader, sources: sources, compiler: compiler, code: code}, nil
+}
+
+// NewAnalyzerWithCode composes tax interpretation with a shared code verifier.
+// The verifier must retain fixed-block code identity; it cannot supply an
+// unverified remote verdict. Mutable permission state is outside tax analysis.
+//
+// Version:
+//   - 2026-09-23: Added.
+func NewAnalyzerWithCode(code CodeVerifier) (*Analyzer, error) {
+	if code == nil {
+		return nil, fmt.Errorf("failed to create token tax analyzer: code_verifier=null")
+	}
+	return &Analyzer{code: code}, nil
 }
 
 // Analyze evaluates one token at a caller-verified block hash on Base mainnet.
@@ -29,10 +44,10 @@ func NewAnalyzer(reader Reader, sources SourceProvider, compiler Compiler) (*Ana
 // failures return wrapped errors, allowing the caller to budget retries.
 //
 // Version:
-//   - 2026-09-22: Added.
+//   - 2026-09-23: Share code verification without extending tax verdicts.
 func (a *Analyzer) Analyze(ctx context.Context, request Request) (Result, error) {
 	result := Result{BlockHash: request.BlockHash}
-	if a == nil || a.reader == nil || a.sources == nil || a.compiler == nil {
+	if a == nil || a.code == nil {
 		return result, fmt.Errorf("failed to analyze token taxes: analyzer=null")
 	}
 	if ctx == nil {
@@ -60,74 +75,20 @@ func (a *Analyzer) Analyze(ctx context.Context, request Request) (Result, error)
 			return result, nil
 		}
 	}
-	code, err := a.reader.CodeAtHash(ctx, request.Token, request.BlockHash)
+	verified, err := a.code.Analyze(ctx, analysis.Request(request))
+	result.CodeSHA256, result.Model, result.OriginalCompiler, result.UsedCompiler, result.Reason = verified.CodeSHA256, verified.Model, verified.OriginalCompiler, verified.UsedCompiler, verified.Reason
 	if err != nil {
 		return result, fmt.Errorf("failed to analyze token taxes: %w", err)
 	}
-	if len(code) == 0 {
-		result.Reason = "empty_code"
-		return result, nil
-	}
-	if len(code) > 128*1024 {
-		result.Reason = "unsupported_code_size"
-		return result, nil
-	}
-	digest := sha256.Sum256(code)
-	result.CodeSHA256 = hex.EncodeToString(digest[:])
-	if model, ok := reviewedRuntimes[result.CodeSHA256]; ok {
-		result.Model, result.Observation = model, zeroObservation("contract_analysis")
-		return result, nil
-	}
-	bundle, err := a.sources.Source(ctx, SourceRequest{ChainID: request.ChainID, Token: request.Token})
-	if errors.Is(err, ErrUnsupported) {
-		result.Reason = "source_unavailable"
-		return result, nil
-	}
-	if err != nil {
-		return result, fmt.Errorf("failed to analyze token taxes: %w", err)
-	}
-	input, err := prepareInput(bundle)
-	if err != nil {
-		result.Reason = "unsupported_source"
-		return result, nil
-	}
-	result.OriginalCompiler = bundle.CompilerVersion
-	available, err := a.compiler.Available(ctx)
-	if err != nil {
-		return result, fmt.Errorf("failed to analyze token taxes: %w", err)
-	}
-	versions := candidateVersions(bundle.CompilerVersion, available)
-	for _, version := range versions {
-		if err := ctx.Err(); err != nil {
-			return result, fmt.Errorf("failed to analyze token taxes: %w", err)
-		}
-		output, err := a.compiler.Compile(ctx, CompileRequest{Version: version, Input: append([]byte(nil), input...)})
-		if errors.Is(err, ErrUnsupported) || errors.Is(err, ErrCompilation) {
-			continue
-		}
-		if err != nil {
-			return result, fmt.Errorf("failed to analyze token taxes: %w", err)
-		}
-		artifact, sources, err := parseOutput(output, bundle)
-		if errors.Is(err, ErrCompilation) {
-			continue
-		}
-		if err != nil {
-			return result, fmt.Errorf("failed to analyze token taxes: %w", err)
-		}
-		model, allowedImmutables, ok := recognizeModel(bundle, sources)
-		if !ok {
-			result.Reason = "unsupported_model"
-			return result, nil
-		}
-		if !matchRuntime(artifact, code, allowedImmutables) {
-			continue
-		}
-		result.Model, result.UsedCompiler = model, version
+	switch verified.Model {
+	case "weth9-reviewed-runtime-v1", "taot-reviewed-runtime-v1", "openzeppelin-erc20-v5.5-v1", "openzeppelin-erc20-permit-v5.5-v1":
 		result.Observation = zeroObservation("contract_analysis")
-		return result, nil
+	default:
+		if verified.Model != "" {
+			result.Model = ""
+			result.Reason = "unsupported_model"
+		}
 	}
-	result.Reason = "unverified_runtime"
 	return result, nil
 }
 
@@ -136,23 +97,23 @@ func zeroObservation(source string) *Observation {
 	return &Observation{BuyRate: &buy, SellRate: &sell, CanChange: &change, HasExemptions: &exemptions, Source: source}
 }
 
-func candidateVersions(original string, available []string) []string {
-	unique := map[string]bool{}
-	var versions []string
-	for _, version := range available {
-		if !validVersion(version) || unique[version] {
-			continue
-		}
-		unique[version] = true
-		if version == original {
-			return []string{original}
-		}
-		versions = append(versions, version)
-	}
-	sort.Slice(versions, func(i, j int) bool { return compareVersion(versions[i], versions[j]) > 0 })
-	// At most two locally available alternatives, then the source's exact version.
-	if len(versions) > 2 {
-		versions = versions[:2]
-	}
-	return append(versions, original)
+type sourceAdapter struct{ SourceProvider }
+
+// Source adapts the existing provider without changing its public contract.
+//
+// Version:
+//   - 2026-09-23: Added.
+func (a sourceAdapter) Source(ctx context.Context, r analysis.SourceRequest) (analysis.SourceBundle, error) {
+	b, err := a.SourceProvider.Source(ctx, SourceRequest(r))
+	return analysis.SourceBundle(b), err
+}
+
+type compilerAdapter struct{ Compiler }
+
+// Compile adapts the legacy compiler request to shared code analysis.
+//
+// Version:
+//   - 2026-09-23: Added.
+func (a compilerAdapter) Compile(ctx context.Context, r analysis.CompileRequest) (json.RawMessage, error) {
+	return a.Compiler.Compile(ctx, CompileRequest(r))
 }

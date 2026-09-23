@@ -1,4 +1,4 @@
-package tax
+package analysis
 
 import (
 	"encoding/hex"
@@ -31,17 +31,22 @@ type runtimeArtifact struct {
 }
 
 type astNode struct {
-	ID                    int       `json:"id"`
-	NodeType              string    `json:"nodeType"`
-	Name                  string    `json:"name"`
-	Kind                  string    `json:"kind"`
-	Abstract              bool      `json:"abstract"`
-	ContractKind          string    `json:"contractKind"`
-	StateMutability       string    `json:"stateMutability"`
-	Mutability            string    `json:"mutability"`
-	ReferencedDeclaration int       `json:"referencedDeclaration"`
-	MemberName            string    `json:"memberName"`
-	Nodes                 []astNode `json:"nodes"`
+	Visibility            string          `json:"visibility"`
+	Virtual               bool            `json:"virtual"`
+	Overrides             json.RawMessage `json:"overrides"`
+	ReturnParameters      json.RawMessage `json:"returnParameters"`
+	TypeName              *astNode        `json:"typeName"`
+	ID                    int             `json:"id"`
+	NodeType              string          `json:"nodeType"`
+	Name                  string          `json:"name"`
+	Kind                  string          `json:"kind"`
+	Abstract              bool            `json:"abstract"`
+	ContractKind          string          `json:"contractKind"`
+	StateMutability       string          `json:"stateMutability"`
+	Mutability            string          `json:"mutability"`
+	ReferencedDeclaration int             `json:"referencedDeclaration"`
+	MemberName            string          `json:"memberName"`
+	Nodes                 []astNode       `json:"nodes"`
 	BaseContracts         []struct {
 		BaseName  astNode   `json:"baseName"`
 		Arguments []astNode `json:"arguments"`

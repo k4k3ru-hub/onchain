@@ -1,4 +1,4 @@
-package tax
+package analysis
 
 import (
 	"crypto/sha256"
@@ -44,6 +44,9 @@ func recognizeModel(bundle SourceBundle, outputs map[string]outputSource) (strin
 		default:
 			return "", nil, false
 		}
+	}
+	if contract != nil && len(contract.BaseContracts) == 2 {
+		return recognizeOwnable(*contract, outputs)
 	}
 	if contract == nil || contract.Abstract || contract.ContractKind != "contract" || len(contract.BaseContracts) != 1 || len(contract.Nodes) != 1 {
 		return "", nil, false

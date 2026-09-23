@@ -1,22 +1,21 @@
-// Package tax observes token transfer taxes from reviewed code and source models.
-// It does not assess tradability, token safety, liquidity protection or DEX fees.
-package tax
+// Package analysis verifies reviewed ERC20 code structures for domain analyzers.
+package analysis
 
 import (
 	"context"
 	"encoding/json"
+	"errors"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/k4k3ru-hub/onchain/go/evm"
-	"github.com/k4k3ru-hub/onchain/go/evm/erc20/analysis"
 )
 
 // ModelVersion identifies the reviewed analysis rules for persisted evidence.
-const ModelVersion = "evm-token-taxes-v1"
+const ModelVersion = "evm-token-code-v1"
 
 var (
-	ErrUnsupported = analysis.ErrUnsupported
-	ErrCompilation = analysis.ErrCompilation
+	ErrUnsupported = errors.New("unsupported token code analysis")
+	ErrCompilation = errors.New("solidity compilation failed")
 )
 
 type Request struct {
@@ -26,18 +25,8 @@ type Request struct {
 	BlockHash common.Hash
 }
 
-type Observation struct {
-	BuyRate       *string
-	SellRate      *string
-	CanChange     *bool
-	HasExemptions *bool
-	Source        string
-}
-
-// Result keeps internal analysis evidence separate from the public observation.
-// A nil observation is unknown or intentionally skipped; it is never tax zero.
+// Result identifies a verified code structure, not a tax or permission verdict.
 type Result struct {
-	Observation      *Observation
 	BlockHash        common.Hash
 	CodeSHA256       string
 	Model            string
@@ -81,12 +70,7 @@ type Compiler interface {
 }
 
 type Analyzer struct {
-	code     CodeVerifier
 	reader   Reader
 	sources  SourceProvider
 	compiler Compiler
-}
-
-type CodeVerifier interface {
-	Analyze(context.Context, analysis.Request) (analysis.Result, error)
 }

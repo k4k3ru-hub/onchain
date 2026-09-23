@@ -1,4 +1,4 @@
-package tax
+package analysis
 
 import (
 	"bytes"

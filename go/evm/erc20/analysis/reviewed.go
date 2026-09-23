@@ -1,4 +1,4 @@
-package tax
+package analysis
 
 // Reviewed complete runtime hashes and exact OpenZeppelin dependency contents.
 // Provenance and accepted behavior are documented in README.md.
@@ -8,6 +8,7 @@ var reviewedRuntimes = map[string]string{
 }
 
 var reviewedSources = map[string]string{
+	"@openzeppelin/contracts/access/Ownable.sol":                        "38578bd71c0a909840e67202db527cc6b4e6b437e0f39f0c909da32c1e30cb81",
 	"@openzeppelin/contracts/access/AccessControl.sol":                  "97abba9ae4ee97f16f17b7b688d90f6f1195b79edfba344eacc58406e088b51e",
 	"@openzeppelin/contracts/access/IAccessControl.sol":                 "140304b7e99d517c57a13f391dfd3b550ca633a507f7b2af130f391b6cd89cc5",
 	"@openzeppelin/contracts/interfaces/IERC5267.sol":                   "f89772d2d4fafcbef8b73bb10ee9a3373edec2eedb2f1b302320915b351dc3d1",

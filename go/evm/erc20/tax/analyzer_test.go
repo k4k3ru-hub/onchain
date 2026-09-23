@@ -201,9 +201,9 @@ func TestAnalyzeRejectsUnverifiedInputs(t *testing.T) {
 			case "unknown proxy":
 				f.fixture.Code = "0x363d3d373d3d3d363d73" + strings.Repeat("11", 20) + "5af43d82803e903d91602b57fd5bf3"
 			case "changed dependency":
-				sources[erc20File].(map[string]any)["content"] = "contract ERC20 {}"
+				sources["@openzeppelin/contracts/token/ERC20/ERC20.sol"].(map[string]any)["content"] = "contract ERC20 {}"
 			case "missing dependency":
-				delete(sources, erc20File)
+				delete(sources, "@openzeppelin/contracts/token/ERC20/ERC20.sol")
 			case "source url":
 				sources["FixtureToken.sol"].(map[string]any)["urls"] = []string{"/etc/passwd"}
 			case "bad metadata":

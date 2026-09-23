@@ -27,7 +27,7 @@ custom modifiers and arbitrary constructor expressions. This is a deliberately
 limited model, not a general Solidity semantic analyzer.
 
 Imported contents must match the reviewed OpenZeppelin bundle hashes in
-`reviewed.go`; filenames and ABI getters alone cannot establish tax behavior.
+[`../analysis/reviewed.go`](../analysis/reviewed.go); filenames and ABI getters alone cannot establish tax behavior.
 The wrapper AST and every dependency come from the supplied local compiler output.
 The `Compiler` implementation is a trusted application dependency, not a remote
 source provider's `stdJsonOutput` field.
@@ -131,10 +131,19 @@ the formal `solc-manage` executable using `SOLC_MANAGE_PATH`, `SOLC_HELPER_PATH`
 and `SOLC_BUNDLE_DIR`. It verifies both accepted/rejected models and an actual
 0.8.34 runtime matched with 0.8.37 output without acquiring the original compiler.
 
-MarketHub worker/snapshot integration, SDK Pair fields, Agent/Console display
-and Agent E2E remain subsequent implementation steps. Production code does not
+MarketHub owns worker/snapshot integration; SDK Pair fields and Agent/Console
+display consume the resulting observations. Production code does not
 invoke research scripts. The process runner's resource-limit tests are independent
 of the earlier research results.
 
 References: [Sourcify v2](https://docs.sourcify.dev/docs/api/),
 [Solidity metadata](https://docs.soliditylang.org/en/latest/metadata.html).
+
+## Shared Controls analysis
+
+The code/source/compiler pipeline now lives in [`analysis`](../analysis/README.md).
+The existing `tax.NewAnalyzer` constructor and public request/provider/compiler
+types remain supported. `tax.NewAnalyzerWithCode(verifier)` accepts a shared
+`analysis.Request` / `analysis.Result` verifier so an application can cache code
+verification across Tax and [Controls](../controls/README.md). Controls Ownable
+models do not expand the tax model whitelist; their tax result remains null.
