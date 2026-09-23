@@ -29,7 +29,7 @@ func NewAnalyzer(reader Reader, sources SourceProvider, compiler Compiler) (*Ana
 // failures return wrapped errors, allowing the caller to budget retries.
 //
 // Version:
-//   - 2026-09-23: Extracted shared code verification.
+//   - 2026-09-23: Recognize reviewed complete OniAgent runtime alongside shared code verification.
 func (a *Analyzer) Analyze(ctx context.Context, request Request) (Result, error) {
 	result := Result{BlockHash: request.BlockHash}
 	if a == nil || a.reader == nil || a.sources == nil || a.compiler == nil {

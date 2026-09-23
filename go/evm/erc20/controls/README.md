@@ -14,6 +14,7 @@ hash, verifies canonicality afterwards, and adds the observation time/position.
 | Reviewed WETH9 at an unregistered address | Permissionless mint requires native backing; no dedicated supply cap |
 | Restricted Ownable wrapper | Owner read at the supplied hash; zero means renounced within this recognized ownership mechanism |
 | Restricted Ownable + onlyOwner mint | Mint mechanism exists; owner nonzero permits mint, owner zero disables it; no backing or dedicated cap |
+| Reviewed OniAgent complete runtime | Metadata-only owner read at the supplied hash; no runtime mint or special trading/upgrade/balance authority, including when owner remains nonzero |
 | TAOT tax-only model, arbitrary overrides, roles, proxy or other code | Unknown, never inferred false |
 
 This identifies contract capabilities, not whether a particular wallet's next
@@ -31,3 +32,8 @@ the pinned block and no accepted recovery route. It is not a global safety claim
 TokenTaxes remains separate. Trusted is policy-based omission, not a finding of
 zero tax or absent permissions. Controls does not describe LP protection,
 holder concentration, a tradable route or ongoing freshness.
+
+`ModelVersion` is `evm-token-controls-v2`. Consumers should invalidate older
+persisted Controls results so formerly unsupported OniAgent tokens can be
+evaluated again. This package does not emit logs; applications can report
+unknown fields using the returned code evidence and nullable observations.

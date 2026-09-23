@@ -77,7 +77,7 @@ func (f *fixtureRPC) CallContractAtHash(_ context.Context, m ethereum.CallMsg, h
 func load(t *testing.T, name string) *fixtureRPC {
 	t.Helper()
 	folder := "../tax/testdata/"
-	if strings.HasPrefix(name, "ownable") {
+	if strings.HasPrefix(name, "ownable") || name == "oni-agent" {
 		folder = "../analysis/testdata/"
 	}
 	raw, err := os.ReadFile(folder + name + ".json")

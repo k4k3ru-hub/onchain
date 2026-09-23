@@ -5,6 +5,7 @@ package analysis
 var reviewedRuntimes = map[string]string{
 	"667c900c2c6da80d452501a9c6332e046384a0c438c3334ce6f71c86dd7b8735": "weth9-reviewed-runtime-v1",
 	"9825b6b2c5680fc87cfb9926a36b1b8eefc51eb5143d65f335a961e3561017e2": "taot-reviewed-runtime-v1",
+	"ca0e6bd1cc4bca341e05059fd5bee97e0ccefec94901a084078997ebc89e3020": "oni-agent-reviewed-runtime-v1",
 }
 
 var reviewedSources = map[string]string{

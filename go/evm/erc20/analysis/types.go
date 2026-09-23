@@ -11,7 +11,7 @@ import (
 )
 
 // ModelVersion identifies the reviewed analysis rules for persisted evidence.
-const ModelVersion = "evm-token-code-v1"
+const ModelVersion = "evm-token-code-v2"
 
 var (
 	ErrUnsupported = errors.New("unsupported token code analysis")

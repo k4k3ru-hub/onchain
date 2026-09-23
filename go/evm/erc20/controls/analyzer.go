@@ -11,7 +11,7 @@ import (
 	"github.com/k4k3ru-hub/onchain/go/evm/erc20/analysis"
 )
 
-const ModelVersion = "evm-token-controls-v1"
+const ModelVersion = "evm-token-controls-v2"
 
 type CodeAnalyzer interface {
 	Analyze(context.Context, analysis.Request) (analysis.Result, error)
@@ -50,7 +50,7 @@ func NewAnalyzer(code CodeAnalyzer, state StateReader) (*Analyzer, error) {
 // The caller owns latest-block selection, canonicality, retries and timestamps.
 //
 // Version:
-//   - 2026-09-23: Added.
+//   - 2026-09-23: Add the reviewed OniAgent runtime with metadata-only ownership.
 func (a *Analyzer) Analyze(ctx context.Context, r Request) (Result, error) {
 	out := Result{Observation: unknown("unknown", "unsupported_model")}
 	if a == nil || a.code == nil || a.state == nil {
@@ -87,7 +87,7 @@ func (a *Analyzer) Analyze(ctx context.Context, r Request) (Result, error) {
 	own, mint, wrapped := false, false, false
 	switch evidence.Model {
 	case "openzeppelin-erc20-v5.5-v1", "openzeppelin-erc20-permit-v5.5-v1":
-	case "openzeppelin-erc20-ownable-v5.5-v1":
+	case "openzeppelin-erc20-ownable-v5.5-v1", "oni-agent-reviewed-runtime-v1":
 		own = true
 	case "openzeppelin-erc20-ownable-mint-v5.5-v1":
 		own = true
