@@ -47,6 +47,23 @@ func NewReaderWithCreationRPC(rpc RPC, creationRPC CreationRPC, limits Limits) (
 	return r, nil
 }
 
+// NewReaderWithCreationResolver composes optional deployment discovery with the
+// reviewed onchain verifier. Supplied and persisted hints take precedence.
+//
+// Version:
+//   - 2026-09-23: Added.
+func NewReaderWithCreationResolver(rpc RPC, creationRPC CreationRPC, resolver CreationHintResolver, limits Limits) (*Reader, error) {
+	if resolver == nil {
+		return nil, fmt.Errorf("failed to compose lp creation resolver: resolver=null")
+	}
+	r, err := NewReaderWithCreationRPC(rpc, creationRPC, limits)
+	if err != nil {
+		return nil, fmt.Errorf("failed to compose lp creation resolver: %w", err)
+	}
+	r.resolver = resolver
+	return r, nil
+}
+
 // Analyze discovers custody from a pool creation event and a reusable complete
 // principal snapshot. It never recaptures full ticks, polls, retries, or submits
 // transactions. Unknown custody returns no observation; acquisition failures
@@ -54,6 +71,7 @@ func NewReaderWithCreationRPC(rpc RPC, creationRPC CreationRPC, limits Limits) (
 //
 // Version:
 //   - 2026-09-23: Recheck history prefixes, invalidate reorg evidence and reacquire moved receipts within budget.
+//   - 2026-09-23: Expose inspectable reorg failures to observation owners.
 func (r *Reader) Analyze(ctx context.Context, req Request) (result Result, err error) {
 	s := req.Principal.Snapshot
 	result = Result{ModelVersion: ModelVersion, Pool: req.Principal.Pool, BlockNumber: s.BlockNumber, BlockHash: s.BlockHash, BlockTime: s.BlockTime, Metrics: Metrics{Methods: make(map[string]int)}}
@@ -106,6 +124,9 @@ func (r *Reader) Analyze(ctx context.Context, req Request) (result Result, err e
 			result.Reason = "acquisition_failed"
 			if errors.Is(e.err, ErrBudget) || errors.Is(e.err, context.DeadlineExceeded) {
 				result.Reason = "acquisition_budget_exceeded"
+			}
+			if errors.Is(e.err, ErrReorg) {
+				result.Reason = "observation_reorg"
 			}
 			if errors.Is(e.err, ErrHistoryAbandoned) {
 				result.Reason = "operator_history_abandoned"

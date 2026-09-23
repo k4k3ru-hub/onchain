@@ -35,6 +35,12 @@ type CreationRPC interface {
 	NonceAtHash(context.Context, common.Address, common.Hash) (uint64, error)
 }
 
+// CreationHintResolver supplies untrusted deployment candidates, never verdicts.
+// Calls share Analyze's deadline; the application owns HTTP budgets and retries.
+type CreationHintResolver interface {
+	ResolveCreationHint(context.Context, uint64, common.Address) (CreationHint, error)
+}
+
 type Limits struct {
 	Timeout                                 time.Duration
 	MaxCalls, MaxReceipts                   int
@@ -44,9 +50,12 @@ type Limits struct {
 
 var ErrBudget = errors.New("lp protection acquisition budget exceeded")
 
+var ErrReorg = errors.New("lp protection canonical block changed")
+
 type Reader struct {
 	rpc         RPC
 	creationRPC CreationRPC
+	resolver    CreationHintResolver
 	limits      Limits
 }
 

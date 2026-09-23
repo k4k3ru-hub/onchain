@@ -59,7 +59,7 @@ func (e *evaluation) invalidateEvidence() {
 	e.evidence.data.Creations = nil
 	e.evidence.data.Histories = nil
 	clear(e.evidence.data.Acquired)
-	e.err = fmt.Errorf("failed to verify lp evidence: canonical_block=invalid")
+	e.err = fmt.Errorf("failed to verify lp evidence: %w", ErrReorg)
 }
 
 func (e *evaluation) historicalCode(address common.Address, hash common.Hash) []byte {

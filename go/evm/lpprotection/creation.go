@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -67,7 +68,22 @@ func (e *evaluation) clCreationStart(p *Position, factory, implementation common
 			}
 		}
 	}
-	if hint == (common.Hash{}) || candidate == nil || candidate.BlockNumber == 0 || candidate.BlockNumber > e.result.BlockNumber {
+	if candidate == nil || candidate.BlockNumber == 0 || candidate.BlockNumber > e.result.BlockNumber {
+		return
+	}
+	if hint == (common.Hash{}) && e.r.resolver != nil {
+		resolved, err := e.r.resolver.ResolveCreationHint(e.ctx, e.req.ChainID, factory)
+		if err != nil {
+			e.err = fmt.Errorf("failed to resolve lp creation hint: %w", err)
+			return
+		}
+		if resolved.TransactionHash != (common.Hash{}) && resolved.Factory != factory {
+			e.err = fmt.Errorf("failed to resolve lp creation hint: factory=invalid")
+			return
+		}
+		hint = resolved.TransactionHash
+	}
+	if hint == (common.Hash{}) {
 		return
 	}
 	receipt := e.creationReceipt(candidate.TxHash)

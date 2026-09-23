@@ -233,3 +233,23 @@ ONCHAIN_LP_CREATION_LIVE=1 go test ./evm/lpprotection -run '^TestCreationRuleLiv
 It uses actual bounded log queries and normal RPC calls, with no research verdict
 adapter. A cold timeout stays unresolved. A separately measured later evaluation
 can use the retained progress; each evaluation retains the same limits.
+
+## Injected deployment candidates
+
+`NewReaderWithCreationResolver(rpc, creationRPC, resolver, limits)` adds optional
+`CreationHintResolver` discovery. Existing constructors and `Request.CreationHints`
+remain available. Supplied hints and persisted creation evidence take precedence.
+The resolver is invoked only after a reviewed custody model identifies the factory
+and a matching lock-creation event. It shares `Analyze`'s deadline.
+
+`evm/contractmetadata/sourcify.NewClient` retrieves the untrusted deployment
+transaction hash through Sourcify v2 (`fields=deployment`). Its injected HTTP client
+makes one attempt, with a 20-second timeout and a 64 KiB response bound. The
+application owns shared caching, persistent retry counters and the HTTP budget.
+Neither a candidate nor a Sourcify match status proves lock protection: the reader
+still verifies transaction, receipt, bytecode, address derivation and chain state.
+
+`errors.Is(err, ErrReorg)` identifies a revoked block/proof. The result reason is
+`observation_reorg`; applications must clear the revoked public observation,
+including any previously retained percentage. Ordinary acquisition failure may
+retain an older valid observation as explicitly stale data.
