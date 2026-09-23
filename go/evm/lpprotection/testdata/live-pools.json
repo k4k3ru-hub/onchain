@@ -1,0 +1,58 @@
+[
+  {
+    "protocol": 1,
+    "pool": "0x81f3bD2fF7147a6Fd779fe749f4Bcc82C802C060",
+    "spacing": 60,
+    "creation": {
+      "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+      "topics": [
+        "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+        "0x0000000000000000000000004200000000000000000000000000000000000006",
+        "0x000000000000000000000000c7f9ab710f98ba8bd3c7568ddc1e69afac58d286",
+        "0x0000000000000000000000000000000000000000000000000000000000000bb8"
+      ],
+      "data": "0x000000000000000000000000000000000000000000000000000000000000003c00000000000000000000000081f3bd2ff7147a6fd779fe749f4bcc82c802c060",
+      "blockNumber": "0x31348ba",
+      "transactionHash": "0x8ea4d01ad31ae583ff78edbe8a4826c6b74a3b0df04b10f184bd4ccc0320db45",
+      "transactionIndex": "0x94",
+      "blockHash": "0x7154501f654bb887a965bc56ef378edb13c0671d5be0d1daf67f210c45a43ad8",
+      "blockTimestamp": "0x6ab0ee57",
+      "logIndex": "0x21d",
+      "removed": false
+    },
+    "blockNumber": 51596896,
+    "blockHash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+    "expectedToken0Locked": "0",
+    "expectedToken1Locked": "0",
+    "expectedAllProtected": false
+  },
+  {
+    "protocol": 2,
+    "pool": "0x197A0913aCC071cc6D0B5611A72b65F5838797eE",
+    "spacing": 200,
+    "creation": {
+      "address": "0xf8f2eb4940cfe7d13603dddd87f123820fc061ef",
+      "topics": [
+        "0xab0d57f0df537bb25e80245ef7748fa62353808c54d6e528a9dd20887aed9ac2",
+        "0x000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+        "0x00000000000000000000000098dee83a3e02960810aee524ec9950dccec4c667",
+        "0x00000000000000000000000000000000000000000000000000000000000000c8"
+      ],
+      "data": "0x000000000000000000000000197a0913acc071cc6d0b5611a72b65f5838797ee",
+      "blockNumber": "0x31336c5",
+      "transactionHash": "0xca5dd4c1271f04c91789e2d1ba8f22f2c77fb2d98c47756ae51ceef8b3d6deed",
+      "transactionIndex": "0x17a",
+      "blockHash": "0x116ef979bb10f1e561585555a2552f73294bb4ca6b04e0688a2cd1d4abc32e4c",
+      "blockTimestamp": "0x6ab0ca6d",
+      "logIndex": "0x15d",
+      "removed": false
+    },
+    "blockNumber": 51596896,
+    "blockHash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+    "expectedToken0Locked": null,
+    "expectedToken1Locked": null,
+    "expectedAllProtected": false,
+    "expectedReason": "acquisition_budget_exceeded",
+    "expectedPositionReason": "operator_history_unresolved"
+  }
+]

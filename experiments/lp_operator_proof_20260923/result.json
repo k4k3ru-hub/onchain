@@ -1,0 +1,81 @@
+{
+  "actualMethods": {
+    "eth_call": 19,
+    "eth_getBlockByNumber": 2,
+    "eth_getCode": 3
+  },
+  "adapterCacheHits": 2,
+  "principalSetupRPC": 5,
+  "proofFile": "proof.json",
+  "protectionActualRPC": 24,
+  "protectionElapsedSeconds": 60.751047542,
+  "result": {
+    "ModelVersion": "lp-protection-20260923-v2",
+    "Pool": "0x197a0913acc071cc6d0b5611a72b65f5838797ee",
+    "Manager": "0xe1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53",
+    "BlockNumber": 51596896,
+    "BlockHash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+    "BlockTime": "2026-09-21T09:32:19Z",
+    "Observation": {
+      "Token0": {
+        "LockedPercentage": null,
+        "PermanentlyProtectedPercentage": null
+      },
+      "Token1": {
+        "LockedPercentage": "100",
+        "PermanentlyProtectedPercentage": "0"
+      },
+      "AllPositionsProtected": true,
+      "EarliestUnlockAt": "2106-02-07T06:28:15Z",
+      "CanWeakenProtection": true
+    },
+    "Reason": "",
+    "Positions": [
+      {
+        "ID": 6628901,
+        "Owner": "0xdbf7a3d301e39871e6644a17fb1af1a3889078af",
+        "Approved": "0x0000000000000000000000000000000000000000",
+        "Lower": -887200,
+        "Upper": 253200,
+        "Liquidity": 3174477384325080,
+        "CodeHash": "0xe1f829929a48eab02d0ab814916e2c155d34b710bf39af974767c330945bab93",
+        "Model": "reviewed-cl-locker-v1",
+        "Reason": "",
+        "Kind": "locked",
+        "UnlockAt": "2106-02-07T06:28:15Z",
+        "CanWeakenProtection": true
+      }
+    ],
+    "Contracts": [
+      {
+        "Address": "0x932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+        "CodeHash": "0x7f12c083818be810c9a133c4db7c78fc71b88293f58c2fd3d5d89f082c4d8dbd"
+      },
+      {
+        "Address": "0xdbf7a3d301e39871e6644a17fb1af1a3889078af",
+        "CodeHash": "0xe1f829929a48eab02d0ab814916e2c155d34b710bf39af974767c330945bab93"
+      },
+      {
+        "Address": "0xfe678bffc3c1c8d1de4478cc5c3e1b93ee4638ae",
+        "CodeHash": "0xacd2c70407ebd3e3e867759727459995c207082e259f99b1d244b95fa5b05517"
+      }
+    ],
+    "PositionIDs": [
+      6628901
+    ],
+    "Metrics": {
+      "Calls": 26,
+      "AdditionalReceipts": 0,
+      "CacheHits": 2,
+      "ResponseBytes": 24100,
+      "Methods": {
+        "eth_call": 19,
+        "eth_chainId": 1,
+        "eth_getBlockByNumber": 2,
+        "eth_getCode": 3,
+        "eth_getLogs": 1
+      }
+    }
+  },
+  "scope": "research-only-single-sample-with-verified-adapter"
+}

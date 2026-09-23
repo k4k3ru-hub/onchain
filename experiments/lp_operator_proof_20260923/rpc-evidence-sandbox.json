@@ -1,0 +1,37 @@
+{
+  "attempts": [
+    {
+      "name": "chain",
+      "method": "eth_chainId",
+      "params": [],
+      "attempt": 1,
+      "error": "URLError",
+      "elapsed_seconds": 0.026
+    },
+    {
+      "name": "chain",
+      "method": "eth_chainId",
+      "params": [],
+      "attempt": 2,
+      "error": "URLError",
+      "elapsed_seconds": 0.004
+    },
+    {
+      "name": "chain",
+      "method": "eth_chainId",
+      "params": [],
+      "attempt": 3,
+      "error": "URLError",
+      "elapsed_seconds": 0.004
+    },
+    {
+      "name": "chain",
+      "method": "eth_chainId",
+      "params": [],
+      "attempt": 4,
+      "error": "URLError",
+      "elapsed_seconds": 0.006
+    }
+  ],
+  "results": {}
+}

@@ -1,0 +1,30 @@
+{
+  "approvalLogCount": 0,
+  "approvalLogRanges": 7,
+  "chainId": 8453,
+  "compiler": "0.8.30+commit.73712a01.Emscripten.clang",
+  "createXCodeHash": "0xbd8a7ea8cfca7b4e5f5041d7d4b17bc317c5ce42cfbc42066a00cf26b43eb53f",
+  "createXReplaySteps": [
+    "0 CALL 0xA82229b02332BB67D5FB26A012c68A9e91CF1E56 -\u003e 0xba5Ed099633D3B313e4D5F7bdc1305d3c28ba5Ed",
+    "1 CREATE2 0xba5Ed099633D3B313e4D5F7bdc1305d3c28ba5Ed -\u003e 0x6B9d4AacCc4d8B924A86C07B3b7129Ab1b922CA1",
+    "1 CALL 0xba5Ed099633D3B313e4D5F7bdc1305d3c28ba5Ed -\u003e 0x6B9d4AacCc4d8B924A86C07B3b7129Ab1b922CA1",
+    "2 CREATE 0x6B9d4AacCc4d8B924A86C07B3b7129Ab1b922CA1 -\u003e 0x932D0b4C00a2a33EF1EC5fE0aA981BD1A00a6f5C",
+    "3 STATICCALL 0x932D0b4C00a2a33EF1EC5fE0aA981BD1A00a6f5C -\u003e 0xe1f8cd9AC4e4A65F54f38a5CdAfCA44f6dD68b53"
+  ],
+  "factory": "0x932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+  "factoryConstructorMatches": true,
+  "factoryCreationTx": "0xb498956df7c6d233f510db3298adba98aab1d13f7b70079e6324af699ac93701",
+  "factoryNonceAfter": 87,
+  "factoryNonceBefore": 86,
+  "factoryRuntimeMatches": true,
+  "firstCustodianBlock": 51590853,
+  "firstCustodianBlockHash": "0x116ef979bb10f1e561585555a2552f73294bb4ca6b04e0688a2cd1d4abc32e4c",
+  "locker": "0xdbf7a3d301e39871e6644a17fb1af1a3889078af",
+  "lockerCreateNonce": 86,
+  "manager": "0xe1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53",
+  "observationBlock": 51596896,
+  "observationHash": "0xacc268320c2198258d4b13b4fb4f90bb810d626b9329fe58ac60e52c55796ba2",
+  "operatorSetEmpty": true,
+  "scope": "research-only-single-sample",
+  "uniqueProxyNonce": 1
+}

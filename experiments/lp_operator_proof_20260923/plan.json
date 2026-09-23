@@ -1,0 +1,279 @@
+[
+  {
+    "name": "chain",
+    "method": "eth_chainId",
+    "params": []
+  },
+  {
+    "name": "observation_header",
+    "method": "eth_getBlockByNumber",
+    "params": [
+      "0x3134e60",
+      false
+    ]
+  },
+  {
+    "name": "factory_tx",
+    "method": "eth_getTransactionByHash",
+    "params": [
+      "0xb498956df7c6d233f510db3298adba98aab1d13f7b70079e6324af699ac93701"
+    ]
+  },
+  {
+    "name": "factory_receipt",
+    "method": "eth_getTransactionReceipt",
+    "params": [
+      "0xb498956df7c6d233f510db3298adba98aab1d13f7b70079e6324af699ac93701"
+    ]
+  },
+  {
+    "name": "pool_tx",
+    "method": "eth_getTransactionByHash",
+    "params": [
+      "0xca5dd4c1271f04c91789e2d1ba8f22f2c77fb2d98c47756ae51ceef8b3d6deed"
+    ]
+  },
+  {
+    "name": "pool_receipt",
+    "method": "eth_getTransactionReceipt",
+    "params": [
+      "0xca5dd4c1271f04c91789e2d1ba8f22f2c77fb2d98c47756ae51ceef8b3d6deed"
+    ]
+  },
+  {
+    "name": "createx_code",
+    "method": "eth_getCode",
+    "params": [
+      "0xba5ed099633d3b313e4d5f7bdc1305d3c28ba5ed",
+      "0x2a740da"
+    ]
+  },
+  {
+    "name": "createx_prior_code",
+    "method": "eth_getCode",
+    "params": [
+      "0xba5ed099633d3b313e4d5f7bdc1305d3c28ba5ed",
+      "0x2a740d9"
+    ]
+  },
+  {
+    "name": "create3_proxy_code",
+    "method": "eth_getCode",
+    "params": [
+      "0x6b9d4aaccc4d8b924a86c07b3b7129ab1b922ca1",
+      "0x2a740da"
+    ]
+  },
+  {
+    "name": "factory_creation_code",
+    "method": "eth_getCode",
+    "params": [
+      "0x932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+      "0x2a740da"
+    ]
+  },
+  {
+    "name": "factory_pool_creation_code",
+    "method": "eth_getCode",
+    "params": [
+      "0x932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+      "0x31336c5"
+    ]
+  },
+  {
+    "name": "locker_creation_code",
+    "method": "eth_getCode",
+    "params": [
+      "0xdbf7a3d301e39871e6644a17fb1af1a3889078af",
+      "0x31336c5"
+    ]
+  },
+  {
+    "name": "factory_header",
+    "method": "eth_getBlockByNumber",
+    "params": [
+      "0x2a740da",
+      false
+    ]
+  },
+  {
+    "name": "pool_header",
+    "method": "eth_getBlockByNumber",
+    "params": [
+      "0x31336c5",
+      false
+    ]
+  },
+  {
+    "name": "operators_51590853_51591852",
+    "method": "eth_getLogs",
+    "params": [
+      {
+        "address": "0xe1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53",
+        "fromBlock": "0x31336c5",
+        "toBlock": "0x3133aac",
+        "topics": [
+          "0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31",
+          "0x000000000000000000000000dbf7a3d301e39871e6644a17fb1af1a3889078af"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "operators_51591853_51592852",
+    "method": "eth_getLogs",
+    "params": [
+      {
+        "address": "0xe1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53",
+        "fromBlock": "0x3133aad",
+        "toBlock": "0x3133e94",
+        "topics": [
+          "0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31",
+          "0x000000000000000000000000dbf7a3d301e39871e6644a17fb1af1a3889078af"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "operators_51592853_51593852",
+    "method": "eth_getLogs",
+    "params": [
+      {
+        "address": "0xe1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53",
+        "fromBlock": "0x3133e95",
+        "toBlock": "0x313427c",
+        "topics": [
+          "0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31",
+          "0x000000000000000000000000dbf7a3d301e39871e6644a17fb1af1a3889078af"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "operators_51593853_51594852",
+    "method": "eth_getLogs",
+    "params": [
+      {
+        "address": "0xe1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53",
+        "fromBlock": "0x313427d",
+        "toBlock": "0x3134664",
+        "topics": [
+          "0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31",
+          "0x000000000000000000000000dbf7a3d301e39871e6644a17fb1af1a3889078af"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "operators_51594853_51595852",
+    "method": "eth_getLogs",
+    "params": [
+      {
+        "address": "0xe1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53",
+        "fromBlock": "0x3134665",
+        "toBlock": "0x3134a4c",
+        "topics": [
+          "0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31",
+          "0x000000000000000000000000dbf7a3d301e39871e6644a17fb1af1a3889078af"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "operators_51595853_51596852",
+    "method": "eth_getLogs",
+    "params": [
+      {
+        "address": "0xe1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53",
+        "fromBlock": "0x3134a4d",
+        "toBlock": "0x3134e34",
+        "topics": [
+          "0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31",
+          "0x000000000000000000000000dbf7a3d301e39871e6644a17fb1af1a3889078af"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "operators_51596853_51596896",
+    "method": "eth_getLogs",
+    "params": [
+      {
+        "address": "0xe1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53",
+        "fromBlock": "0x3134e35",
+        "toBlock": "0x3134e60",
+        "topics": [
+          "0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31",
+          "0x000000000000000000000000dbf7a3d301e39871e6644a17fb1af1a3889078af"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "factory_nonce_before_pool",
+    "method": "eth_getTransactionCount",
+    "params": [
+      "0x932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+      "0x31336c4"
+    ]
+  },
+  {
+    "name": "factory_nonce_at_pool",
+    "method": "eth_getTransactionCount",
+    "params": [
+      "0x932d0b4c00a2a33ef1ec5fe0aa981bd1a00a6f5c",
+      "0x31336c5"
+    ]
+  },
+  {
+    "name": "manager_factory_at_creation",
+    "method": "eth_call",
+    "params": [
+      {
+        "to": "0xe1f8cd9ac4e4a65f54f38a5cdafca44f6dd68b53",
+        "data": "0xc45a0155"
+      },
+      "0x2a740da"
+    ]
+  },
+  {
+    "name": "factory_prior_header",
+    "method": "eth_getBlockByNumber",
+    "params": [
+      "0x2a740d9",
+      false
+    ]
+  },
+  {
+    "name": "pool_prior_header",
+    "method": "eth_getBlockByNumber",
+    "params": [
+      "0x31336c4",
+      false
+    ]
+  },
+  {
+    "name": "factory_header_final",
+    "method": "eth_getBlockByNumber",
+    "params": [
+      "0x2a740da",
+      false
+    ]
+  },
+  {
+    "name": "pool_header_final",
+    "method": "eth_getBlockByNumber",
+    "params": [
+      "0x31336c5",
+      false
+    ]
+  },
+  {
+    "name": "observation_header_final",
+    "method": "eth_getBlockByNumber",
+    "params": [
+      "0x3134e60",
+      false
+    ]
+  }
+]
