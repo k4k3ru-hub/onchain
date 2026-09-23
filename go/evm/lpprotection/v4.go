@@ -100,6 +100,10 @@ func (e *evaluation) v4Identity() bool {
 
 func (e *evaluation) v4Custody(p *Position, code []byte) {
 	if !ordinary(p.Owner, code) {
+		if fields, ok := match(code, "v4LaunchLocker"); ok {
+			e.v4PermanentCustody(p, fields)
+			return
+		}
 		p.Reason = "unsupported_custody_code"
 		return
 	}

@@ -14,7 +14,9 @@ import (
 	"github.com/k4k3ru-hub/onchain/go/evm/clliquidity"
 )
 
-const ModelVersion = "lp-protection-20260923-v4"
+const ModelVersion = "lp-protection-20260924-v5"
+
+const previousModelVersion = "lp-protection-20260923-v4"
 
 // RPC methods must make at most one outbound attempt each. Retry, transport
 // cache and shared endpoint budgets belong to the composition boundary.
@@ -104,7 +106,7 @@ type Position struct {
 	Liquidity       *big.Int
 	CodeHash        common.Hash
 	Model, Reason   string
-	// Kind is withdrawable or locked; empty means unresolved.
+	// Kind is withdrawable, locked or permanent; empty means unresolved.
 	Kind                string
 	UnlockAt            *time.Time
 	CanWeakenProtection *bool

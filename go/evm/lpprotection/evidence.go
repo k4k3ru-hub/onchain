@@ -57,11 +57,13 @@ type OperatorHistory struct {
 type Evidence struct{ data evidenceData }
 
 type evidenceData struct {
-	ModelVersion string
-	ChainID      uint64
-	Creations    []CreationEvidence
-	Histories    []OperatorHistory
-	Acquired     map[string]json.RawMessage
+	ModelVersion       string
+	ChainID            uint64
+	Creations          []CreationEvidence
+	Histories          []OperatorHistory
+	Acquired           map[string]json.RawMessage
+	PermanentCustodies []PermanentCustodyEvidence `json:",omitempty"`
+	PermanentConflicts []permanentConflict        `json:",omitempty"`
 }
 
 // MarshalJSON serializes bounded evidence for trusted internal persistence.
@@ -88,6 +90,7 @@ func (e *Evidence) MarshalJSON() ([]byte, error) {
 //   - maxBytes: maximum stored evidence size, normally Limits.MaxResponseBytes.
 //
 // Version:
+//   - 2026-09-24: Preserve validated v4 acquisition ledgers when migrating to permanent-custody evidence.
 //   - 2026-09-23: Require v4 evidence with reorg-safe history checkpoints.
 func RestoreEvidence(data []byte, maxBytes int) (*Evidence, error) {
 	if maxBytes < 1 || len(data) > maxBytes {
@@ -106,8 +109,21 @@ func RestoreEvidence(data []byte, maxBytes int) (*Evidence, error) {
 		}
 		return nil, fmt.Errorf("failed to restore lp evidence: trailing_data=invalid")
 	}
-	if e.data.ModelVersion != ModelVersion || e.data.ChainID != 8453 {
+	if e.data.ModelVersion != ModelVersion && e.data.ModelVersion != previousModelVersion || e.data.ChainID != 8453 {
 		return nil, fmt.Errorf("failed to restore lp evidence: identity=invalid")
+	}
+	if e.data.ModelVersion == previousModelVersion {
+		// The old schema cannot contain new proof fields, even explicit nulls.
+		// Its existing creation/history validator below must still succeed.
+		var fields map[string]json.RawMessage
+		if err := json.Unmarshal(data, &fields); err != nil {
+			return nil, fmt.Errorf("failed to migrate lp evidence: %w", err)
+		}
+		for key := range fields {
+			if key != "ModelVersion" && key != "ChainID" && key != "Creations" && key != "Histories" && key != "Acquired" {
+				return nil, fmt.Errorf("failed to migrate lp evidence: schema=invalid")
+			}
+		}
 	}
 	seen := make(map[string]bool)
 	for _, h := range e.data.Histories {
@@ -163,6 +179,10 @@ func RestoreEvidence(data []byte, maxBytes int) (*Evidence, error) {
 	if e.data.Acquired == nil {
 		e.data.Acquired = make(map[string]json.RawMessage)
 	}
+	if err := validatePermanentEvidence(e.data); err != nil {
+		return nil, fmt.Errorf("failed to restore lp evidence: %w", err)
+	}
+	e.data.ModelVersion = ModelVersion
 	return e, nil
 }
 

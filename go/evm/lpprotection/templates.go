@@ -3,6 +3,18 @@ package lpprotection
 // Reviewed bytecode fingerprints; provenance and immutable meaning are in README.md.
 func template(name string) codeTemplate {
 	switch name {
+	case "v4LaunchLocker":
+		return codeTemplate{length: 5757, digest: "32562f683e5e70e56c01b78668929412d5fb9d7d9dc644f3fc4821bccab978f0", fields: map[string][]int{
+			"manager": {797, 1892, 2656, 3433, 3529},
+			"factory": {1208, 1782},
+		}}
+	case "v4LaunchFactory":
+		return codeTemplate{length: 13681, digest: "f194573d2926cf2826ccdada4eb8b6a136844c3dcca58802862b4cfeb6cde8be", fields: map[string][]int{
+			"poolManager": {205, 1332},
+			"manager":     {1648, 1789, 2290, 2386, 4793},
+			"permit2":     {1482, 1571, 1721, 2464, 5518},
+			"locker":      {277, 2047, 2682, 2801, 2955, 3663, 3800},
+		}}
 	case "vault":
 		return codeTemplate{length: 10973, digest: "bc1e63cbeb10aebceb42eb55442da017e4dc698951a4f1471af89d931666113d", fields: map[string][]int{
 			"factory":     {758, 1931, 2465, 3797, 4507, 5401},

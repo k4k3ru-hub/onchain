@@ -71,6 +71,13 @@ func (e *evaluation) discardReceiptEvidence(hash common.Hash) {
 		creations = append(creations, c)
 	}
 	e.evidence.data.Creations = creations
+	permanent := e.evidence.data.PermanentCustodies[:0]
+	for _, c := range e.evidence.data.PermanentCustodies {
+		if c.FactoryTransaction != hash {
+			permanent = append(permanent, c)
+		}
+	}
+	e.evidence.data.PermanentCustodies = permanent
 	histories := e.evidence.data.Histories[:0]
 	for _, h := range e.evidence.data.Histories {
 		if !affected[h.Custodian] {

@@ -54,9 +54,10 @@ func TestProtectionRatios(t *testing.T) {
 // TestRuntimeMatching verifies immutable masking cannot hide other bytecode changes.
 //
 // Version:
+//   - 2026-09-24: Include reviewed V4 factory and locker fingerprints.
 //   - 2026-09-23: Added.
 func TestRuntimeMatching(t *testing.T) {
-	for _, name := range []string{"vault", "clLocker", "clFactory"} {
+	for _, name := range []string{"vault", "clLocker", "clFactory", "v4LaunchFactory", "v4LaunchLocker"} {
 		t.Run(name, func(t *testing.T) {
 			code := runtime(t, name)
 			if _, ok := match(code, name); !ok {

@@ -11,7 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-func (e *evaluation) v4DiscoverReceipts(ids map[string]*big.Int) {
+func (e *evaluation) availableReceipts() map[common.Hash]*types.Receipt {
 	// Persisted receipts retain the original tick range even after NFT burn
 	// clears PositionInfo. They are discovery hints, rechecked against canonical
 	// blocks and current salt-specific core state, never a protection verdict.
@@ -23,7 +23,7 @@ func (e *evaluation) v4DiscoverReceipts(ids map[string]*big.Int) {
 		var receipt *types.Receipt
 		e.cachedEvidence(key, &receipt)
 		if e.err != nil {
-			return
+			return nil
 		}
 		if receipt != nil {
 			available[receipt.TxHash] = receipt
@@ -35,6 +35,11 @@ func (e *evaluation) v4DiscoverReceipts(ids map[string]*big.Int) {
 	for hash, receipt := range e.receipts {
 		available[hash] = receipt
 	}
+	return available
+}
+
+func (e *evaluation) v4DiscoverReceipts(ids map[string]*big.Int) {
+	available := e.availableReceipts()
 	ordered := make([]common.Hash, 0, len(available))
 	for hash := range available {
 		ordered = append(ordered, hash)

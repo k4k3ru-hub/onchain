@@ -58,6 +58,9 @@ func (e *evaluation) checkCanonical(ref BlockReference, refresh bool) bool {
 func (e *evaluation) invalidateEvidence() {
 	e.evidence.data.Creations = nil
 	e.evidence.data.Histories = nil
+	e.evidence.data.PermanentCustodies = nil
+	// Contradictions retain their own canonical anchors. An unrelated reorg
+	// must not silently clear a still-canonical authority conflict.
 	clear(e.evidence.data.Acquired)
 	e.err = fmt.Errorf("failed to verify lp evidence: %w", ErrReorg)
 }

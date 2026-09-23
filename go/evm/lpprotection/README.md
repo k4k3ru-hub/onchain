@@ -12,11 +12,13 @@ This is the onchain component only. MarketHub workers, persistence, invalidation
 public SDK JSON, Agent and Console integration are separate implementation units.
 LP protection does not determine NewPair listing eligibility.
 
-Model `lp-protection-20260923-v4` retains verified creation boundaries and reusable
+Model `lp-protection-20260924-v5` retains verified creation boundaries and reusable
 contiguous operator history, rechecks the existing prefix before extending it,
-and invalidates evidence on observation reorgs. Snapshots from v3 and earlier
-must be discarded and rebuilt; changing their version string is not a migration.
-Contract-owned positions still require complete operator evidence.
+and invalidates evidence on observation reorgs. Validated v4 evidence migrates
+without resetting acquisition failures. Versions before v4 remain unsupported;
+callers must stop unsupported state rather than silently reset its retry ledger.
+V3 / Slipstream contract custody still requires complete operator evidence.
+The reviewed V4 LaunchLocker uses separate creation/authority evidence instead.
 See [the evidence API and limited creation rule](EVIDENCE.md).
 
 ## Scope and trust boundary
@@ -27,8 +29,8 @@ See [the evidence API and limited creation rule](EVIDENCE.md).
   `0xf8f2eB4940CFE7d13603DDDD87f123820Fc061Ef`, position manager
   `0xe1f8cd9AC4e4A65F54f38a5CdAfCA44f6dD68b53`.
 - Base mainnet hookless Uniswap V4: official PositionManager
-  `0x7c5f5a4bbd8fd63184577525326123b519429bdc`. This first unit supports
-  ordinary EOA withdrawal only; contract custody remains unresolved. See
+  `0x7c5f5a4bbd8fd63184577525326123b519429bdc`. Ordinary EOA withdrawal and
+  creation-verified LaunchLocker permanent custody are supported. See
   [V4 scope, evidence and verification](V4.md).
 - These infrastructure deployments and Base voter
   `0x16613524e02ad97eDfeF371bC883F2F5d6C480A5` are trusted protocol boundaries.
@@ -67,7 +69,8 @@ nil. With neither token present there is no observation.
 `AllPositionsProtected` is derived from every position's classification, not from
 rounded percentages. Tiny open positions prevent a true result. Temporary locks
 have an `EarliestUnlockAt`; Unix `4294967295` is a finite date in 2106, **not**
-permanent protection. No permanent-protection positive model is implemented yet.
+permanent protection. V4 LaunchLocker is the limited permanent-protection model;
+see [its proof requirements and verification](V4_PERMANENT.md).
 Zero/dead addresses, delegated EOAs and unknown contracts do not imply a burn.
 
 `CanWeakenProtection` describes the reviewed authority paths separately from
@@ -82,14 +85,15 @@ are outside this result and must be evaluated separately.
 | --- | --- |
 | Direct ordinary EOA | Current owner has empty code, is not a reserved/burn address, and full `decreaseLiquidity` succeeds from that owner at the observation hash. Currently withdrawable. No claim about private-key availability or subsequent token transfer success. |
 | V4 ordinary EOA | Reviewed official PM runtime; complete NFT/core/tick coverage; full `modifyLiquidities` decrease plus settlement of both currencies to the actual owner succeeds. An `eth_call` at the observation hash, without signing or state overrides. |
+| V4 LaunchLocker | Reviewed locker/factory/PM runtime, exact signed first-deployment initcode and immutable bindings, matching creation runtime and canonical anchors, no observed authority conflict. Permanent protection with no unlock deadline. |
 | MultiVault runtime | Exact normalized runtime and consistent immutable values; no minted vault key; immutable beneficiary is an ordinary EOA. Future unlock timestamp, still-locked state and complete operator evidence establish temporary protection. After expiry, the actual beneficiary's `partialNonFungibleTokenUnlock` path including factory callback must succeed. |
 | CL locker clone + factory | Exact EIP-1167 clone, reviewed implementation and reviewed factory runtime; immutable manager/voter/factory/implementation bindings; live instance, pool and NFT match; unstaked, unapproved and complete operator evidence. Before expiry, migration must be disabled and both saved/current pool gauge absent. Factory owner grants a future migration configuration path, so current 100% can coexist with `CanWeakenProtection=true` only after all custody checks pass. Zero factory owner alone does not prove absence of voter governance powers. |
 
-All contract-owned positions require zero individual NFT approval. Nonzero
+All positively classified contract-owned positions require zero individual NFT approval. Nonzero
 approval is unresolved, including a contract spender that cannot be assumed to
 act just because `eth_call.from` can impersonate it.
 
-The reviewed Vault/clone runtime has no `setApprovalForAll` path, but this does
+The reviewed V3 / Slipstream Vault/clone runtime has no `setApprovalForAll` path, but this does
 **not** exclude existing approvals: a different constructor can set operator
 approvals before returning identical runtime. Therefore positive lock verdicts
 require the trusted NFT manager's complete `ApprovalForAll` history for the

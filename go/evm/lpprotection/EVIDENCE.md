@@ -1,8 +1,10 @@
 # 作成証拠・承認履歴のSDK型と限定ルール
 
-2026-09-23。`lp-protection-20260923-v4`。
+2026-09-24。現行は`lp-protection-20260924-v5`。以下のCLルール・履歴要件は維持する。
 
-v3以前の保存証拠は復元せず、再構築する。旧版で混在し得た履歴を引き継がないため、版文字列だけを書き換える移行は行わない。
+現行v4形式は既存validatorを通してv5へ移行し、失敗回数・放棄済み範囲を維持する。
+v3以前・不正な保存証拠は復元エラーとする。呼出し側で失敗回数をリセットして自動再取得しない。
+V4の永久保管は[専用の作成・権限証拠](V4_PERMANENT.md)で扱い、CLルールの履歴を省略しない。
 
 ## 型と呼出し方
 
@@ -12,6 +14,7 @@ v3以前の保存証拠は復元せず、再構築する。旧版で混在し得
 | `NewReaderWithCreationRPC` | 作成検証を有効にするconstructor。従来`NewReader`は互換維持し、作成候補だけで取得範囲を短縮しない |
 | `CreationHint` / `Request.CreationHints` | Factory作成transactionの検索候補。外部のsource情報から得てもよいが、値自体は証拠として信頼しない |
 | `CreationEvidence` / `Evidence.Creations()` | 作成rule、Factory・保管先・実装、作成tx/block、code hash、CREATE nonce、LockCreated。返却はコピー |
+| `PermanentCustodyEvidence` / `Evidence.PermanentCustodies()` | V4永久保管の専用証拠。初回作成tx・署名者・生成nonce・runtime・initcodeを保持。返却はコピー。再利用時もReaderによる検証が必要 |
 | `OperatorHistory` / `Evidence.Histories()` | manager・保管先・code hash・開始位置・連続取得末尾・発見した全operator・失敗範囲。返却はコピー |
 | `HistoryFailure` | 固定の未取得範囲・実行回数・理由。観測位置の更新や保存復元で回数をリセットしない |
 | `Evidence` / `Request.Evidence` / `Result.Evidence` | SDKが生成する変更不可の証拠。取得途中でも返し、次の評価へ渡せる |

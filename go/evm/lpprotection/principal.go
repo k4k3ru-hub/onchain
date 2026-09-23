@@ -38,10 +38,11 @@ func covered(state clliquidity.State, positions []Position) bool {
 func aggregate(price *big.Int, positions []Position) (*Observation, string, error) {
 	total := [2]*big.Rat{new(big.Rat), new(big.Rat)}
 	locked := [2]*big.Rat{new(big.Rat), new(big.Rat)}
+	permanent := [2]*big.Rat{new(big.Rat), new(big.Rat)}
 	result := &Observation{AllPositionsProtected: true, CanWeakenProtection: flag(false)}
 	weakUnknown := false
 	for _, p := range positions {
-		if p.Kind != "locked" && p.Kind != "withdrawable" {
+		if p.Kind != "locked" && p.Kind != "permanent" && p.Kind != "withdrawable" {
 			return nil, "unsupported_custody", nil
 		}
 		a, b, err := clliquidity.PositionPrincipal(price, p.Liquidity, p.Lower, p.Upper)
@@ -52,11 +53,13 @@ func aggregate(price *big.Int, positions []Position) (*Observation, string, erro
 			total[i].Add(total[i], amount)
 			if p.Kind == "locked" {
 				locked[i].Add(locked[i], amount)
+			} else if p.Kind == "permanent" {
+				permanent[i].Add(permanent[i], amount)
 			}
 		}
 		if p.Kind == "withdrawable" {
 			result.AllPositionsProtected = false
-		} else {
+		} else if p.Kind == "locked" {
 			if p.UnlockAt == nil {
 				return nil, "", fmt.Errorf("failed to calculate lp protection: unlock_at=null")
 			}
@@ -64,6 +67,12 @@ func aggregate(price *big.Int, positions []Position) (*Observation, string, erro
 				t := *p.UnlockAt
 				result.EarliestUnlockAt = &t
 			}
+		}
+		if p.Kind == "withdrawable" {
+			continue
+		}
+		if p.Kind == "permanent" && p.UnlockAt != nil {
+			return nil, "", fmt.Errorf("failed to calculate lp protection: permanent_unlock=invalid")
 		}
 		if p.CanWeakenProtection == nil {
 			weakUnknown = true
@@ -82,9 +91,9 @@ func aggregate(price *big.Int, positions []Position) (*Observation, string, erro
 			continue
 		}
 		v := percentage(locked[i], total[i])
-		zero := "0"
+		forever := percentage(permanent[i], total[i])
 		target.LockedPercentage = &v
-		target.PermanentlyProtectedPercentage = &zero
+		target.PermanentlyProtectedPercentage = &forever
 	}
 	return result, "", nil
 }

@@ -31,6 +31,7 @@ type evaluation struct {
 	starts                           map[common.Address]BlockReference
 	v4StateView                      common.Address
 	v4Ranges                         map[string][2]int32
+	permanentAnchors                 map[uint64]common.Hash
 }
 
 func (e *evaluation) logs(q ethereum.FilterQuery) []types.Log {

@@ -70,6 +70,7 @@ func NewReaderWithCreationResolver(rpc RPC, creationRPC CreationRPC, resolver Cr
 // return a wrapped error and metrics without publishing partial percentages.
 //
 // Version:
+//   - 2026-09-24: Add creation-bound V4 permanent custody and recheck its anchors before publication.
 //   - 2026-09-24: Add hookless Base V4 discovery, salt-specific coverage and EOA withdrawal verification.
 //   - 2026-09-23: Recheck history prefixes, invalidate reorg evidence and reacquire moved receipts within budget.
 //   - 2026-09-23: Expose inspectable reorg failures to observation owners.
@@ -208,6 +209,7 @@ func (r *Reader) Analyze(ctx context.Context, req Request) (result Result, err e
 			return result, nil
 		}
 	}
+	e.finishPermanentEvidence()
 	e.header()
 	if e.err != nil {
 		return result, nil
