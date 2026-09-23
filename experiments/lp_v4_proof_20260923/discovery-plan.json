@@ -1,0 +1,37 @@
+[
+  {
+    "name": "chain",
+    "method": "eth_chainId",
+    "params": []
+  },
+  {
+    "name": "creation_tx",
+    "method": "eth_getTransactionByHash",
+    "params": [
+      "0xf58f481f38a00ec6db604d14a9b79c711fa4aac74dc4577072376eeecdac8a60"
+    ]
+  },
+  {
+    "name": "creation_receipt",
+    "method": "eth_getTransactionReceipt",
+    "params": [
+      "0xf58f481f38a00ec6db604d14a9b79c711fa4aac74dc4577072376eeecdac8a60"
+    ]
+  },
+  {
+    "name": "birth_header",
+    "method": "eth_getBlockByNumber",
+    "params": [
+      "0x30948e2",
+      false
+    ]
+  },
+  {
+    "name": "observation_header",
+    "method": "eth_getBlockByNumber",
+    "params": [
+      "0x3136b52",
+      false
+    ]
+  }
+]

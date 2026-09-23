@@ -1,0 +1,17 @@
+{
+  "birthBlock": 50940130,
+  "birthHash": "0x413b2b372ff6e7ca7decc6710eb5522a75c16c93c37c03e024dfac19b2218fa0",
+  "constructorExternalCalls": 0,
+  "factory": "0x815542e8b392389a1389e22e588e4b62a67ade72",
+  "factoryNonce": 0,
+  "factoryRuntimeHash": "0xd739733dcef3fb1ec62e0374719fb8b6dfaa7c8cbacb575471e437e0e25dc72d",
+  "factoryTransaction": "0xf58f481f38a00ec6db604d14a9b79c711fa4aac74dc4577072376eeecdac8a60",
+  "locker": "0xcd1680d26922fcd9cabfbb8a56ba40c333fd842a",
+  "lockerCreateNonce": 1,
+  "lockerRuntimeHash": "0x5200f8f6c54163caa95967fffe3540b99f23df9cc264f0254341f2c5da67bf70",
+  "scope": "fixed-sample-research",
+  "trace": [
+    "0 CREATE 0x63F300b7b21FbA52A8D874D90F7E1B301AE858c4 -\u003e 0x815542E8b392389A1389E22E588E4B62A67Ade72",
+    "1 CREATE 0x815542E8b392389A1389E22E588E4B62A67Ade72 -\u003e 0xcd1680D26922fcd9CabFbb8a56bA40C333fD842a"
+  ]
+}

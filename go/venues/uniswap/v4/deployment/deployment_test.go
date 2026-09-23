@@ -135,3 +135,23 @@ func TestDeploymentWithoutQuoter(t *testing.T) {
 		t.Fatal("missing quoter accepted")
 	}
 }
+
+// TestPositionManagerDeployment limits LP analysis to the reviewed Base deployment.
+//
+// Version:
+//   - 2026-09-24: Added.
+func TestPositionManagerDeployment(t *testing.T) {
+	for _, chain := range []uint64{8453, 1, 10, 56} {
+		d, err := ByChainID(chain)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var want common.Address
+		if chain == 8453 {
+			want = common.HexToAddress("0x7c5f5a4bbd8fd63184577525326123b519429bdc")
+		}
+		if d.PositionManager != want {
+			t.Fatalf("chain=%d manager=%s want=%s", chain, d.PositionManager, want)
+		}
+	}
+}

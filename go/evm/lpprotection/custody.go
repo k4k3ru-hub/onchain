@@ -10,6 +10,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/k4k3ru-hub/onchain/go/evm/clliquidity"
 )
 
 type codeTemplate struct {
@@ -50,6 +51,10 @@ func (e *evaluation) custody(p *Position) {
 		return
 	}
 	p.CodeHash = crypto.Keccak256Hash(code)
+	if e.req.Protocol == clliquidity.V4 {
+		e.v4Custody(p, code)
+		return
+	}
 	if ordinary(p.Owner, code) {
 		data := query("decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))", p.ID, p.Liquidity, new(big.Int), new(big.Int), new(big.Int).SetInt64(e.result.BlockTime.Unix()+3600))
 		response := e.call(p.Owner, e.manager, data)

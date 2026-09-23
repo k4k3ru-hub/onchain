@@ -1,0 +1,82 @@
+{
+  "discovery": {
+    "attempts": 6,
+    "successfulRPC": 5,
+    "methods": {
+      "eth_chainId": 1,
+      "eth_getTransactionByHash": 1,
+      "eth_getTransactionReceipt": 1,
+      "eth_getBlockByNumber": 2
+    },
+    "responseBytes": 77125,
+    "evidenceFileBytes": 85643,
+    "runs": [
+      {
+        "attempts_before": 0,
+        "cache_hits": 0,
+        "elapsed_seconds": 2.486,
+        "attempts_after": 1
+      },
+      {
+        "attempts_before": 1,
+        "cache_hits": 0,
+        "elapsed_seconds": 12.866,
+        "attempts_after": 6,
+        "complete": true
+      }
+    ]
+  },
+  "cold": {
+    "attempts": 18,
+    "successfulRPC": 18,
+    "methods": {
+      "eth_chainId": 1,
+      "eth_getTransactionByHash": 1,
+      "eth_getTransactionReceipt": 2,
+      "eth_getBlockByNumber": 6,
+      "eth_getCode": 5,
+      "eth_call": 3
+    },
+    "responseBytes": 306029,
+    "evidenceFileBytes": 360204,
+    "runs": [
+      {
+        "attempts_before": 0,
+        "cache_hits": 0,
+        "elapsed_seconds": 45.53,
+        "attempts_after": 18,
+        "complete": true
+      }
+    ],
+    "multicallNestedReads": 49
+  },
+  "warm": {
+    "attempts": 9,
+    "successfulRPC": 9,
+    "methods": {
+      "eth_chainId": 1,
+      "eth_getBlockByNumber": 2,
+      "eth_getCode": 3,
+      "eth_call": 3
+    },
+    "responseBytes": 140561,
+    "evidenceFileBytes": 175794,
+    "runs": [
+      {
+        "attempts_before": 0,
+        "cache_hits": 0,
+        "elapsed_seconds": 22.759,
+        "attempts_after": 9,
+        "complete": true
+      }
+    ],
+    "multicallNestedReads": 49
+  },
+  "limitations": [
+    "Fixed historical block 51604306, not the present head.",
+    "Compiler/source acquisition and manual rule review are separate from per-pool RPC timing.",
+    "Warm run re-fetches mutable data at the same historical observation with immutable creation evidence reused.",
+    "RPC wire count does not represent provider billable compute units.",
+    "Storage bytes are research JSON, not the future production Evidence schema."
+  ]
+}

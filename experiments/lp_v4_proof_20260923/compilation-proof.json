@@ -1,0 +1,25 @@
+{
+  "compiler": "0.8.26+commit.8a97fa7a",
+  "compilerSHA256": "d5f23436f443edb85d8e76906d12f0a86ce0490e7663a9e608efeb7a93f149ef",
+  "contracts": {
+    "LaunchFactory": {
+      "artifactSHA256": "3be046f2f187f0a03dfe4323058d919c25bbb31809e733bcc918581b153bad33",
+      "creationBytes": 19996,
+      "runtimeBytes": 13681,
+      "independentCompilationMatches": true
+    },
+    "LaunchLocker": {
+      "artifactSHA256": "85abab3ab054d9157107b7dbcc9bb9260576048f1cf6dbccc183321aa7a030ab",
+      "creationBytes": 5936,
+      "runtimeBytes": 5757,
+      "independentCompilationMatches": true
+    },
+    "PositionManager": {
+      "artifactSHA256": "238660ff2b0664e79ef12262795e96907926dae012a979bb710b74416a4691be",
+      "creationBytes": 25251,
+      "runtimeBytes": 23877,
+      "independentCompilationMatches": true
+    }
+  },
+  "factorySourceGzipSHA256": "89751e301aeb7ec2226f654dfabe28f3783757443e75bf42bee477818cd9cbf9"
+}

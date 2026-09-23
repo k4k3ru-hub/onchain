@@ -62,7 +62,9 @@ type Reader struct {
 type Principal struct {
 	// Pool binds the complete tick snapshot to its originating pool. The caller
 	// must preserve this provenance when restoring or incrementally updating it.
+	// For V4, Pool is the PoolManager and PoolID is the full 32-byte Pool ID.
 	Pool     common.Address
+	PoolID   common.Hash
 	Snapshot clliquidity.Snapshot
 }
 
@@ -75,7 +77,9 @@ type Request struct {
 	PositionIDs []*big.Int
 	// Received Mint logs and receipts avoid fetching the same data again.
 	MintLogs []types.Log
-	Receipts map[common.Hash]*types.Receipt
+	// Received V4 ModifyLiquidity logs preserve Pool ID and token ID salt.
+	ModifyLiquidityLogs []types.Log
+	Receipts            map[common.Hash]*types.Receipt
 	// Deployment hints are lookup candidates, never proof of a first creation.
 	CreationHints []CreationHint
 	// Evidence must originate from Analyze or trusted internal persistence.
@@ -119,6 +123,7 @@ type ContractEvidence struct {
 type Result struct {
 	ModelVersion  string
 	Pool, Manager common.Address
+	PoolID        common.Hash
 	BlockNumber   uint64
 	BlockHash     common.Hash
 	BlockTime     time.Time

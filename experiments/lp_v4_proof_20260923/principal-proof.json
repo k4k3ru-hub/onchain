@@ -1,0 +1,19 @@
+{
+  "activeLiquidity": "0",
+  "allGrossAndNetCovered": true,
+  "allPositionsProtected": true,
+  "bitmapWords": 36,
+  "block": 51604306,
+  "blockHash": "0xeaa77d3a8cce998496372ea11342eff355c61f8ea86a5def29adc7633b6e62fe",
+  "classification": "research-only-limited-model",
+  "currentTick": 184400,
+  "permanentProtectionPercentage0": null,
+  "permanentProtectionPercentage1": "100",
+  "poolId": "0x2f20eec5945b32624fb6ccb8ba8716aabea99bc7d8e8590b5a863c283042601a",
+  "positions": 1,
+  "principalBaseUnits0": "0",
+  "principalBaseUnits1": "999999999999999999999994872",
+  "requiresCreationAndAuthorityProof": true,
+  "ticks": 2,
+  "tokenId": 3073314
+}

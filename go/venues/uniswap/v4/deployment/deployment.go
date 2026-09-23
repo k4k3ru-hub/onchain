@@ -11,6 +11,8 @@ type Deployment struct {
 	PoolManager common.Address
 	StateView   common.Address
 	Quoter      common.Address
+	// PositionManager is populated only for reviewed LP-analysis deployments.
+	PositionManager common.Address
 }
 
 // ByChainID returns the configured Uniswap v4 deployment for a chain.
@@ -23,6 +25,7 @@ type Deployment struct {
 //   - Lookup error when Uniswap does not publish a PoolManager for the chain.
 //
 // Version:
+//   - 2026-09-24: Include the reviewed Base PositionManager without restricting discovery on other chains.
 //   - 2026-09-16: Move deployment lookup into onchain without changing addresses.
 //   - 2026-08-19: Included the verified V4Quoter when available.
 //   - 2026-09-06: Included the Robinhood Chain Mainnet V4Quoter.
@@ -37,11 +40,16 @@ func ByChainID(chainID uint64) (Deployment, error) {
 	}
 
 	quoter := quoterAddress(chainID)
+	var positionManager common.Address
+	if chainID == 8453 {
+		positionManager = common.HexToAddress("0x7c5f5a4bbd8fd63184577525326123b519429bdc")
+	}
 	return Deployment{
-		ChainID:     chainID,
-		PoolManager: common.HexToAddress(poolManager),
-		StateView:   common.HexToAddress(stateView),
-		Quoter:      common.HexToAddress(quoter),
+		ChainID:         chainID,
+		PoolManager:     common.HexToAddress(poolManager),
+		StateView:       common.HexToAddress(stateView),
+		Quoter:          common.HexToAddress(quoter),
+		PositionManager: positionManager,
 	}, nil
 }
 

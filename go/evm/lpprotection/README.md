@@ -1,8 +1,9 @@
 # LP principal protection
 
-`Reader.Analyze` starts with a PoolCreated event and an existing complete
-`clliquidity.Snapshot`. It discovers NFT positions from pool Mint receipts,
-verifies their current state, recognizes reviewed custody runtime, and calculates
+`Reader.Analyze` starts with a PoolCreated / V4 Initialize event and an existing
+complete `clliquidity.Snapshot`. It discovers NFT positions from pool Mint or
+V4 ModifyLiquidity receipts, verifies their current state, recognizes reviewed
+custody runtime, and calculates
 Token0 / Token1 principal protection independently. No UNCX API, locker-address
 allowlist, research package, Agent, source download or compiler is required at
 runtime. Unrecognized code remains unresolved.
@@ -25,15 +26,20 @@ See [the evidence API and limited creation rule](EVIDENCE.md).
 - Base mainnet current Aerodrome Slipstream: factory
   `0xf8f2eB4940CFE7d13603DDDD87f123820Fc061Ef`, position manager
   `0xe1f8cd9AC4e4A65F54f38a5CdAfCA44f6dD68b53`.
+- Base mainnet hookless Uniswap V4: official PositionManager
+  `0x7c5f5a4bbd8fd63184577525326123b519429bdc`. This first unit supports
+  ordinary EOA withdrawal only; contract custody remains unresolved. See
+  [V4 scope, evidence and verification](V4.md).
 - These infrastructure deployments and Base voter
   `0x16613524e02ad97eDfeF371bC883F2F5d6C480A5` are trusted protocol boundaries.
   Factory event, canonical chain, manager/factory/pool bindings and live core
   position balances are checked. This does not audit arbitrary managers or
-  voter implementations. Legacy Slipstream, V4 and other chains are unsupported.
+  voter implementations. Legacy Slipstream and other chains are unsupported.
 - RPC must be trusted. The caller must preserve the originating pool and block
   of a complete tick snapshot, and provide immutable request/cache data while an
   analysis is running. `Principal.Pool` is required; the current price, tick and
   liquidity are additionally compared with the pool at the observation hash.
+  For V4, `Pool` is the PoolManager; `Principal.PoolID` is also required.
 - State and runtime calls use the observation **block hash**, never `latest`.
   The canonical header is checked before/after analysis. Every reused receipt
   must match its transaction, block and input event; removed logs are rejected.
@@ -49,8 +55,9 @@ partial confirmed percentages.
 Each token's denominator is that token's principal across **all live positions**.
 Fees, direct transfers, and removed-but-uncollected balances are excluded. Full
 tick gross/net coverage is compared with enumerated positions, then the manager's
-core position liquidity is checked for every range. Active liquidity alone, NFT
-counts, or unweighted liquidity totals cannot establish completeness.
+core position liquidity is checked for every range (and each NFT salt in V4).
+Active liquidity alone, NFT counts, or unweighted liquidity totals cannot
+establish completeness.
 
 Position principal uses exact rational Q96 arithmetic before percentage flooring
 to 18 decimal places. It describes unrounded principal shares, not an executable
@@ -74,6 +81,7 @@ are outside this result and must be evaluated separately.
 | Model | Requirements and result |
 | --- | --- |
 | Direct ordinary EOA | Current owner has empty code, is not a reserved/burn address, and full `decreaseLiquidity` succeeds from that owner at the observation hash. Currently withdrawable. No claim about private-key availability or subsequent token transfer success. |
+| V4 ordinary EOA | Reviewed official PM runtime; complete NFT/core/tick coverage; full `modifyLiquidities` decrease plus settlement of both currencies to the actual owner succeeds. An `eth_call` at the observation hash, without signing or state overrides. |
 | MultiVault runtime | Exact normalized runtime and consistent immutable values; no minted vault key; immutable beneficiary is an ordinary EOA. Future unlock timestamp, still-locked state and complete operator evidence establish temporary protection. After expiry, the actual beneficiary's `partialNonFungibleTokenUnlock` path including factory callback must succeed. |
 | CL locker clone + factory | Exact EIP-1167 clone, reviewed implementation and reviewed factory runtime; immutable manager/voter/factory/implementation bindings; live instance, pool and NFT match; unstaked, unapproved and complete operator evidence. Before expiry, migration must be disabled and both saved/current pool gauge absent. Factory owner grants a future migration configuration path, so current 100% can coexist with `CanWeakenProtection=true` only after all custody checks pass. Zero factory owner alone does not prove absence of voter governance powers. |
 

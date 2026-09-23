@@ -29,6 +29,8 @@ type evaluation struct {
 	evidence                         *Evidence
 	headers                          map[uint64]*types.Header
 	starts                           map[common.Address]BlockReference
+	v4StateView                      common.Address
+	v4Ranges                         map[string][2]int32
 }
 
 func (e *evaluation) logs(q ethereum.FilterQuery) []types.Log {

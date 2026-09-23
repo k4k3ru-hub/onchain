@@ -70,22 +70,23 @@ func NewReaderWithCreationResolver(rpc RPC, creationRPC CreationRPC, resolver Cr
 // return a wrapped error and metrics without publishing partial percentages.
 //
 // Version:
+//   - 2026-09-24: Add hookless Base V4 discovery, salt-specific coverage and EOA withdrawal verification.
 //   - 2026-09-23: Recheck history prefixes, invalidate reorg evidence and reacquire moved receipts within budget.
 //   - 2026-09-23: Expose inspectable reorg failures to observation owners.
 func (r *Reader) Analyze(ctx context.Context, req Request) (result Result, err error) {
 	s := req.Principal.Snapshot
-	result = Result{ModelVersion: ModelVersion, Pool: req.Principal.Pool, BlockNumber: s.BlockNumber, BlockHash: s.BlockHash, BlockTime: s.BlockTime, Metrics: Metrics{Methods: make(map[string]int)}}
+	result = Result{ModelVersion: ModelVersion, Pool: req.Principal.Pool, PoolID: req.Principal.PoolID, BlockNumber: s.BlockNumber, BlockHash: s.BlockHash, BlockTime: s.BlockTime, Metrics: Metrics{Methods: make(map[string]int)}}
 	if r == nil || ctx == nil {
 		return result, fmt.Errorf("failed to analyze lp protection: dependency=null")
 	}
-	if req.ChainID != 8453 || req.Protocol != clliquidity.V3 && req.Protocol != clliquidity.Slipstream {
+	if req.ChainID != 8453 || req.Protocol != clliquidity.V3 && req.Protocol != clliquidity.Slipstream && req.Protocol != clliquidity.V4 {
 		result.Reason = "unsupported_deployment"
 		return result, nil
 	}
 	if result.Pool == (common.Address{}) || s.BlockNumber == 0 || s.BlockHash == (common.Hash{}) || s.BlockTime.Unix() <= 0 || req.Creation.Removed || req.Creation.BlockNumber > s.BlockNumber || req.Creation.BlockHash == (common.Hash{}) || req.Creation.TxHash == (common.Hash{}) {
 		return result, fmt.Errorf("failed to analyze lp protection: identity=invalid")
 	}
-	if len(req.PositionIDs) > r.limits.MaxPositions || len(req.MintLogs) > r.limits.MaxLogs || len(req.CreationHints) > r.limits.MaxPositions {
+	if len(req.PositionIDs) > r.limits.MaxPositions || len(req.MintLogs) > r.limits.MaxLogs || len(req.ModifyLiquidityLogs) > r.limits.MaxLogs-len(req.MintLogs) || len(req.CreationHints) > r.limits.MaxPositions {
 		result.Reason = "acquisition_budget_exceeded"
 		return result, fmt.Errorf("failed to analyze lp protection: %w", ErrBudget)
 	}
@@ -156,19 +157,27 @@ func (r *Reader) Analyze(ctx context.Context, req Request) (result Result, err e
 		ids[id.String()] = new(big.Int).Set(id)
 	}
 	e.discoverReceipts(ids)
-	e.discover(req.MintLogs, ids)
+	if req.Protocol == clliquidity.V4 {
+		e.discover(req.ModifyLiquidityLogs, ids)
+	} else {
+		e.discover(req.MintLogs, ids)
+	}
 	positions := e.positions(ids)
 	if e.err != nil {
 		return result, nil
 	}
 	if !covered(s.State, positions) {
 		mint := crypto.Keccak256Hash([]byte("Mint(address,address,int24,int24,uint128,uint256,uint256)"))
+		topics := [][]common.Hash{{mint}}
+		if req.Protocol == clliquidity.V4 {
+			topics = [][]common.Hash{{v4ModifyTopic()}, {result.PoolID}}
+		}
 		for from := req.Creation.BlockNumber; from <= s.BlockNumber; {
 			to := s.BlockNumber
 			if s.BlockNumber-from >= r.limits.LogBlockRange {
 				to = from + r.limits.LogBlockRange - 1
 			}
-			logs := e.logs(ethereum.FilterQuery{FromBlock: new(big.Int).SetUint64(from), ToBlock: new(big.Int).SetUint64(to), Addresses: []common.Address{result.Pool}, Topics: [][]common.Hash{{mint}}})
+			logs := e.logs(ethereum.FilterQuery{FromBlock: new(big.Int).SetUint64(from), ToBlock: new(big.Int).SetUint64(to), Addresses: []common.Address{result.Pool}, Topics: topics})
 			e.discover(logs, ids)
 			positions = e.positions(ids)
 			if e.err != nil || covered(s.State, positions) || to == s.BlockNumber {
@@ -217,6 +226,10 @@ func (r *Reader) Analyze(ctx context.Context, req Request) (result Result, err e
 }
 
 func (e *evaluation) discoverReceipts(ids map[string]*big.Int) {
+	if e.req.Protocol == clliquidity.V4 {
+		e.v4DiscoverReceipts(ids)
+		return
+	}
 	// Include the receipt acquired by identity() as well as caller-provided
 	// receipts. A pool creation transaction commonly contains its first mint.
 	available := make(map[common.Hash]*types.Receipt, len(e.req.Receipts)+len(e.receipts))
@@ -260,6 +273,9 @@ func (e *evaluation) discoverReceipts(ids map[string]*big.Int) {
 }
 
 func (e *evaluation) identity() bool {
+	if e.req.Protocol == clliquidity.V4 {
+		return e.v4Identity()
+	}
 	req := e.req
 	event := req.Creation
 	if req.Protocol == clliquidity.V3 {
@@ -337,6 +353,10 @@ func (e *evaluation) identity() bool {
 }
 
 func (e *evaluation) discover(logs []types.Log, ids map[string]*big.Int) {
+	if e.req.Protocol == clliquidity.V4 {
+		e.v4Discover(logs, ids)
+		return
+	}
 	mint := crypto.Keccak256Hash([]byte("Mint(address,address,int24,int24,uint128,uint256,uint256)"))
 	increase := crypto.Keccak256Hash([]byte("IncreaseLiquidity(uint256,uint128,uint256,uint256)"))
 	for _, l := range logs {
@@ -369,6 +389,9 @@ func (e *evaluation) discover(logs []types.Log, ids map[string]*big.Int) {
 }
 
 func (e *evaluation) positions(ids map[string]*big.Int) []Position {
+	if e.req.Protocol == clliquidity.V4 {
+		return e.v4Positions(ids)
+	}
 	ordered := make([]*big.Int, 0, len(ids))
 	for _, id := range ids {
 		ordered = append(ordered, id)
@@ -398,6 +421,10 @@ func (e *evaluation) positions(ids map[string]*big.Int) []Position {
 }
 
 func (e *evaluation) coreCoverage(positions []Position) bool {
+	if e.req.Protocol == clliquidity.V4 {
+		// V4 positions have already been checked individually with their NFT salt.
+		return e.err == nil
+	}
 	ranges := make(map[[2]int32]*big.Int)
 	for _, p := range positions {
 		key := [2]int32{p.Lower, p.Upper}
