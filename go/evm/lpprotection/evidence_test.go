@@ -106,7 +106,7 @@ func TestHistoryCurrentState(t *testing.T) {
 // TestHistoryInvalidation rejects stale proofs after canonicality or model changes.
 //
 // Version:
-//   - 2026-09-23: Added.
+//   - 2026-09-23: Reject v3 checkpoints as well as earlier evidence.
 func TestHistoryInvalidation(t *testing.T) {
 	for _, number := range []uint64{44515546, 51590853, 51592852} {
 		f, req := creationSample(t)
@@ -130,7 +130,7 @@ func TestHistoryInvalidation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, bad := range [][]byte{[]byte(strings.Replace(string(b), ModelVersion, "lp-protection-20260923-v2", 1)), []byte(`{"complete":true}`), append(append([]byte{}, b...), []byte(` {}`)...)} {
+	for _, bad := range [][]byte{[]byte(strings.Replace(string(b), ModelVersion, "lp-protection-20260923-v2", 1)), []byte(strings.Replace(string(b), ModelVersion, "lp-protection-20260923-v3", 1)), []byte(`{"complete":true}`), append(append([]byte{}, b...), []byte(` {}`)...)} {
 		if _, err := RestoreEvidence(bad, len(b)*2); err == nil {
 			t.Fatal("accepted invalid persisted evidence")
 		}

@@ -410,7 +410,7 @@ func boolInt(v bool) int {
 // TestAcquisitionLimits verifies receipt and payload limits, reused evidence and constructor validation.
 //
 // Version:
-//   - 2026-09-23: Separate creation and mint receipts for the acquisition limit.
+//   - 2026-09-23: Verify receipt budgets and reject cached receipts for a different transaction.
 func TestAcquisitionLimits(t *testing.T) {
 	t.Run("constructor", func(t *testing.T) {
 		f, _, _ := fixture(t, clliquidity.V3)
@@ -450,7 +450,7 @@ func TestAcquisitionLimits(t *testing.T) {
 	t.Run("cached receipt identity", func(t *testing.T) {
 		f, req, _ := fixture(t, clliquidity.V3)
 		bad := *f.receipts[req.Creation.TxHash]
-		bad.BlockHash = common.HexToHash("0xffff")
+		bad.TxHash = common.HexToHash("0xffff")
 		req.Receipts = map[common.Hash]*types.Receipt{req.Creation.TxHash: &bad}
 		result, err := run(t, f, req)
 		if err == nil || result.Observation != nil || result.Metrics.AdditionalReceipts != 0 {

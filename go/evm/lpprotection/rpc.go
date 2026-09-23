@@ -23,6 +23,7 @@ type evaluation struct {
 	calls                            map[string][]byte
 	codes                            map[common.Address][]byte
 	receipts                         map[common.Hash]*types.Receipt
+	receiptReads                     map[common.Hash]bool
 	operatorChecks                   map[common.Address]string
 	logCount                         int
 	evidence                         *Evidence
@@ -159,41 +160,21 @@ func (e *evaluation) code(address common.Address) []byte {
 }
 
 func (e *evaluation) receipt(log types.Log) *types.Receipt {
-	r, ok := e.receipts[log.TxHash]
-	if ok {
-		e.result.Metrics.CacheHits++
-	} else {
-		r, ok = e.req.Receipts[log.TxHash]
-		if ok {
-			e.result.Metrics.CacheHits++
-		} else if e.cachedEvidence("receipt/"+log.TxHash.Hex(), &r) {
-			if e.err != nil {
-				return nil
-			}
-		} else {
-			if e.result.Metrics.AdditionalReceipts >= e.r.limits.MaxReceipts {
-				e.err = fmt.Errorf("failed to acquire lp receipt: %w", ErrBudget)
-				return nil
-			}
-			if !e.attempt("eth_getTransactionReceipt") {
-				return nil
-			}
-			e.result.Metrics.AdditionalReceipts++
-			var err error
-			r, err = e.r.rpc.TransactionReceipt(e.ctx, log.TxHash)
-			if err != nil {
-				e.err = fmt.Errorf("failed to acquire lp receipt: %w", err)
-				return nil
-			}
-			if r != nil {
-				for _, l := range r.Logs {
-					if l != nil {
-						e.response(160 + len(l.Topics)*32 + len(l.Data))
-					}
-				}
-			}
-		}
-		e.receipts[log.TxHash] = r
+	r, cached := e.receiptCandidate(log.TxHash)
+	if e.err != nil {
+		return nil
+	}
+	if cached && r != nil && r.TxHash == log.TxHash && r.Status == types.ReceiptStatusSuccessful && r.BlockNumber != nil && r.BlockNumber.IsUint64() && r.BlockHash != (common.Hash{}) && (r.BlockHash != log.BlockHash || r.BlockNumber.Uint64() != log.BlockNumber) {
+		// A transaction may be re-included at a different block. Discard its
+		// dependent proof before acquisition, including when the budget or RPC
+		// prevents fetching a replacement in this evaluation.
+		e.discardReceiptEvidence(log.TxHash)
+		r = e.fetchReceipt(log.TxHash)
+	} else if !cached {
+		r = e.fetchReceipt(log.TxHash)
+	}
+	if e.err != nil {
+		return nil
 	}
 	if r == nil || r.Status != types.ReceiptStatusSuccessful || r.TxHash != log.TxHash || r.BlockHash != log.BlockHash || r.BlockNumber == nil || !r.BlockNumber.IsUint64() || r.BlockNumber.Uint64() != log.BlockNumber {
 		e.err = fmt.Errorf("failed to validate lp receipt: identity=invalid")
@@ -202,6 +183,7 @@ func (e *evaluation) receipt(log types.Log) *types.Receipt {
 	for _, l := range r.Logs {
 		if l != nil && !l.Removed && l.Address == log.Address && l.Index == log.Index && l.BlockHash == log.BlockHash && l.TxHash == log.TxHash && l.BlockNumber == log.BlockNumber && equalTopics(l.Topics, log.Topics) && bytes.Equal(l.Data, log.Data) {
 			e.cacheEvidence("receipt/"+log.TxHash.Hex(), r)
+			e.receipts[log.TxHash] = r
 			return r
 		}
 	}
@@ -230,7 +212,15 @@ func (e *evaluation) header() {
 		e.err = fmt.Errorf("failed to verify lp observation: %w", err)
 		return
 	}
-	if h == nil || h.Number == nil || !h.Number.IsUint64() || h.Number.Uint64() != e.result.BlockNumber || h.Hash() != e.result.BlockHash || h.Time != uint64(e.result.BlockTime.Unix()) {
+	if h == nil || h.Number == nil || !h.Number.IsUint64() || h.Number.Uint64() != e.result.BlockNumber {
+		e.err = fmt.Errorf("failed to verify lp observation: block=invalid")
+		return
+	}
+	if h.Hash() != e.result.BlockHash {
+		e.invalidateEvidence()
+		return
+	}
+	if h.Time != uint64(e.result.BlockTime.Unix()) {
 		e.err = fmt.Errorf("failed to verify lp observation: block=invalid")
 	}
 }

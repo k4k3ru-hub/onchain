@@ -36,7 +36,15 @@ func (e *evaluation) block(number uint64, refresh bool) *types.Header {
 }
 
 func (e *evaluation) canonical(ref BlockReference) bool {
-	h := e.block(ref.Number, false)
+	return e.checkCanonical(ref, false)
+}
+
+func (e *evaluation) canonicalFresh(ref BlockReference) bool {
+	return e.checkCanonical(ref, true)
+}
+
+func (e *evaluation) checkCanonical(ref BlockReference, refresh bool) bool {
+	h := e.block(ref.Number, refresh)
 	if h == nil {
 		return false
 	}
@@ -126,34 +134,12 @@ func (e *evaluation) creationTransaction(hash common.Hash) *types.Transaction {
 
 func (e *evaluation) creationReceipt(hash common.Hash) *types.Receipt {
 	key := "receipt/" + hash.Hex()
-	var r *types.Receipt
-	if r = e.receipts[hash]; r == nil {
-		r = e.req.Receipts[hash]
+	r, cached := e.receiptCandidate(hash)
+	if !cached && e.err == nil {
+		r = e.fetchReceipt(hash)
 	}
-	if r != nil {
-		e.result.Metrics.CacheHits++
-	} else if !e.cachedEvidence(key, &r) {
-		if e.result.Metrics.AdditionalReceipts >= e.r.limits.MaxReceipts {
-			e.err = fmt.Errorf("failed to read lp creation receipt: %w", ErrBudget)
-			return nil
-		}
-		if !e.attempt("eth_getTransactionReceipt") {
-			return nil
-		}
-		e.result.Metrics.AdditionalReceipts++
-		var err error
-		r, err = e.r.rpc.TransactionReceipt(e.ctx, hash)
-		if err != nil {
-			e.err = fmt.Errorf("failed to read lp creation receipt: %w", err)
-			return nil
-		}
-		if r != nil {
-			for _, l := range r.Logs {
-				if l != nil {
-					e.response(160 + 32*len(l.Topics) + len(l.Data))
-				}
-			}
-		}
+	if e.err != nil {
+		return nil
 	}
 	if r == nil || r.TxHash != hash || r.Status != types.ReceiptStatusSuccessful || r.BlockNumber == nil || !r.BlockNumber.IsUint64() || r.BlockNumber.Sign() <= 0 || r.BlockNumber.Uint64() > e.result.BlockNumber || r.BlockHash == (common.Hash{}) {
 		e.err = fmt.Errorf("failed to verify lp creation receipt: identity=invalid")

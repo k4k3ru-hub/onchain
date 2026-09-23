@@ -11,9 +11,11 @@ This is the onchain component only. MarketHub workers, persistence, invalidation
 public SDK JSON, Agent and Console integration are separate implementation units.
 LP protection does not determine NewPair listing eligibility.
 
-Model `lp-protection-20260923-v3` adds verified creation boundaries and reusable
-contiguous operator history. Older model snapshots are not accepted as v3
-evidence. Contract-owned positions still require complete operator evidence.
+Model `lp-protection-20260923-v4` retains verified creation boundaries and reusable
+contiguous operator history, rechecks the existing prefix before extending it,
+and invalidates evidence on observation reorgs. Snapshots from v3 and earlier
+must be discarded and rebuilt; changing their version string is not a migration.
+Contract-owned positions still require complete operator evidence.
 See [the evidence API and limited creation rule](EVIDENCE.md).
 
 ## Scope and trust boundary
@@ -169,6 +171,12 @@ verification, and exclude request-local cache hits. Method counts count outward
 interface calls; `ResponseBytes` counts decoded call/code/log payloads, not HTTP
 framing or JSON bytes. A transport must separately limit wire response sizes.
 
+Each approval range uses two fresh tail headers, its log query, and a fresh
+prefix (or verified birth) header before its checkpoint advances: four calls,
+except the first range starting at genesis which needs three. The preflight
+budget includes these verification reads. A final observation hash mismatch
+also clears reusable evidence, even when all history queries succeeded.
+
 `Request.MintLogs` and `Request.Receipts` reuse already received data. The reader
 also discovers positions from the creation receipt already acquired for identity
 verification. All cached evidence is validated before use. If these receipts or
@@ -181,6 +189,14 @@ Creation transaction / receipt / historical code / nonce responses also survive
 in bounded `Evidence`; canonical headers are rechecked before reuse. Restored
 evidence must come from trusted internal storage, never an API request.
 There is no global cache or background goroutine.
+
+When a cached receipt's block differs from the supplied event, discard that
+receipt and its dependent creation/history evidence before reacquiring it.
+The replacement must match the full event, and uses the same call/receipt budgets;
+there is at most one actual receipt request per transaction per analysis. A
+failed replacement stays unresolved and does not restore the stale proof.
+Unrelated history retry counts are preserved. Callers should also replace stale
+entries in their own `Request.Receipts` cache; the reader never mutates it.
 
 The first implementation treats an unreadable/burned historical NFT record as
 unresolved acquisition; it does not silently discard a revert as a burned NFT.

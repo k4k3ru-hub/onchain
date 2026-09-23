@@ -88,7 +88,7 @@ func (e *Evidence) MarshalJSON() ([]byte, error) {
 //   - maxBytes: maximum stored evidence size, normally Limits.MaxResponseBytes.
 //
 // Version:
-//   - 2026-09-23: Added.
+//   - 2026-09-23: Require v4 evidence with reorg-safe history checkpoints.
 func RestoreEvidence(data []byte, maxBytes int) (*Evidence, error) {
 	if maxBytes < 1 || len(data) > maxBytes {
 		return nil, fmt.Errorf("failed to restore lp evidence: %w: bytes=out_of_range", ErrBudget)

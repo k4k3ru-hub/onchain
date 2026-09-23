@@ -53,7 +53,7 @@ func NewReaderWithCreationRPC(rpc RPC, creationRPC CreationRPC, limits Limits) (
 // return a wrapped error and metrics without publishing partial percentages.
 //
 // Version:
-//   - 2026-09-23: Verify creation boundaries and reuse contiguous operator evidence.
+//   - 2026-09-23: Recheck history prefixes, invalidate reorg evidence and reacquire moved receipts within budget.
 func (r *Reader) Analyze(ctx context.Context, req Request) (result Result, err error) {
 	s := req.Principal.Snapshot
 	result = Result{ModelVersion: ModelVersion, Pool: req.Principal.Pool, BlockNumber: s.BlockNumber, BlockHash: s.BlockHash, BlockTime: s.BlockTime, Metrics: Metrics{Methods: make(map[string]int)}}

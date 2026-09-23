@@ -69,11 +69,14 @@ func (e *evaluation) operatorsClear(p *Position) bool {
 		e.err = fmt.Errorf("failed to verify lp operators: %w: from_block=%d to_block=%d", ErrHistoryAbandoned, h.Failure.FromBlock, h.Failure.ToBlock)
 		return false
 	}
-	// Each chunk needs its two canonical headers plus logs. Reserve current
-	// operator reads and final observation header; unknown operators add calls
-	// against the same actual-attempt budget as they are discovered.
+	// Each chunk needs logs, two tail headers and a fresh prefix/birth anchor.
+	// Only the first genesis chunk has no prefix anchor to recheck. Reserve
+	// current operator reads and the final observation header as well.
 	remaining := e.r.limits.MaxCalls - e.result.Metrics.Calls - len(h.Operators) - 1
-	if !done && (from > e.result.BlockNumber || remaining < 3 || (e.result.BlockNumber-from)/e.r.limits.LogBlockRange >= uint64(remaining/3)) {
+	if h.Through == nil && h.StartBlock == 0 {
+		remaining++
+	}
+	if !done && (from > e.result.BlockNumber || remaining < 4 || (e.result.BlockNumber-from)/e.r.limits.LogBlockRange >= uint64(remaining/4)) {
 		e.err = fmt.Errorf("failed to verify lp operators: %w: history_range=too_long", ErrBudget)
 		return false
 	}
@@ -106,7 +109,16 @@ func (e *evaluation) operatorsClear(p *Position) bool {
 				operators = append(operators, common.BytesToAddress(l.Topics[2][:]))
 			}
 			if e.err == nil {
-				e.block(to, true)
+				// A stable new tail does not prove the previously scanned prefix
+				// belongs to that branch. Recheck it between the tail reads so a
+				// reorg cannot promote mixed history into a reusable checkpoint.
+				anchor := h.Through
+				if anchor == nil && h.StartBlock != 0 {
+					anchor = &BlockReference{Number: h.StartBlock, Hash: h.StartHash}
+				}
+				if anchor == nil || e.canonicalFresh(*anchor) {
+					e.block(to, true)
+				}
 			}
 		}
 		if e.err != nil {

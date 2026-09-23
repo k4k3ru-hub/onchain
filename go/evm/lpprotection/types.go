@@ -14,7 +14,7 @@ import (
 	"github.com/k4k3ru-hub/onchain/go/evm/clliquidity"
 )
 
-const ModelVersion = "lp-protection-20260923-v3"
+const ModelVersion = "lp-protection-20260923-v4"
 
 // RPC methods must make at most one outbound attempt each. Retry, transport
 // cache and shared endpoint budgets belong to the composition boundary.
