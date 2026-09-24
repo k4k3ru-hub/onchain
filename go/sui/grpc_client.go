@@ -20,14 +20,15 @@ type GRPCConfig struct {
 }
 
 type GRPCClient struct {
-	config              GRPCConfig
-	provider            eventSubscriptionProvider
-	transactionProvider transactionSubscriptionProvider
-	simulationProvider  transactionSimulationProvider
-	checkpointProvider  grpcCheckpointProvider
-	closer              grpcClientCloser
-	closeOnce           sync.Once
-	closeErr            error
+	config                            GRPCConfig
+	provider                          eventSubscriptionProvider
+	transactionProvider               transactionSubscriptionProvider
+	simulationProvider                transactionSimulationProvider
+	transactionDataSimulationProvider transactionDataSimulationProvider
+	checkpointProvider                grpcCheckpointProvider
+	closer                            grpcClientCloser
+	closeOnce                         sync.Once
+	closeErr                          error
 }
 
 type eventSubscriptionProvider interface {
@@ -70,6 +71,7 @@ type grpcAdapter struct {
 //
 // Version:
 //   - 2026-08-23: Added.
+//   - 2026-09-24: Compose complete TransactionData simulation alongside quote simulation.
 func NewGRPCClient(ctx context.Context, config GRPCConfig) (*GRPCClient, error) {
 	if ctx == nil {
 		ctx = context.Background()
@@ -134,6 +136,9 @@ func composeGRPCClient(config GRPCConfig, provider eventSubscriptionProvider, cl
 	}
 	if simulationProvider, ok := provider.(transactionSimulationProvider); ok {
 		client.simulationProvider = simulationProvider
+	}
+	if simulationProvider, ok := provider.(transactionDataSimulationProvider); ok {
+		client.transactionDataSimulationProvider = simulationProvider
 	}
 	if checkpointProvider, ok := provider.(grpcCheckpointProvider); ok {
 		client.checkpointProvider = checkpointProvider

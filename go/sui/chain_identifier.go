@@ -2,6 +2,7 @@ package sui
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"strings"
 
@@ -35,7 +36,9 @@ func (i ChainIdentifier) Validate() error {
 	return nil
 }
 
-// ChainIdentifier returns the identifier reported by the Sui GraphQL endpoint.
+// ChainIdentifier returns the network's canonical eight-character hex identifier.
+// GraphQL responses may contain a legacy short identifier or the base58-encoded
+// genesis checkpoint digest. Digest responses use their first four bytes.
 //
 // Parameters:
 //   - ctx: request context; nil uses context.Background.
@@ -45,6 +48,7 @@ func (i ChainIdentifier) Validate() error {
 //   - Retrieval error.
 //
 // Version:
+//   - 2026-09-24: Normalize genesis checkpoint digests while preserving short identifiers.
 //   - 2026-08-22: Added.
 func (c *RPCClient) ChainIdentifier(ctx context.Context) (ChainIdentifier, error) {
 	if c == nil {
@@ -62,7 +66,15 @@ func (c *RPCClient) ChainIdentifier(ctx context.Context) (ChainIdentifier, error
 	if err := c.caller.query(ctx, "query { chainIdentifier }", &result); err != nil {
 		return "", fmt.Errorf("failed to get sui chain identifier: %w", err)
 	}
-	identifier := ChainIdentifier(result.ChainIdentifier)
+	value := result.ChainIdentifier
+	if value != "" && len(value) != 8 {
+		digest, err := ParseCheckpointDigest(value)
+		if err != nil {
+			return "", fmt.Errorf("failed to get sui chain identifier: %w", err)
+		}
+		value = hex.EncodeToString(digest[:4])
+	}
+	identifier := ChainIdentifier(value)
 	if err := identifier.Validate(); err != nil {
 		return "", fmt.Errorf("failed to get sui chain identifier: %w", err)
 	}

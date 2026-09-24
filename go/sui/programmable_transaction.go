@@ -59,12 +59,18 @@ type CommandKind uint8
 const (
 	CommandKindMoveCall CommandKind = iota + 1
 	CommandKindMakeMoveVec
+	CommandKindSplitCoins
+	CommandKindMergeCoins
+	CommandKindTransferObjects
 )
 
 type Command struct {
-	Kind        CommandKind
-	MoveCall    *MoveCall
-	MakeMoveVec *MakeMoveVec
+	Kind            CommandKind
+	MoveCall        *MoveCall
+	MakeMoveVec     *MakeMoveVec
+	SplitCoins      *SplitCoins
+	MergeCoins      *MergeCoins
+	TransferObjects *TransferObjects
 }
 
 type ProgrammableTransaction struct {
@@ -98,6 +104,7 @@ func NewProgrammableTransactionBuilder() *ProgrammableTransactionBuilder {
 //
 // Version:
 //   - 2026-08-30: Added.
+//   - 2026-09-24: Preserve valid empty BCS values when copying inputs.
 func (b *ProgrammableTransactionBuilder) Pure(value []byte) (Argument, error) {
 	if b == nil {
 		return Argument{}, fmt.Errorf("failed to add sui programmable transaction pure input: builder=null")
@@ -105,7 +112,7 @@ func (b *ProgrammableTransactionBuilder) Pure(value []byte) (Argument, error) {
 	if value == nil {
 		return Argument{}, fmt.Errorf("failed to add sui programmable transaction pure input: value=null")
 	}
-	return b.addInput(ProgrammableTransactionInput{Kind: InputKindPure, Pure: append([]byte(nil), value...)})
+	return b.addInput(ProgrammableTransactionInput{Kind: InputKindPure, Pure: append([]byte{}, value...)})
 }
 
 // Object adds one immutable, owned, shared, or receiving object input.
@@ -165,6 +172,7 @@ func (b *ProgrammableTransactionBuilder) Object(kind InputKind, object ObjectInp
 //
 // Version:
 //   - 2026-08-30: Added.
+//   - 2026-09-24: Bound command indices and copy nested argument references.
 func (b *ProgrammableTransactionBuilder) MoveCall(call MoveCall) (Argument, error) {
 	if b == nil {
 		return Argument{}, fmt.Errorf("failed to add sui programmable transaction move call: builder=null")
@@ -173,9 +181,8 @@ func (b *ProgrammableTransactionBuilder) MoveCall(call MoveCall) (Argument, erro
 		return Argument{}, fmt.Errorf("failed to add sui programmable transaction move call: %w", err)
 	}
 	call.TypeArguments = append([]string(nil), call.TypeArguments...)
-	call.Arguments = append([]Argument(nil), call.Arguments...)
-	b.transaction.Commands = append(b.transaction.Commands, Command{Kind: CommandKindMoveCall, MoveCall: &call})
-	return Argument{Kind: ArgumentKindResult, Index: uint16(len(b.transaction.Commands) - 1)}, nil
+	call.Arguments = cloneArguments(call.Arguments)
+	return b.addCommand(Command{Kind: CommandKindMoveCall, MoveCall: &call})
 }
 
 // MakeMoveVec appends one command that constructs a Move vector.
@@ -192,6 +199,7 @@ func (b *ProgrammableTransactionBuilder) MoveCall(call MoveCall) (Argument, erro
 //
 // Version:
 //   - 2026-08-31: Added.
+//   - 2026-09-24: Bound command indices and copy nested argument references.
 func (b *ProgrammableTransactionBuilder) MakeMoveVec(vector MakeMoveVec) (Argument, error) {
 	if b == nil {
 		return Argument{}, fmt.Errorf("failed to add sui programmable transaction move vector: builder=null")
@@ -199,9 +207,8 @@ func (b *ProgrammableTransactionBuilder) MakeMoveVec(vector MakeMoveVec) (Argume
 	if err := vector.validate(len(b.transaction.Inputs), len(b.transaction.Commands)); err != nil {
 		return Argument{}, fmt.Errorf("failed to add sui programmable transaction move vector: %w", err)
 	}
-	vector.Elements = append([]Argument(nil), vector.Elements...)
-	b.transaction.Commands = append(b.transaction.Commands, Command{Kind: CommandKindMakeMoveVec, MakeMoveVec: &vector})
-	return Argument{Kind: ArgumentKindResult, Index: uint16(len(b.transaction.Commands) - 1)}, nil
+	vector.Elements = cloneArguments(vector.Elements)
+	return b.addCommand(Command{Kind: CommandKindMakeMoveVec, MakeMoveVec: &vector})
 }
 
 // NestedResult selects one return value from a command result.
@@ -231,6 +238,7 @@ func NestedResult(result Argument, index uint16) (Argument, error) {
 //
 // Version:
 //   - 2026-08-30: Added.
+//   - 2026-09-24: Deep-copy nested arguments and support coin commands.
 func (b *ProgrammableTransactionBuilder) Build() (ProgrammableTransaction, error) {
 	if b == nil {
 		return ProgrammableTransaction{}, fmt.Errorf("failed to build sui programmable transaction: builder=null")
@@ -248,7 +256,11 @@ func (b *ProgrammableTransactionBuilder) Build() (ProgrammableTransaction, error
 //
 // Version:
 //   - 2026-08-30: Added.
+//   - 2026-09-24: Bound input and command counts to representable indices.
 func (t ProgrammableTransaction) Validate() error {
+	if len(t.Inputs) > 1<<16 || len(t.Commands) > 1<<16 {
+		return fmt.Errorf("failed to validate sui programmable transaction: elements=too_long max_length=%d", 1<<16)
+	}
 	if len(t.Commands) == 0 {
 		return fmt.Errorf("failed to validate sui programmable transaction: commands=empty")
 	}
@@ -273,6 +285,15 @@ func (t ProgrammableTransaction) Validate() error {
 }
 
 func (c Command) validate(inputCount, commandCount int) error {
+	variants := 0
+	for _, present := range []bool{c.MoveCall != nil, c.MakeMoveVec != nil, c.SplitCoins != nil, c.MergeCoins != nil, c.TransferObjects != nil} {
+		if present {
+			variants++
+		}
+	}
+	if variants != 1 {
+		return fmt.Errorf("failed to validate sui programmable transaction command: variant=invalid")
+	}
 	switch c.Kind {
 	case CommandKindMoveCall:
 		if c.MoveCall == nil || c.MakeMoveVec != nil {
@@ -288,6 +309,8 @@ func (c Command) validate(inputCount, commandCount int) error {
 		if err := c.MakeMoveVec.validate(inputCount, commandCount); err != nil {
 			return fmt.Errorf("failed to validate sui programmable transaction command: %w", err)
 		}
+	case CommandKindSplitCoins, CommandKindMergeCoins, CommandKindTransferObjects:
+		return c.validateCoinCommand(inputCount, commandCount)
 	default:
 		return fmt.Errorf("failed to validate sui programmable transaction command: kind=invalid")
 	}
@@ -300,6 +323,14 @@ func (b *ProgrammableTransactionBuilder) addInput(input ProgrammableTransactionI
 	}
 	b.transaction.Inputs = append(b.transaction.Inputs, input)
 	return Argument{Kind: ArgumentKindInput, Index: uint16(len(b.transaction.Inputs) - 1)}, nil
+}
+
+func (b *ProgrammableTransactionBuilder) addCommand(command Command) (Argument, error) {
+	if len(b.transaction.Commands) >= 1<<16 {
+		return Argument{}, fmt.Errorf("failed to add sui programmable transaction command: commands=too_long max_length=%d", 1<<16)
+	}
+	b.transaction.Commands = append(b.transaction.Commands, command)
+	return Argument{Kind: ArgumentKindResult, Index: uint16(len(b.transaction.Commands) - 1)}, nil
 }
 
 func (i ProgrammableTransactionInput) validate() error {
@@ -360,7 +391,7 @@ func (v MakeMoveVec) validate(inputCount, commandCount int) error {
 func (a Argument) validate(inputCount, commandCount int) error {
 	switch a.Kind {
 	case ArgumentKindGas:
-		if a.Subresult != nil {
+		if a.Subresult != nil || a.Index != 0 {
 			return fmt.Errorf("failed to validate sui programmable transaction argument: gas=invalid")
 		}
 	case ArgumentKindInput:
@@ -381,21 +412,54 @@ func (t ProgrammableTransaction) clone() ProgrammableTransaction {
 	result := ProgrammableTransaction{Inputs: make([]ProgrammableTransactionInput, len(t.Inputs)), Commands: make([]Command, len(t.Commands))}
 	copy(result.Inputs, t.Inputs)
 	for i := range result.Inputs {
-		result.Inputs[i].Pure = append([]byte(nil), t.Inputs[i].Pure...)
+		if t.Inputs[i].Pure != nil {
+			result.Inputs[i].Pure = append([]byte{}, t.Inputs[i].Pure...)
+		}
 	}
 	for i, command := range t.Commands {
 		result.Commands[i].Kind = command.Kind
 		if command.MoveCall != nil {
 			call := *command.MoveCall
 			call.TypeArguments = append([]string(nil), command.MoveCall.TypeArguments...)
-			call.Arguments = append([]Argument(nil), command.MoveCall.Arguments...)
+			call.Arguments = cloneArguments(command.MoveCall.Arguments)
 			result.Commands[i].MoveCall = &call
 		}
 		if command.MakeMoveVec != nil {
 			vector := *command.MakeMoveVec
-			vector.Elements = append([]Argument(nil), command.MakeMoveVec.Elements...)
+			vector.Elements = cloneArguments(command.MakeMoveVec.Elements)
 			result.Commands[i].MakeMoveVec = &vector
 		}
+		if command.SplitCoins != nil {
+			value := *command.SplitCoins
+			value.Coin, value.Amounts = cloneArgument(value.Coin), cloneArguments(value.Amounts)
+			result.Commands[i].SplitCoins = &value
+		}
+		if command.MergeCoins != nil {
+			value := *command.MergeCoins
+			value.Destination, value.Sources = cloneArgument(value.Destination), cloneArguments(value.Sources)
+			result.Commands[i].MergeCoins = &value
+		}
+		if command.TransferObjects != nil {
+			value := *command.TransferObjects
+			value.Address, value.Objects = cloneArgument(value.Address), cloneArguments(value.Objects)
+			result.Commands[i].TransferObjects = &value
+		}
+	}
+	return result
+}
+
+func cloneArgument(value Argument) Argument {
+	if value.Subresult != nil {
+		index := *value.Subresult
+		value.Subresult = &index
+	}
+	return value
+}
+
+func cloneArguments(values []Argument) []Argument {
+	result := make([]Argument, len(values))
+	for i, value := range values {
+		result[i] = cloneArgument(value)
 	}
 	return result
 }

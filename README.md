@@ -2,6 +2,35 @@
 
 Go SDK primitives for EVM, Solana, and Sui integrations.
 
+## Sui Testnet connection
+
+The `sui` package composes separate clients with `sui.NewRPCClient` for GraphQL
+and `sui.NewGRPCClient` for gRPC. Public Testnet endpoints are:
+
+- GraphQL: `https://graphql.testnet.sui.io/graphql`
+- gRPC: `https://fullnode.testnet.sui.io:443`
+
+`RPCClient.ChainIdentifier` accepts both legacy eight-character hex responses
+and current GraphQL responses containing the base58 genesis checkpoint digest.
+It returns the canonical short hex identifier (`4c78adac` for Testnet), preserving
+compatibility with `sui.ResolveNetwork`, `ChainIdentifier.Validate`, and the
+existing network constants. Unknown networks still fail `ResolveNetwork`.
+The digest conversion uses its first four bytes, following the
+[Sui chain identifier implementation](https://github.com/MystenLabs/sui/blob/main/crates/sui-types/src/digests.rs).
+
+The [Testnet integration test](go/sui/testnet_integration_test.go) uses public
+constructors to resolve the network, read GraphQL checkpoints by sequence and
+digest, and compare a checkpoint's digest and metadata with gRPC. Run it explicitly
+from `go/` with network access:
+
+```sh
+go test -tags=integration ./sui -run '^TestTestnetConnection$' -count=1 -v
+```
+
+This test performs reads only and needs no wallet or private key. The default
+test suite excludes live network tests. DEX deployments, pools, and transaction
+execution are separate from this connection check.
+
 ## Venue SDKs
 
 [`go/venues/aerodrome`](go/venues/aerodrome/README.md) provides Aerodrome

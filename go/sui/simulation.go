@@ -106,6 +106,7 @@ type transactionSimulationProvider interface {
 //   - 2026-09-08: Preserve exact simulation input object references.
 //   - 2026-09-01: Returned the latest observed checkpoint after simulation.
 //   - 2026-08-30: Added.
+//   - 2026-09-24: Support native coin split, merge and transfer commands.
 func (c *GRPCClient) SimulateTransaction(ctx context.Context, request SimulationRequest) (*SimulationResult, error) {
 	if c == nil {
 		return nil, fmt.Errorf("failed to simulate sui transaction: grpc_client=null")
@@ -266,6 +267,15 @@ func transactionToRPC(request SimulationRequest) (*rpcv2.Transaction, error) {
 			}
 			elementType := vector.ElementType
 			commands[i] = &rpcv2.Command{Command: &rpcv2.Command_MakeMoveVector{MakeMoveVector: &rpcv2.MakeMoveVector{ElementType: &elementType, Elements: elements}}}
+		case CommandKindSplitCoins:
+			value := command.SplitCoins
+			commands[i] = &rpcv2.Command{Command: &rpcv2.Command_SplitCoins{SplitCoins: &rpcv2.SplitCoins{Coin: argumentToRPC(value.Coin), Amounts: argumentsToRPC(value.Amounts)}}}
+		case CommandKindMergeCoins:
+			value := command.MergeCoins
+			commands[i] = &rpcv2.Command{Command: &rpcv2.Command_MergeCoins{MergeCoins: &rpcv2.MergeCoins{Coin: argumentToRPC(value.Destination), CoinsToMerge: argumentsToRPC(value.Sources)}}}
+		case CommandKindTransferObjects:
+			value := command.TransferObjects
+			commands[i] = &rpcv2.Command{Command: &rpcv2.Command_TransferObjects{TransferObjects: &rpcv2.TransferObjects{Objects: argumentsToRPC(value.Objects), Address: argumentToRPC(value.Address)}}}
 		default:
 			return nil, fmt.Errorf("failed to convert sui transaction command: command_kind=invalid command_index=%d", i)
 		}
@@ -325,6 +335,14 @@ func argumentToRPC(argument Argument) *rpcv2.Argument {
 		}
 	}
 	return converted
+}
+
+func argumentsToRPC(values []Argument) []*rpcv2.Argument {
+	result := make([]*rpcv2.Argument, len(values))
+	for i, value := range values {
+		result[i] = argumentToRPC(value)
+	}
+	return result
 }
 
 func commandOutputs(values []*rpcv2.CommandOutput) []CommandOutput {
