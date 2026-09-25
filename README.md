@@ -2,6 +2,22 @@
 
 Go SDK primitives for EVM, Solana, and Sui integrations.
 
+## Network identifiers
+
+`core.Network.Validate()` checks identifier format: nonempty, valid UTF-8, at
+most 16 bytes, and no whitespace or control characters. It accepts names such
+as `custom-testnet` without adding constants. Validation preserves case and
+does not normalize or trim values. `Network.IsValid()` delegates to
+`Validate() == nil`. Existing `NetworkMainnet`, `NetworkTestnet` and other
+constants remain convenience values, not a list of supported deployments.
+
+Consumers must still check the chain/network combination, configured RPC
+endpoints and adapter support. For example, `evm.ResolveChainID` and
+`sui.ResolveChainIdentifier` reject unregistered networks even when their names
+pass format validation. Default confirmation policies also require a supported
+chain/network combination; accepting an identifier does not enable trading or
+payments on that network.
+
 ## Sui Testnet connection
 
 The `sui` package composes separate clients with `sui.NewRPCClient` for GraphQL

@@ -39,6 +39,20 @@ func TestResolveChainIdentifier(t *testing.T) {
 	}
 }
 
+// TestResolveChainIdentifierRejectsCustomNetwork preserves explicit Sui deployment support.
+//
+// Version:
+//   - 2026-09-25: Added.
+func TestResolveChainIdentifierRejectsCustomNetwork(t *testing.T) {
+	network := core.Network("custom-testnet")
+	if err := network.Validate(); err != nil {
+		t.Fatalf("custom network name rejected: %v", err)
+	}
+	if identifier, err := ResolveChainIdentifier(network); err == nil || identifier != "" {
+		t.Fatalf("unsupported network resolved: identifier=%q error=%v", identifier, err)
+	}
+}
+
 // TestChainIdentifierResponseFormats verifies network resolution for both response formats.
 //
 // Version:

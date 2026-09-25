@@ -155,6 +155,10 @@ func TestChainDefinitionsRoundTrip(t *testing.T) {
 	}
 }
 
+// TestResolveChainIDRejectsInvalidInput verifies format and supported chain/network checks.
+//
+// Version:
+//   - 2026-09-25: Verify custom names remain unsupported by the chain ID registry.
 func TestResolveChainIDRejectsInvalidInput(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -165,7 +169,8 @@ func TestResolveChainIDRejectsInvalidInput(t *testing.T) {
 		{name: "empty chain", network: core.NetworkMainnet, wantError: "chain"},
 		{name: "invalid chain", chain: core.Chain("unknown"), network: core.NetworkMainnet, wantError: "chain"},
 		{name: "empty network", chain: core.ChainEthereum, wantError: "network"},
-		{name: "invalid network", chain: core.ChainEthereum, network: core.Network("unknown"), wantError: "network"},
+		{name: "malformed network", chain: core.ChainEthereum, network: core.Network("bad network"), wantError: "network=invalid"},
+		{name: "custom network", chain: core.ChainEthereum, network: core.Network("custom-testnet"), wantError: "combination is unsupported"},
 		{name: "solana", chain: core.ChainSolana, network: core.NetworkMainnet, wantError: "chain_family=invalid"},
 		{name: "sui", chain: core.ChainSui, network: core.NetworkMainnet, wantError: "chain_family=invalid"},
 		{name: "unsupported evm chain", chain: core.ChainAvalanche, network: core.NetworkMainnet, wantError: "combination is unsupported"},
