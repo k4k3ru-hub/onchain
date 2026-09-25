@@ -1,8 +1,8 @@
 # Sui transaction foundation
 
 The `sui` package provides wallet coin reads, programmable transaction construction,
-complete unsigned `TransactionData`, local Ed25519 signing, and checked simulation.
-It does not select or reserve wallet funds and does not submit transactions.
+complete unsigned `TransactionData`, local Ed25519 signing, checked simulation, and signed transaction execution.
+It does not select or reserve wallet funds.
 
 ## Public operations
 
@@ -37,6 +37,21 @@ Before signing, callers must inspect the decoded transaction and enforce their
 allowed packages, functions, assets, recipients, amount limits, and gas policy.
 The generic codec validates structure; it does not prove Move function semantics,
 balances, ownership, resource usage, or a swap's minimum received amount.
+
+## Signed execution
+
+Compose `NewGRPCClient` at the application boundary and close it when finished.
+`GRPCClient.ExecuteTransaction(ctx, transactionBytes, serializedSignature)` verifies
+canonical BCS and an Ed25519 signature before sending. This initial method requires
+sender-paid gas and one signature. It returns the transaction digest and effects
+success flag. A Move failure returns `Success: false` without a transport error.
+A response with a different digest or missing status is rejected. Transport failures
+can mean the transaction already executed: persist `TransactionData.Digest()` before
+sending and retry the same bytes, never a rebuilt transaction automatically.
+
+The wire request uses `Transaction.bcs.value` and `UserSignature.bcs.value`;
+see the [official execution protocol](https://github.com/MystenLabs/sui-apis/blob/main/proto/sui/rpc/v2/transaction_execution_service.proto)
+and [signature format](https://github.com/MystenLabs/sui-apis/blob/main/proto/sui/rpc/v2/signature.proto).
 
 ## Encoding and supported scope
 
