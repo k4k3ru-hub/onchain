@@ -117,3 +117,18 @@ are transient, so it is not part of the deterministic test suite.
 
 TradeHub's Sui Prepare / Submit registration, OMS integration, Agent setup and
 durable reservations, and live signed Cetus swaps are subsequent integration work.
+
+### Cetus funded preparation
+
+`RPCClient.CurrentEpoch` returns the current epoch and its reference gas price.
+`venues/cetus/clmm.BuildSwapTransaction` accepts explicit resolved `sui.Coin`
+objects for funding and returns complete unsigned `TransactionData`. It validates
+ownership, types, duplicate references and balances, then merges/splits input,
+appends the Cetus swap, enforces full input consumption and minimum output, and
+transfers output to the specified recipient. Native SUI input uses GasCoin and
+reserves the gas budget; token input uses separate owned coins.
+
+Read the selected coin references immediately before construction, then use
+`GRPCClient.SimulateTransactionData`. Neither operation signs, submits, reserves
+funds, nor guarantees a checkpoint-pinned result. The caller supplies the epoch
+expiration and must coordinate concurrent wallet use.
