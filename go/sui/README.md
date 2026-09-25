@@ -20,6 +20,7 @@ It does not select or reserve wallet funds.
 | `ParseKeyPairBase64` / `KeyPair.SignTransaction` | Import the existing Sui keystore Ed25519 format and sign locally. The returned signature bytes are `flag || signature || publicKey`. |
 | `VerifyTransactionSignature` | Verify one Ed25519 signature and its expected sender / gas-owner address. |
 | `GRPCClient.SimulateTransactionData` | Simulate the exact BCS with checks enabled and automatic gas selection disabled. Return gas costs, input references, balance changes, and events. |
+| `GRPCClient.ExecutedTransaction` | Read transaction bytes, effects, gas costs, balance changes, and ordered BCS events. Verify transaction bytes against the requested digest. A missing transaction returns `nil, nil`; an uncheckpointed result retains nil checkpoint / timestamp. |
 
 Compose GraphQL reads with `NewRPCClient` and gRPC simulations with `NewGRPCClient`.
 The existing quote-oriented `SimulateTransaction` remains available and supports the
@@ -52,6 +53,16 @@ sending and retry the same bytes, never a rebuilt transaction automatically.
 The wire request uses `Transaction.bcs.value` and `UserSignature.bcs.value`;
 see the [official execution protocol](https://github.com/MystenLabs/sui-apis/blob/main/proto/sui/rpc/v2/transaction_execution_service.proto)
 and [signature format](https://github.com/MystenLabs/sui-apis/blob/main/proto/sui/rpc/v2/signature.proto).
+
+Use `GRPCClient.ExecutedTransaction(ctx, digest)` to reconcile submission separately.
+The operation uses the [ledger service](https://github.com/MystenLabs/sui-apis/blob/main/proto/sui/rpc/v2/ledger_service.proto)
+and returns SDK-owned types without exposing generated protobuf messages. `nil, nil`
+means the selected node did not find the transaction, including indexing delays or
+pruned history; it does not establish submission failure. A result can contain effects
+without a checkpoint. Failed execution still has gas costs. Gas components and signed
+balance changes retain integer precision; event payloads retain BCS and original order.
+Venue interpretation, finalization policy, fee accounting, and OMS updates belong to
+the caller. The read does not change the transaction or submit it again.
 
 ## Encoding and supported scope
 
