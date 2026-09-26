@@ -57,3 +57,48 @@ func (s *QuoteSnapshot) QuoteGrossPair(ctx context.Context, amount *big.Int, bas
 	}
 	return quotestate.GrossPair{BidAmountOut: bid, AskAmountIn: ask, BidFeeAmount: bidFee, AskFeeAmount: askFee}, nil
 }
+
+// QuoteGrossExactInput evaluates one direction using detached inputs without network reads.
+// FeeAmount is the normal swap fee for the same input, separate from gross output.
+//
+// Version:
+//   - 2026-09-26: Added.
+func (s *QuoteSnapshot) QuoteGrossExactInput(ctx context.Context, amount *big.Int, inputIsToken0 bool) (quotestate.GrossExactInput, error) {
+	if s == nil || ctx == nil {
+		return quotestate.GrossExactInput{}, fmt.Errorf("failed to quote gross exact input: dependency=null")
+	}
+	if amount == nil || amount.Sign() <= 0 || amount.BitLen() > 255 {
+		return quotestate.GrossExactInput{}, fmt.Errorf("failed to quote gross exact input: amount=out_of_range")
+	}
+	if err := ctx.Err(); err != nil {
+		return quotestate.GrossExactInput{}, fmt.Errorf("failed to quote gross exact input: %w", err)
+	}
+	s.cache.mu.Lock()
+	retained := cloneRetainedPool(s.cache.retained)
+	s.cache.mu.Unlock()
+	if retained == nil || retained.pool == nil {
+		return quotestate.GrossExactInput{}, fmt.Errorf("failed to quote gross exact input: snapshot=null")
+	}
+	snapshot := retained.pool
+	fee, err := retained.fee.oracle.fee(retained.fee.config, uint32(retained.timestamp), snapshot.tick)
+	if err != nil {
+		return quotestate.GrossExactInput{}, fmt.Errorf("failed to quote gross exact input: %w", err)
+	}
+	snapshot.fee = fee
+	calculator := StateCache{}
+	feeAmount := new(big.Int)
+	budget := 0
+	if _, err := calculator.quote(ctx, snapshot, amount, inputIsToken0, true, &budget, feeAmount); err != nil {
+		return quotestate.GrossExactInput{}, fmt.Errorf("failed to quote gross exact input: %w", err)
+	}
+
+	snapshot.fee = 0
+	calculator = StateCache{}
+	budget = 0
+	bid, err := calculator.quote(ctx, snapshot, amount, inputIsToken0, true, &budget)
+	if err != nil {
+		return quotestate.GrossExactInput{}, fmt.Errorf("failed to quote gross exact input: %w", err)
+	}
+
+	return quotestate.GrossExactInput{AmountOut: bid, FeeAmount: feeAmount}, nil
+}

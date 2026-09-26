@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-// TestGrossPairUsesFrozenInputs verifies fee removal, isolated arithmetic and cancellation.
+// TestGrossPairUsesFrozenInputs verifies gross pair and exact-input isolation and cancellation.
 //
 // Version:
 //   - 2026-09-26: Added.
@@ -52,6 +52,14 @@ func TestGrossPairUsesFrozenInputs(t *testing.T) {
 			if got.BidFeeAmount.Uint64() != before.Bid.FeeAmount+before.Bid.ProtocolFee || got.AskFeeAmount.Uint64() != before.Ask.FeeAmount+before.Ask.ProtocolFee {
 				t.Error("fee partition incorrect")
 			}
+			input, inputErr := original.QuoteGrossExactInput(ctx, p.Bid)
+			if inputErr != nil {
+				t.Error(inputErr)
+				return
+			}
+			if input.AmountOut.Cmp(got.BidAmountOut) != 0 || input.FeeAmount.Cmp(got.BidFeeAmount) != 0 {
+				t.Error("exact input disagrees with independently verified gross bid")
+			}
 			if got.BidFeeAmount.Sign() <= 0 || got.AskFeeAmount.Sign() <= 0 {
 				t.Error("missing swap fees")
 			}
@@ -70,5 +78,35 @@ func TestGrossPairUsesFrozenInputs(t *testing.T) {
 	cancel()
 	if _, err := original.QuoteGrossPair(canceled, p); !errors.Is(err, context.Canceled) {
 		t.Fatalf("cancellation lost: %v", err)
+	}
+
+	if _, err := original.QuoteGrossExactInput(canceled, p.Bid); !errors.Is(err, context.Canceled) {
+		t.Fatalf("exact input cancellation lost: %v", err)
+	}
+}
+
+// TestGrossExactInputReverse verifies the opposite input token on a detached snapshot.
+//
+// Version:
+//   - 2026-09-26: Added.
+func TestGrossExactInputReverse(t *testing.T) {
+	c, _, p := stateFixture(t)
+	if _, err := c.QuotePair(t.Context(), p); err != nil {
+		t.Fatal(err)
+	}
+	frozen := c.CaptureQuoteSnapshot()
+	reverse := p
+	reverse.Bid.A2B, reverse.Ask.A2B = p.Ask.A2B, p.Bid.A2B
+	reverse.Bid.SqrtPriceLimit, reverse.Ask.SqrtPriceLimit = p.Ask.SqrtPriceLimit, p.Bid.SqrtPriceLimit
+	pair, err := frozen.QuoteGrossPair(t.Context(), reverse)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := frozen.QuoteGrossExactInput(t.Context(), reverse.Bid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.AmountOut.Cmp(pair.BidAmountOut) != 0 || got.FeeAmount.Cmp(pair.BidFeeAmount) != 0 {
+		t.Fatal("reverse input gross amount or fee differs")
 	}
 }
