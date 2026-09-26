@@ -464,7 +464,7 @@ func storeTickDetails(s *poolSnapshot, tick int32, data []byte) (*big.Int, error
 	s.gross[tick] = gross
 	return n, nil
 }
-func (c *StateCache) quote(ctx context.Context, s *poolSnapshot, amount *big.Int, zero, input bool, budget *int) (*big.Int, error) {
+func (c *StateCache) quote(ctx context.Context, s *poolSnapshot, amount *big.Int, zero, input bool, budget *int, feeTotal ...*big.Int) (*big.Int, error) {
 	remaining := new(big.Int).Set(amount)
 	result := new(big.Int)
 	p := new(big.Int).Set(s.price)
@@ -490,6 +490,9 @@ func (c *StateCache) quote(ctx context.Context, s *poolSnapshot, amount *big.Int
 		step, err := calculateStep(p, target, l, remaining, s.fee, input, zero)
 		if err != nil {
 			return nil, err
+		}
+		if len(feeTotal) > 0 && feeTotal[0] != nil {
+			feeTotal[0].Add(feeTotal[0], step.fee)
 		}
 		cost := new(big.Int).Add(step.in, step.fee)
 		if input {
