@@ -1,5 +1,16 @@
 # Momentum CLMM
 
+## Funded swaps
+
+`clmm.BuildSwapTransaction(deployment, clmm.SwapTransactionParams{...})` composes
+an exact-input flash swap and repayment using selected owned coins. Supply the
+pool, sender, recipient, `XForY`, amount, minimum output, input/gas coins, gas
+price, gas budget and expiration epoch. Native SUI input is split from gas;
+other input coins are merged and split. Input change stays with the sender;
+partial fills abort and minimum output is enforced onchain.
+Construction performs no RPC calls or signing; the caller owns transport,
+simulation and submission. Shared object versions must be initial versions.
+
 ## Independent indexed statistics
 
 The separate `github.com/k4k3ru-hub/onchain/go/venues/momentum/api` package exposes

@@ -12,6 +12,7 @@ import (
 // TestGrossPairUsesFrozenInputs verifies gross pair and exact-input isolation and cancellation.
 //
 // Version:
+//   - 2026-09-28: Verify net output against the independent normal-fee quote.
 //   - 2026-09-26: Added.
 func TestGrossPairUsesFrozenInputs(t *testing.T) {
 	c, _ := newTestCache(t)
@@ -23,6 +24,16 @@ func TestGrossPairUsesFrozenInputs(t *testing.T) {
 	original := c.CaptureQuoteSnapshot()
 	if original == nil {
 		t.Fatal("missing snapshot")
+	}
+	for _, direction := range []bool{true, false} {
+		fee, err := original.SwapFeePPM(direction)
+		if err != nil || fee == 0 || fee >= 1_000_000 {
+			t.Fatalf("retained fee unavailable: fee=%d error=%v", fee, err)
+		}
+	}
+	var missingFeeSnapshot *QuoteSnapshot
+	if _, err := missingFeeSnapshot.SwapFeePPM(true); err == nil {
+		t.Fatal("nil fee snapshot accepted")
 	}
 	before, err := original.QuotePair(ctx, amount, true)
 	if err != nil {
@@ -51,6 +62,9 @@ func TestGrossPairUsesFrozenInputs(t *testing.T) {
 			if inputErr != nil {
 				t.Error(inputErr)
 				return
+			}
+			if input.NetAmountOut == nil || input.NetAmountOut.Cmp(before.BidAmountOut) != 0 {
+				t.Error("net output differs from normal-fee quote")
 			}
 			if input.AmountOut.Cmp(got.BidAmountOut) != 0 || input.FeeAmount.Cmp(got.BidFeeAmount) != 0 {
 				t.Error("exact input disagrees with independently verified gross bid")
@@ -87,6 +101,7 @@ func TestGrossPairUsesFrozenInputs(t *testing.T) {
 // TestGrossExactInputOppositeDirection verifies reverse inputs and independent result ownership.
 //
 // Version:
+//   - 2026-09-28: Verify detached net output ownership.
 //   - 2026-09-26: Added.
 func TestGrossExactInputOppositeDirection(t *testing.T) {
 	c, _ := newTestCache(t)
@@ -107,8 +122,9 @@ func TestGrossExactInputOppositeDirection(t *testing.T) {
 		t.Fatal("reverse input or fee incorrect")
 	}
 	first.AmountOut.SetInt64(0)
+	first.NetAmountOut.SetInt64(0)
 	second, err := snapshot.QuoteGrossExactInput(t.Context(), amount, false)
-	if err != nil || second.AmountOut.Sign() <= 0 {
+	if err != nil || second.AmountOut.Sign() <= 0 || second.NetAmountOut == nil || second.NetAmountOut.Sign() <= 0 {
 		t.Fatal("returned amounts alias frozen state", err)
 	}
 }

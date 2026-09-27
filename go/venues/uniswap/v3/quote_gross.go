@@ -56,6 +56,7 @@ func (s *QuoteSnapshot) QuoteGrossPair(ctx context.Context, amount *big.Int, bas
 // FeeAmount is the normal swap fee for the same input, separate from gross output.
 //
 // Version:
+//   - 2026-09-28: Return the normal-fee output from the same frozen exact-input calculation.
 //   - 2026-09-26: Added.
 func (s *QuoteSnapshot) QuoteGrossExactInput(ctx context.Context, amount *big.Int, inputIsToken0 bool) (quotestate.GrossExactInput, error) {
 	if s == nil || ctx == nil {
@@ -77,7 +78,8 @@ func (s *QuoteSnapshot) QuoteGrossExactInput(ctx context.Context, amount *big.In
 	}
 	feeAmount := new(big.Int)
 	budget := 0
-	if _, err := calculator.quote(ctx, snapshot, amount, inputIsToken0, true, &budget, feeAmount); err != nil {
+	net, err := calculator.quote(ctx, snapshot, amount, inputIsToken0, true, &budget, feeAmount)
+	if err != nil {
 		return quotestate.GrossExactInput{}, fmt.Errorf("failed to quote gross exact input: %w", retainedQuoteError(err))
 	}
 
@@ -88,5 +90,5 @@ func (s *QuoteSnapshot) QuoteGrossExactInput(ctx context.Context, amount *big.In
 		return quotestate.GrossExactInput{}, fmt.Errorf("failed to quote gross exact input: %w", retainedQuoteError(err))
 	}
 
-	return quotestate.GrossExactInput{AmountOut: bid, FeeAmount: feeAmount}, nil
+	return quotestate.GrossExactInput{AmountOut: bid, NetAmountOut: net, FeeAmount: feeAmount}, nil
 }

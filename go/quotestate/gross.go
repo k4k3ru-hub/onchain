@@ -12,9 +12,10 @@ type GrossPair struct {
 	BidFeeAmount, AskFeeAmount *big.Int
 }
 
-// GrossExactInput contains fee-free output and the normal fee charged in input units.
+// GrossExactInput contains fee-free and fee-inclusive outputs and the input fee.
 // Both simulations spend the same exact input against the same frozen state.
 type GrossExactInput struct {
-	AmountOut *big.Int
-	FeeAmount *big.Int
+	AmountOut    *big.Int
+	NetAmountOut *big.Int
+	FeeAmount    *big.Int
 }

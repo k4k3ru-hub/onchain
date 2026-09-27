@@ -12,6 +12,7 @@ import (
 // TestGrossPairUsesFrozenInputs verifies gross pair and exact-input isolation and cancellation.
 //
 // Version:
+//   - 2026-09-28: Verify net output against the independent normal-fee quote.
 //   - 2026-09-26: Added.
 func TestGrossPairUsesFrozenInputs(t *testing.T) {
 	c, _, p := cacheFixture(t)
@@ -22,6 +23,16 @@ func TestGrossPairUsesFrozenInputs(t *testing.T) {
 	original := c.CaptureQuoteSnapshot()
 	if original == nil {
 		t.Fatal("missing snapshot")
+	}
+	for _, direction := range []bool{true, false} {
+		fee, err := original.SwapFeePPM(direction)
+		if err != nil || fee == 0 || fee >= 1_000_000 {
+			t.Fatalf("retained fee unavailable: fee=%d error=%v", fee, err)
+		}
+	}
+	var missingFeeSnapshot *QuoteSnapshot
+	if _, err := missingFeeSnapshot.SwapFeePPM(true); err == nil {
+		t.Fatal("nil fee snapshot accepted")
 	}
 	before, err := original.QuotePair(ctx, p)
 	if err != nil {
@@ -56,6 +67,9 @@ func TestGrossPairUsesFrozenInputs(t *testing.T) {
 			if inputErr != nil {
 				t.Error(inputErr)
 				return
+			}
+			if input.NetAmountOut == nil || input.NetAmountOut.Cmp(new(big.Int).SetUint64(before.Bid.AmountOut)) != 0 {
+				t.Error("net output differs from normal-fee quote")
 			}
 			if input.AmountOut.Cmp(got.BidAmountOut) != 0 || input.FeeAmount.Cmp(got.BidFeeAmount) != 0 {
 				t.Error("exact input disagrees with independently verified gross bid")

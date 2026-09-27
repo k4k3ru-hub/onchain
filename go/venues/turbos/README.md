@@ -1,5 +1,16 @@
 # Turbos CLMM
 
+## Funded swaps
+
+`clmm.BuildSwapTransaction(deployment, clmm.SwapTransactionParams{...})` builds
+an exact-input transaction from explicitly selected owned coins. Supply the pool,
+sender, recipient, direction, amount, minimum output, input/gas coins, gas price,
+gas budget, expiration epoch and `DeadlineMS` (Unix milliseconds).
+Native SUI input is split from gas; other input coins are merged and split.
+The transaction rejects partial fills and enforces minimum output onchain.
+Construction performs no RPC calls or signing; the caller owns transport,
+simulation and submission. Shared object versions must be initial versions.
+
 ## Indexed pool statistics
 
 The independent `github.com/k4k3ru-hub/onchain/go/venues/turbos/api` package reads

@@ -37,6 +37,7 @@ func (s *QuoteSnapshot) QuoteGrossPair(ctx context.Context, params QuotePairPara
 // Missing coverage returns an error without acquiring state over RPC.
 //
 // Version:
+//   - 2026-09-28: Return the normal-fee output from the same frozen exact-input calculation.
 //   - 2026-09-26: Added.
 func (s *QuoteSnapshot) QuoteGrossExactInput(ctx context.Context, p QuoteExactInputParams) (quotestate.GrossExactInput, error) {
 	if s == nil || ctx == nil {
@@ -64,5 +65,5 @@ func (s *QuoteSnapshot) QuoteGrossExactInput(ctx context.Context, p QuoteExactIn
 	if err := ctx.Err(); err != nil {
 		return quotestate.GrossExactInput{}, fmt.Errorf("failed to quote gross exact input: %w", err)
 	}
-	return quotestate.GrossExactInput{AmountOut: new(big.Int).SetUint64(gross.AmountOut), FeeAmount: new(big.Int).Add(new(big.Int).SetUint64(net.FeeAmount), new(big.Int).SetUint64(net.ProtocolFee))}, nil
+	return quotestate.GrossExactInput{AmountOut: new(big.Int).SetUint64(gross.AmountOut), NetAmountOut: new(big.Int).SetUint64(net.AmountOut), FeeAmount: new(big.Int).Add(new(big.Int).SetUint64(net.FeeAmount), new(big.Int).SetUint64(net.ProtocolFee))}, nil
 }
