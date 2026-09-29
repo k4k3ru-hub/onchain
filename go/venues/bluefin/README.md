@@ -1,5 +1,40 @@
 # Bluefin Spot
 
+## Funded exact-input swaps
+
+The owning `spot` package exposes `BuildSwapTransaction` alongside its quote and
+atomic-call APIs. The caller supplies a verified deployment, pool, owned input/gas
+coins, gas price/budget, recipient and current expiration epoch:
+
+```go
+tx, err := spot.BuildSwapTransaction(deployment, spot.SwapTransactionParams{
+    Pool: pool, Sender: sender, Recipient: recipient, A2B: true,
+    AmountIn: amountIn, MinimumAmountOut: minimumOut,
+    InputCoins: inputCoins, GasCoins: gasCoins,
+    GasPrice: gasPrice, GasBudget: gasBudget, ExpirationEpoch: epoch,
+})
+if err != nil {
+    return err
+}
+transactionBytes, err := tx.MarshalBCS()
+if err != nil {
+    return err
+}
+// Pass transactionBytes to the caller-owned simulation/signing workflow.
+```
+
+The builder validates ownership, token types, duplicate object references and
+balances. Native SUI input reserves the gas budget before splitting input; other
+tokens are merged and split from their own coins. The transaction destroys the
+remaining input balance only if zero, checks the minimum output through a balance
+split and transfers the complete output to the recipient. Excess funded input
+remains with the sender. The caller owns signing and submission.
+
+Bluefin's swap uses strict sqrt-price limits: `4295048017` for A→B and
+`79226673515401279992447579054` for B→A. Its quote helper permits the exterior
+endpoints, but those endpoints abort in the swap call. Expiration is epoch-based;
+this builder does not add a seconds-based deadline.
+
 ## Retained stream quotes
 
 The producer acquires the current bitmap word and one word on either side,
