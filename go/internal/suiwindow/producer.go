@@ -20,6 +20,7 @@ type Update struct {
 // must replay Updates and reject regressions before publishing a replacement.
 //
 // Version:
+//   - 2026-10-01: Deliver progress frames without adding them to transaction replay.
 //   - 2026-09-11: Added.
 func Run[T any](ctx context.Context, recv func(context.Context) (*sui.TransactionNotification, error), apply func(Update) error, missing func() bool, capture func(context.Context) (T, error), install func(T, []Update) error) error {
 	ctx, cancel := context.WithCancel(ctx)
@@ -66,13 +67,13 @@ func Run[T any](ctx context.Context, recv func(context.Context) (*sui.Transactio
 			if item.err != nil {
 				return errors.Join(item.err, lastErr)
 			}
-			if item.update.Notification == nil || item.update.Notification.Effects == nil {
+			if item.update.Notification == nil {
 				continue
 			}
 			if err := apply(item.update); err != nil {
 				return err
 			}
-			if running && !overflow {
+			if running && !overflow && item.update.Notification.Effects != nil {
 				if len(replay) >= 4096 {
 					overflow = true
 					replay = nil

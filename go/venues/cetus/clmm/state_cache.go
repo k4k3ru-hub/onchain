@@ -22,6 +22,8 @@ type StateReader interface {
 type StateCache struct {
 	quoteSnapshotObserver func(*QuoteSnapshot)
 	retainedRunning       bool
+	stateObservation      quotestate.Observation
+	observationCheckpoint uint64
 	retainedMu            sync.Mutex
 	retained              *retainedSnapshot
 	checkedKey            string

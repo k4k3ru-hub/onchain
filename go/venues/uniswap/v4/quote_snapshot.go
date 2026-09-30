@@ -39,7 +39,7 @@ func (c *StateCache) captureQuoteSnapshotLocked() *QuoteSnapshot {
 	if c.retained == nil {
 		return nil
 	}
-	return &QuoteSnapshot{cache: StateCache{retained: clonePoolSnapshot(c.retained), retainedBlock: c.retainedBlock, retainedHash: c.retainedHash, retainedIndex: c.retainedIndex, retainedHasLog: c.retainedHasLog, fee: c.fee}}
+	return &QuoteSnapshot{cache: StateCache{priceObservationActive: c.priceObservationActive, running: c.running, active: c.active, generation: c.generation, retained: clonePoolSnapshot(c.retained), retainedBlock: c.retainedBlock, retainedHash: c.retainedHash, retainedIndex: c.retainedIndex, retainedHasLog: c.retainedHasLog, fee: c.fee}}
 }
 
 // SetQuoteSnapshotObserver installs the state consumer and immediately publishes current inputs.

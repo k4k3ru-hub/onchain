@@ -10,6 +10,7 @@ import (
 // Retained fields may originate from multiple transactions; coverage is not an atomicity guarantee.
 //
 // Version:
+//   - 2026-10-01: Expose frozen observation epoch and verified progress.
 //   - 2026-09-10: Added.
 func (s *QuoteSnapshot) Inputs() *quotestate.Inputs {
 	if s == nil || s.cache.retained == nil {
@@ -28,7 +29,7 @@ func (s *QuoteSnapshot) Inputs() *quotestate.Inputs {
 		}
 	}
 	coverage := quotestate.WordSegments(p.words)
-	return &quotestate.Inputs{Baseline: baseline, Position: position, ReceivedAt: s.ReceivedAt(), CoverageUnit: "bitmap_word", Coverage: coverage, Fields: map[string]string{
+	return &quotestate.Inputs{Observation: s.cache.stateObservation, Baseline: baseline, Position: position, ReceivedAt: s.ReceivedAt(), CoverageUnit: "bitmap_word", Coverage: coverage, Fields: map[string]string{
 		"sqrt_price": quotestate.Integer(pool.SqrtPrice), "fraction_bits": "64", "liquidity": quotestate.Integer(pool.Liquidity), "tick": strconv.FormatInt(int64(pool.TickIndex), 10), "tick_spacing": strconv.FormatUint(uint64(pool.TickSpacing), 10), "fee_ppm": strconv.FormatUint(uint64(pool.FeeRate), 10), "pool_version": strconv.FormatUint(p.version, 10), "pool_digest": p.digest.String(),
 	}}
 }

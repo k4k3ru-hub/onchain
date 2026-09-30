@@ -27,6 +27,8 @@ type StateCache struct {
 	retainedReference     *QuotePairParams
 	retainedHead          sui.Checkpoint
 	retainedRunning       bool
+	stateObservation      quotestate.Observation
+	observationCheckpoint uint64
 	checkedKey            string
 	accepted              sui.Checkpoint // Protected by gate; independent of trade progress.
 	reader                StateReader

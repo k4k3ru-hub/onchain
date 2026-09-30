@@ -30,6 +30,7 @@ type ObjectStateSubscriber interface {
 // Disconnects discard state. The caller reconnects and initializes again.
 //
 // Version:
+//   - 2026-10-01: Reinitialize after reconnect and expose verified observation progress.
 //   - 2026-09-12: Retain inputs across transport reconnects without refreshing their receipt time.
 //   - 2026-09-11: Refill moved tick windows asynchronously with live transaction replay.
 //   - 2026-09-11: Require recovery to include the rejected transaction checkpoint.
@@ -46,12 +47,17 @@ func (c *StateCache) RunRetained(ctx context.Context, subscriber ObjectStateSubs
 		return fmt.Errorf("failed to run retained cetus state: subscription=active")
 	}
 	c.retainedRunning = true
-	needsInit := c.retained == nil
+	c.stateObservation.Epoch++
+	c.stateObservation.Active = false
+	c.stateObservation.ConfirmedAt = time.Time{}
+	c.stateObservation.SourceTime = time.Time{}
+	c.observationCheckpoint = 0
 	c.publishQuoteSnapshotLocked()
 	c.retainedMu.Unlock()
 	defer func() {
 		c.retainedMu.Lock()
 		c.retainedRunning = false
+		c.stateObservation.Active = false
 		c.publishQuoteSnapshotLocked()
 		c.retainedMu.Unlock()
 	}()
@@ -64,14 +70,20 @@ func (c *StateCache) RunRetained(ctx context.Context, subscriber ObjectStateSubs
 	}
 	defer sub.Close()
 
-	if needsInit {
-		warmCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
-		err = c.Warm(warmCtx)
-		cancel()
-		if err != nil {
-			return err
-		}
+	warmCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	err = c.Warm(warmCtx)
+	cancel()
+	if err != nil {
+		return err
 	}
+	c.retainedMu.Lock()
+	c.stateObservation.Active = true
+	if c.retained != nil {
+		c.stateObservation.SourceTime = c.retained.baseline.Timestamp
+	}
+	c.stateObservation.ConfirmedAt = time.Now().UTC()
+	c.publishQuoteSnapshotLocked()
+	c.retainedMu.Unlock()
 	err = suiwindow.Run(ctx, sub.Recv, func(update suiwindow.Update) error {
 		return c.applyRetainedObjects(update.Notification, update.ReceivedAt)
 	}, c.retainedCoverageMissing, c.captureRetainedWindow, c.installRetainedWindow)
@@ -179,6 +191,17 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification, receip
 			c.retained = nil
 		}
 	}()
+	defer func() {
+		if err == nil && c.retained != nil {
+			err = suiwindow.ObserveProgress(&c.stateObservation, &c.observationCheckpoint, n, c.retained.baseline.SequenceNumber.Uint64(), time.Now().UTC())
+		}
+	}()
+	if n != nil && n.Effects == nil {
+		if n.ObjectChangesError != nil {
+			return fmt.Errorf("failed to observe pool progress: %w", n.ObjectChangesError)
+		}
+		return nil
+	}
 	if c.retained == nil || n == nil || n.Effects == nil || n.Effects.Checkpoint == nil {
 		return fmt.Errorf("failed to apply retained cetus objects: state=null")
 	}

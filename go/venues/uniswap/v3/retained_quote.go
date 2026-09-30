@@ -20,6 +20,7 @@ var errStateReadBudget = errors.New("rpc_budget=exhausted")
 // This state producer never publishes a quote.
 //
 // Version:
+//   - 2026-10-01: Refresh the retained baseline for each connection epoch.
 //   - 2026-09-10: Identify reinitialization reasons and refresh coverage asynchronously.
 //   - 2026-09-09: Publish retained input updates and withdraw unavailable state.
 //   - 2026-09-09: Recover missing reference-quote coverage through the state session.
@@ -327,6 +328,7 @@ type RetainedEvents struct {
 // Callbacks run serially outside the state lock; replay never re-emits live Swaps.
 //
 // Version:
+//   - 2026-10-01: Reinitialize prices after reconnect or ingestion loss.
 //   - 2026-09-12: Accept live Swap terminal state in receipt order and prefetch at window edges.
 //   - 2026-09-11: Emit recordable live swaps before retained-state validation.
 //   - 2026-09-10: Added.

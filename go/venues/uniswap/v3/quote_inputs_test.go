@@ -10,6 +10,7 @@ import (
 // TestQuoteInputsAreDetached verifies retained input metadata and ordering.
 //
 // Version:
+//   - 2026-10-01: Verify frozen observation epoch and disconnect metadata.
 //   - 2026-09-10: Added.
 func TestQuoteInputsAreDetached(t *testing.T) {
 	c, _ := newTestCache(t)
@@ -18,9 +19,21 @@ func TestQuoteInputsAreDetached(t *testing.T) {
 	}
 	c.retainedBlock, c.retainedHash, c.retainedIndex, c.retainedHasLog = 101, common.HexToHash("02"), 0, true
 	c.retained.words = map[int32]*big.Int{-2: big.NewInt(0), -1: big.NewInt(0), 2: big.NewInt(0)}
+	c.running = true
+	c.generation = 7
+	c.active = true
+	c.priceObservationActive = true
 	frozen := c.CaptureQuoteSnapshot()
 	want := frozen.Inputs()
 	got := frozen.Inputs()
+	if !got.Observation.Active || got.Observation.Epoch != 7 || !got.Observation.ConfirmedAt.Equal(got.ReceivedAt) {
+		t.Fatal("observation metadata lost")
+	}
+	c.running = false
+	c.generation = 8
+	if c.CaptureQuoteSnapshot().Inputs().Observation.Active {
+		t.Fatal("stopped subscription reports continuous observation")
+	}
 	if got.Position.Kind != "log" || got.Position.Sequence != 101 || got.Position.Index == nil || *got.Position.Index != 0 || got.Baseline.Kind != "block" {
 		t.Fatalf("lost live position: %+v", got)
 	}

@@ -124,11 +124,11 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 		return fmt.Errorf("failed to run retained state: subscription=active")
 	}
 	c.running = true
+	c.priceObservationActive = false
 	c.generation++
 	c.floorHash = common.Hash{}
-	if events == nil {
-		c.retained = nil
-	}
+	// A new stream cannot prove continuity of the previous retained baseline.
+	c.retained = nil
 	c.retainedBaseAmount = amount
 	recovery := make(chan struct{}, 1)
 	c.retainedRecovery = recovery
@@ -293,6 +293,7 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 			replay = nil
 			c.mu.Lock()
 			c.retained = candidate.retained
+			c.priceObservationActive = true
 			c.retainedBlock, c.retainedHash = candidate.retainedBlock, candidate.retainedHash
 			c.retainedIndex, c.retainedHasLog = candidate.retainedIndex, candidate.retainedHasLog
 			pending = c.retainedNeedsCapture(amount, baseIsToken0)
@@ -363,7 +364,10 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 					}
 					replay = nil
 					c.mu.Lock()
-					pending = c.retainedNeedsCapture(amount, baseIsToken0)
+					c.priceObservationActive = false
+					c.generation++
+					c.publishQuoteSnapshotLocked()
+					pending = true
 					c.mu.Unlock()
 					if events.OnRecovery != nil {
 						events.OnRecovery(err)
@@ -376,6 +380,9 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 			if c.retained != nil {
 				err := c.applyLiveRetainedLog(log, receivedAt)
 				if err != nil {
+					c.priceObservationActive = false
+					c.generation++
+					c.publishQuoteSnapshotLocked()
 					c.mu.Unlock()
 					if events == nil {
 						return err

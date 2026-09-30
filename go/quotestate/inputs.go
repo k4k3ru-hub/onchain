@@ -15,12 +15,22 @@ type Position struct {
 	Index    *uint64
 }
 
+// Observation describes a live validation epoch, independently of input age.
+// ConfirmedAt advances only after validated upstream progress, never on reads.
+// SourceTime is optional and is not replaced with local receipt time.
+type Observation struct {
+	Epoch                   uint64
+	Active                  bool
+	ConfirmedAt, SourceTime time.Time
+}
+
 type Segment struct{ Lower, Upper int64 }
 
 // Inputs describes frozen receiver-side inputs, not a claim that all components
 // were fetched at Position. Baseline identifies initialization; Fields describes
 // the latest pool object, and coverage lists actually retained bitmap words/ticks.
 type Inputs struct {
+	Observation Observation
 	// ReplayRevision advances only after validated late-log replay within a baseline.
 	ReplayRevision     uint64
 	UnavailableReason  string // Empty means no known pool-level prohibition; quantity checks still apply.

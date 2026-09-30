@@ -21,6 +21,7 @@ type ObjectStateSubscriber interface {
 // Initialization may acquire state; Trade calculation never invokes it.
 //
 // Version:
+//   - 2026-10-01: Reinitialize after reconnect and expose verified observation progress.
 //   - 2026-09-12: Retain inputs across transport reconnects without refreshing their receipt time.
 //   - 2026-09-11: Refill ranges asynchronously while applying live state and replay before installation.
 //   - 2026-09-10: Preserve input receipt time.
@@ -36,12 +37,17 @@ func (c *StateCache) RunRetained(ctx context.Context, subscribed ObjectStateSubs
 		return fmt.Errorf("failed to retain turbos state: subscription=active")
 	}
 	c.retainedRunning = true
-	needsInit := c.retained == nil
+	c.stateObservation.Epoch++
+	c.stateObservation.Active = false
+	c.stateObservation.ConfirmedAt = time.Time{}
+	c.stateObservation.SourceTime = time.Time{}
+	c.observationCheckpoint = 0
 	c.publishQuoteSnapshotLocked()
 	c.retainedMu.Unlock()
 	defer func() {
 		c.retainedMu.Lock()
 		c.retainedRunning = false
+		c.stateObservation.Active = false
 		c.publishQuoteSnapshotLocked()
 		c.retainedMu.Unlock()
 	}()
@@ -53,18 +59,24 @@ func (c *StateCache) RunRetained(ctx context.Context, subscribed ObjectStateSubs
 		return fmt.Errorf("failed to subscribe retained turbos state: subscription=null")
 	}
 	defer sub.Close()
-	if needsInit {
-		initCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
-		err = initialize(initCtx)
-		cancel()
-		if err != nil {
-			return fmt.Errorf("failed to initialize retained turbos state: %w", err)
-		}
+	initCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	err = initialize(initCtx)
+	cancel()
+	if err != nil {
+		return fmt.Errorf("failed to initialize retained turbos state: %w", err)
 	}
+	c.retainedMu.Lock()
+	c.stateObservation.Active = true
+	if c.retained != nil {
+		c.stateObservation.SourceTime = c.retainedHead.Timestamp
+	}
+	c.stateObservation.ConfirmedAt = time.Now().UTC()
+	c.publishQuoteSnapshotLocked()
+	c.retainedMu.Unlock()
 	return suiwindow.Run(ctx, sub.Recv, func(update suiwindow.Update) error {
 		if err := c.applyRetainedObjects(update.Notification, update.ReceivedAt); err != nil {
-			if cp := update.Notification.Effects.Checkpoint; cp != nil {
-				c.ObserveCheckpoint(*cp)
+			if update.Notification != nil && update.Notification.Effects != nil && update.Notification.Effects.Checkpoint != nil {
+				c.ObserveCheckpoint(*update.Notification.Effects.Checkpoint)
 			}
 			return err
 		}
@@ -140,6 +152,17 @@ func (c *StateCache) applyRetainedObjects(n *sui.TransactionNotification, receip
 			c.retained = nil
 		}
 	}()
+	defer func() {
+		if err == nil && c.retained != nil {
+			err = suiwindow.ObserveProgress(&c.stateObservation, &c.observationCheckpoint, n, c.retainedHead.SequenceNumber.Uint64(), time.Now().UTC())
+		}
+	}()
+	if n != nil && n.Effects == nil {
+		if n.ObjectChangesError != nil {
+			return fmt.Errorf("failed to observe pool progress: %w", n.ObjectChangesError)
+		}
+		return nil
+	}
 	old := c.retained
 	if old == nil || n == nil || n.Effects == nil || n.Effects.Checkpoint == nil {
 		return fmt.Errorf("failed to apply retained turbos objects: state=null")

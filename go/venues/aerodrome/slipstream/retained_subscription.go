@@ -27,9 +27,10 @@ type RunRetainedParams struct {
 
 // RunRetained subscribes before initialization and maintains local quote inputs.
 // RPC reads occur during initialization and background window capture. State notifications never publish
-// quotes. Transport reconnection retains existing inputs and their original freshness.
+// quotes. Transport reconnection acquires a new validated baseline.
 //
 // Version:
+//   - 2026-10-01: Begin a fresh retained-state epoch on reconnect.
 //   - 2026-09-11: Refresh complete tick windows in the background.
 //   - 2026-09-10: Delegate to RunRetainedWithParams using the subscriber's default start block.
 //   - 2026-09-09: Publish retained input updates and withdraw unavailable state.
@@ -48,6 +49,7 @@ func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, amount *bi
 //   - Subscription or state initialization error.
 //
 // Version:
+//   - 2026-10-01: Reinitialize on reconnect and withdraw prices on reorganization.
 //   - 2026-09-12: Resume failed background tick batches at their original block.
 //   - 2026-09-12: Retain inputs across transport reconnects and accept replacement Swaps.
 //   - 2026-09-11: Prefetch and refresh complete center ±1 tick windows.
@@ -67,6 +69,8 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 		return fmt.Errorf("failed to run retained slipstream state: subscription=active")
 	}
 	c.running = true
+	c.generation++
+	c.retained = nil
 	c.publishQuoteSnapshotLocked()
 	c.mu.Unlock()
 	defer func() { c.mu.Lock(); c.running = false; c.publishQuoteSnapshotLocked(); c.mu.Unlock() }()
@@ -181,6 +185,10 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 			}
 			c.mu.Lock()
 			err := c.applyLiveRetainedLog(log.Log, timestamp, log.at)
+			if err != nil {
+				c.retained = nil
+				c.generation++
+			}
 			c.publishQuoteSnapshotLocked()
 			c.mu.Unlock()
 			if err != nil {
@@ -289,7 +297,7 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 				return fmt.Errorf("failed to receive retained logs: channel closed")
 			}
 			if log.Removed {
-				continue
+				return fmt.Errorf("failed to receive retained logs: reorganization requires resynchronization")
 			}
 			if log.BlockHash == (common.Hash{}) {
 				return fmt.Errorf("failed to receive retained logs: event=invalid")
