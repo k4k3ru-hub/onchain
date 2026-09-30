@@ -229,3 +229,65 @@ func TestIdleProofRequiresEveryAppliedLog(t *testing.T) {
 		t.Fatal("journal unbounded or evicted log retained")
 	}
 }
+
+// TestIdleReadFailuresRetryWithoutConfirming keeps live state through refused or delayed RPC evidence.
+//
+// Version:
+//   - 2026-10-01: Added.
+func TestIdleReadFailuresRetryWithoutConfirming(t *testing.T) {
+	for _, mode := range []string{"recover", "refused", "timeout", "state_changes"} {
+		t.Run(mode, func(t *testing.T) {
+			ctx, cancel := context.WithTimeout(t.Context(), time.Second)
+			defer cancel()
+			state := State{Baseline: Cursor{Block: 100, Hash: header(100).Hash}, Cursor: Cursor{Block: 100, Hash: header(100).Hash}, Epoch: 1, ReceivedAt: time.Unix(100, 0)}
+			r := &proofRPC{head: 102}
+			calls, confirmed := 0, 0
+			var attempts []time.Time
+			r.filter = func(context.Context) {
+				calls++
+				attempts = append(attempts, time.Now())
+				r.err = errors.New("archive permission required")
+				if mode == "timeout" {
+					r.err = context.DeadlineExceeded
+				}
+				if mode == "state_changes" {
+					state.ReceivedAt = state.ReceivedAt.Add(time.Millisecond)
+				}
+				if mode == "recover" && calls == 3 {
+					r.err = nil
+				}
+				if calls == 4 {
+					cancel()
+				}
+			}
+			err := Run(ctx, r, ethereum.FilterQuery{Addresses: []common.Address{common.HexToAddress("1")}}, 5*time.Millisecond, func() (State, Evidence, bool) { return state, nil, true }, func(State, time.Time) bool { confirmed++; cancel(); return true })
+			if err != nil {
+				t.Fatal("read failure escaped to subscription recovery", err)
+			}
+			want := 0
+			if mode == "recover" {
+				want = 1
+			}
+			if confirmed != want || calls < 3 {
+				t.Fatalf("calls=%d confirmed=%d", calls, confirmed)
+			}
+			if attempts[2].Sub(attempts[1]) < 10*time.Millisecond {
+				t.Fatal("read retries did not back off")
+			}
+		})
+	}
+}
+
+// TestIdleInconsistencyStillRequiresRecovery preserves the fatal path for verified reorganizations.
+//
+// Version:
+//   - 2026-10-01: Added.
+func TestIdleInconsistencyStillRequiresRecovery(t *testing.T) {
+	r := &proofRPC{head: 102, changed: map[uint64]bool{100: true}}
+	state := State{Baseline: Cursor{Block: 100, Hash: header(100).Hash}, Cursor: Cursor{Block: 100, Hash: header(100).Hash}}
+	confirmed := false
+	err := Run(t.Context(), r, ethereum.FilterQuery{Addresses: []common.Address{common.HexToAddress("1")}}, time.Millisecond, func() (State, Evidence, bool) { return state, nil, true }, func(State, time.Time) bool { confirmed = true; return true })
+	if err == nil || confirmed {
+		t.Fatal("inconsistent state survived", err)
+	}
+}

@@ -3,6 +3,7 @@ package evmobservation
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/big"
 	"time"
@@ -15,6 +16,22 @@ import (
 
 const Interval = 5 * time.Second
 const maxBlocks = 1024
+
+// readFailure distinguishes missing evidence from verified state inconsistency.
+// Its cause remains inspectable; background callers can retry without recapture.
+type readFailure struct{ cause error }
+
+// Error describes the failed evidence request.
+//
+// Version:
+//   - 2026-10-01: Added.
+func (e *readFailure) Error() string { return e.cause.Error() }
+
+// Unwrap preserves the transport or scheduling failure.
+//
+// Version:
+//   - 2026-10-01: Added.
+func (e *readFailure) Unwrap() error { return e.cause }
 
 // Start starts optional HTTP log verification and returns a cancel-and-join function.
 // Readers without FilterLogs keep their existing event-only observations.
@@ -83,10 +100,11 @@ func (p Progress) ConfirmedAt(state State) time.Time {
 }
 
 // Prove verifies an advancing canonical range has no unapplied matching logs.
-// A pending log or unchanged head produces no progress. RPC failures and reorgs
-// return errors so the owner can withdraw the observation and recover.
+// A pending log or unchanged head produces no progress. RPC failures are retryable
+// missing evidence; verified inconsistencies require owner recovery.
 //
 // Version:
+//   - 2026-10-01: Distinguish unavailable RPC evidence from inconsistent retained state.
 //   - 2026-10-01: Added.
 func Prove(ctx context.Context, rpc Reader, query ethereum.FilterQuery, cursor Cursor, applied Evidence) (Cursor, bool, error) {
 	const op = "failed to prove evm observation"
@@ -95,15 +113,18 @@ func Prove(ctx context.Context, rpc Reader, query ethereum.FilterQuery, cursor C
 	}
 	head, err := rpc.LatestHeader(ctx)
 	if err != nil {
-		return Cursor{}, false, fmt.Errorf("%s: %w", op, err)
+		return Cursor{}, false, fmt.Errorf("%s: %w", op, &readFailure{err})
 	}
-	if head.Hash == (common.Hash{}) || head.Number < cursor.Block {
+	if head.Hash == (common.Hash{}) {
 		return Cursor{}, false, fmt.Errorf("%s: head=invalid", op)
+	}
+	if head.Number < cursor.Block {
+		return Cursor{}, false, &readFailure{fmt.Errorf("%s: head=behind", op)}
 	}
 	check := func(number uint64, hash common.Hash) error {
 		h, err := rpc.HeaderByNumber(ctx, number)
 		if err != nil {
-			return fmt.Errorf("%s: %w", op, err)
+			return fmt.Errorf("%s: %w", op, &readFailure{err})
 		}
 		if h.Number != number || h.Hash != hash {
 			return fmt.Errorf("%s: block_hash=mismatch block_number=%d", op, number)
@@ -130,7 +151,7 @@ func Prove(ctx context.Context, rpc Reader, query ethereum.FilterQuery, cursor C
 	query.FromBlock, query.ToBlock = new(big.Int).SetUint64(from), new(big.Int).SetUint64(head.Number)
 	logs, err := rpc.FilterLogs(ctx, query)
 	if err != nil {
-		return Cursor{}, false, fmt.Errorf("%s: %w", op, err)
+		return Cursor{}, false, fmt.Errorf("%s: %w", op, &readFailure{err})
 	}
 	canonical := make(Evidence, len(logs))
 	for _, log := range logs {
@@ -163,7 +184,7 @@ func Prove(ctx context.Context, rpc Reader, query ethereum.FilterQuery, cursor C
 		return Cursor{}, false, err
 	}
 	if err := ctx.Err(); err != nil {
-		return Cursor{}, false, fmt.Errorf("%s: %w", op, err)
+		return Cursor{}, false, fmt.Errorf("%s: %w", op, &readFailure{err})
 	}
 	return Cursor{Block: head.Number, Hash: head.Hash}, true, nil
 }
@@ -172,24 +193,27 @@ func Prove(ctx context.Context, rpc Reader, query ethereum.FilterQuery, cursor C
 // apply must compare the supplied state under the owner's lock before publishing.
 //
 // Version:
+//   - 2026-10-01: Back off unavailable evidence without restarting the pool's log subscription.
 //   - 2026-10-01: Added.
 func Run(ctx context.Context, rpc Reader, query ethereum.FilterQuery, interval time.Duration, read func() (State, Evidence, bool), apply func(State, time.Time) bool) error {
 	if ctx == nil || rpc == nil || interval <= 0 || read == nil || apply == nil {
 		return fmt.Errorf("failed to watch evm observation: dependency=invalid")
 	}
-	ticker := time.NewTicker(interval)
-	defer ticker.Stop()
+	timer := time.NewTimer(interval)
+	defer timer.Stop()
+	retryDelay := interval
 	var previous State
 	var frontier Cursor
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
-		case <-ticker.C:
+		case <-timer.C:
 		}
 		state, applied, active := read()
 		if !active {
 			previous = State{}
+			timer.Reset(interval)
 			continue
 		}
 		if previous != state {
@@ -205,13 +229,27 @@ func Run(ctx context.Context, rpc Reader, query ethereum.FilterQuery, interval t
 			return nil
 		}
 		current, _, active := read()
+		var unavailable *readFailure
+		if errors.As(err, &unavailable) {
+			if !active || current != state {
+				previous = State{}
+			}
+			// Missing RPC evidence cannot prove a gap in the live stream.
+			// Preserve inputs and retry at five seconds up to one minute.
+			timer.Reset(retryDelay)
+			retryDelay = min(retryDelay*2, 12*interval)
+			continue
+		}
 		if !active || current != state {
 			previous = State{}
+			timer.Reset(interval)
 			continue
 		}
 		if err != nil {
 			return fmt.Errorf("failed to watch evm observation: %w", err)
 		}
+		retryDelay = interval
+		timer.Reset(interval)
 		if advanced && apply(state, time.Now().UTC()) {
 			previous, frontier = state, next
 		}

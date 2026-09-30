@@ -233,9 +233,12 @@ from another state version never advance this time. Confirmation does not alter
 Verification uses at most 1024 blocks per attempt and 4096 journal identities,
 with a ten-second attempt timeout. An advancing proof uses one log request and
 four header requests per pool; unchanged heads use two header requests. RPC
-failures, conflicting applied events, reorganizations and oversized ranges return
-through the retained worker's existing recovery boundary. A pending event waits
-for ingestion. Readers without log-query support retain event-only progress.
+failures withhold confirmation and retry with exponential backoff from five seconds
+to one minute, while preserving the live log subscription and retained inputs.
+A refused archive request or a lagging endpoint is missing evidence, not proof of
+a stream gap. Conflicting applied events, reorganizations and oversized ranges
+still return through the retained worker's existing recovery boundary. A pending
+event waits for ingestion. Readers without log-query support retain event-only progress.
 These RPC calls belong to the background producer; quote requests remain local.
 
 ### Retained AMM range acquisition
