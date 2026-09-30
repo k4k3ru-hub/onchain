@@ -261,7 +261,12 @@ func applyRetainedPoolEvent(s *retainedPoolState, log types.Log, timestamp uint3
 // applyLiveRetainedLog retains bitmap and tick details when a replacement Swap
 // moves backwards in ledger order. Oracle history is not rewritten using an old
 // timestamp; subsequent forward events resume its normal updates.
-func (c *StateCache) applyLiveRetainedLog(log types.Log, timestamp uint64, received time.Time) error {
+func (c *StateCache) applyLiveRetainedLog(log types.Log, timestamp uint64, received time.Time) (err error) {
+	defer func() {
+		if err == nil {
+			c.observationJournal.Record(log)
+		}
+	}()
 	if log.Removed {
 		return nil
 	}

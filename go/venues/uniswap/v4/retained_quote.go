@@ -200,6 +200,7 @@ func (c *StateCache) applyRetainedLogMode(log types.Log, live bool, receipt ...t
 		c.retained.received = at
 	}
 	c.retainedBlock, c.retainedHash, c.retainedIndex, c.retainedHasLog = log.BlockNumber, log.BlockHash, log.Index, true
+	c.observationJournal.Record(log)
 	return nil
 }
 

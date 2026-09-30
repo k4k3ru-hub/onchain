@@ -9,6 +9,7 @@ import (
 // Coverage describes loaded bitmap words; exact quantity coverage remains a local quote check.
 //
 // Version:
+//   - 2026-10-01: Preserve independently verified idle progress.
 //   - 2026-10-01: Expose frozen observation epoch and validated input progress.
 //   - 2026-09-10: Added.
 func (s *QuoteSnapshot) Inputs() *quotestate.Inputs {
@@ -26,7 +27,7 @@ func (s *QuoteSnapshot) Inputs() *quotestate.Inputs {
 	if hasLog {
 		position = quotestate.Position{Kind: "log", Sequence: block, Digest: hash, Index: &index}
 	}
-	return &quotestate.Inputs{Observation: quotestate.Observation{Epoch: c.generation, Active: c.running && c.active && c.priceObservationActive, ConfirmedAt: s.ReceivedAt()}, Baseline: baseline, Position: position, ReceivedAt: s.ReceivedAt(), CoverageUnit: "bitmap_word", Coverage: quotestate.WordSegments(p.words), Fields: map[string]string{
+	return &quotestate.Inputs{Observation: quotestate.Observation{Epoch: c.generation, Active: c.running && c.active && c.priceObservationActive, ConfirmedAt: c.observationProgress.ConfirmedAt(c.priceObservationStateLocked())}, Baseline: baseline, Position: position, ReceivedAt: s.ReceivedAt(), CoverageUnit: "bitmap_word", Coverage: quotestate.WordSegments(p.words), Fields: map[string]string{
 		"sqrt_price": quotestate.Integer(p.price), "fraction_bits": "96", "liquidity": quotestate.Integer(p.liquidity), "tick": strconv.FormatInt(int64(p.tick), 10), "tick_spacing": strconv.FormatInt(int64(p.spacing), 10), "fee_ppm": strconv.FormatUint(uint64(c.fee), 10),
 	}}
 }

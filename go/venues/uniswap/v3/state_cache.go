@@ -3,6 +3,7 @@ package v3
 import (
 	"context"
 	"fmt"
+	"github.com/k4k3ru-hub/onchain/go/internal/evmobservation"
 	"github.com/k4k3ru-hub/onchain/go/quotestate"
 	"math/big"
 	"sync"
@@ -46,6 +47,8 @@ type poolSnapshot struct {
 }
 
 type StateCache struct {
+	observationJournal     evmobservation.Journal
+	observationProgress    evmobservation.Progress
 	priceObservationActive bool // protected by mu; false after ingestion loss until recapture
 
 	initialPrice          *InitialPriceSnapshot // protected by mu; never used as complete quote inputs

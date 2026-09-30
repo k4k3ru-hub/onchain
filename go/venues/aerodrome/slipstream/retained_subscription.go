@@ -49,6 +49,7 @@ func (c *StateCache) RunRetained(ctx context.Context, ws WSRPCClient, amount *bi
 //   - Subscription or state initialization error.
 //
 // Version:
+//   - 2026-10-01: Verify idle log ranges in the background when HTTP log reads are supported.
 //   - 2026-10-01: Reinitialize on reconnect and withdraw prices on reorganization.
 //   - 2026-09-12: Resume failed background tick batches at their original block.
 //   - 2026-09-12: Retain inputs across transport reconnects and accept replacement Swaps.
@@ -148,6 +149,8 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 	c.retained = state
 	c.publishQuoteSnapshotLocked()
 	c.mu.Unlock()
+	progressErrors, stopProgress := c.observeIdleProgress(ctx, ethereum.FilterQuery{Addresses: []common.Address{c.pool, c.factory, module}})
+	defer stopProgress()
 	headers := map[common.Hash]evm.BlockHeader{state.pool.header.Hash: state.pool.header}
 	order := []common.Hash{state.pool.header.Hash}
 	type receivedLog struct {
@@ -209,6 +212,8 @@ func (c *StateCache) RunRetainedWithParams(ctx context.Context, ws WSRPCClient, 
 		select {
 		case <-ctx.Done():
 			return fmt.Errorf("failed to run retained slipstream state: %w", ctx.Err())
+		case err := <-progressErrors:
+			return fmt.Errorf("failed to observe retained state: %w", err)
 		case <-ticker.C:
 			c.mu.Lock()
 			needed := c.retainedNeedsCapture(amount, baseIsToken0)

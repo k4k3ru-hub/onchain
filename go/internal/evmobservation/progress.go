@@ -1,0 +1,219 @@
+// Package evmobservation proves idle progress independently of log delivery order.
+package evmobservation
+
+import (
+	"context"
+	"fmt"
+	"math/big"
+	"time"
+
+	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/k4k3ru-hub/onchain/go/evm"
+)
+
+const Interval = 5 * time.Second
+const maxBlocks = 1024
+
+// Start starts optional HTTP log verification and returns a cancel-and-join function.
+// Readers without FilterLogs keep their existing event-only observations.
+//
+// Version:
+//   - 2026-10-01: Added.
+func Start(ctx context.Context, source any, query ethereum.FilterQuery, read func() (State, Evidence, bool), apply func(State, time.Time) bool) (<-chan error, func()) {
+	if ctx == nil {
+		failures := make(chan error, 1)
+		failures <- fmt.Errorf("failed to watch evm observation: context=null")
+		return failures, func() {}
+	}
+	rpc, ok := source.(Reader)
+	if !ok {
+		return nil, func() {}
+	}
+	ctx, cancel := context.WithCancel(ctx)
+	errors := make(chan error, 1)
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		if err := Run(ctx, rpc, query, Interval, read, apply); err != nil {
+			errors <- err
+		}
+	}()
+	return errors, func() { cancel(); <-done }
+}
+
+type Reader interface {
+	LatestHeader(context.Context) (evm.BlockHeader, error)
+	HeaderByNumber(context.Context, uint64) (evm.BlockHeader, error)
+	FilterLogs(context.Context, ethereum.FilterQuery) ([]types.Log, error)
+}
+
+// Cursor describes the last applied log, or a completely applied block.
+type Cursor struct {
+	Block  uint64
+	Hash   common.Hash
+	Index  uint
+	HasLog bool
+}
+
+// State fences asynchronous confirmation against input replacement and reconnects.
+type State struct {
+	Baseline        Cursor
+	Cursor          Cursor
+	Epoch, Revision uint64
+	ReceivedAt      time.Time
+}
+
+// Progress keeps confirmation separate from the source input receipt time.
+type Progress struct {
+	State State
+	At    time.Time
+}
+
+// ConfirmedAt returns progress only for the exact retained state that was verified.
+//
+// Version:
+//   - 2026-10-01: Added.
+func (p Progress) ConfirmedAt(state State) time.Time {
+	if p.State == state && p.At.After(state.ReceivedAt) {
+		return p.At
+	}
+	return state.ReceivedAt
+}
+
+// Prove verifies an advancing canonical range has no unapplied matching logs.
+// A pending log or unchanged head produces no progress. RPC failures and reorgs
+// return errors so the owner can withdraw the observation and recover.
+//
+// Version:
+//   - 2026-10-01: Added.
+func Prove(ctx context.Context, rpc Reader, query ethereum.FilterQuery, cursor Cursor, applied Evidence) (Cursor, bool, error) {
+	const op = "failed to prove evm observation"
+	if ctx == nil || rpc == nil || cursor.Hash == (common.Hash{}) || len(query.Addresses) == 0 {
+		return Cursor{}, false, fmt.Errorf("%s: input=invalid", op)
+	}
+	head, err := rpc.LatestHeader(ctx)
+	if err != nil {
+		return Cursor{}, false, fmt.Errorf("%s: %w", op, err)
+	}
+	if head.Hash == (common.Hash{}) || head.Number < cursor.Block {
+		return Cursor{}, false, fmt.Errorf("%s: head=invalid", op)
+	}
+	check := func(number uint64, hash common.Hash) error {
+		h, err := rpc.HeaderByNumber(ctx, number)
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+		if h.Number != number || h.Hash != hash {
+			return fmt.Errorf("%s: block_hash=mismatch block_number=%d", op, number)
+		}
+		return nil
+	}
+	if err := check(cursor.Block, cursor.Hash); err != nil {
+		return Cursor{}, false, err
+	}
+	if head.Number == cursor.Block && head.Hash != cursor.Hash {
+		return Cursor{}, false, fmt.Errorf("%s: block_hash=mismatch block_number=%d", op, cursor.Block)
+	}
+	if head.Number == cursor.Block && !cursor.HasLog {
+		return cursor, false, nil
+	}
+	if head.Number-cursor.Block > maxBlocks {
+		return Cursor{}, false, fmt.Errorf("%s: range=too_long max_length=%d", op, maxBlocks)
+	}
+	from := cursor.Block
+	if !cursor.HasLog {
+		from++
+	}
+	query.BlockHash = nil
+	query.FromBlock, query.ToBlock = new(big.Int).SetUint64(from), new(big.Int).SetUint64(head.Number)
+	logs, err := rpc.FilterLogs(ctx, query)
+	if err != nil {
+		return Cursor{}, false, fmt.Errorf("%s: %w", op, err)
+	}
+	canonical := make(Evidence, len(logs))
+	for _, log := range logs {
+		if log.Removed || log.BlockHash == (common.Hash{}) || log.BlockNumber < from || log.BlockNumber > head.Number {
+			return Cursor{}, false, fmt.Errorf("%s: log=invalid", op)
+		}
+		if log.BlockNumber == cursor.Block && log.BlockHash != cursor.Hash {
+			return Cursor{}, false, fmt.Errorf("%s: block_hash=mismatch block_number=%d", op, cursor.Block)
+		}
+		if !applied.contains(log) {
+			return Cursor{}, false, nil
+		}
+		canonical[logKey{log.BlockNumber, log.BlockHash, log.Index}] = fingerprint(log)
+	}
+	for key, digest := range applied {
+		if key.block > head.Number {
+			return Cursor{}, false, nil
+		}
+		if key.block >= from {
+			if value, ok := canonical[key]; !ok || value != digest {
+				return Cursor{}, false, fmt.Errorf("%s: applied_log=mismatch block_number=%d", op, key.block)
+			}
+		}
+	}
+	// The filter and both endpoints must describe the same canonical chain.
+	if err := check(cursor.Block, cursor.Hash); err != nil {
+		return Cursor{}, false, err
+	}
+	if err := check(head.Number, head.Hash); err != nil {
+		return Cursor{}, false, err
+	}
+	if err := ctx.Err(); err != nil {
+		return Cursor{}, false, fmt.Errorf("%s: %w", op, err)
+	}
+	return Cursor{Block: head.Number, Hash: head.Hash}, true, nil
+}
+
+// Run confirms idle progress in the background, never from a quote request.
+// apply must compare the supplied state under the owner's lock before publishing.
+//
+// Version:
+//   - 2026-10-01: Added.
+func Run(ctx context.Context, rpc Reader, query ethereum.FilterQuery, interval time.Duration, read func() (State, Evidence, bool), apply func(State, time.Time) bool) error {
+	if ctx == nil || rpc == nil || interval <= 0 || read == nil || apply == nil {
+		return fmt.Errorf("failed to watch evm observation: dependency=invalid")
+	}
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+	var previous State
+	var frontier Cursor
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		case <-ticker.C:
+		}
+		state, applied, active := read()
+		if !active {
+			previous = State{}
+			continue
+		}
+		if previous != state {
+			frontier = state.Baseline
+		}
+		if state.Cursor.Block < state.Baseline.Block {
+			return fmt.Errorf("failed to watch evm observation: position=behind_baseline")
+		}
+		attempt, cancel := context.WithTimeout(ctx, 10*time.Second)
+		next, advanced, err := Prove(attempt, rpc, query, frontier, applied)
+		cancel()
+		if ctx.Err() != nil {
+			return nil
+		}
+		current, _, active := read()
+		if !active || current != state {
+			previous = State{}
+			continue
+		}
+		if err != nil {
+			return fmt.Errorf("failed to watch evm observation: %w", err)
+		}
+		if advanced && apply(state, time.Now().UTC()) {
+			previous, frontier = state, next
+		}
+	}
+}

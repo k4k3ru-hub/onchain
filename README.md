@@ -222,6 +222,22 @@ if snapshot != nil {
 }
 ```
 
+Uniswap v3/v4 and Aerodrome Slipstream retained workers additionally advance
+`QuoteSnapshot.Inputs().Observation.ConfirmedAt` during idle periods when the
+injected state RPC implements `FilterLogs`. Every five seconds, a background
+worker verifies canonical headers and a bounded log range against a journal of
+successfully applied events. Missing events, an unchanged head, and stale results
+from another state version never advance this time. Confirmation does not alter
+`ReceivedAt`, source positions, prices, or the dynamic fee clock.
+
+Verification uses at most 1024 blocks per attempt and 4096 journal identities,
+with a ten-second attempt timeout. An advancing proof uses one log request and
+four header requests per pool; unchanged heads use two header requests. RPC
+failures, conflicting applied events, reorganizations and oversized ranges return
+through the retained worker's existing recovery boundary. A pending event waits
+for ingestion. Readers without log-query support retain event-only progress.
+These RPC calls belong to the background producer; quote requests remain local.
+
 ### Retained AMM range acquisition
 
 Initial acquisition reads complete calculation details for the selected native

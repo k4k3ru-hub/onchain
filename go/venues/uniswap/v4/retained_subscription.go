@@ -163,6 +163,8 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 	if events != nil && events.OnSubscribed != nil {
 		events.OnSubscribed()
 	}
+	progressErrors, stopProgress := c.observeIdleProgress(ctx, ethereum.FilterQuery{Addresses: []common.Address{c.pool}, Topics: [][]common.Hash{nil, {c.poolID}}})
+	defer stopProgress()
 	results := make(chan retainedCaptureResult, 1)
 	type receivedLog struct {
 		log types.Log
@@ -234,6 +236,8 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 		select {
 		case <-ctx.Done():
 			return nil
+		case err := <-progressErrors:
+			return fmt.Errorf("failed to observe retained state: %w", err)
 		case <-timer.C:
 		case <-recovery:
 			pending = true
@@ -294,6 +298,7 @@ func (c *StateCache) runRetainedSubscription(ctx context.Context, ws WSRPCClient
 			replay = nil
 			c.mu.Lock()
 			c.retained = candidate.retained
+			c.observationJournal = candidate.observationJournal
 			c.priceObservationActive = true
 			c.retainedBlock, c.retainedHash = candidate.retainedBlock, candidate.retainedHash
 			c.retainedIndex, c.retainedHasLog = candidate.retainedIndex, candidate.retainedHasLog

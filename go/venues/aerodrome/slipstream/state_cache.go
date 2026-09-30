@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/k4k3ru-hub/onchain/go/internal/evmobservation"
 	"github.com/k4k3ru-hub/onchain/go/quotestate"
 	"math/big"
 	"sync"
@@ -54,6 +55,8 @@ type quoteNotifications struct {
 }
 
 type StateCache struct {
+	observationJournal    evmobservation.Journal
+	observationProgress   evmobservation.Progress
 	initialPrice          *InitialPriceSnapshot // protected by mu; never used as complete quote inputs
 	quoteSnapshotObserver func(*QuoteSnapshot)
 	replayBase            *retainedPoolState
