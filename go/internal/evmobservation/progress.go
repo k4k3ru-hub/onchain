@@ -193,6 +193,7 @@ func Prove(ctx context.Context, rpc Reader, query ethereum.FilterQuery, cursor C
 // apply must compare the supplied state under the owner's lock before publishing.
 //
 // Version:
+//   - 2026-10-01: Preserve verified prefixes across subsequent streamed updates.
 //   - 2026-10-01: Back off unavailable evidence without restarting the pool's log subscription.
 //   - 2026-10-01: Added.
 func Run(ctx context.Context, rpc Reader, query ethereum.FilterQuery, interval time.Duration, read func() (State, Evidence, bool), apply func(State, time.Time) bool) error {
@@ -203,6 +204,7 @@ func Run(ctx context.Context, rpc Reader, query ethereum.FilterQuery, interval t
 	defer timer.Stop()
 	retryDelay := interval
 	var previous State
+	var evidence Evidence
 	var frontier Cursor
 	for {
 		select {
@@ -216,9 +218,10 @@ func Run(ctx context.Context, rpc Reader, query ethereum.FilterQuery, interval t
 			timer.Reset(interval)
 			continue
 		}
-		if previous != state {
+		if !continuesProof(previous, state, evidence, applied, frontier) {
 			frontier = state.Baseline
 		}
+		previous, evidence = state, applied
 		if state.Cursor.Block < state.Baseline.Block {
 			return fmt.Errorf("failed to watch evm observation: position=behind_baseline")
 		}
@@ -228,10 +231,10 @@ func Run(ctx context.Context, rpc Reader, query ethereum.FilterQuery, interval t
 		if ctx.Err() != nil {
 			return nil
 		}
-		current, _, active := read()
+		current, currentEvidence, active := read()
 		var unavailable *readFailure
 		if errors.As(err, &unavailable) {
-			if !active || current != state {
+			if !active {
 				previous = State{}
 			}
 			// Missing RPC evidence cannot prove a gap in the live stream.
@@ -240,8 +243,17 @@ func Run(ctx context.Context, rpc Reader, query ethereum.FilterQuery, interval t
 			retryDelay = min(retryDelay*2, 12*interval)
 			continue
 		}
-		if !active || current != state {
+		if !active {
 			previous = State{}
+			timer.Reset(interval)
+			continue
+		}
+		if current != state {
+			// Newly applied logs after this proof do not undo its verified
+			// prefix. Keep it without publishing a timestamp for stale inputs.
+			if advanced && continuesProof(state, current, applied, currentEvidence, next) {
+				frontier = next
+			}
 			timer.Reset(interval)
 			continue
 		}
@@ -250,8 +262,39 @@ func Run(ctx context.Context, rpc Reader, query ethereum.FilterQuery, interval t
 		}
 		retryDelay = interval
 		timer.Reset(interval)
-		if advanced && apply(state, time.Now().UTC()) {
-			previous, frontier = state, next
+		if advanced {
+			frontier = next
+			// apply fences a last-moment input change. Even if publication is
+			// rejected, the prefix can be checked against the next read.
+			apply(state, time.Now().UTC())
 		}
 	}
+}
+
+func continuesProof(previous, current State, before, after Evidence, frontier Cursor) bool {
+	if frontier.Hash == (common.Hash{}) || previous.Baseline != current.Baseline ||
+		previous.Epoch != current.Epoch || previous.Revision != current.Revision ||
+		current.ReceivedAt.Before(previous.ReceivedAt) {
+		return false
+	}
+	if previous.Cursor == current.Cursor {
+		if previous.ReceivedAt != current.ReceivedAt {
+			return false // A new receipt without a new source position needs a fresh proof.
+		}
+	} else if current.Cursor.Block <= frontier.Block || current.Cursor.Block < previous.Cursor.Block ||
+		(current.Cursor.Block == previous.Cursor.Block &&
+			(current.Cursor.Hash != previous.Cursor.Hash || !current.Cursor.HasLog ||
+				(previous.Cursor.HasLog && current.Cursor.Index <= previous.Cursor.Index))) {
+		return false
+	}
+	// A new or changed event in a previously verified block invalidates that
+	// prefix. Eviction of old journal entries alone does not change live inputs.
+	for key, digest := range after {
+		if key.block <= frontier.Block {
+			if old, ok := before[key]; !ok || old != digest {
+				return false
+			}
+		}
+	}
+	return true
 }

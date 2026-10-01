@@ -241,6 +241,15 @@ still return through the retained worker's existing recovery boundary. A pending
 event waits for ingestion. Readers without log-query support retain event-only progress.
 These RPC calls belong to the background producer; quote requests remain local.
 
+The verified block frontier survives subsequent streamed updates within the same
+capture baseline and epoch. Each check starts after that frontier instead of
+re-reading the original capture range. New or changed evidence inside the already
+verified range, source regression, replay revisions, recapture and disconnection
+invalidate continuation. Journal eviction alone does not undo a verified prefix.
+If newer logs arrive during a proof, its prefix may be retained, but no confirmation
+timestamp is published for obsolete inputs. The 1024-block bound still applies to
+unverified backlog; providers may impose stricter historical-read limits.
+
 ### Retained AMM range acquisition
 
 Initial acquisition reads complete calculation details for the selected native

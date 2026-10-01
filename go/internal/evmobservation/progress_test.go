@@ -291,3 +291,121 @@ func TestIdleInconsistencyStillRequiresRecovery(t *testing.T) {
 		t.Fatal("inconsistent state survived", err)
 	}
 }
+
+// TestIdleProgressSurvivesLiveUpdates verifies bounded proofs across many streamed state changes.
+//
+// Version:
+//   - 2026-10-01: Added.
+func TestIdleProgressSurvivesLiveUpdates(t *testing.T) {
+	for _, mode := range []string{"after_publish", "during_proof"} {
+		t.Run(mode, func(t *testing.T) {
+			ctx, cancel := context.WithTimeout(t.Context(), time.Second)
+			defer cancel()
+			state := State{Baseline: Cursor{Block: 100, Hash: header(100).Hash}, Cursor: Cursor{Block: 100, Hash: header(100).Hash}, Epoch: 1, ReceivedAt: time.Unix(100, 0)}
+			r := &proofRPC{head: 180}
+			var journal Journal
+			var history []types.Log
+			advance := func() {
+				r.head += 80
+				log := types.Log{BlockNumber: r.head, BlockHash: header(r.head).Hash, Index: 1}
+				history = append(history, log)
+				journal.Record(log)
+				state.Cursor = Cursor{Block: log.BlockNumber, Hash: log.BlockHash, Index: log.Index, HasLog: true}
+				state.ReceivedAt = state.ReceivedAt.Add(time.Millisecond)
+			}
+			r.filter = func(context.Context) {
+				q := r.queries[len(r.queries)-1]
+				r.logs = nil
+				for _, log := range history {
+					if log.BlockNumber >= q.FromBlock.Uint64() && log.BlockNumber <= q.ToBlock.Uint64() {
+						r.logs = append(r.logs, log)
+					}
+				}
+				if mode == "during_proof" && len(r.queries) < 24 {
+					advance()
+				}
+			}
+			confirmations := 0
+			err := Run(ctx, r, ethereum.FilterQuery{Addresses: []common.Address{common.HexToAddress("1")}}, time.Millisecond,
+				func() (State, Evidence, bool) { return state, journal.Snapshot(), true },
+				func(s State, at time.Time) bool {
+					if s != state || !at.After(state.ReceivedAt) {
+						t.Fatal("stale state published")
+					}
+					confirmations++
+					if len(r.queries) >= 24 {
+						cancel()
+					} else {
+						advance()
+					}
+					return true
+				})
+			if err != nil || len(r.queries) != 24 || confirmations == 0 {
+				t.Fatalf("live progress stopped: queries=%d confirmations=%d err=%v", len(r.queries), confirmations, err)
+			}
+			for i, q := range r.queries {
+				if q.FromBlock.Uint64() != 101+uint64(i)*80 || q.ToBlock.Uint64() != 180+uint64(i)*80 {
+					t.Fatalf("verified range repeated: query=%d from=%d to=%d", i, q.FromBlock.Uint64(), q.ToBlock.Uint64())
+				}
+			}
+		})
+	}
+}
+
+// TestProofContinuationRejectsChangedHistory fences prefixes against replacement and late evidence.
+//
+// Version:
+//   - 2026-10-01: Added.
+func TestProofContinuationRejectsChangedHistory(t *testing.T) {
+	oldLog := types.Log{BlockNumber: 101, BlockHash: header(101).Hash, Index: 1}
+	newLog := types.Log{BlockNumber: 201, BlockHash: header(201).Hash, Index: 1}
+	previous := State{Baseline: Cursor{Block: 100, Hash: header(100).Hash}, Cursor: Cursor{Block: 101, Hash: oldLog.BlockHash, Index: 1, HasLog: true}, Epoch: 1, ReceivedAt: time.Unix(100, 0)}
+	frontier := Cursor{Block: 200, Hash: header(200).Hash}
+	for _, mode := range []string{"append", "eviction", "same_state", "epoch", "baseline", "revision", "receipt_only", "regressed_receipt", "regressed_cursor", "late_cursor", "late_log", "changed_payload"} {
+		t.Run(mode, func(t *testing.T) {
+			var old, next Journal
+			old.Record(oldLog)
+			next.Record(oldLog)
+			next.Record(newLog)
+			current := previous
+			current.Cursor = Cursor{Block: newLog.BlockNumber, Hash: newLog.BlockHash, Index: 1, HasLog: true}
+			current.ReceivedAt = previous.ReceivedAt.Add(time.Millisecond)
+			want := false
+			switch mode {
+			case "append":
+				want = true
+			case "eviction":
+				next = Journal{}
+				next.Record(newLog)
+				want = true
+			case "same_state":
+				current, next, want = previous, old, true
+			case "epoch":
+				current.Epoch++
+			case "baseline":
+				current.Baseline = frontier
+			case "revision":
+				current.Revision++
+			case "receipt_only":
+				current.Cursor = previous.Cursor
+			case "regressed_receipt":
+				current.ReceivedAt = previous.ReceivedAt.Add(-time.Second)
+			case "regressed_cursor":
+				current.Cursor.Block = 99
+			case "late_cursor":
+				current.Cursor = Cursor{Block: 200, Hash: frontier.Hash, Index: 1, HasLog: true}
+			case "late_log":
+				log := oldLog
+				log.Index++
+				next.Record(log)
+			case "changed_payload":
+				log := oldLog
+				log.Data = []byte{42}
+				next.Record(log)
+			}
+			if got := continuesProof(previous, current, old.Snapshot(), next.Snapshot(), frontier); got != want {
+				t.Fatalf("continuation=%v want=%v", got, want)
+			}
+		})
+	}
+}
