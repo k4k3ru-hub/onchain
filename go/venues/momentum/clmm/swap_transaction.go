@@ -9,18 +9,23 @@ import (
 )
 
 type SwapTransactionParams struct {
-	Pool                                 Pool
-	Sender, Recipient                    sui.Address
-	XForY                                bool
-	AmountIn, MinimumAmountOut           uint64
+	Pool                       Pool
+	Sender, Recipient          sui.Address
+	XForY                      bool
+	AmountIn, MinimumAmountOut uint64
+	// AmountOut and MaximumAmountIn select exact output; input-mode amounts must be zero.
+	AmountOut, MaximumAmountIn           uint64
 	InputCoins, GasCoins                 []sui.Coin
 	GasPrice, GasBudget, ExpirationEpoch uint64
 }
 
-// BuildSwapTransaction builds a funded exact-input swap with an onchain output guard.
-// Unspent input aborts the transaction; input change remains with the sender.
+// BuildSwapTransaction builds a funded swap with enforced input and output limits.
+// AmountIn and MinimumAmountOut select exact input with full input consumption.
+// AmountOut and MaximumAmountIn select exact output with full output enforcement.
+// Unused input remains with or is refunded to Sender, independently of Recipient.
 //
 // Version:
+//   - 2026-10-02: Support capped exact-output swaps and sender refunds.
 //   - 2026-09-28: Added.
 func BuildSwapTransaction(deployment Deployment, p SwapTransactionParams) (sui.TransactionData, error) {
 	if err := deployment.Validate(); err != nil {
@@ -30,7 +35,7 @@ func BuildSwapTransaction(deployment Deployment, p SwapTransactionParams) (sui.T
 	if !p.XForY {
 		typeIn, typeOut = typeOut, typeIn
 	}
-	tx, err := suiswap.Build(suiswap.Params{Sender: p.Sender, Recipient: p.Recipient, CoinTypeIn: typeIn, CoinTypeOut: typeOut, AmountIn: p.AmountIn, MinimumAmountOut: p.MinimumAmountOut, InputCoins: p.InputCoins, GasCoins: p.GasCoins, GasPrice: p.GasPrice, GasBudget: p.GasBudget, ExpirationEpoch: p.ExpirationEpoch}, func(b *sui.ProgrammableTransactionBuilder, coin, amount sui.Argument) (sui.Argument, sui.Argument, error) {
+	tx, err := suiswap.Build(suiswap.Params{Sender: p.Sender, Recipient: p.Recipient, CoinTypeIn: typeIn, CoinTypeOut: typeOut, AmountIn: p.AmountIn, MinimumAmountOut: p.MinimumAmountOut, AmountOut: p.AmountOut, MaximumAmountIn: p.MaximumAmountIn, InputCoins: p.InputCoins, GasCoins: p.GasCoins, GasPrice: p.GasPrice, GasBudget: p.GasBudget, ExpirationEpoch: p.ExpirationEpoch}, func(b *sui.ProgrammableTransactionBuilder, coin, amount sui.Argument) (sui.Argument, sui.Argument, error) {
 		input, err := sui.AppendCoinIntoBalance(b, typeIn, coin)
 		if err != nil {
 			return sui.Argument{}, sui.Argument{}, err
@@ -49,7 +54,7 @@ func BuildSwapTransaction(deployment Deployment, p SwapTransactionParams) (sui.T
 				return sui.Argument{}, sui.Argument{}, fmt.Errorf("failed to build swap transaction: price_limit=invalid")
 			}
 		}
-		_, err = AppendAtomicSwap(b, deployment, AtomicSwapParams{Pool: p.Pool, Balances: balances, XForY: p.XForY, AmountIn: amount, SqrtPriceLimit: limit})
+		_, err = appendAtomicSwap(b, deployment, p.Pool, balances, p.XForY, p.AmountOut == 0, amount, limit)
 		return input, output, err
 	})
 	if err != nil {

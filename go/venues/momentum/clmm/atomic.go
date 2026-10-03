@@ -34,16 +34,20 @@ type AtomicSwapParams struct {
 // Version:
 //   - 2026-09-01: Added.
 func AppendAtomicSwap(builder *onchainSui.ProgrammableTransactionBuilder, deployment Deployment, params AtomicSwapParams) (SwapBalances, error) {
+	return appendAtomicSwap(builder, deployment, params.Pool, params.Balances, params.XForY, true, params.AmountIn, params.SqrtPriceLimit)
+}
+
+func appendAtomicSwap(builder *onchainSui.ProgrammableTransactionBuilder, deployment Deployment, pool Pool, balances SwapBalances, xForY, byAmountIn bool, amount onchainSui.Argument, sqrtPriceLimit *big.Int) (SwapBalances, error) {
 	if builder == nil {
 		return SwapBalances{}, fmt.Errorf("failed to append momentum clmm atomic swap: builder=null")
 	}
 	if err := deployment.Validate(); err != nil {
 		return SwapBalances{}, fmt.Errorf("failed to append momentum clmm atomic swap: %w", err)
 	}
-	if params.Pool.Address.IsZero() || params.Pool.InitialVersion == 0 || !validU128(params.SqrtPriceLimit) {
+	if pool.Address.IsZero() || pool.InitialVersion == 0 || !validU128(sqrtPriceLimit) {
 		return SwapBalances{}, fmt.Errorf("failed to append momentum clmm atomic swap: parameters=invalid")
 	}
-	flash, err := appendFlashSwap(builder, deployment, params.Pool, params.XForY, params.AmountIn, params.SqrtPriceLimit)
+	flash, err := appendFlashSwap(builder, deployment, pool, xForY, byAmountIn, amount, sqrtPriceLimit)
 	if err != nil {
 		return SwapBalances{}, fmt.Errorf("failed to append momentum clmm atomic swap: %w", err)
 	}
@@ -59,42 +63,42 @@ func AppendAtomicSwap(builder *onchainSui.ProgrammableTransactionBuilder, deploy
 	if err != nil {
 		return SwapBalances{}, fmt.Errorf("failed to append momentum clmm atomic swap: %w", err)
 	}
-	if params.XForY {
-		payX, err := onchainSui.AppendBalanceSplit(builder, params.Pool.CoinTypeX, params.Balances.BalanceX, debtX)
+	if xForY {
+		payX, err := onchainSui.AppendBalanceSplit(builder, pool.CoinTypeX, balances.BalanceX, debtX)
 		if err != nil {
 			return SwapBalances{}, fmt.Errorf("failed to append momentum clmm atomic swap: %w", err)
 		}
-		if err := onchainSui.AppendBalanceJoin(builder, params.Pool.CoinTypeX, payX, flash.BalanceX); err != nil {
+		if err := onchainSui.AppendBalanceJoin(builder, pool.CoinTypeX, payX, flash.BalanceX); err != nil {
 			return SwapBalances{}, fmt.Errorf("failed to append momentum clmm atomic swap: %w", err)
 		}
-		payY, err := onchainSui.AppendZeroBalance(builder, params.Pool.CoinTypeY)
+		payY, err := onchainSui.AppendZeroBalance(builder, pool.CoinTypeY)
 		if err != nil {
 			return SwapBalances{}, fmt.Errorf("failed to append momentum clmm atomic swap: %w", err)
 		}
-		if err := AppendRepayFlashSwap(builder, deployment, params.Pool, flash, payX, payY); err != nil {
+		if err := AppendRepayFlashSwap(builder, deployment, pool, flash, payX, payY); err != nil {
 			return SwapBalances{}, fmt.Errorf("failed to append momentum clmm atomic swap: %w", err)
 		}
-		if err := onchainSui.AppendBalanceJoin(builder, params.Pool.CoinTypeY, params.Balances.BalanceY, flash.BalanceY); err != nil {
+		if err := onchainSui.AppendBalanceJoin(builder, pool.CoinTypeY, balances.BalanceY, flash.BalanceY); err != nil {
 			return SwapBalances{}, fmt.Errorf("failed to append momentum clmm atomic swap: %w", err)
 		}
-		return params.Balances, nil
+		return balances, nil
 	}
-	payY, err := onchainSui.AppendBalanceSplit(builder, params.Pool.CoinTypeY, params.Balances.BalanceY, debtY)
+	payY, err := onchainSui.AppendBalanceSplit(builder, pool.CoinTypeY, balances.BalanceY, debtY)
 	if err != nil {
 		return SwapBalances{}, fmt.Errorf("failed to append momentum clmm atomic swap: %w", err)
 	}
-	if err := onchainSui.AppendBalanceJoin(builder, params.Pool.CoinTypeY, payY, flash.BalanceY); err != nil {
+	if err := onchainSui.AppendBalanceJoin(builder, pool.CoinTypeY, payY, flash.BalanceY); err != nil {
 		return SwapBalances{}, fmt.Errorf("failed to append momentum clmm atomic swap: %w", err)
 	}
-	payX, err := onchainSui.AppendZeroBalance(builder, params.Pool.CoinTypeX)
+	payX, err := onchainSui.AppendZeroBalance(builder, pool.CoinTypeX)
 	if err != nil {
 		return SwapBalances{}, fmt.Errorf("failed to append momentum clmm atomic swap: %w", err)
 	}
-	if err := AppendRepayFlashSwap(builder, deployment, params.Pool, flash, payX, payY); err != nil {
+	if err := AppendRepayFlashSwap(builder, deployment, pool, flash, payX, payY); err != nil {
 		return SwapBalances{}, fmt.Errorf("failed to append momentum clmm atomic swap: %w", err)
 	}
-	if err := onchainSui.AppendBalanceJoin(builder, params.Pool.CoinTypeX, params.Balances.BalanceX, flash.BalanceX); err != nil {
+	if err := onchainSui.AppendBalanceJoin(builder, pool.CoinTypeX, balances.BalanceX, flash.BalanceX); err != nil {
 		return SwapBalances{}, fmt.Errorf("failed to append momentum clmm atomic swap: %w", err)
 	}
-	return params.Balances, nil
+	return balances, nil
 }

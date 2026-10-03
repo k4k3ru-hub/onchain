@@ -77,17 +77,34 @@ type SwapArguments struct {
 //   - Validation error.
 //
 // Version:
+//   - 2026-10-02: Share router construction and propagate builder errors.
 //   - 2026-09-01: Corrected returned coin arguments for direction-specific router functions.
 //   - 2026-08-31: Added.
 func AppendSwapExactInput(builder *onchainSui.ProgrammableTransactionBuilder, deployment Deployment, params SwapExactInputParams) (SwapArguments, error) {
+	return appendSwap(builder, deployment, swapParams{Pool: params.Pool, InputCoin: params.InputCoin, Amount: params.AmountIn, AmountLimit: params.MinimumOut, ByAmountIn: true, SqrtPriceLimit: params.SqrtPriceLimit, A2B: params.A2B, Recipient: params.Recipient, DeadlineMS: params.DeadlineMS})
+}
+
+// swapParams keeps the router's specified amount distinct from its funding cap.
+type swapParams struct {
+	Pool                Pool
+	InputCoin           onchainSui.Argument
+	Amount, AmountLimit uint64
+	ByAmountIn          bool
+	SqrtPriceLimit      *big.Int
+	A2B                 bool
+	Recipient           onchainSui.Address
+	DeadlineMS          uint64
+}
+
+func appendSwap(builder *onchainSui.ProgrammableTransactionBuilder, deployment Deployment, params swapParams) (SwapArguments, error) {
 	if builder == nil {
-		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm exact input swap: builder=null")
+		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm swap: builder=null")
 	}
 	if err := deployment.Validate(); err != nil {
-		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm exact input swap: %w", err)
+		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm swap: %w", err)
 	}
-	if params.Pool.Address.IsZero() || params.Pool.InitialVersion == 0 || params.AmountIn == 0 || params.MinimumOut == 0 || !validU128(params.SqrtPriceLimit) || params.Recipient.IsZero() || params.DeadlineMS == 0 {
-		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm exact input swap: parameters=invalid")
+	if params.Pool.Address.IsZero() || params.Pool.InitialVersion == 0 || params.Amount == 0 || params.AmountLimit == 0 || !validU128(params.SqrtPriceLimit) || params.Recipient.IsZero() || params.DeadlineMS == 0 {
+		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm swap: parameters=invalid")
 	}
 	inputType := params.Pool.CoinTypeA
 	function := "swap_a_b_with_return_"
@@ -97,41 +114,59 @@ func AppendSwapExactInput(builder *onchainSui.ProgrammableTransactionBuilder, de
 	}
 	coinVector, err := builder.MakeMoveVec(onchainSui.MakeMoveVec{ElementType: "0x2::coin::Coin<" + inputType + ">", Elements: []onchainSui.Argument{params.InputCoin}})
 	if err != nil {
-		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm exact input swap: %w", err)
+		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm swap: %w", err)
 	}
 	pool, err := builder.Object(onchainSui.InputKindShared, onchainSui.ObjectInput{Address: params.Pool.Address, Version: params.Pool.InitialVersion, Mutable: true})
 	if err != nil {
-		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm exact input swap: %w", err)
+		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm swap: %w", err)
 	}
-	amount, _ := builder.Pure(bcsUint64(params.AmountIn))
-	minimum, _ := builder.Pure(bcsUint64(params.MinimumOut))
-	limit, _ := builder.Pure(bcsUint128(params.SqrtPriceLimit))
-	exact, _ := builder.Pure(bcsBool(true))
-	recipient, _ := builder.Pure(bcsAddress(params.Recipient))
-	deadline, _ := builder.Pure(bcsUint64(params.DeadlineMS))
+	amount, err := builder.Pure(bcsUint64(params.Amount))
+	if err != nil {
+		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm swap: %w", err)
+	}
+	minimum, err := builder.Pure(bcsUint64(params.AmountLimit))
+	if err != nil {
+		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm swap: %w", err)
+	}
+	limit, err := builder.Pure(bcsUint128(params.SqrtPriceLimit))
+	if err != nil {
+		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm swap: %w", err)
+	}
+	exact, err := builder.Pure(bcsBool(params.ByAmountIn))
+	if err != nil {
+		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm swap: %w", err)
+	}
+	recipient, err := builder.Pure(bcsAddress(params.Recipient))
+	if err != nil {
+		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm swap: %w", err)
+	}
+	deadline, err := builder.Pure(bcsUint64(params.DeadlineMS))
+	if err != nil {
+		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm swap: %w", err)
+	}
 	clock := deployment.Clock
 	clock.Mutable = false
 	clockArg, err := builder.Object(onchainSui.InputKindShared, clock)
 	if err != nil {
-		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm exact input swap: %w", err)
+		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm swap: %w", err)
 	}
 	version := deployment.Versioned
 	version.Mutable = false
 	versionArg, err := builder.Object(onchainSui.InputKindShared, version)
 	if err != nil {
-		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm exact input swap: %w", err)
+		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm swap: %w", err)
 	}
 	result, err := builder.MoveCall(onchainSui.MoveCall{Package: deployment.PublishedAt, Module: deployment.RouterModule, Function: function, TypeArguments: []string{params.Pool.CoinTypeA, params.Pool.CoinTypeB, params.Pool.FeeType}, Arguments: []onchainSui.Argument{pool, coinVector, amount, minimum, limit, exact, recipient, deadline, clockArg, versionArg}})
 	if err != nil {
-		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm exact input swap: %w", err)
+		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm swap: %w", err)
 	}
 	firstCoin, err := onchainSui.NestedResult(result, 0)
 	if err != nil {
-		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm exact input swap: %w", err)
+		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm swap: %w", err)
 	}
 	secondCoin, err := onchainSui.NestedResult(result, 1)
 	if err != nil {
-		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm exact input swap: %w", err)
+		return SwapArguments{}, fmt.Errorf("failed to append turbos clmm swap: %w", err)
 	}
 	if params.A2B {
 		return SwapArguments{CoinA: secondCoin, CoinB: firstCoin}, nil

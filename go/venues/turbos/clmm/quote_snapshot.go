@@ -68,3 +68,35 @@ func (s *QuoteSnapshot) ReceivedAt() time.Time {
 	}
 	return s.cache.retained.received
 }
+
+// QuoteExactOutput calculates one fee-inclusive output target on detached inputs.
+// Missing tick coverage is an error; this method performs no network reads.
+//
+// Version:
+//   - 2026-10-02: Added.
+func (s *QuoteSnapshot) QuoteExactOutput(ctx context.Context, p QuoteExactOutputParams) (QuoteResult, error) {
+	if s == nil || ctx == nil {
+		return QuoteResult{}, fmt.Errorf("failed to quote frozen exact output: dependency=null")
+	}
+	if p.Pool.Address != s.cache.pool {
+		return QuoteResult{}, fmt.Errorf("failed to quote frozen exact output: pool=invalid")
+	}
+	if err := ctx.Err(); err != nil {
+		return QuoteResult{}, fmt.Errorf("failed to quote frozen exact output: %w", err)
+	}
+	frozen := s.cache.CaptureQuoteSnapshot()
+	if frozen == nil {
+		return QuoteResult{}, fmt.Errorf("failed to quote frozen exact output: snapshot=null")
+	}
+	result, err := frozen.cache.quote(ctx, frozen.cache.retained, p.AmountOut, p.A2B, false, p.SqrtPriceLimit)
+	if err != nil {
+		return QuoteResult{}, fmt.Errorf("failed to quote frozen exact output: %w", err)
+	}
+	if result.AmountOut == nil || p.AmountOut == nil || result.AmountOut.Cmp(p.AmountOut) != 0 {
+		return QuoteResult{}, fmt.Errorf("failed to quote frozen exact output: amount_out=invalid")
+	}
+	if err := ctx.Err(); err != nil {
+		return QuoteResult{}, fmt.Errorf("failed to quote frozen exact output: %w", err)
+	}
+	return result, nil
+}

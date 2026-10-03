@@ -3,13 +3,32 @@
 ## Funded swaps
 
 `clmm.BuildSwapTransaction(deployment, clmm.SwapTransactionParams{...})` builds
-an exact-input transaction from explicitly selected owned coins. Supply the pool,
-sender, recipient, direction, amount, minimum output, input/gas coins, gas price,
-gas budget, expiration epoch and `DeadlineMS` (Unix milliseconds).
-Native SUI input is split from gas; other input coins are merged and split.
-The transaction rejects partial fills and enforces minimum output onchain.
+an unsigned funded swap using explicitly selected coins. Supply the pool,
+sender, recipient, `A2B`, input/gas coins, gas price, gas budget and
+expiration epoch and `DeadlineMS` (Unix milliseconds).
+
+Choose exactly one amount pair, in token atomic units:
+
+- `AmountIn` and `MinimumAmountOut`: exact input; all input must be consumed and
+  output must meet the minimum. Existing exact-input transaction bytes are preserved.
+- `AmountOut` and `MaximumAmountIn`: exact output; both must be positive and the
+  input-mode amounts must be zero. Only the maximum payment is funded. A split of
+  the target output followed by `destroy_zero` on the remainder enforces exactly
+  the requested receipt; incomplete output or unexpected excess aborts. Unused
+  input is transferred to `Sender`, even when `Recipient` is different.
+
+For example, to receive 1 SUI (9 decimals) while paying at most 2.5 USDC
+(6 decimals), use `AmountOut: 1_000_000_000, MaximumAmountIn: 2_500_000`, with
+the pool direction set to USDC → SUI. The actual payment is established by
+execution; the cap is not an estimate of the final payment. Reconcile confirmed
+balance changes and protocol events before recording a fill.
+
+Native SUI input is split from gas, leaving the full gas budget available;
+other input coins are merged and split. The maximum payment includes swap fees
+and excludes gas. Excess coins beyond that maximum stay with the sender.
 Construction performs no RPC calls or signing; the caller owns transport,
 simulation and submission. Shared object versions must be initial versions.
+The exact-output construction has offline tests; live execution is not yet verified.
 
 ## Indexed pool statistics
 

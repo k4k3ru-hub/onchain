@@ -14,6 +14,8 @@ type Params struct {
 	CoinTypeOut      string
 	AmountIn         uint64
 	MinimumAmountOut uint64
+	AmountOut        uint64
+	MaximumAmountIn  uint64
 	InputCoins       []sui.Coin
 	GasCoins         []sui.Coin
 	GasPrice         uint64
@@ -21,12 +23,16 @@ type Params struct {
 	ExpirationEpoch  uint64
 }
 
-// Append exchanges the input coin and returns the unspent input and output balances.
+// Append exchanges the funded coin using the specified input or output amount
+// and returns the unspent input and output balances.
 type Append func(*sui.ProgrammableTransactionBuilder, sui.Argument, sui.Argument) (sui.Argument, sui.Argument, error)
 
-// Build funds an exact-input transaction and enforces full consumption and minimum output.
+// Build funds a swap and enforces its input and output constraints.
+// Exact input requires AmountIn and MinimumAmountOut. Exact output requires
+// AmountOut and MaximumAmountIn instead, and refunds unused input to Sender.
 //
 // Version:
+//   - 2026-10-02: Support capped exact-output funding, full output and input refunds.
 //   - 2026-09-28: Added.
 func Build(p Params, appendSwap Append) (sui.TransactionData, error) {
 	tx, err := build(p, appendSwap)
@@ -40,7 +46,15 @@ func build(p Params, appendSwap Append) (sui.TransactionData, error) {
 	if appendSwap == nil {
 		return sui.TransactionData{}, fmt.Errorf("failed to build sui swap transaction: append_swap=null")
 	}
-	if p.Sender.IsZero() || p.Recipient.IsZero() || p.AmountIn == 0 || p.MinimumAmountOut == 0 || p.GasPrice == 0 || p.GasBudget == 0 {
+	exactOutput := p.AmountOut != 0 || p.MaximumAmountIn != 0
+	fundingAmount, outputLimit := p.AmountIn, p.MinimumAmountOut
+	if exactOutput {
+		if p.AmountIn != 0 || p.MinimumAmountOut != 0 || p.AmountOut == 0 || p.MaximumAmountIn == 0 {
+			return sui.TransactionData{}, fmt.Errorf("failed to validate sui swap transaction: amounts=invalid")
+		}
+		fundingAmount, outputLimit = p.MaximumAmountIn, p.AmountOut
+	}
+	if p.Sender.IsZero() || p.Recipient.IsZero() || fundingAmount == 0 || outputLimit == 0 || p.GasPrice == 0 || p.GasBudget == 0 {
 		return sui.TransactionData{}, fmt.Errorf("failed to validate sui swap transaction: parameters=invalid")
 	}
 	typeIn, typeOut := p.CoinTypeIn, p.CoinTypeOut
@@ -71,7 +85,7 @@ func build(p Params, appendSwap Append) (sui.TransactionData, error) {
 		if len(p.InputCoins) != 0 {
 			return sui.TransactionData{}, fmt.Errorf("failed to fund sui swap transaction: input_coins=invalid")
 		}
-		if gasTotal-p.GasBudget < p.AmountIn {
+		if gasTotal-p.GasBudget < fundingAmount {
 			return sui.TransactionData{}, fmt.Errorf("failed to fund sui swap transaction: input_balance=insufficient")
 		}
 	} else {
@@ -79,7 +93,7 @@ func build(p Params, appendSwap Append) (sui.TransactionData, error) {
 		if err != nil {
 			return sui.TransactionData{}, err
 		}
-		if total < p.AmountIn {
+		if total < fundingAmount {
 			return sui.TransactionData{}, fmt.Errorf("failed to fund sui swap transaction: input_balance=insufficient")
 		}
 	}
@@ -102,7 +116,7 @@ func build(p Params, appendSwap Append) (sui.TransactionData, error) {
 			}
 		}
 	}
-	amount, err := sui.PureUint64(b, p.AmountIn)
+	amount, err := sui.PureUint64(b, fundingAmount)
 	if err != nil {
 		return sui.TransactionData{}, err
 	}
@@ -114,14 +128,27 @@ func build(p Params, appendSwap Append) (sui.TransactionData, error) {
 	if err != nil {
 		return sui.TransactionData{}, err
 	}
-	input, output, err := appendSwap(b, inputCoin, amount)
+	swapAmount := amount
+	if exactOutput {
+		swapAmount, err = sui.PureUint64(b, p.AmountOut)
+		if err != nil {
+			return sui.TransactionData{}, err
+		}
+	}
+	input, output, err := appendSwap(b, inputCoin, swapAmount)
 	if err != nil {
 		return sui.TransactionData{}, fmt.Errorf("failed to append sui swap: %w", err)
 	}
-	if err := sui.AppendDestroyZeroBalance(b, typeIn, input); err != nil {
-		return sui.TransactionData{}, err
+	if exactOutput {
+		if err := sui.AppendTransferBalance(b, typeIn, input, p.Sender); err != nil {
+			return sui.TransactionData{}, err
+		}
+	} else {
+		if err := sui.AppendDestroyZeroBalance(b, typeIn, input); err != nil {
+			return sui.TransactionData{}, err
+		}
 	}
-	minimum, err := sui.PureUint64(b, p.MinimumAmountOut)
+	minimum, err := sui.PureUint64(b, outputLimit)
 	if err != nil {
 		return sui.TransactionData{}, err
 	}
@@ -129,8 +156,16 @@ func build(p Params, appendSwap Append) (sui.TransactionData, error) {
 	if err != nil {
 		return sui.TransactionData{}, err
 	}
-	if err := sui.AppendBalanceJoin(b, typeOut, output, guard); err != nil {
-		return sui.TransactionData{}, err
+	if exactOutput {
+		// Split aborts on underfill; destroy_zero also rejects an unexpected excess.
+		if err := sui.AppendDestroyZeroBalance(b, typeOut, output); err != nil {
+			return sui.TransactionData{}, err
+		}
+		output = guard
+	} else {
+		if err := sui.AppendBalanceJoin(b, typeOut, output, guard); err != nil {
+			return sui.TransactionData{}, err
+		}
 	}
 	if err := sui.AppendTransferBalance(b, typeOut, output, p.Recipient); err != nil {
 		return sui.TransactionData{}, err

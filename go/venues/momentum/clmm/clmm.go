@@ -299,17 +299,26 @@ func AppendFlashSwap(builder *onchainSui.ProgrammableTransactionBuilder, deploym
 	if err != nil {
 		return FlashSwap{}, fmt.Errorf("failed to append momentum clmm flash swap: %w", err)
 	}
-	return appendFlashSwap(builder, deployment, pool, xForY, amountArg, sqrtPriceLimit)
+	return appendFlashSwap(builder, deployment, pool, xForY, true, amountArg, sqrtPriceLimit)
 }
 
-func appendFlashSwap(builder *onchainSui.ProgrammableTransactionBuilder, deployment Deployment, pool Pool, xForY bool, amount onchainSui.Argument, sqrtPriceLimit *big.Int) (FlashSwap, error) {
+func appendFlashSwap(builder *onchainSui.ProgrammableTransactionBuilder, deployment Deployment, pool Pool, xForY, byAmountIn bool, amount onchainSui.Argument, sqrtPriceLimit *big.Int) (FlashSwap, error) {
 	poolArg, err := builder.Object(onchainSui.InputKindShared, onchainSui.ObjectInput{Address: pool.Address, Version: pool.InitialVersion, Mutable: true})
 	if err != nil {
 		return FlashSwap{}, fmt.Errorf("failed to append momentum clmm flash swap: %w", err)
 	}
-	direction, _ := builder.Pure(bcsBool(xForY))
-	exact, _ := builder.Pure(bcsBool(true))
-	limit, _ := builder.Pure(bcsUint128(sqrtPriceLimit))
+	direction, err := builder.Pure(bcsBool(xForY))
+	if err != nil {
+		return FlashSwap{}, fmt.Errorf("failed to append momentum clmm flash swap: %w", err)
+	}
+	exact, err := builder.Pure(bcsBool(byAmountIn))
+	if err != nil {
+		return FlashSwap{}, fmt.Errorf("failed to append momentum clmm flash swap: %w", err)
+	}
+	limit, err := builder.Pure(bcsUint128(sqrtPriceLimit))
+	if err != nil {
+		return FlashSwap{}, fmt.Errorf("failed to append momentum clmm flash swap: %w", err)
+	}
 	clock := deployment.Clock
 	clock.Mutable = false
 	clockArg, err := builder.Object(onchainSui.InputKindShared, clock)
@@ -326,9 +335,18 @@ func appendFlashSwap(builder *onchainSui.ProgrammableTransactionBuilder, deploym
 	if err != nil {
 		return FlashSwap{}, fmt.Errorf("failed to append momentum clmm flash swap: %w", err)
 	}
-	x, _ := onchainSui.NestedResult(result, 0)
-	y, _ := onchainSui.NestedResult(result, 1)
-	receipt, _ := onchainSui.NestedResult(result, 2)
+	x, err := onchainSui.NestedResult(result, 0)
+	if err != nil {
+		return FlashSwap{}, fmt.Errorf("failed to append momentum clmm flash swap: %w", err)
+	}
+	y, err := onchainSui.NestedResult(result, 1)
+	if err != nil {
+		return FlashSwap{}, fmt.Errorf("failed to append momentum clmm flash swap: %w", err)
+	}
+	receipt, err := onchainSui.NestedResult(result, 2)
+	if err != nil {
+		return FlashSwap{}, fmt.Errorf("failed to append momentum clmm flash swap: %w", err)
+	}
 	return FlashSwap{Pool: poolArg, Version: versionArg, BalanceX: x, BalanceY: y, Receipt: receipt}, nil
 }
 

@@ -1,5 +1,30 @@
 # Cetus CLMM
 
+## Funded swaps
+
+`clmm.BuildSwapTransaction(deployment, clmm.SwapTransactionParams{...})` builds
+an unsigned swap using explicit pool, owner, recipient, direction, coin and gas
+metadata. All amount fields use their respective token atomic units.
+
+- `AmountIn` and `MinimumAmountOut` select the existing exact-input mode.
+- `AmountOut` and `MaximumAmountIn` select exact output. Set both to positive
+  values and leave `AmountIn` and `MinimumAmountOut` zero. The maximum input
+  includes swap fees and excludes gas. Fund only that cap, repay the actual
+  flash-swap debt, and refund unspent input to `Sender`.
+
+For example, USDC → SUI with `AmountOut: 1_000_000_000` and
+`MaximumAmountIn: 2_500_000` requests 1 SUI (9 decimals) for at most 2.5 USDC
+(6 decimals). Splitting the requested output and destroying the zero remainder
+rejects both underfill and an unexpected excess. Output goes to `Recipient`;
+input refunds go to `Sender`, including when those addresses differ. Native SUI
+funding leaves the entire gas budget available, without adding cap and gas in
+an overflowing integer operation.
+
+Construction performs no RPC, simulation, signing or submission. The cap is not
+the actual payment; use confirmed effects and events for fills. Existing
+exact-input transaction bytes are preserved. Exact-output construction is covered
+by offline tests; live execution is not yet verified.
+
 ## LP APR for a specific pool
 
 `api.NewClient(api.Config{})` composes an independent HTTP API group. Use
