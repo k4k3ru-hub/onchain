@@ -54,11 +54,8 @@ func (a *grpcAdapter) subscribePoolTransactions(ctx context.Context, object Addr
 	ctx, cancel := context.WithCancel(ctx)
 	address := object.String()
 	request := &rpcv2.SubscribeTransactionsRequest{
-		ReadMask: &fieldmaskpb.FieldMask{Paths: []string{"digest", "effects.status", "effects.changed_objects", "checkpoint", "transaction_index", "timestamp", "objects"}},
+		ReadMask: poolTransactionReadMask(events),
 		Filter:   &rpcv2.TransactionFilter{Terms: []*rpcv2.TransactionTerm{{Literals: []*rpcv2.TransactionLiteral{{Predicate: &rpcv2.TransactionLiteral_AffectedObject{AffectedObject: &rpcv2.AffectedObjectFilter{ObjectId: &address}}}}}}},
-	}
-	if events {
-		request.ReadMask.Paths = append(request.ReadMask.Paths, "events")
 	}
 	stream, err := a.client.SubscribeTransactions(ctx, request)
 	if err != nil {
@@ -70,6 +67,20 @@ func (a *grpcAdapter) subscribePoolTransactions(ctx context.Context, object Addr
 		return nil, fmt.Errorf("failed to subscribe sui object state: stream=null")
 	}
 	return &grpcTransactionReceiver{stream: stream, cancel: cancel, includeObjects: true, includeEvents: events}, nil
+}
+
+func poolTransactionReadMask(events bool) *fieldmaskpb.FieldMask {
+	// ObjectChange uses effects-selected references, ownership and Move JSON.
+	// Avoid also fetching unused BCS, display and package bodies for every object.
+	paths := []string{
+		"digest", "effects.status", "effects.changed_objects", "checkpoint", "transaction_index", "timestamp",
+		"objects.objects.object_id", "objects.objects.version", "objects.objects.digest",
+		"objects.objects.object_type", "objects.objects.json",
+	}
+	if events {
+		paths = append(paths, "events")
+	}
+	return &fieldmaskpb.FieldMask{Paths: paths}
 }
 
 func decodeObjectChanges(tx *rpcv2.ExecutedTransaction) ([]ObjectChange, error) {

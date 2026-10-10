@@ -21,6 +21,8 @@ It does not select or reserve wallet funds.
 | `VerifyTransactionSignature` | Verify one Ed25519 signature and its expected sender / gas-owner address. |
 | `GRPCClient.SimulateTransactionData` | Simulate the exact BCS with checks enabled and automatic gas selection disabled. Return gas costs, input references, balance changes, and events. |
 | `GRPCClient.ExecutedTransaction` | Read transaction bytes, effects, gas costs, balance changes, and ordered BCS events. Verify transaction bytes against the requested digest. A missing transaction returns `nil, nil`; an uncheckpointed result retains nil checkpoint / timestamp. |
+| `GRPCClient.SubscribePoolEvents` | Stream successful transaction events as BCS, with transaction time, checkpoint and event order, filtered by an affected pool object. No Object state or rendered event JSON is requested. |
+| `GRPCClient.SubscribeObjectState` | Stream effects-selected before/after Object state and progress for independent Pool reconstruction. |
 
 Compose GraphQL reads with `NewRPCClient` and gRPC simulations with `NewGRPCClient`.
 The existing quote-oriented `SimulateTransaction` remains available and supports the
@@ -38,6 +40,20 @@ Before signing, callers must inspect the decoded transaction and enforce their
 allowed packages, functions, assets, recipients, amount limits, and gas policy.
 The generic codec validates structure; it does not prove Move function semantics,
 balances, ownership, resource usage, or a swap's minimum received amount.
+
+## Pool subscriptions
+
+For market-data collection, compose one `GRPCClient` and open
+`SubscribePoolEvents(ctx, pool)` separately from `SubscribeObjectState(ctx, pool)`.
+Each subscription has its own lifetime and must be closed. An affected transaction
+can contain events from several pools; match the emitting package and parsed pool
+before recording a Swap. `LiveEvent.JSON` is absent on the event-only path; the
+Cetus, Turbos, Momentum and Bluefin Spot parsers support its BCS payload.
+`Effects.Timestamp` is the source checkpoint time, while receive time belongs to
+the caller. Progress notifications contain no transaction. Check `EventsError`
+and treat missing history after disconnection as a gap. This adds no history
+backfill or per-event RPC calls. The existing combined `SubscribePoolTransactions`
+operation retains its behavior.
 
 ## Signed execution
 
