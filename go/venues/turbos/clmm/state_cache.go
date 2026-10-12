@@ -27,6 +27,7 @@ type StateCache struct {
 	retainedReference     *QuotePairParams
 	retainedHead          sui.Checkpoint
 	retainedRunning       bool
+	retainedScope         *sui.ObjectStateScope // Protected by retainedMu; fixed for one subscription.
 	stateObservation      quotestate.Observation
 	observationCheckpoint uint64
 	checkedKey            string

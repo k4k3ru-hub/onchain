@@ -84,6 +84,10 @@ func poolTransactionReadMask(events bool) *fieldmaskpb.FieldMask {
 }
 
 func decodeObjectChanges(tx *rpcv2.ExecutedTransaction) ([]ObjectChange, error) {
+	return decodeObjectChangesWithReferences(tx, false)
+}
+
+func decodeObjectChangesWithReferences(tx *rpcv2.ExecutedTransaction, referenceBefore bool) ([]ObjectChange, error) {
 	if tx == nil || tx.Effects == nil {
 		return nil, fmt.Errorf("failed to decode sui object changes: effects=null")
 	}
@@ -163,7 +167,18 @@ func decodeObjectChanges(tx *rpcv2.ExecutedTransaction) ([]ObjectChange, error) 
 			if change.InputOwner == nil {
 				return nil, fmt.Errorf("failed to decode sui object changes: input_owner=null")
 			}
-			item.Before, err = decode(change.GetObjectId(), change.GetInputVersion(), change.GetInputDigest())
+			if referenceBefore && scopedBeforeReference(change) {
+				if change.GetInputVersion() == 0 {
+					return nil, fmt.Errorf("failed to decode sui object changes: input_version=empty")
+				}
+				digest, parseErr := ParseObjectDigest(change.GetInputDigest())
+				if parseErr != nil {
+					return nil, fmt.Errorf("failed to decode sui input reference: %w", parseErr)
+				}
+				item.Before = &Object{Address: id, Version: change.GetInputVersion(), Digest: digest}
+			} else {
+				item.Before, err = decode(change.GetObjectId(), change.GetInputVersion(), change.GetInputDigest())
+			}
 			if err != nil {
 				return nil, err
 			}

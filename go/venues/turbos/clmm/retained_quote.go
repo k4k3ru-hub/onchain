@@ -21,6 +21,7 @@ type ObjectStateSubscriber interface {
 // Initialization may acquire state; Trade calculation never invokes it.
 //
 // Version:
+//   - 2026-10-12: Prefer scoped object acquisition and withdraw disconnected inputs.
 //   - 2026-10-01: Reinitialize after reconnect and expose verified observation progress.
 //   - 2026-09-12: Retain inputs across transport reconnects without refreshing their receipt time.
 //   - 2026-09-11: Refill ranges asynchronously while applying live state and replay before installation.
@@ -37,6 +38,8 @@ func (c *StateCache) RunRetained(ctx context.Context, subscribed ObjectStateSubs
 		return fmt.Errorf("failed to retain turbos state: subscription=active")
 	}
 	c.retainedRunning = true
+	c.retained = nil
+	c.retainedScope = nil
 	c.stateObservation.Epoch++
 	c.stateObservation.Active = false
 	c.stateObservation.ConfirmedAt = time.Time{}
@@ -47,11 +50,13 @@ func (c *StateCache) RunRetained(ctx context.Context, subscribed ObjectStateSubs
 	defer func() {
 		c.retainedMu.Lock()
 		c.retainedRunning = false
+		c.retained = nil
+		c.retainedScope = nil
 		c.stateObservation.Active = false
 		c.publishQuoteSnapshotLocked()
 		c.retainedMu.Unlock()
 	}()
-	sub, err := subscribed.SubscribeObjectState(ctx, c.pool)
+	sub, err := c.subscribeRetainedObjects(ctx, subscribed)
 	if err != nil {
 		return fmt.Errorf("failed to subscribe retained turbos state: %w", err)
 	}

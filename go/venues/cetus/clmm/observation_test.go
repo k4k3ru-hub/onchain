@@ -3,10 +3,10 @@ package clmm
 import (
 	"context"
 	"errors"
-	"github.com/k4k3ru-hub/onchain/go/quotestate"
-	"github.com/k4k3ru-hub/onchain/go/sui"
 	"io"
 	"testing"
+
+	"github.com/k4k3ru-hub/onchain/go/sui"
 )
 
 type progressSubscriber struct{ checkpoint sui.CheckpointSequenceNumber }
@@ -44,15 +44,15 @@ func (r *progressReceiver) Close() {}
 // TestRetainedObservationReconnect verifies fresh baselines and frozen disconnect metadata.
 //
 // Version:
+//   - 2026-10-12: Verify disconnected inputs are withdrawn from observers and captures.
 //   - 2026-10-01: Added.
 func TestRetainedObservationReconnect(t *testing.T) {
 	c, reader, _ := cacheFixture(t)
-	var observations []quotestate.Observation
-	var frozen *QuoteSnapshot
+	var frozen, latest *QuoteSnapshot
 	c.SetQuoteSnapshotObserver(func(s *QuoteSnapshot) {
+		latest = s
 		if s != nil {
 			o := s.Inputs().Observation
-			observations = append(observations, o)
 			if o.Active {
 				frozen = s
 			}
@@ -70,9 +70,12 @@ func TestRetainedObservationReconnect(t *testing.T) {
 		if frozen == nil || !frozen.Inputs().Observation.Active || frozen.Inputs().Observation.Epoch != epoch {
 			t.Fatal("validated epoch not published")
 		}
-		last := observations[len(observations)-1]
+		last := c.stateObservation
 		if last.Active || last.Epoch != epoch || last.ConfirmedAt.IsZero() {
-			t.Fatal("disconnect not published")
+			t.Fatal("disconnect metadata lost")
+		}
+		if latest != nil || c.CaptureQuoteSnapshot() != nil {
+			t.Fatal("disconnected inputs remain available")
 		}
 		if c.observationCheckpoint != uint64(reader.cp+1) {
 			t.Fatal("progress-only frame dropped")

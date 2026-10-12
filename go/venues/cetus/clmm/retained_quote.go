@@ -30,6 +30,7 @@ type ObjectStateSubscriber interface {
 // Disconnects discard state. The caller reconnects and initializes again.
 //
 // Version:
+//   - 2026-10-12: Prefer scoped object acquisition and withdraw disconnected inputs.
 //   - 2026-10-01: Reinitialize after reconnect and expose verified observation progress.
 //   - 2026-09-12: Retain inputs across transport reconnects without refreshing their receipt time.
 //   - 2026-09-11: Refill moved tick windows asynchronously with live transaction replay.
@@ -47,6 +48,8 @@ func (c *StateCache) RunRetained(ctx context.Context, subscriber ObjectStateSubs
 		return fmt.Errorf("failed to run retained cetus state: subscription=active")
 	}
 	c.retainedRunning = true
+	c.retained = nil
+	c.retainedScope = nil
 	c.stateObservation.Epoch++
 	c.stateObservation.Active = false
 	c.stateObservation.ConfirmedAt = time.Time{}
@@ -57,11 +60,13 @@ func (c *StateCache) RunRetained(ctx context.Context, subscriber ObjectStateSubs
 	defer func() {
 		c.retainedMu.Lock()
 		c.retainedRunning = false
+		c.retained = nil
+		c.retainedScope = nil
 		c.stateObservation.Active = false
 		c.publishQuoteSnapshotLocked()
 		c.retainedMu.Unlock()
 	}()
-	sub, err := subscriber.SubscribeObjectState(ctx, c.pool)
+	sub, err := c.subscribeRetainedObjects(ctx, subscriber)
 	if err != nil {
 		return fmt.Errorf("failed to run retained cetus state: %w", err)
 	}

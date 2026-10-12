@@ -3,6 +3,7 @@ package sui
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"net/url"
 	"strings"
@@ -55,6 +56,23 @@ type grpcClientCloser interface {
 	Close() error
 }
 
+type grpcConnection interface {
+	grpc.ClientConnInterface
+	grpcClientCloser
+}
+
+type grpcConnector func(string, ...grpc.DialOption) (grpcConnection, error)
+
+type grpcConnectionPair struct{ streaming, ledger grpcClientCloser }
+
+// Close releases both connections and preserves either close failure.
+//
+// Version:
+//   - 2026-10-12: Added.
+func (p grpcConnectionPair) Close() error {
+	return errors.Join(p.streaming.Close(), p.ledger.Close())
+}
+
 type grpcAdapter struct {
 	client          rpcv2.SubscriptionServiceClient
 	executionClient rpcv2.TransactionExecutionServiceClient
@@ -72,6 +90,7 @@ type grpcAdapter struct {
 //   - Client creation error.
 //
 // Version:
+//   - 2026-10-12: Isolate ledger reads from long-lived subscription transport pressure.
 //   - 2026-09-25: Compose signed execution and transaction result reads.
 //   - 2026-08-23: Added.
 //   - 2026-09-24: Compose complete TransactionData simulation alongside quote simulation.
@@ -79,6 +98,12 @@ func NewGRPCClient(ctx context.Context, config GRPCConfig) (*GRPCClient, error) 
 	if ctx == nil {
 		ctx = context.Background()
 	}
+	return newGRPCClient(config, func(target string, options ...grpc.DialOption) (grpcConnection, error) {
+		return grpc.NewClient(target, options...)
+	})
+}
+
+func newGRPCClient(config GRPCConfig, connect grpcConnector) (*GRPCClient, error) {
 	if err := config.Validate(); err != nil {
 		return nil, fmt.Errorf("failed to create sui grpc client: %w", err)
 	}
@@ -92,15 +117,21 @@ func NewGRPCClient(ctx context.Context, config GRPCConfig) (*GRPCClient, error) 
 	} else {
 		transportCredentials = insecure.NewCredentials()
 	}
-	connection, err := grpc.NewClient(target, grpc.WithTransportCredentials(transportCredentials))
+	connection, err := connect(target, grpc.WithTransportCredentials(transportCredentials))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create sui grpc client: failed to create grpc connection: %w", err)
+	}
+	// Long-lived streams can retain HTTP/2 capacity while consumers initialize.
+	// Exact-version background reads must remain independent of that backpressure.
+	ledgerConnection, err := connect(target, grpc.WithTransportCredentials(transportCredentials))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create sui grpc ledger connection: %w", errors.Join(err, connection.Close()))
 	}
 	return composeGRPCClient(config, &grpcAdapter{
 		client:          rpcv2.NewSubscriptionServiceClient(connection),
 		executionClient: rpcv2.NewTransactionExecutionServiceClient(connection),
-		ledgerClient:    rpcv2.NewLedgerServiceClient(connection),
-	}, connection), nil
+		ledgerClient:    rpcv2.NewLedgerServiceClient(ledgerConnection),
+	}, grpcConnectionPair{connection, ledgerConnection}), nil
 }
 
 // Validate validates the Sui gRPC configuration.

@@ -23,6 +23,7 @@ It does not select or reserve wallet funds.
 | `GRPCClient.ExecutedTransaction` | Read transaction bytes, effects, gas costs, balance changes, and ordered BCS events. Verify transaction bytes against the requested digest. A missing transaction returns `nil, nil`; an uncheckpointed result retains nil checkpoint / timestamp. |
 | `GRPCClient.SubscribePoolEvents` | Stream successful transaction events as BCS, with transaction time, checkpoint and event order, filtered by an affected pool object. No Object state or rendered event JSON is requested. |
 | `GRPCClient.SubscribeObjectState` | Stream effects-selected before/after Object state and progress for independent Pool reconstruction. |
+| `GRPCClient.SubscribeObjectStateScoped` | Stream lightweight effects and fetch only the subscribed Pool and fields owned by selected parent IDs, using exact versions and verified digests. |
 
 Compose GraphQL reads with `NewRPCClient` and gRPC simulations with `NewGRPCClient`.
 The existing quote-oriented `SimulateTransaction` remains available and supports the
@@ -54,6 +55,33 @@ the caller. Progress notifications contain no transaction. Check `EventsError`
 and treat missing history after disconnection as a gap. This adds no history
 backfill or per-event RPC calls. The existing combined `SubscribePoolTransactions`
 operation retains its behavior.
+
+For Cetus and Turbos retained state, `StateCache.RunRetained` prefers
+`SubscribeObjectStateScoped(ctx, pool, ObjectStateScope{ParentIDs: parents})`
+when the injected subscriber supports `ScopedObjectStateSubscriber`. Cetus
+selects its tick container; Turbos selects its bitmap container and pool-owned
+ticks. Parent IDs are resolved before subscribing and checked again when installing
+the later baseline. Changing parents or losing the stream requires a new baseline;
+observers receive nil while retained inputs are unavailable.
+
+The scoped path makes background version-pinned `GetObject` (one object) or
+`BatchGetObjects` reads. Ordinary same-owner replacements carry a `Before`
+reference (address/version/digest, `Move == nil`) and a full `After` payload.
+Deletion and ownership changes also fetch the full `Before` payload, which is
+needed to remove a field from retained state. Each subscription permits four in-flight notifications,
+up to four simultaneous batches of 32 objects, and at most 512 selected versions
+per transaction. Each batch has a 30-second timeout. Results and progress frames
+are delivered in upstream order. Missing versions, ambiguous ownership, partial
+responses and digest conflicts fail the subscription; latest objects never replace
+missing historical versions. Quantity calculations still perform no RPC calls.
+Callers must close the subscription on receive errors to cancel outstanding reads.
+The legacy full-object operation remains available for other consumers.
+See [the compile-checked scoped subscription example](example_object_state_scoped_test.go).
+
+`NewGRPCClient` composes a separate ledger-read connection alongside the subscription
+connection. Long-lived stream backpressure therefore does not consume the same
+HTTP/2 connection capacity as background object reads. Both connections are owned
+by the client and released by `Close`; this adds no quote-time network calls.
 
 ## Signed execution
 

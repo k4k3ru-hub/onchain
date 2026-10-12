@@ -79,7 +79,11 @@ Live Swap consumers and `QuoteRetainedPair` never fetch missing inputs. Quantiti
 outside retained coverage still return `coverage=insufficient`.
 
 `StateCache.RunRetained` initializes state and then applies streamed full pool and
-field payloads. `QuoteRetainedPair` freezes the currently retained components and
+field payloads. With a `sui.ScopedObjectStateSubscriber`, it resolves the bitmap
+container and pool-owned tick fields and retrieves only those objects at
+effects-selected versions. Background reads are bounded and ordered; disconnects
+withdraw retained inputs until initialization succeeds again. See [Sui subscriptions](../../sui/README.md#pool-subscriptions).
+`QuoteRetainedPair` freezes the currently retained components and
 calculates locally: no Trade/checkpoint alignment, waits, retries or RPC reads.
 State notifications update retained inputs; the application chooses when to quote
 (e.g. on Trade receipt), without publishing again for a late state notification.

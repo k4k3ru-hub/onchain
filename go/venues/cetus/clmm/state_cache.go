@@ -22,6 +22,7 @@ type StateReader interface {
 type StateCache struct {
 	quoteSnapshotObserver func(*QuoteSnapshot)
 	retainedRunning       bool
+	retainedScope         *sui.ObjectStateScope // Protected by retainedMu; fixed for one subscription.
 	stateObservation      quotestate.Observation
 	observationCheckpoint uint64
 	retainedMu            sync.Mutex
@@ -252,6 +253,7 @@ func parseTick(raw json.RawMessage) (Tick, error) {
 // Callers should use a bounded startup or recovery context; no quote is published.
 //
 // Version:
+//   - 2026-10-12: Reject changed subscription parents before publishing a baseline.
 //   - 2026-09-11: Acquire only central and adjacent 256-position intervals in keyed batches.
 //   - 2026-09-10: Preserve input receipt time.
 //   - 2026-09-09: Publish detached calculation inputs to the snapshot observer.
@@ -303,6 +305,10 @@ func (c *StateCache) Warm(ctx context.Context) error {
 		return err
 	}
 	c.retainedMu.Lock()
+	if c.retainedScope != nil && (len(c.retainedScope.ParentIDs) != 1 || c.retainedScope.ParentIDs[0] != handle) {
+		c.retainedMu.Unlock()
+		return fmt.Errorf("failed to warm cetus state: subscription_scope=changed")
+	}
 	c.retained = &retainedSnapshot{received: receivedAt, snapshot: cloneLocalSnapshot(s), handle: handle, baseline: head, version: obj.Version, digest: obj.Digest}
 	c.publishQuoteSnapshotLocked()
 	c.retainedMu.Unlock()

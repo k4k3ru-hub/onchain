@@ -26,9 +26,10 @@ type TransactionSubscription struct {
 }
 
 type grpcTransactionReceiver struct {
-	includeObjects bool
-	includeEvents  bool
-	stream         interface {
+	includeObjects  bool
+	includeEvents   bool
+	referenceBefore bool
+	stream          interface {
 		Recv() (*rpcv2.SubscribeTransactionsResponse, error)
 	}
 	cancel    context.CancelFunc
@@ -139,6 +140,7 @@ func (a *grpcAdapter) subscribeObjectTransactions(ctx context.Context, address A
 // Recv decodes a transaction and preserves independent pool event/object failures.
 //
 // Version:
+//   - 2026-10-12: Support effects-only input references on scoped state streams.
 //   - 2026-09-11: Decode combined pool notifications without coupling component errors.
 func (r *grpcTransactionReceiver) Recv() (*TransactionNotification, error) {
 	response, err := r.stream.Recv()
@@ -163,7 +165,7 @@ func (r *grpcTransactionReceiver) Recv() (*TransactionNotification, error) {
 			notification.Events, notification.EventsError = decodeTransactionEvents(response.Transaction)
 		}
 		if r.includeObjects {
-			changes, err := decodeObjectChanges(response.Transaction)
+			changes, err := decodeObjectChangesWithReferences(response.Transaction, r.referenceBefore)
 			if err != nil {
 				if !r.includeEvents {
 					return nil, err

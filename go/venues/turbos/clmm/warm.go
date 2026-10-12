@@ -11,6 +11,7 @@ import (
 // Warm captures pool state and the complete bounded tick window without a trial quote.
 //
 // Version:
+//   - 2026-10-12: Reject changed subscription parents before publishing a baseline.
 //   - 2026-09-12: Added.
 func (c *StateCache) Warm(ctx context.Context) error {
 	if c == nil {
@@ -68,6 +69,10 @@ func (c *StateCache) Warm(ctx context.Context) error {
 	}
 	c.accepted = head
 	c.retainedMu.Lock()
+	if c.retainedScope != nil && (len(c.retainedScope.ParentIDs) != 2 || c.retainedScope.ParentIDs[0] != c.state.bitmap || c.retainedScope.ParentIDs[1] != c.state.ticks) {
+		c.retainedMu.Unlock()
+		return fmt.Errorf("failed to warm turbos state: subscription_scope=changed")
+	}
 	c.state.received = receivedAt
 	c.retained = cloneRetainedState(c.state)
 	c.retained.retainedOnly = true
