@@ -49,6 +49,10 @@ execution are separate from this connection check.
 
 ## Venue SDKs
 
+[`go/venues/bluefin`](go/venues/bluefin/README.md) provides Spot swaps and pool
+statistics, plus Pro perpetual REST, WebSocket and Sui signing APIs. Each package
+owns its types and constructors; Pro does not require the standalone Bluefin module.
+
 [`go/venues/aerodrome`](go/venues/aerodrome/README.md) provides Aerodrome
 Slipstream deployment metadata, Factory and Quoter calls, pool state reads,
 and Swap filtering/subscriptions with explicitly injected RPC clients.

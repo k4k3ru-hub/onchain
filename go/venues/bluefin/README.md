@@ -1,4 +1,13 @@
-# Bluefin Spot
+# Bluefin
+
+- [`spot`](spot) provides onchain Spot swaps and retained pool quotes.
+- [`api`](api/README.md) provides Spot pool statistics.
+- [`pro`](pro/README.md) provides Pro perpetual REST, WebSocket and signing APIs.
+
+Each package owns its types and constructors. Pro uses this module's Sui signing
+primitives; consumers do not need the standalone `bluefin/go` module.
+
+## Spot
 
 ## Funded exact-input swaps
 
