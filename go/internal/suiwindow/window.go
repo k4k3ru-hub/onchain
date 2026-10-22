@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/k4k3ru-hub/onchain/go/internal/tickbatch"
 	"math/big"
 
 	"github.com/k4k3ru-hub/onchain/go/sui"
@@ -61,12 +62,13 @@ func Missing(tick, spacing int32, words, nets map[int32]*big.Int) bool {
 // Results are staged until all chunks succeed; failures never fall back to individual requests.
 //
 // Version:
+//   - 2026-10-23: Stage independent tick batches with bounded reader concurrency.
 //   - 2026-09-11: Added.
 func Read(ctx context.Context, reader Reader, checkpoint sui.CheckpointSequenceNumber, bitmap, ticks sui.Address, keyType string, tick, spacing int32, unsigned func(json.RawMessage) (*big.Int, error)) (map[int32]*big.Int, map[int32]*big.Int, error) {
 	if ctx == nil || reader == nil || unsigned == nil || spacing <= 0 || spacing > maxTick || tick < -maxTick || tick > maxTick {
 		return nil, nil, fmt.Errorf("failed to capture sui tick window: parameters=invalid")
 	}
-	read := func(parent sui.Address, indexes []int32) ([]json.RawMessage, error) {
+	read := func(ctx context.Context, parent sui.Address, indexes []int32) ([]json.RawMessage, error) {
 		if err := ctx.Err(); err != nil {
 			return nil, err
 		}
@@ -92,7 +94,7 @@ func Read(ctx context.Context, reader Reader, checkpoint sui.CheckpointSequenceN
 			indexes = append(indexes, word)
 		}
 	}
-	values, err := read(bitmap, indexes)
+	values, err := read(ctx, bitmap, indexes)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to capture sui bitmap window: %w", err)
 	}
@@ -117,12 +119,16 @@ func Read(ctx context.Context, reader Reader, checkpoint sui.CheckpointSequenceN
 			}
 		}
 	}
-	for start := 0; start < len(initialized); start += batchSize {
+	batches, err := tickbatch.Read(ctx, reader, (len(initialized)+batchSize-1)/batchSize, func(readCtx context.Context, i int) ([]json.RawMessage, error) {
+		start := i * batchSize
+		return read(readCtx, ticks, initialized[start:min(start+batchSize, len(initialized))])
+	})
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to capture sui window ticks: %w", err)
+	}
+	for n, values := range batches {
+		start := n * batchSize
 		chunk := initialized[start:min(start+batchSize, len(initialized))]
-		values, err := read(ticks, chunk)
-		if err != nil {
-			return nil, nil, fmt.Errorf("failed to capture sui window ticks: %w", err)
-		}
 		for i, raw := range values {
 			var value struct {
 				Net struct {

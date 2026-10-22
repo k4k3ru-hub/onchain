@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/k4k3ru-hub/onchain/go/internal/tickbatch"
 	"math/big"
 	"sync"
 	"sync/atomic"
@@ -180,18 +181,24 @@ func captureState(ctx context.Context, reader StateReader, obj *sui.Object, chec
 	for index := window.first; index <= window.last; index += spacing {
 		keys = append(keys, uint64(int64(index)+443636))
 	}
-	for start := 0; start < len(keys); start += 50 {
-		if err := ctx.Err(); err != nil {
-			return nil, fmt.Errorf("failed to capture cetus ticks: %w", err)
-		}
+	batches, err := tickbatch.Read(ctx, reader, (len(keys)+49)/50, func(readCtx context.Context, i int) ([]json.RawMessage, error) {
+		start := i * 50
 		batch := keys[start:min(start+50, len(keys))]
-		values, err := r.DynamicUint64ValuesAtCheckpoint(ctx, handle, checkpoint, batch)
+		values, err := r.DynamicUint64ValuesAtCheckpoint(readCtx, handle, checkpoint, batch)
 		if err != nil {
 			return nil, fmt.Errorf("failed to capture cetus ticks: %w", err)
 		}
 		if len(values) != len(batch) {
 			return nil, fmt.Errorf("failed to capture cetus ticks: count=mismatch")
 		}
+		return values, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	for n, values := range batches {
+		start := n * 50
+		batch := keys[start:min(start+50, len(keys))]
 		for i, value := range values {
 			// A missing key proves this aligned position is uninitialized.
 			if len(value) == 0 {

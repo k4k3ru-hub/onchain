@@ -224,3 +224,15 @@ Add the fee for gross input.
 The checked-in vectors use the official TypeScript SDK 5.3.3 and a public pool
 snapshot. They cover both directions, both amount modes and multiple tick crossings.
 No Node or npm dependency is required to run the Go tests.
+
+
+### Bounded retained Tick reads
+
+State capture keeps Pool and Tick data pinned to the same checkpoint. Readers may
+opt into two concurrent independent Tick batches by implementing
+`TickReadConcurrency() int` and returning at least `2`. Such readers must be safe
+for concurrent calls and should share an endpoint-level concurrency limiter across
+pools. Readers without this capability retain sequential reads. Batch sizes and
+Tick coverage are unchanged. Failed or canceled captures discard staged results;
+no partial snapshot is published. This capability also applies to the shared
+Sui Tick-window reader used by Turbos, Momentum, and Bluefin Spot.
