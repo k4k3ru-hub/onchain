@@ -2,6 +2,8 @@ module github.com/k4k3ru-hub/onchain/go
 
 go 1.25.7
 
+toolchain go1.27.3
+
 require (
 	github.com/ethereum/go-ethereum v1.17.3
 	github.com/gagliardetto/binary v0.8.0

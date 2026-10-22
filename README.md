@@ -350,3 +350,10 @@ reference-derived metadata from RPC observations.
 Network references: [Robinhood](https://docs.robinhood.com/chain/connecting/),
 [Polygon](https://docs.polygon.technology/tools/dApp-development/common-tools/remix/),
 [BNB](https://docs.bnbchain.org/bnb-smart-chain/developers/wallet-configuration/).
+
+## Go toolchain
+
+Development and verification use Go 1.27.3. The module minimum Go version is
+unchanged. The `toolchain` directive selects Go when working in this module;
+consuming applications must select a patched Go toolchain and rebuild to receive
+TLS security fixes.
