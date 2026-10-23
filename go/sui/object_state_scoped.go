@@ -2,6 +2,7 @@ package sui
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"sync"
@@ -140,7 +141,7 @@ func newScopedObjectStream(ctx context.Context, wire scopedObjectWire, reader sc
 				return
 			}
 			if err != nil {
-				result <- scopedObjectResult{err: err}
+				result <- scopedObjectResult{err: fmt.Errorf("failed to receive scoped sui metadata: %w: pool_id=%q stage=stream_receive", err, object.String())}
 				return
 			}
 			workers.Add(1)
@@ -195,8 +196,9 @@ func hydrateScopedObjects(ctx context.Context, reader scopedObjectReader, pool A
 		version uint64
 	}
 	expected := map[key]string{}
+	roles := map[key]string{}
 	requests := []*rpcv2.GetObjectRequest{}
-	add := func(id string, version uint64, digest string) error {
+	add := func(id string, version uint64, digest, role string) error {
 		if version == 0 || digest == "" {
 			return fmt.Errorf("%s: object_reference=invalid", op)
 		}
@@ -211,6 +213,7 @@ func hydrateScopedObjects(ctx context.Context, reader scopedObjectReader, pool A
 			return fmt.Errorf("%s: objects=too_long max_length=%d", op, scopedObjectLimit)
 		}
 		expected[k] = digest
+		roles[k] = role
 		requests = append(requests, &rpcv2.GetObjectRequest{ObjectId: proto.String(id), Version: proto.Uint64(version)})
 		return nil
 	}
@@ -260,12 +263,12 @@ func hydrateScopedObjects(ctx context.Context, reader scopedObjectReader, pool A
 		}
 		selected = append(selected, change)
 		if change.GetInputState() == rpcv2.ChangedObject_INPUT_OBJECT_STATE_EXISTS && !scopedBeforeReference(change) {
-			if err := add(change.GetObjectId(), change.GetInputVersion(), change.GetInputDigest()); err != nil {
+			if err := add(change.GetObjectId(), change.GetInputVersion(), change.GetInputDigest(), "input"); err != nil {
 				return nil, err
 			}
 		}
 		if output == rpcv2.ChangedObject_OUTPUT_OBJECT_STATE_OBJECT_WRITE || output == rpcv2.ChangedObject_OUTPUT_OBJECT_STATE_PACKAGE_WRITE {
-			if err := add(change.GetObjectId(), change.GetOutputVersion(), change.GetOutputDigest()); err != nil {
+			if err := add(change.GetObjectId(), change.GetOutputVersion(), change.GetOutputDigest(), "output"); err != nil {
 				return nil, err
 			}
 		}
@@ -274,12 +277,38 @@ func hydrateScopedObjects(ctx context.Context, reader scopedObjectReader, pool A
 	tx.Objects = &rpcv2.ObjectSet{}
 	for start := 0; start < len(requests); start += scopedObjectBatchSize {
 		chunk := requests[start:min(start+scopedObjectBatchSize, len(requests))]
+		started := time.Now()
 		readCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
 		mask := &fieldmaskpb.FieldMask{Paths: []string{"object_id", "version", "digest", "object_type", "json"}}
 		result, err := readScopedObjects(readCtx, reader, chunk, mask)
 		cancel()
+		failure := func(cause error, stage string) error {
+			refs := make([]scopedMissingReference, 0, len(chunk))
+			for _, q := range chunk {
+				k := key{q.GetObjectId(), q.GetVersion()}
+				found := false
+				if result != nil {
+					for _, item := range result.Objects {
+						obj := item.GetObject()
+						if obj != nil && obj.GetObjectId() == k.address && obj.GetVersion() == k.version && obj.GetDigest() == expected[k] {
+							found = true
+							break
+						}
+					}
+				}
+				if !found {
+					refs = append(refs, scopedMissingReference{ObjectID: k.address, Version: k.version, Role: roles[k]})
+				}
+			}
+			encoded, encodeErr := json.Marshal(refs)
+			if encodeErr != nil {
+				return fmt.Errorf("%s: %w: pool_id=%q stage=%s references=unavailable", op, cause, pool.String(), stage)
+			}
+			return fmt.Errorf("%s: %w: pool_id=%q stage=%s batch_size=%d unresolved_count=%d unresolved_refs=%s read_elapsed_us=%d", op, cause, pool.String(), stage, len(chunk), len(refs), encoded, time.Since(started).Microseconds())
+		}
+
 		if err != nil {
-			return nil, fmt.Errorf("%s: %w", op, err)
+			return nil, failure(err, "object_rpc")
 		}
 		if result == nil || len(result.Objects) != len(chunk) {
 			return nil, fmt.Errorf("%s: objects=invalid", op)
@@ -291,7 +320,7 @@ func hydrateScopedObjects(ctx context.Context, reader scopedObjectReader, pool A
 			}
 			if result.GetError() != nil {
 				if err := status.ErrorProto(result.GetError()); err != nil {
-					return nil, fmt.Errorf("%s: %w", op, err)
+					return nil, failure(err, "object_result")
 				}
 				return nil, fmt.Errorf("%s: object_status=invalid", op)
 			}
@@ -334,4 +363,11 @@ func readScopedObjects(ctx context.Context, reader scopedObjectReader, requests 
 		return nil, err
 	}
 	return &rpcv2.BatchGetObjectsResponse{Objects: []*rpcv2.GetObjectResult{{Result: &rpcv2.GetObjectResult_Object{Object: result.GetObject()}}}}, nil
+}
+
+// scopedMissingReference identifies unresolved requested versions, not an inferred response index.
+type scopedMissingReference struct {
+	ObjectID string `json:"object_id"`
+	Version  uint64 `json:"version"`
+	Role     string `json:"role"`
 }
